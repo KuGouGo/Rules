@@ -1,17 +1,13 @@
-# NAME: Emby
-# AUTHOR: kugougou
-# REPO: https://github.com/KuGouGo/Rules
-# DOMAIN: 0
-# DOMAIN-KEYWORD: 2
-# DOMAIN-SUFFIX: 6
-# PROCESS-NAME: 0
-# TOTAL: 8
 payload:
   - DOMAIN-SUFFIX,789.123456.al
   - DOMAIN-SUFFIX,emby.misakaf.org
   - DOMAIN-SUFFIX,cdn.misakaf.org
   - DOMAIN-SUFFIX,emby.imetyou.top
+  - DOMAIN-SUFFIX,cf.imetyou.top
   - DOMAIN-SUFFIX,free.emby.eu.org
+  - DOMAIN-SUFFIX,9wfree.emby.eu.org
   - DOMAIN-SUFFIX,emby.kim
   - DOMAIN-KEYWORD,emby
   - DOMAIN-KEYWORD,misakaf
+  - DOMAIN-KEYWORD,imetyou
+  
