@@ -6,6 +6,7 @@ payload:
   - DOMAIN-SUFFIX,cf.imetyou.top
   - DOMAIN-SUFFIX,free.emby.eu.org
   - DOMAIN-SUFFIX,9wfree.emby.eu.org
+  - DOMAIN-SUFFIX,pilipili-cf.emby77.org
   - DOMAIN-SUFFIX,emby.kim
   - DOMAIN-KEYWORD,emby
   - DOMAIN-KEYWORD,misakaf
