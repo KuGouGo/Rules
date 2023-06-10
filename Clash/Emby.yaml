@@ -8,6 +8,7 @@ payload:
   - DOMAIN-SUFFIX,9wfree.emby.eu.org
   - DOMAIN-SUFFIX,pilipili-cf.emby77.org
   - DOMAIN-SUFFIX,emby.kim
+  - DOMAIN-SUFFIX,embyplus.org
   - DOMAIN-KEYWORD,emby
   - DOMAIN-KEYWORD,misakaf
   - DOMAIN-KEYWORD,imetyou
