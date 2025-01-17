@@ -3,15 +3,13 @@ DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,cavps.eu.org
 DOMAIN-SUFFIX,term.wtf
 DOMAIN-SUFFIX,emby.wtf
+DOMAIN-SUFFIX,misty.cx
 DOMAIN-SUFFIX,nebula-media.org
 DOMAIN-SUFFIX,nanflix.net
 DOMAIN-SUFFIX,pilipili.club
 DOMAIN-SUFFIX,tv.worldline.space
 DOMAIN-SUFFIX,abc.auroramedia.vip
-DOMAIN-SUFFIX,sfcj.org
 DOMAIN-SUFFIX,temby856.285286.xyz
 
 IP-CIDR,107.181.238.190/32,no-resolve
 IP-CIDR,154.29.159.230/32,no-resolve
-
-DOMAIN-KEYWORD,emby
