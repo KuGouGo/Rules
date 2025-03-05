@@ -66,7 +66,6 @@ jobs:
                 s/^full://g; 
                 s/^DOMAIN-SUFFIX,//g; 
                 s/^DOMAIN,//g; 
-                s/^\*\.//g;
                 s/[[:space:]]*$//g;
               ' "${rule}.tmp"
               
