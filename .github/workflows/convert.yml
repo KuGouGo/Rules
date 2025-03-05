@@ -22,12 +22,17 @@ jobs:
       - name: Setup Mihomo
         run: |
           cd src
-          MI_VERSION=$(curl -sL "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest" | jq -r '.tag_name')
-          MI_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MI_VERSION}/mihomo-linux-amd64-${MI_VERSION#v}.gz"
           
-          curl -sL $MI_URL | gzip -d > mihomo
-          chmod +x mihomo
-          sudo mv mihomo /usr/local/bin/
+          # 获取真实下载地址
+          MI_ACTUAL_URL=$(curl -sL "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest" \
+            | jq -r '.assets[] | select(.name | match("linux-amd64.tar.gz$")) | .browser_download_url')
+          
+          # 下载并解压
+          curl -sL $MI_ACTUAL_URL | tar xz --strip-components=1 -C .
+          
+          # 验证并安装
+          [ -f mihomo ] || (echo "::error::Binary not found" && exit 1)
+          sudo install -m 755 mihomo /usr/local/bin/
 
       # 步骤 3: 哈希比对 (增量更新核心)
       - name: Check Updates
