@@ -45,12 +45,7 @@ jobs:
             curl -sL "${RULES[$rule]}" -o "${rule}.list"
 
             grep -vE '^(#|$)' "${rule}.list" |
-            sed -e 's/^full://g' |  
-            awk '!seen[tolower($0)]++' |            
-            grep -E '^[a-zA-Z0-9.-]+$' |            
-            sort -f > "${rule}.tmp"    
-          
-            mv "${rule}.tmp" "${rule}.list"
+            sed -e 's/^full://g' |       
             
             mihomo convert-ruleset domain text "${rule}.list" "${rule}.mrs"
           done
