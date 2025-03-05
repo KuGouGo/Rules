@@ -42,6 +42,7 @@ jobs:
             ["domain/private"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/domain/private-domain.list"
             
             # IPCIDR Rules
+            ["ipcidr/privateip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/ipcidr/private-ip.list"
             ["ipcidr/cnip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/China-ASN-combined.list"
             ["ipcidr/telegramip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Telegram-ASN-combined.list"
             ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
