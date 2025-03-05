@@ -31,21 +31,19 @@ jobs:
         run: |
           cd src
           
-          # 定义规则源
           declare -A RULES=(
             ["cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
             ["emby"]="https://github.com/KuGouGo/Rules/raw/main/emby.list"
             ["fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
           )
 
-          # 统一处理流程
+          sed '/^#/d' fake_ip_filter.list | grep -v '^$' > processed.list
           for rule in "${!RULES[@]}"; do
             echo "Processing $rule rules..."
             
-            # 下载并处理
+
             curl -sL "${RULES[$rule]}" -o "${rule}.list"
             
-            # 特殊处理CDN规则
             if [[ "$rule" == "cdn" ]]; then
               grep -vE '^(#|$)' "${rule}.list" |
               sed -e 's/^\*\.//g' -e 's/^full://g' |
