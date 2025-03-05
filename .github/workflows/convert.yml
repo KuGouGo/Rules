@@ -56,7 +56,7 @@ jobs:
           
           # 添加文件头
           echo -e "# CDN Domain List\n# Updated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')\n# Total: $(grep -c 'DOMAIN-SUFFIX' cdn.list) rules" | cat - cdn.list > temp && mv temp cdn.list
-
+          mihomo convert-ruleset domain text cdn.list cdn.mrs
       # 步骤 4: 下载并处理 Emby 规则文件
       - name: Process Emby Rules
         run: |
@@ -67,12 +67,15 @@ jobs:
           # 转换 Emby 规则
           mihomo convert-ruleset domain text emby.list emby.mrs
 
-      # 步骤 5: 转换为 MRS 格式
-      - name: Convert to MRS
+      # 步骤 5: 下载并处理 ake_ip_filter 规则文件
+      - name: Process fake_ip_filter Rules
         run: |
           cd src
-          # 转换 CDN 规则
-          mihomo convert-ruleset domain text cdn.list cdn.mrs
+          # 下载 fake_ip_filter 规则文件
+          curl -sL "https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" -o fake_ip_filter.list
+          
+          # 转换 fake_ip_filter 规则
+          mihomo convert-ruleset domain text fake_ip_filter.list fake_ip_filter.mrs
 
       # 步骤 6: 提交变更
       - name: Commit Changes
