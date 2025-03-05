@@ -42,30 +42,16 @@ jobs:
           for rule in "${!RULES[@]}"; do
             echo "Processing $rule rules..."
             
-            # 下载并处理
             curl -sL "${RULES[$rule]}" -o "${rule}.list"
-            
-            # 特殊处理规则
-            case "$rule" in
-              cdn)
-                grep -vE '^(#|$)' "${rule}.list" |
-                sed -e 's/^\*\.//g' -e 's/^full://g' |
-                awk '!seen[tolower($0)]++' |
-                grep -E '^[a-zA-Z0-9.-]+$' |
-                sort -f |
-                awk '{print "DOMAIN-SUFFIX,"$0}' > "${rule}.tmp"
-                ;;
-              fake_ip)
-                sed -e '/^#/d' -e '/^$/d' "${rule}.list" > "${rule}.tmp"
-                ;;
-              *)
-                cp "${rule}.list" "${rule}.tmp"
-                ;;
-            esac
-            
+
+            grep -vE '^(#|$)' "${rule}.list" |
+            sed -e 's/^full://g' |  
+            awk '!seen[tolower($0)]++' |            
+            grep -E '^[a-zA-Z0-9.-]+$' |            
+            sort -f > "${rule}.tmp"    
+          
             mv "${rule}.tmp" "${rule}.list"
             
-            # 转换为MRS格式
             mihomo convert-ruleset domain text "${rule}.list" "${rule}.mrs"
           done
 
