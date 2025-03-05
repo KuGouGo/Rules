@@ -33,23 +33,22 @@ jobs:
           
           # 定义规则源
           declare -A RULES=(
-            ["cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
-            ["emby"]="https://github.com/KuGouGo/Rules/raw/main/emby.list"
+            ["cdn"]="https://raw.githubusercontent.com/pmkol/easymosdns/rules/cdn_domain_list.txt"
             ["fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
           )
 
-          # 统一处理流程
           for rule in "${!RULES[@]}"; do
             echo "Processing $rule rules..."
-            
-            curl -sL "${RULES[$rule]}" -o "${rule}.list"
 
-            grep -vE '^(#|$)' "${rule}.list" |
-            sed -e 's/^full://g' |       
-            sort -f > "${rule}.tmp"                   
-            mv "${rule}.tmp" "${rule}.list"
+            curl -sL "${RULES[$rule]}" -o "${rule}.tmp"
+  
+            sed -e '/^#/d' -e '/^$/d' "${rule}.tmp" |
+            sed -e 's/^full://g' |    
+            sort -f > "${rule}.processed"              
             
-            mihomo convert-ruleset domain text "${rule}.list" "${rule}.mrs"
+            mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
+            
+            rm "${rule}.tmp" "${rule}.processed"
           done
 
       - name: Commit Changes
@@ -57,5 +56,5 @@ jobs:
           cd src
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add *.list *.mrs
+          git add *.mrs
           git diff-index --quiet HEAD || (git commit -m "Update: $(date +'%F')" && git push origin HEAD:${{ github.ref }})
