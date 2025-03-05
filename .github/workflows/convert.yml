@@ -46,6 +46,8 @@ jobs:
 
             grep -vE '^(#|$)' "${rule}.list" |
             sed -e 's/^full://g' |       
+            sort -f > "${rule}.tmp"                   
+            mv "${rule}.tmp" "${rule}.list"
             
             mihomo convert-ruleset domain text "${rule}.list" "${rule}.mrs"
           done
