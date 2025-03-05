@@ -1,4 +1,4 @@
-name: CDN Rules Converter
+name: Rules Converter
 
 on:
   workflow_dispatch:
@@ -38,8 +38,8 @@ jobs:
           sudo mv mihomo /usr/local/bin/
           mihomo -v  # 验证版本
 
-      # 步骤 3: 下载并处理规则文件
-      - name: Process Rules
+      # 步骤 3: 下载并处理 CDN 规则文件
+      - name: Process CDN Rules
         run: |
           cd src
           # 下载原始规则文件
@@ -57,19 +57,30 @@ jobs:
           # 添加文件头
           echo -e "# CDN Domain List\n# Updated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')\n# Total: $(grep -c 'DOMAIN-SUFFIX' cdn.list) rules" | cat - cdn.list > temp && mv temp cdn.list
 
-      # 步骤 4: 转换为 MRS 格式
+      # 步骤 4: 下载并处理 Emby 规则文件
+      - name: Process Emby Rules
+        run: |
+          cd src
+          # 下载 Emby 规则文件
+          curl -sL "https://github.com/KuGouGo/Rules/raw/refs/heads/main/emby.list" -o emby.list
+          
+          # 转换 Emby 规则
+          mihomo convert-ruleset domain text emby.list emby.mrs
+
+      # 步骤 5: 转换为 MRS 格式
       - name: Convert to MRS
         run: |
           cd src
+          # 转换 CDN 规则
           mihomo convert-ruleset domain text cdn.list cdn.mrs
 
-      # 步骤 5: 提交变更
+      # 步骤 6: 提交变更
       - name: Commit Changes
         run: |
           cd src
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add cdn.list cdn.mrs
+          git add cdn.list cdn.mrs emby.list emby.mrs
           
           if ! git diff-index --quiet HEAD --; then
             git commit -m "Update: $(date +'%Y-%m-%d')"
