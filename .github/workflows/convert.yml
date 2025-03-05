@@ -33,8 +33,9 @@ jobs:
           
           # 定义规则源
           declare -A RULES=(
-            ["cdn"]="https://raw.githubusercontent.com/pmkol/easymosdns/rules/cdn_domain_list.txt"
+            ["cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
             ["fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
+            ["ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
           )
 
           for rule in "${!RULES[@]}"; do
