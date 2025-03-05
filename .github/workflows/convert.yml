@@ -1,40 +1,36 @@
-name: CDN Rules Converter
+name: Rules Converter
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 0 点自动运行
+    - cron: '0 0 * * *'  
 
 jobs:
   convert-rules:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write 
 
     steps:
-      # 步骤 1: 检出仓库
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: src
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
-      # 步骤 2: 安装指定版本 Mihomo
+      
       - name: Setup Mihomo
         run: |
           cd src
-          
-          # 使用您提供的下载链接
           MI_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz"
-          
-          # 下载并解压
           curl -sL $MI_URL | gzip -d > mihomo
-          
-          # 验证并安装
           chmod +x mihomo
           sudo mv mihomo /usr/local/bin/
-          mihomo -v  # 验证版本
+          mihomo -v  
 
-      # 步骤 3: 哈希比对 (增量更新核心)
       - name: Check Updates
         id: check-updates
         run: |
@@ -58,22 +54,27 @@ jobs:
             echo "update_needed=false" >> $GITHUB_OUTPUT
           fi
 
-      # 步骤 4: 生成规则文件
-      - name: Generate Rules
+      - name: Generate cdn Rules
         if: steps.check-updates.outputs.update_needed == 'true'
         run: |
           cd src
+          # 处理规则文件，移除 "full:" 前缀
           grep -vE '^(#|$)' raw.txt |
-          sed 's/^\*\.//g' |
-          awk '!seen[$0]++' |
-          sort -f |
-          awk '{print "DOMAIN-SUFFIX,"$0}' > cdn.list
+          sed 's/^\*\.//g' |  # 移除通配符前缀
+          sed 's/^full://g' |  # 移除 "full:" 前缀
+          awk '!seen[$0]++' |  # 去重
+          sort -f |            # 排序
+          awk '{print "DOMAIN-SUFFIX,"$0}' > cdn.list  # 生成规则格式
           
           echo -e "# CDN Domain List\n# Updated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')\n# Total: $(grep -c 'DOMAIN-SUFFIX' cdn.list) rules" | cat - cdn.list > temp && mv temp cdn.list
           
           mihomo convert-ruleset domain text cdn.list cdn.mrs
-
-      # 步骤 5: 提交变更
+          
+      - name: Generate emby Rules
+        run: |
+         wget https://raw.githubusercontent.com/KuGouGo/Rules/main/emby.list
+         mihomo convert-ruleset domain text emby.list emby.mrs
+         
       - name: Commit Changes
         if: steps.check-updates.outputs.update_needed == 'true'
         run: |
