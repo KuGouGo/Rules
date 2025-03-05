@@ -3,7 +3,7 @@ name: Rules Converter
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' 
 
 jobs:
   convert-rules:
@@ -13,43 +13,69 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           path: src
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
-      - name: Setup Mihomo
+      - name: Setup Environment
         run: |
           cd src
-          curl -sL "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz" | gzip -d > mihomo
+          mkdir -p {ipcidr,domain}  # 创建分类目录
+          
+          # 安装 Mihomo
+          curl -sfL "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz" | gzip -d > mihomo
           chmod +x mihomo && sudo mv mihomo /usr/local/bin/
 
       - name: Process Rules
         run: |
           cd src
           
-          # 定义规则源
           declare -A RULES=(
-            ["cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
-            ["fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
-            ["ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
+            # Domain Rules
+            ["domain/cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
+            ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
+            ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
+            ["domain/fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
+            ["domain/private"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/domain/private-domain.list"
+            
+            # IPCIDR Rules
+            ["ipcidr/cnip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/China-ASN-combined.list"
+            ["ipcidr/telegramip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Telegram-ASN-combined.list"
+            ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
           )
 
           for rule in "${!RULES[@]}"; do
-            echo "Processing $rule rules..."
+            url="${RULES[$rule]}"
+            echo "🔧 Processing: $rule"
+            
+            if ! curl -sfL -o "${rule}.tmp" "$url"; then
+              echo "::error::Download failed: $url"
+              exit 1
+            fi
 
-            curl -sL "${RULES[$rule]}" -o "${rule}.tmp"
-  
-            sed -e '/^#/d' -e '/^$/d' "${rule}.tmp" |
-            sed -e 's/^full://g' |    
-            sort -f > "${rule}.processed"              
+            if [[ "$rule" == ipcidr/* ]]; then
             
-            mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
+              mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"
+            else
+          
+              sed -i '
+                /^[[:space:]]*$/d; 
+                s/^full://g; 
+                s/^DOMAIN-SUFFIX,//g; 
+                s/^DOMAIN,//g; 
+                s/^\*\.//g;
+                s/[[:space:]]*$//g;
+                /^[a-zA-Z0-9.-]\+$/!d
+              ' "${rule}.tmp"
+              
+              awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.tmp2"
+              mihomo convert-ruleset domain text "${rule}.tmp2" "${rule}.mrs"
+            fi
             
-            rm "${rule}.tmp" "${rule}.processed"
+            rm -f "${rule}.tmp" "${rule}.tmp2"
           done
 
       - name: Commit Changes
@@ -57,5 +83,12 @@ jobs:
           cd src
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add *.mrs
-          git diff-index --quiet HEAD || (git commit -m "Update: $(date +'%F')" && git push origin HEAD:${{ github.ref }})
+          
+          git add ipcidr/*.mrs domain/*.mrs
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')" 
+            git push origin HEAD:${{ github.ref }}
+            echo "✅ Rules updated successfully"
+          else
+            echo "🟢 No changes detected"
+          fi
