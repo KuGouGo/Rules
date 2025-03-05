@@ -1,0 +1,101 @@
+name: CDN Rules Converter
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 0 点自动运行
+
+jobs:
+  convert-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # 步骤 1: 检出仓库
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: src  # 指定检出目录
+
+      # 步骤 2: 安装 Mihomo 工具链
+      - name: Setup Mihomo
+        run: |
+          cd src
+          MI_VERSION=$(curl -sL "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest" | jq -r '.tag_name')
+          MI_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MI_VERSION}/mihomo-linux-amd64-${MI_VERSION#v}.gz"
+          
+          curl -sL $MI_URL | gzip -d > mihomo
+          chmod +x mihomo
+          sudo mv mihomo /usr/local/bin/
+
+      # 步骤 3: 哈希比对 (增量更新核心)
+      - name: Check Updates
+        id: check-updates
+        run: |
+          cd src
+          # 下载最新源文件
+          curl -sL "https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt" -o raw.txt
+          
+          # 计算哈希值
+          CURRENT_HASH=$(sha256sum raw.txt | awk '{print $1}')
+          echo "Current hash: $CURRENT_HASH"
+          
+          # 读取上次哈希
+          if [ -f .last_hash ]; then
+            LAST_HASH=$(cat .last_hash)
+            echo "Last hash: $LAST_HASH"
+          else
+            LAST_HASH=""
+            echo "No previous hash found"
+          fi
+          
+          # 设置输出变量
+          if [ "$CURRENT_HASH" != "$LAST_HASH" ]; then
+            echo "::set-output name=update_needed::true"
+            echo "$CURRENT_HASH" > .last_hash
+          else
+            echo "::set-output name=update_needed::false"
+          fi
+
+      # 步骤 4: 生成规则文件 (仅当有更新时执行)
+      - name: Generate Rules
+        if: steps.check-updates.outputs.update_needed == 'true'
+        run: |
+          cd src
+          # 生成文本规则
+          grep -vE '^(#|$)' raw.txt |
+          sed 's/^\*\.//g' |
+          awk '!seen[$0]++' |
+          sort -f |
+          awk '{print "DOMAIN-SUFFIX,"$0}' > cdn.list
+          
+          # 添加文件头
+          echo -e "# CDN Domain List\n# Updated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')\n# Total: $(grep -c 'DOMAIN-SUFFIX' cdn.list) rules" | cat - cdn.list > temp && mv temp cdn.list
+
+          # 生成 MRS 文件
+          mihomo convert-ruleset \
+            --type domain \
+            --input cdn.list \
+            --output cdn.mrs \
+            --compress
+
+      # 步骤 5: 提交变更 (仅当有更新时)
+      - name: Commit Changes
+        if: steps.check-updates.outputs.update_needed == 'true'
+        run: |
+          cd src
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # 添加跟踪文件
+          git add cdn.list cdn.mrs .last_hash
+          
+          # 检测变更
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Auto update: $(date +'%Y-%m-%d')" 
+            git push origin HEAD:${{ github.ref }}
+            echo "Changes pushed successfully"
+          else
+            echo "No actual changes to commit"
+          fi
