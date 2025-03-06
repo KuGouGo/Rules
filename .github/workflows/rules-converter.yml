@@ -2,7 +2,7 @@ name: Rules Converter
 
 on:
   schedule:
-    - cron: '0 3 * * *' 
+    - cron: '0 3 * * *'  # 每天凌晨3点（UTC时间）运行
   workflow_dispatch:
 
 jobs:
