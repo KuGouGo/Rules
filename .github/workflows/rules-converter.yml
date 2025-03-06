@@ -13,7 +13,7 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           path: src
@@ -29,12 +29,11 @@ jobs:
           curl -sfL "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz" | gzip -d > mihomo
           chmod +x mihomo && sudo mv mihomo /usr/local/bin/
 
-      - name: Process Rules
+      - name: Download and Convert Rules
         run: |
           cd src
           
           declare -A RULES=(
-            ["domain/cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
             ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
             ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
             ["domain/fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
@@ -50,13 +49,11 @@ jobs:
             url="${RULES[$rule]}"
             echo "🔄 Processing: $rule"
 
-            # 下载与预处理
             if ! curl -sfL -o "${rule}.origin" "$url"; then
               echo "::error::Download failed: $url"
               exit 1
             fi
 
-            # 处理文件
             if [[ "$url" == *.yaml ]]; then
               mihomo convert-ruleset domain yaml "${rule}.origin" "${rule}.mrs"
               rm "${rule}.origin"
@@ -70,7 +67,7 @@ jobs:
 
           done
 
-      - name: Commit Changes
+      - name: Commit and Push Changes
         run: |
           cd src
           git config --global user.name "GitHub Actions"
