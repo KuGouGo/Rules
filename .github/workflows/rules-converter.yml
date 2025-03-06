@@ -46,7 +46,6 @@ jobs:
 
             if [[ "$url" == *.yaml ]]; then
               python3 -c "import yaml,sys; print('\n'.join(yaml.safe_load(open('${rule}.origin'))['payload']))" > "${rule}.tmp"
-              rm "${rule}.origin"
             else
               mv "${rule}.origin" "${rule}.tmp"
             fi
