@@ -23,61 +23,74 @@ jobs:
       - name: Setup Environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip jq curl
+          sudo apt-get install -y python3-pip jq
           pip3 install pyyaml
-          
-          MI_VERSION="v1.19.3"
-          DOWNLOAD_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MI_VERSION}/mihomo-linux-amd64-${MI_VERSION}.gz"
-          CHECKSUM_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MI_VERSION}/checksums.txt"
-          
-          echo "🔍 Downloading mihomo ${MI_VERSION}"
-          if ! curl -fL "$DOWNLOAD_URL" -o mihomo.gz ||
-             ! curl -fL "$CHECKSUM_URL" -o checksums.txt; then
-            echo "::error::Failed to download mihomo or checksum file"
-            exit 1
-          fi
-          
-          echo "🔐 Verifying checksum..."
-          if ! sha256sum -c --ignore-missing checksums.txt; then
-            echo "::error::Checksum validation failed"
-            exit 1
-          fi
-          
-          echo "📦 Installing mihomo..."
-          if ! (gzip -dc mihomo.gz > mihomo && chmod +x mihomo && sudo mv mihomo /usr/local/bin/); then
-            echo "::error::Installation failed"
-            exit 1
-          fi
-          
+          latest_url=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r '.assets[] | select(.name | test("mihomo-linux-amd64.*.gz$")) | .browser_download_url')
+          curl -sfL "$latest_url" | gzip -d > mihomo
+          chmod +x mihomo && sudo mv mihomo /usr/local/bin/
           mkdir -p src/{ipcidr,domain}
-          rm -f mihomo.gz checksums.txt
 
       - name: Process Rules
         run: |
           cd src
 
-          cat << 'EOL' > process_yaml.py
-#!/usr/bin/env python3
-import yaml
-import sys
+          download_and_process() {
+            local rule="$1"
+            local url="$2"
+            echo "🔄 Processing: $rule"
 
-def process_yaml(file_path):
-    try:
-        with open(file_path) as f:
-            data = yaml.safe_load(f)
-            if not isinstance(data, dict) or 'payload' not in data:
-                raise ValueError("Invalid YAML structure")
-            return '\n'.join(filter(None, (line.strip() for line in data.get('payload', []))))
-    except Exception as e:
-        print(f"Error processing {file_path}: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+            if ! curl -sfL -o "${rule}.origin" "$url"; then
+              echo "::error::Download failed: $url"
+              exit 1
+            fi
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: process_yaml.py <yaml_file>", file=sys.stderr)
-        sys.exit(1)
-    print(process_yaml(sys.argv[1]))
-EOL
-          chmod +x process_yaml.py
+            if [[ "$url" == *.yaml ]]; then
+              python3 -c "import yaml,sys; print('\n'.join(yaml.safe_load(open('${rule}.origin'))['payload']))" > "${rule}.tmp"
+              rm "${rule}.origin"
+            else
+              mv "${rule}.origin" "${rule}.tmp"
+            fi
 
-          # Rest of the script remains the same...
+            if [[ "$rule" == ipcidr/* ]]; then
+              mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"
+            else
+              sed -i '
+                /^[[:space:]]*$/d;
+                s/^full://g;
+                s/^DOMAIN-SUFFIX,//g;
+                s/^DOMAIN,//g;
+              ' "${rule}.tmp"
+
+              awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"
+              mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
+            fi
+
+            rm -f "${rule}.tmp" "${rule}.processed"
+          }
+
+          declare -A RULES=(
+            ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
+            ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
+            ["domain/fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
+            ["domain/private"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/domain/private-domain.list"
+            ["domain/paypal"]="https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/paypal.yaml"
+            ["ipcidr/privateip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/ipcidr/private-ip.list"
+            ["ipcidr/cnip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/China-ASN-combined.list"
+            ["ipcidr/telegramip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Telegram-ASN-combined.list"
+            ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
+          )
+
+          for rule in "${!RULES[@]}"; do
+            download_and_process "$rule" "${RULES[$rule]}"
+          done
+
+      - name: Commit Changes
+        run: |
+          cd src
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ipcidr/*.mrs domain/*.mrs
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')" 
+            git push origin HEAD:${{ github.ref }}
+          fi
