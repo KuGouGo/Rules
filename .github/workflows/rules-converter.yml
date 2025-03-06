@@ -20,6 +20,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
+      - name: Setup Cache for pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Setup Environment
         run: |
           cd src
@@ -32,7 +40,6 @@ jobs:
       - name: Check and Update Rules
         run: |
           cd src
-          
           declare -A RULES=(
             ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
             ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
@@ -59,7 +66,6 @@ jobs:
             new_hash=$(md5sum "${rule}.origin" | awk '{ print $1 }')
             hash_file="hashes/${rule}.hash"
 
-            # Create the hash file directory if it doesn't exist
             mkdir -p "$(dirname "$hash_file")"
             old_hash=$(cat "$hash_file" 2>/dev/null || echo "")
 
@@ -92,4 +98,11 @@ jobs:
             git push origin HEAD:refs/heads/main
           else
             echo "No updates detected."
-          fi
+
+      - name: Notify on Success
+        if: success()
+        run: echo "Rules updated successfully."
+
+      - name: Notify on Failure
+        if: failure()
+        run: echo "Failed to update rules."
