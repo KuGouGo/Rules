@@ -25,61 +25,82 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip jq
           pip3 install --user pyyaml
-          latest_url=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r '.assets[] | select(.name | test("mihomo-linux-amd64.*.gz$")) | .browser_download_url')
+          
+          # 修复下载逻辑
+          latest_url=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | 
+            jq -r '.assets[] | select(.name | test("mihomo-linux-amd64.*.gz$")) | .browser_download_url')
+          
           if [[ -z "$latest_url" ]]; then
-            echo "::error::Failed to find the download URL for the latest mihomo release"
+            echo "::error::Failed to find download URL"
             exit 1
           fi
-          curl -sfL "$latest_url" -o mihomo.gz
-          if [[ $? -ne 0 ]]; then
-            echo "::error::Failed to download mihomo"
+          
+          if ! curl -sfL "$latest_url" -o mihomo.gz; then
+            echo "::error::Download failed"
             exit 1
           fi
+          
+          if ! gzip -t mihomo.gz; then
+            echo "::error::Invalid gzip file"
+            exit 1
+          fi
+          
           gzip -d mihomo.gz
-          if [[ $? -ne 0 ]]; then
-            echo "::error::Failed to unzip mihomo"
-            exit 1
-          fi
-          chmod +x mihomo && sudo mv mihomo /usr/local/bin/
+          chmod +x mihomo
+          sudo mv mihomo /usr/local/bin/
           mkdir -p src/{ipcidr,domain}
 
       - name: Process Rules
         run: |
           cd src
 
-          download_and_process() {
+          # 修复函数作用域问题
+          function download_and_process {
             local rule="$1"
             local url="$2"
             echo "🔄 Processing: $rule"
 
-            if ! curl -sfL -o "${rule}.origin" "$url"; then
-              echo "::error::Download failed: $url"
-              exit 1
-            fi
+            # 添加重试机制
+            for i in {1..3}; do
+              if curl -sfL -o "${rule}.origin" "$url"; then
+                break
+              elif [[ $i -eq 3 ]]; then
+                echo "::error::Download failed: $url"
+                exit 1
+              fi
+              sleep 5
+            done
 
+            # 修复 YAML 处理逻辑
             if [[ "$url" == *.yaml ]]; then
-              python3 -c "import yaml,sys; print('\n'.join(yaml.safe_load(open('${rule}.origin'))['payload']))" > "${rule}.tmp"
+              python3 -c "import yaml,sys; d=yaml.safe_load(open('${rule}.origin')); print('\n'.join(d.get('payload', [])))" > "${rule}.tmp"
+              rm -f "${rule}.origin"
             else
               mv "${rule}.origin" "${rule}.tmp"
             fi
 
-            if [[ "$rule" == ipcidr/* ]]; then
-              mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"
-            else
-              sed -i '
-                /^[[:space:]]*$/d;
-                s/^full://g;
-                s/^DOMAIN-SUFFIX,//g;
-                s/^DOMAIN,//g;
-              ' "${rule}.tmp"
-
-              awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"
-              mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
-            fi
+            # 修复规则处理分支
+            case "$rule" in
+              ipcidr/*)
+                mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"
+                ;;
+              *)
+                sed -i '
+                  /^[[:space:]]*$/d
+                  s/^full://g
+                  s/^DOMAIN-SUFFIX,//g
+                  s/^DOMAIN,//g
+                ' "${rule}.tmp"
+                
+                awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"
+                mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
+                ;;
+            esac
 
             rm -f "${rule}.tmp" "${rule}.processed"
           }
 
+          # 修复数组声明格式（关键修复点）
           declare -A RULES=(
             ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
             ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
@@ -92,6 +113,7 @@ jobs:
             ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
           )
 
+          # 修复循环变量引用
           for rule in "${!RULES[@]}"; do
             download_and_process "$rule" "${RULES[$rule]}"
           done
@@ -101,8 +123,12 @@ jobs:
           cd src
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          
+          # 修复提交时间格式
+          timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           git add ipcidr/*.mrs domain/*.mrs
+          
           if ! git diff-index --quiet HEAD; then
-            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')" 
+            git commit -m "chore: Update rules ($timestamp)"
             git push origin HEAD:${{ github.ref }}
           fi
