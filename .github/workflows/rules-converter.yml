@@ -24,9 +24,22 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip jq
-          pip3 install pyyaml
+          pip3 install --user pyyaml
           latest_url=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r '.assets[] | select(.name | test("mihomo-linux-amd64.*.gz$")) | .browser_download_url')
-          curl -sfL "$latest_url" | gzip -d > mihomo
+          if [[ -z "$latest_url" ]]; then
+            echo "::error::Failed to find the download URL for the latest mihomo release"
+            exit 1
+          fi
+          curl -sfL "$latest_url" -o mihomo.gz
+          if [[ $? -ne 0 ]]; then
+            echo "::error::Failed to download mihomo"
+            exit 1
+          fi
+          gzip -d mihomo.gz
+          if [[ $? -ne 0 ]]; then
+            echo "::error::Failed to unzip mihomo"
+            exit 1
+          fi
           chmod +x mihomo && sudo mv mihomo /usr/local/bin/
           mkdir -p src/{ipcidr,domain}
 
