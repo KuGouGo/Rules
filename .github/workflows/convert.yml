@@ -22,19 +22,53 @@ jobs:
 
       - name: Setup Environment
         run: |
-          cd src
-          mkdir -p {ipcidr,domain}
-          sudo apt-get install -y python3-pip
+          sudo apt-get update
+          sudo apt-get install -y python3-pip jq
           pip3 install pyyaml
-          curl -sfL "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz" | gzip -d > mihomo
+          latest_url=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r '.assets[] | select(.name | test("mihomo-linux-amd64.*.gz$")) | .browser_download_url')
+          curl -sfL "$latest_url" | gzip -d > mihomo
           chmod +x mihomo && sudo mv mihomo /usr/local/bin/
+          mkdir -p src/{ipcidr,domain}
 
       - name: Process Rules
         run: |
           cd src
-          
+
+          download_and_process() {
+            local rule="$1"
+            local url="$2"
+            echo "🔄 Processing: $rule"
+
+            if ! curl -sfL -o "${rule}.origin" "$url"; then
+              echo "::error::Download failed: $url"
+              exit 1
+            fi
+
+            if [[ "$url" == *.yaml ]]; then
+              python3 -c "import yaml,sys; print('\n'.join(yaml.safe_load(open('${rule}.origin'))['payload']))" > "${rule}.tmp"
+              rm "${rule}.origin"
+            else
+              mv "${rule}.origin" "${rule}.tmp"
+            fi
+
+            if [[ "$rule" == ipcidr/* ]]; then
+              mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"
+            else
+              sed -i '
+                /^[[:space:]]*$/d;
+                s/^full://g;
+                s/^DOMAIN-SUFFIX,//g;
+                s/^DOMAIN,//g;
+              ' "${rule}.tmp"
+
+              awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"
+              mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
+            fi
+
+            rm -f "${rule}.tmp" "${rule}.processed"
+          }
+
           declare -A RULES=(
-            ["domain/cdn"]="https://github.com/pmkol/easymosdns/raw/rules/cdn_domain_list.txt"
             ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
             ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
             ["domain/fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
@@ -47,46 +81,7 @@ jobs:
           )
 
           for rule in "${!RULES[@]}"; do
-            url="${RULES[$rule]}"
-            echo "🔄 Processing: $rule"
-
-            # 下载与预处理
-            if ! curl -sfL -o "${rule}.origin" "$url"; then
-              echo "::error::Download failed: $url"
-              exit 1
-            fi
-
-            # YAML 格式特殊处理
-            if [[ "$url" == *.yaml ]]; then
-              python3 -c "import yaml,sys; print('\n'.join(yaml.safe_load(open('${rule}.origin'))['payload']))" > "${rule}.tmp"
-              rm "${rule}.origin"
-            else
-              mv "${rule}.origin" "${rule}.tmp"
-            fi
-
-            # 分类处理
-            if [[ "$rule" == ipcidr/* ]]; then
-              mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"
-            else
-              # 域名规则增强处理
-              sed -i '
-                # 基础清理
-                /^[[:space:]]*$/d;      # 删除空行
-
-                # 移除策略前缀（保留通配符）
-                s/^full://g;            # 移除 full: 前缀
-                s/^DOMAIN-SUFFIX,//g;   # 移除 DOMAIN-SUFFIX, 前缀
-                s/^DOMAIN,//g;          # 移除 DOMAIN, 前缀
-                
-              ' "${rule}.tmp"
-
-              # 去重排序（保留原始格式）
-              awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"
-              mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"
-            fi
-
-            # 清理临时文件
-            rm -f "${rule}.tmp" "${rule}.processed"
+            download_and_process "$rule" "${RULES[$rule]}"
           done
 
       - name: Commit Changes
