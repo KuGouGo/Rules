@@ -1,9 +1,9 @@
 name: Rules Converter
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 9 * * *'  
+  workflow_dispatch:
 
 jobs:
   convert-rules:
@@ -29,9 +29,10 @@ jobs:
           curl -sfL "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz" | gzip -d > mihomo
           chmod +x mihomo && sudo mv mihomo /usr/local/bin/
 
-      - name: Download and Convert Rules
+      - name: Check and Update Rules
         run: |
           cd src
+          mkdir -p hashes
           
           declare -A RULES=(
             ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
@@ -45,35 +46,47 @@ jobs:
             ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
           )
 
+          has_updates=false
+
           for rule in "${!RULES[@]}"; do
             url="${RULES[$rule]}"
-            echo "🔄 Processing: $rule"
+            echo "🔄 Checking: $rule"
 
             if ! curl -sfL -o "${rule}.origin" "$url"; then
               echo "::error::Download failed: $url"
               exit 1
             fi
 
-            if [[ "$url" == *.yaml ]]; then
-              mihomo convert-ruleset domain yaml "${rule}.origin" "${rule}.mrs"
-              rm "${rule}.origin"
-            elif [[ "$rule" == ipcidr/* ]]; then
-              mihomo convert-ruleset ipcidr text "${rule}.origin" "${rule}.mrs"
-              rm "${rule}.origin"
+            new_hash=$(md5sum "${rule}.origin" | awk '{ print $1 }')
+            old_hash=$(cat "hashes/${rule}.hash" 2>/dev/null || echo "")
+
+            if [[ "$new_hash" != "$old_hash" ]]; then
+              echo "🔄 Updating: $rule"
+              has_updates=true
+              echo "$new_hash" > "hashes/${rule}.hash"
+
+              if [[ "$url" == *.yaml ]]; then
+                mihomo convert-ruleset domain yaml "${rule}.origin" "${rule}.mrs"
+                rm "${rule}.origin"
+              elif [[ "$rule" == ipcidr/* ]]; then
+                mihomo convert-ruleset ipcidr text "${rule}.origin" "${rule}.mrs"
+                rm "${rule}.origin"
+              else
+                mihomo convert-ruleset domain text "${rule}.origin" "${rule}.mrs"
+                rm "${rule}.origin"
+              fi
             else
-              mihomo convert-ruleset domain text "${rule}.origin" "${rule}.mrs"
+              echo "No changes detected for: $rule"
               rm "${rule}.origin"
             fi
-
           done
 
-      - name: Commit and Push Changes
-        run: |
-          cd src
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add ipcidr/*.mrs domain/*.mrs
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')" 
+          if [ "$has_updates" = true ]; then
+            git config --global user.name "GitHub Actions"
+            git config --global user.email "actions@github.com"
+            git add ipcidr/*.mrs domain/*.mrs hashes/*
+            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')"
             git push origin HEAD:${{ github.ref }}
+          else
+            echo "No updates detected."
           fi
