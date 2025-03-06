@@ -26,84 +26,147 @@ jobs:
           sudo apt-get install -y python3-pip jq curl
           pip3 install pyyaml
           
-          # Debug GitHub API rate limiting
-          echo "Checking GitHub API rate limit status:"
-          curl -s https://api.github.com/rate_limit
+          # Get latest version tag
+          RELEASE_INFO=$(curl -sL https://api.github.com/repos/MetaCubeX/mihomo/releases/latest)
+          VERSION=$(echo "$RELEASE_INFO" | jq -r .tag_name)
           
-          # Improved mihomo download with better debugging
-          MAX_RETRIES=3
-          for i in $(seq 1 $MAX_RETRIES); do
-            echo "Attempting to download mihomo (attempt $i of $MAX_RETRIES)"
+          if [ -z "$VERSION" ]; then
+            echo "Failed to get latest version"
+            exit 1
+          fi
+          
+          echo "Latest version: $VERSION"
+          DOWNLOAD_URL="https://github.com/MetaCubeX/mihomo/releases/download/${VERSION}/mihomo-linux-amd64-${VERSION}.gz"
+          echo "Download URL: $DOWNLOAD_URL"
+          
+          # Download mihomo
+          if curl -fL "$DOWNLOAD_URL" -o mihomo.gz; then
+            echo "Download completed, verifying..."
             
-            # Get release information with detailed error output
-            RELEASE_INFO=$(curl -sL https://api.github.com/repos/MetaCubeX/mihomo/releases/latest)
-            if [ $? -ne 0 ]; then
-              echo "Failed to fetch release information"
-              echo "Release API response: $RELEASE_INFO"
-              sleep 5
-              continue
-            fi
-            
-            # Debug release information
-            echo "Latest release information:"
-            echo "$RELEASE_INFO" | jq -r '. | {tag_name, assets_url}'
-            
-            latest_url=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | test("mihomo-linux-amd64.*.gz$")) | .browser_download_url')
-            
-            if [ -z "$latest_url" ]; then
-              echo "Failed to get download URL from release assets"
-              echo "Available assets:"
-              echo "$RELEASE_INFO" | jq -r '.assets[] | .name'
-              sleep 5
-              continue
-            fi
-            
-            echo "Downloading from URL: $latest_url"
-            
-            # Download with curl verbose output
-            if curl -vfL "$latest_url" -o mihomo.gz 2>curl_error.log; then
-              echo "Download completed, checking file..."
-              
-              # Check file size
-              size=$(stat -f%z mihomo.gz 2>/dev/null || stat -c%s mihomo.gz 2>/dev/null)
-              echo "Downloaded file size: $size bytes"
-              
-              # Verify gzip file integrity
-              if gzip -t mihomo.gz 2>gzip_error.log; then
-                echo "Gzip integrity check passed"
-                gzip -d mihomo.gz
-                if [ -f mihomo ] && [ -s mihomo ]; then
-                  chmod +x mihomo
-                  sudo mv mihomo /usr/local/bin/
-                  echo "Successfully installed mihomo"
-                  break
-                else
-                  echo "Decompressed file is missing or empty"
-                fi
+            # Verify and install
+            if gzip -t mihomo.gz 2>/dev/null; then
+              gzip -d mihomo.gz
+              if [ -f mihomo ] && [ -s mihomo ]; then
+                chmod +x mihomo
+                sudo mv mihomo /usr/local/bin/
+                echo "Successfully installed mihomo"
               else
-                echo "Gzip integrity check failed"
-                cat gzip_error.log
-                rm -f mihomo.gz mihomo gzip_error.log
+                echo "Error: Decompressed file is missing or empty"
+                exit 1
               fi
             else
-              echo "Download failed. Curl error log:"
-              cat curl_error.log
-              rm -f curl_error.log
-            fi
-            
-            if [ $i -eq $MAX_RETRIES ]; then
-              echo "::error::Failed to download and install mihomo after $MAX_RETRIES attempts"
-              echo "Final attempt details:"
-              echo "Release URL: https://api.github.com/repos/MetaCubeX/mihomo/releases/latest"
-              echo "Download URL: $latest_url"
-              echo "Current directory contents:"
-              ls -la
+              echo "Error: Downloaded file is corrupted"
               exit 1
             fi
-            
-            sleep 5
-          done
+          else
+            echo "Error: Failed to download mihomo"
+            exit 1
+          fi
           
           mkdir -p src/{ipcidr,domain}
 
-      # Rest of the workflow remains the same...
+      - name: Process Rules
+        run: |
+          cd src
+
+          download_and_process() {
+            local rule="$1"
+            local url="$2"
+            local max_retries=3
+            
+            echo "🔄 Processing: $rule"
+            
+            for attempt in $(seq 1 $max_retries); do
+              echo "Download attempt $attempt of $max_retries: $url"
+              
+              if curl -sfL --connect-timeout 10 --max-time 30 -o "${rule}.origin" "$url"; then
+                if [[ "$url" == *.yaml ]]; then
+                  if python3 -c "
+                    import yaml, sys
+                    try:
+                      with open('${rule}.origin') as f:
+                        data = yaml.safe_load(f)
+                        if 'payload' in data:
+                          print('\n'.join(data['payload']))
+                    except Exception as e:
+                      print(f'Error processing YAML: {e}', file=sys.stderr)
+                      exit(1)
+                  " > "${rule}.tmp"; then
+                    rm "${rule}.origin"
+                  else
+                    echo "::error::YAML processing failed for $rule"
+                    rm -f "${rule}.origin" "${rule}.tmp"
+                    continue
+                  fi
+                else
+                  mv "${rule}.origin" "${rule}.tmp"
+                fi
+
+                if [[ "$rule" == ipcidr/* ]]; then
+                  if ! mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"; then
+                    echo "::error::Ruleset conversion failed for $rule"
+                    rm -f "${rule}.tmp"
+                    continue
+                  fi
+                else
+                  sed -i '
+                    /^[[:space:]]*$/d;
+                    s/^full://g;
+                    s/^DOMAIN-SUFFIX,//g;
+                    s/^DOMAIN,//g;
+                  ' "${rule}.tmp"
+
+                  if awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"; then
+                    if ! mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"; then
+                      echo "::error::Domain ruleset conversion failed for $rule"
+                      rm -f "${rule}.tmp" "${rule}.processed"
+                      continue
+                    fi
+                  fi
+                fi
+
+                rm -f "${rule}.tmp" "${rule}.processed"
+                echo "✅ Successfully processed: $rule"
+                return 0
+              fi
+              
+              echo "Download failed, retrying in 5 seconds..."
+              sleep 5
+            done
+            
+            echo "::error::Failed to process $rule after $max_retries attempts"
+            return 1
+          }
+
+          declare -A RULES=(
+            ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
+            ["domain/cn"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/cn.list"
+            ["domain/fake_ip"]="https://github.com/juewuy/ShellCrash/raw/dev/public/fake_ip_filter.list"
+            ["domain/private"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/domain/private-domain.list"
+            ["domain/paypal"]="https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/paypal.yaml"
+            ["ipcidr/privateip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/geo/ipcidr/private-ip.list"
+            ["ipcidr/cnip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/China-ASN-combined.list"
+            ["ipcidr/telegramip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Telegram-ASN-combined.list"
+            ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
+          )
+
+          failed=0
+          for rule in "${!RULES[@]}"; do
+            if ! download_and_process "$rule" "${RULES[$rule]}"; then
+              failed=1
+            fi
+          done
+
+          exit $failed
+
+      - name: Commit Changes
+        if: success()
+        run: |
+          cd src
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ipcidr/*.mrs domain/*.mrs
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')" 
+            git push origin HEAD:${{ github.ref }}
+          fi
