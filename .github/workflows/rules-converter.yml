@@ -2,7 +2,7 @@ name: Rules Converter
 
 on:
   schedule:
-    - cron: '0 9 * * *'  
+    - cron: '0 3 * * *'  # 每天凌晨3点（UTC时间）运行
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       - name: Setup Environment
         run: |
           cd src
-          mkdir -p {ipcidr,domain}
+          mkdir -p {ipcidr,domain,hashes/domain,hashes/ipcidr}
           sudo apt-get update && sudo apt-get install -y python3-pip
           pip3 install pyyaml
           curl -sfL "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz" | gzip -d > mihomo
@@ -32,7 +32,6 @@ jobs:
       - name: Check and Update Rules
         run: |
           cd src
-          mkdir -p hashes
           
           declare -A RULES=(
             ["domain/ai"]="https://github.com/DustinWin/ruleset_geodata/raw/mihomo-ruleset/ai.list"
@@ -58,12 +57,16 @@ jobs:
             fi
 
             new_hash=$(md5sum "${rule}.origin" | awk '{ print $1 }')
-            old_hash=$(cat "hashes/${rule}.hash" 2>/dev/null || echo "")
+            hash_file="hashes/${rule}.hash"
+
+            # Create the hash file directory if it doesn't exist
+            mkdir -p "$(dirname "$hash_file")"
+            old_hash=$(cat "$hash_file" 2>/dev/null || echo "")
 
             if [[ "$new_hash" != "$old_hash" ]]; then
               echo "🔄 Updating: $rule"
               has_updates=true
-              echo "$new_hash" > "hashes/${rule}.hash"
+              echo "$new_hash" > "$hash_file"
 
               if [[ "$url" == *.yaml ]]; then
                 mihomo convert-ruleset domain yaml "${rule}.origin" "${rule}.mrs"
@@ -86,7 +89,7 @@ jobs:
             git config --global user.email "actions@github.com"
             git add ipcidr/*.mrs domain/*.mrs hashes/*
             git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')"
-            git push origin HEAD:${{ github.ref }}
+            git push origin HEAD:refs/heads/main
           else
             echo "No updates detected."
           fi
