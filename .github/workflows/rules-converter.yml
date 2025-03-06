@@ -26,17 +26,7 @@ jobs:
           sudo apt-get install -y python3-pip jq curl
           pip3 install pyyaml
           
-          # Get latest version tag
-          RELEASE_INFO=$(curl -sL https://api.github.com/repos/MetaCubeX/mihomo/releases/latest)
-          VERSION=$(echo "$RELEASE_INFO" | jq -r .tag_name)
-          
-          if [ -z "$VERSION" ]; then
-            echo "Failed to get latest version"
-            exit 1
-          fi
-          
-          echo "Latest version: $VERSION"
-          DOWNLOAD_URL="https://github.com/MetaCubeX/mihomo/releases/download/${VERSION}/mihomo-linux-amd64-${VERSION}.gz"
+          DOWNLOAD_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz"
           echo "Download URL: $DOWNLOAD_URL"
           
           # Download mihomo
@@ -71,23 +61,41 @@ jobs:
 
           # Create YAML processing script
           cat > process_yaml.py << 'EOL'
+#!/usr/bin/env python3
 import yaml
 import sys
 
-try:
-    with open(sys.argv[1]) as f:
-        data = yaml.safe_load(f)
-        if 'payload' in data:
-            print('\n'.join(data['payload']))
-except Exception as e:
-    print(f'Error processing YAML: {e}', file=sys.stderr)
+def process_yaml(file_path):
+    try:
+        with open(file_path) as f:
+            data = yaml.safe_load(f)
+            if isinstance(data, dict) and 'payload' in data:
+                return '\n'.join(data['payload'])
+            else:
+                print(f"Error: Invalid YAML structure in {file_path}", file=sys.stderr)
+                return None
+    except Exception as e:
+        print(f"Error processing YAML {file_path}: {e}", file=sys.stderr)
+        return None
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: process_yaml.py <yaml_file>", file=sys.stderr)
+        sys.exit(1)
+    
+    result = process_yaml(sys.argv[1])
+    if result:
+        print(result)
+        sys.exit(0)
     sys.exit(1)
 EOL
+          chmod +x process_yaml.py
 
           download_and_process() {
             local rule="$1"
             local url="$2"
             local max_retries=3
+            local retry_delay=5
             
             echo "🔄 Processing: $rule"
             
@@ -97,10 +105,11 @@ EOL
               if curl -sfL --connect-timeout 10 --max-time 30 -o "${rule}.origin" "$url"; then
                 if [[ "$url" == *.yaml ]]; then
                   if python3 process_yaml.py "${rule}.origin" > "${rule}.tmp"; then
-                    rm "${rule}.origin"
+                    rm -f "${rule}.origin"
                   else
                     echo "::error::YAML processing failed for $rule"
                     rm -f "${rule}.origin" "${rule}.tmp"
+                    [ $attempt -lt $max_retries ] && sleep $retry_delay
                     continue
                   fi
                 else
@@ -108,10 +117,13 @@ EOL
                 fi
 
                 if [[ "$rule" == ipcidr/* ]]; then
-                  if ! mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs"; then
-                    echo "::error::Ruleset conversion failed for $rule"
+                  if mihomo convert-ruleset ipcidr text "${rule}.tmp" "${rule}.mrs" 2>/dev/null; then
                     rm -f "${rule}.tmp"
-                    continue
+                    echo "✅ Successfully processed IPCIDR rule: $rule"
+                    return 0
+                  else
+                    echo "::error::IPCIDR conversion failed for $rule"
+                    rm -f "${rule}.tmp"
                   fi
                 else
                   sed -i '
@@ -122,21 +134,24 @@ EOL
                   ' "${rule}.tmp"
 
                   if awk '!seen[tolower($0)]++' "${rule}.tmp" | sort -f > "${rule}.processed"; then
-                    if ! mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs"; then
-                      echo "::error::Domain ruleset conversion failed for $rule"
+                    if mihomo convert-ruleset domain text "${rule}.processed" "${rule}.mrs" 2>/dev/null; then
                       rm -f "${rule}.tmp" "${rule}.processed"
-                      continue
+                      echo "✅ Successfully processed domain rule: $rule"
+                      return 0
+                    else
+                      echo "::error::Domain conversion failed for $rule"
+                      rm -f "${rule}.tmp" "${rule}.processed"
                     fi
+                  else
+                    echo "::error::Failed to process and sort domains for $rule"
+                    rm -f "${rule}.tmp" "${rule}.processed"
                   fi
                 fi
-
-                rm -f "${rule}.tmp" "${rule}.processed"
-                echo "✅ Successfully processed: $rule"
-                return 0
+              else
+                echo "::warning::Download failed for $rule (attempt $attempt)"
               fi
               
-              echo "Download failed, retrying in 5 seconds..."
-              sleep 5
+              [ $attempt -lt $max_retries ] && sleep $retry_delay
             done
             
             echo "::error::Failed to process $rule after $max_retries attempts"
@@ -155,14 +170,29 @@ EOL
             ["ipcidr/googleip"]="https://github.com/ForestL18/rules-dat/raw/mihomo/asn/combined/Google-ASN-combined.list"
           )
 
+          # Process rules and track failures
           failed=0
+          processed=0
+          total=${#RULES[@]}
+          
+          echo "Starting rule processing at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Total rules to process: $total"
+          
           for rule in "${!RULES[@]}"; do
-            if ! download_and_process "$rule" "${RULES[$rule]}"; then
-              failed=1
+            if download_and_process "$rule" "${RULES[$rule]}"; then
+              ((processed++))
+              echo "Progress: $processed/$total rules processed"
+            else
+              ((failed++))
+              echo "::error::Failed to process rule: $rule"
             fi
           done
 
-          exit $failed
+          echo "Processing completed at $(date -u '+%Y-%m-d %H:%M:%S UTC')"
+          echo "Successfully processed: $processed rules"
+          echo "Failed to process: $failed rules"
+          
+          [ $failed -eq 0 ] || exit 1
 
       - name: Commit Changes
         if: success()
@@ -170,8 +200,20 @@ EOL
           cd src
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          
+          # Create commit message with timestamp and statistics
+          commit_msg="chore: Update rules $(date -u '+%Y-%m-d %H:%M:%S UTC')
+
+Processed by: ${{ github.actor }}
+Workflow run: ${{ github.run_number }}
+"
+          
           git add ipcidr/*.mrs domain/*.mrs
+          
           if ! git diff-index --quiet HEAD; then
-            git commit -m "chore: Update rules $(date +'%Y-%m-%d %H:%M')" 
+            git commit -m "$commit_msg"
             git push origin HEAD:${{ github.ref }}
+            echo "Successfully committed and pushed changes"
+          else
+            echo "No changes to commit"
           fi
