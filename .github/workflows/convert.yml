@@ -69,6 +69,21 @@ jobs:
         run: |
           cd src
 
+          # Create YAML processing script
+          cat > process_yaml.py << 'EOL'
+import yaml
+import sys
+
+try:
+    with open(sys.argv[1]) as f:
+        data = yaml.safe_load(f)
+        if 'payload' in data:
+            print('\n'.join(data['payload']))
+except Exception as e:
+    print(f'Error processing YAML: {e}', file=sys.stderr)
+    sys.exit(1)
+EOL
+
           download_and_process() {
             local rule="$1"
             local url="$2"
@@ -81,17 +96,7 @@ jobs:
               
               if curl -sfL --connect-timeout 10 --max-time 30 -o "${rule}.origin" "$url"; then
                 if [[ "$url" == *.yaml ]]; then
-                  if python3 -c "
-                    import yaml, sys
-                    try:
-                      with open('${rule}.origin') as f:
-                        data = yaml.safe_load(f)
-                        if 'payload' in data:
-                          print('\n'.join(data['payload']))
-                    except Exception as e:
-                      print(f'Error processing YAML: {e}', file=sys.stderr)
-                      exit(1)
-                  " > "${rule}.tmp"; then
+                  if python3 process_yaml.py "${rule}.origin" > "${rule}.tmp"; then
                     rm "${rule}.origin"
                   else
                     echo "::error::YAML processing failed for $rule"
