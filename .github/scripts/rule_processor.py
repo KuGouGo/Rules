@@ -10,7 +10,7 @@ from collections import defaultdict
 RULE_FILE = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("emby.list")
 TYPE_ORDER = ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX", "PROCESS-NAME", "USER-AGENT", "IP-CIDR"]
 RULE_PATTERN = re.compile(
-    r"^(?P<type>" + "|".join(TYPE_ORDER) + r")"  # 动态生成类型匹配
+    r"^(?P<type>" + "|".join(TYPE_ORDER) + r")"
     r"[,\s]+"
     r"(?P<value>[^#\s]+)"  # 捕获规则值
     r"(?:\s*#\s*(?P<comment>.*))?$",  # 捕获行尾注释
@@ -62,9 +62,9 @@ class RuleProcessor:
             f"# NAME: Emby\n"
             f"# AUTHOR: KuGouGo\n"
             f"# REPO: https://github.com/KuGouGo/Rules\n"
-            f"# UPDATED: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n" +
-            "\n".join(f"# {k}: {v}" for k, v in stats.items() if v > 0) + 
-            f"\n# TOTAL: {sum(stats.values())}\n\n"
+            f"# UPDATED: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            + "\n".join(f"# {k}: {v}" for k, v in stats.items() if v > 0)
+            + f"\n# TOTAL: {sum(stats.values())}\n\n"
         )
 
     def sort_rules(self) -> list:
@@ -72,9 +72,12 @@ class RuleProcessor:
         sorted_rules = []
         for rule_type in TYPE_ORDER:
             if values := self.rule_data.get(rule_type):
+                # 按域名层级倒序排序 (从右向左)
+                sorted_values = sorted(values, key=lambda x: x.split('.')[::-1])
                 sorted_rules.extend(
                     f"{rule_type},{v}" 
-                    for v in sorted(values, key=lambda x: x.split('.')[::-1])
+                    for v in sorted_values
+                )
         return sorted_rules
 
     def save_file(self, new_content: str):
@@ -95,10 +98,11 @@ class RuleProcessor:
 
         # 生成新内容
         new_content = (
-            self.generate_header() +
-            "\n".join(self.comments) + "\n" + 
-            "\n".join(self.sort_rules()) + "\n" +
-            "\n".join(self.other_lines)
+            self.generate_header()
+            + "\n".join(self.comments)
+            + ("\n" if self.comments else "")
+            + "\n".join(self.sort_rules())
+            + ("\n" + "\n".join(self.other_lines) if self.other_lines else "")
         )
 
         self.save_file(new_content.strip() + "\n")
