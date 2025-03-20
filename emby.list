@@ -1,19 +1,19 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-03-20 04:53:33
+# UPDATED: 2025-03-20 05:01:48
 # DOMAIN: 7
 # DOMAIN-KEYWORD: 1
 # DOMAIN-SUFFIX: 2
 # TOTAL: 10
 
-DOMAIN,cavps.eu.org
-DOMAIN,jsq.mooguu.xyz
-DOMAIN,lite.saturday.video
 DOMAIN,misty.cx
-DOMAIN,temby856.285286.xyz
-DOMAIN,tv.worldline.space
 DOMAIN,us.nanflix.net
+DOMAIN,cavps.eu.org
+DOMAIN,tv.worldline.space
+DOMAIN,lite.saturday.video
+DOMAIN,temby856.285286.xyz
+DOMAIN,jsq.mooguu.xyz
 DOMAIN-KEYWORD,emby
-DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,pilipiliultra.com
+DOMAIN-SUFFIX,cn2gias.uk
