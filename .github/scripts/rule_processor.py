@@ -68,12 +68,12 @@ class RuleProcessor:
         )
 
     def sort_rules(self) -> list:
-        """生成排序后的规则列表"""
+        """生成排序后的规则列表（纯字母顺序）"""
         sorted_rules = []
         for rule_type in TYPE_ORDER:
             if values := self.rule_data.get(rule_type):
-                # 按域名层级倒序排序 (从右向左)
-                sorted_values = sorted(values, key=lambda x: x.split('.')[::-1])
+                # 按纯字母顺序排序
+                sorted_values = sorted(values)
                 sorted_rules.extend(
                     f"{rule_type},{v}" 
                     for v in sorted_values
