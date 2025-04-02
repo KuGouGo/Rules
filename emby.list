@@ -1,11 +1,11 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-03-28 15:11:54
-# DOMAIN: 9
+# UPDATED: 2025-04-02 12:07:15
+# DOMAIN: 8
 # DOMAIN-KEYWORD: 1
 # DOMAIN-SUFFIX: 1
-# TOTAL: 11
+# TOTAL: 10
 
 DOMAIN,emby.cn2gias.uk
 DOMAIN,jsq.mooguu.xyz
