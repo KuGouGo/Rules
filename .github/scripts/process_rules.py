@@ -83,13 +83,11 @@ class RuleProcessor:
                 json_rules.append({"domain_suffix": value})
             elif rule_type == "DOMAIN":
                 json_rules.append({"domain": value})
-            elif rule_type in ["PROCESS-NAME", "USER-AGENT", "IP-CIDR"]:
-                print(f"警告：JSON 可能需要特殊处理的规则类型: {rule_type}, 值: {value}")
-            else:
+            elif rule_type not in ["PROCESS-NAME", "USER-AGENT", "IP-CIDR"]:
                 print(f"警告：JSON 未处理的规则类型: {rule_type}, 值: {value}")
 
         output_data = {
-            "version": 1,
+            "version": 3,
             "rules": json_rules
         }
         try:
