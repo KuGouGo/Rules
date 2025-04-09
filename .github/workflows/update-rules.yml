@@ -22,14 +22,7 @@ jobs:
           python-version: "3.10"
       - name: Run rule processor and convert to JSON
         run: python .github/scripts/process_rules.py emby.list
-      - name: Download and Cache Sing-box
-        id: cache-sing-box
-        uses: actions/cache@v4
-        with:
-          path: sing-box-bin
-          key: sing-box-linux-amd64-v1.11.7
-      - name: Download Sing-box if cache missed
-        if: steps.cache-sing-box.outputs.cache-hit != 'true'
+      - name: Download Sing-box (v1.11.7)
         run: |
           wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
           tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
