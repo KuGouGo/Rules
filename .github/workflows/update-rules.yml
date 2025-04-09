@@ -31,6 +31,18 @@ jobs:
           pip install regex
           python .github/scripts/rule_processor.py
 
+      # 添加 Sing-box 转换步骤
+      - name: Download Sing-box
+        run: |
+          wget https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz
+          tar -xzf sing-box-linux-amd64.tar.gz
+          chmod +x sing-box
+          sudo mv sing-box /usr/local/bin/
+
+      - name: Convert emby.list to emby.srs
+        run: |
+          sing-box rule-set convert -t domain -i emby.list -o emby.srs
+
       - name: Commit changes
         if: success()
         run: |
@@ -39,9 +51,9 @@ jobs:
           git config --global user.email "rulebot@users.noreply.github.com"
 
           # 检查是否有变更
-          git add emby.list
+          git add emby.list emby.srs # 同时添加 emby.srs
           if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-process: update rules & stats" 
+            git commit -m "🤖 Auto-process: update rules & stats & emby.srs"
             git pull --rebase  # 避免冲突
             git push origin main
             echo "✅ Changes committed"
