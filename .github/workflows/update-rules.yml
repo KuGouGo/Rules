@@ -41,7 +41,7 @@ jobs:
 
       - name: Convert emby.list to emby.srs
         run: |
-          ./sing-box-bin/sing-box rule-set convert -t domain -i emby.list -o emby.srs
+          ./sing-box-bin/sing-box rule-set convert emby.list -t adguard -o emby.srs
 
       - name: Commit changes
         if: success()
