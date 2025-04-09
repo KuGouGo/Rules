@@ -25,13 +25,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Run rule processor
+      - name: Convert list to JSON
         run: |
-          python -m pip install --upgrade pip
-          pip install regex
-          python .github/scripts/rule_processor.py
+          python .github/scripts/convert_list_to_json.py
 
-      # 添加 Sing-box 转换步骤
+      # 添加 Sing-box 编译步骤
       - name: Download Sing-box
         run: |
           wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
@@ -39,9 +37,9 @@ jobs:
           mkdir -p sing-box-bin # 创建一个临时目录
           mv sing-box-1.11.7-linux-amd64/sing-box sing-box-bin/sing-box # 将解压后的可执行文件移动到临时目录并重命名
 
-      - name: Convert emby.list to emby.srs
+      - name: Compile to .srs format
         run: |
-          ./sing-box-bin/sing-box rule-set convert emby.list -t adguard -o emby.srs
+          ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
 
       - name: Commit changes
         if: success()
@@ -51,7 +49,7 @@ jobs:
           git config --global user.email "rulebot@users.noreply.github.com"
 
           # 检查是否有变更
-          git add emby.list emby.srs # 同时添加 emby.srs
+          git add emby.list emby.json emby.srs # 同时添加原始列表、JSON 和 SRS 文件
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-process: update rules & stats & emby.srs"
             git pull --rebase  # 避免冲突
