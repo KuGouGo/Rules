@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-      - name: Run rule processor and convert to JSON
+      - name: Run rule processor, update emby.list, and generate emby.json
         run: python .github/scripts/process_rules.py emby.list
       - name: Download Sing-box (v1.11.7)
         run: |
@@ -29,8 +29,8 @@ jobs:
           mkdir -p sing-box-bin
           mv sing-box-1.11.7-linux-amd64/sing-box sing-box-bin/sing-box
           chmod +x sing-box-bin/sing-box
-      - name: Compile to .srs format
-        run: ./sing-box-bin/sing-box rule-set compile --output emby.srs
+      - name: Compile to .srs format using emby.json
+        run: ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
       - name: Download Mihomo (v1.19.4)
         run: |
           wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.4/mihomo-linux-amd64-v1.19.4.gz
@@ -38,8 +38,8 @@ jobs:
           chmod +x mihomo-linux-amd64-v1.19.4
           mkdir -p mihomo-bin
           mv mihomo-linux-amd64-v1.19.4 mihomo-bin/mihomo
-      - name: Convert YAML to MRS (domain)
-        run: ./mihomo-bin/mihomo convert-ruleset domain emby.list emby.mrs
+      - name: Convert emby.list to MRS format (domain)
+        run: ./mihomo-bin/mihomo convert-ruleset domain text mrs emby.list emby.mrs
       - name: Commit changes
         if: success()
         run: |
