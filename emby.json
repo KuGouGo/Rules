@@ -2,28 +2,28 @@
   "version": 1,
   "rules": [
     {
-      "domain": "us.nanflix.net"
-    },
-    {
-      "domain": "tv.worldline.space"
-    },
-    {
-      "domain": "emby.cn2gias.uk"
-    },
-    {
-      "domain": "temby856.285286.xyz"
+      "domain": "jsq.mooguu.xyz"
     },
     {
       "domain": "pe.cn2gias.uk"
     },
     {
+      "domain": "temby856.285286.xyz"
+    },
+    {
       "domain": "lite.saturday.video"
+    },
+    {
+      "domain": "tv.worldline.space"
     },
     {
       "domain": "misty.cx"
     },
     {
-      "domain": "jsq.mooguu.xyz"
+      "domain": "us.nanflix.net"
+    },
+    {
+      "domain": "emby.cn2gias.uk"
     },
     {
       "domain_keyword": "emby"
