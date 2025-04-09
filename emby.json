@@ -2,7 +2,13 @@
   "version": 1,
   "rules": [
     {
-      "domain": "emby.cn2gias.uk"
+      "domain": "misty.cx"
+    },
+    {
+      "domain": "tv.worldline.space"
+    },
+    {
+      "domain": "pe.cn2gias.uk"
     },
     {
       "domain": "jsq.mooguu.xyz"
@@ -11,16 +17,10 @@
       "domain": "lite.saturday.video"
     },
     {
-      "domain": "misty.cx"
-    },
-    {
-      "domain": "pe.cn2gias.uk"
+      "domain": "emby.cn2gias.uk"
     },
     {
       "domain": "temby856.285286.xyz"
-    },
-    {
-      "domain": "tv.worldline.space"
     },
     {
       "domain": "us.nanflix.net"

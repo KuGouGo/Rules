@@ -1,3 +1,11 @@
+# NAME: Emby
+# AUTHOR: KuGouGo
+# REPO: https://github.com/KuGouGo/Rules
+# UPDATED: 2025-04-09 13:37:54
+# DOMAIN: 8
+# DOMAIN-SUFFIX: 1
+# DOMAIN-KEYWORD: 1
+# TOTAL: 10
 
 # NAME: Emby
 # AUTHOR: KuGouGo
@@ -7,7 +15,6 @@
 # DOMAIN-KEYWORD: 1
 # DOMAIN-SUFFIX: 1
 # TOTAL: 10
-
 DOMAIN,emby.cn2gias.uk
 DOMAIN,jsq.mooguu.xyz
 DOMAIN,lite.saturday.video
@@ -16,5 +23,5 @@ DOMAIN,pe.cn2gias.uk
 DOMAIN,temby856.285286.xyz
 DOMAIN,tv.worldline.space
 DOMAIN,us.nanflix.net
-DOMAIN-SUFFIX,pilipiliultra.com
 DOMAIN-KEYWORD,emby
+DOMAIN-SUFFIX,pilipiliultra.com
