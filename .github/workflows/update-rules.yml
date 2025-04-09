@@ -25,33 +25,33 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Convert list to JSON
+      - name: Run rule processor and convert to JSON
         run: |
-          python .github/scripts/convert_list_to_json.py
+          python .github/scripts/process_rules.py emby.list
 
       # 添加 Sing-box 编译步骤
       - name: Download Sing-box
         run: |
-          wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
-          tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
-          mkdir -p sing-box-bin # 创建一个临时目录
-          mv sing-box-1.11.7-linux-amd64/sing-box sing-box-bin/sing-box # 将解压后的可执行文件移动到临时目录并重命名
+          wget https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz
+          tar -xzf sing-box-linux-amd64.tar.gz
+          chmod +x sing-box
+          sudo mv sing-box /usr/local/bin/
 
       - name: Compile to .srs format
         run: |
-          ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
+          sing-box rule-set compile --output emby.srs emby.json
 
       - name: Commit changes
         if: success()
         run: |
           # 配置 Git 身份
           git config --global user.name "RuleBot"
-          git config --global user.email "rulebot@users.noreply.github.com"
+          git config --global user.email "actions@github.com"
 
           # 检查是否有变更
           git add emby.list emby.json emby.srs # 同时添加原始列表、JSON 和 SRS 文件
           if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-process: update rules & stats & emby.srs"
+            git commit -m "🤖 Auto-process: update rules & stats & compiled .srs"
             git pull --rebase  # 避免冲突
             git push origin main
             echo "✅ Changes committed"
