@@ -11,10 +11,10 @@ with open(input_file, 'r') as infile:
             continue
         if line.startswith("DOMAIN-KEYWORD,"):
             keyword = line[len("DOMAIN-KEYWORD,"):]
-            rules.append({"keyword": keyword})
+            rules.append({"domain_keyword": keyword})
         elif line.startswith("DOMAIN-SUFFIX,"):
             suffix = line[len("DOMAIN-SUFFIX,"):]
-            rules.append({"suffix": suffix})
+            rules.append({"domain_suffix": suffix})
         elif line.startswith("DOMAIN,"):
             domain = line[len("DOMAIN,"):]
             rules.append({"domain": domain})
