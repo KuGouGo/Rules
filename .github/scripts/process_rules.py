@@ -23,7 +23,6 @@ class RuleProcessor:
         self.rule_data = defaultdict(set)
         self.comments = []
         self.other_lines = []
-        self.rules_for_json = []
 
     def load_content(self):
         try:
@@ -39,17 +38,20 @@ class RuleProcessor:
     def parse_line(self, line: str):
         line = line.strip()
         if not line:
-            return
+            return None
         if line.startswith("#"):
             self.comments.append(line)
-            return
+            return None
 
         if match := RULE_PATTERN.match(line):
             rule_type = match.group("type").upper()
             value = match.group("value").lower().strip()
             self.rule_data[rule_type].add(value)
+            return {"type": rule_type, "value": value}
         else:
-            self.other_lines.append(line)
+            value = line.strip().lower()
+            self.rule_data["DOMAIN"].add(value)
+            return {"type": "DOMAIN", "value": value}
 
     def generate_header(self) -> str:
         stats = {k: len(v) for k, v in self.rule_data.items()}
@@ -70,25 +72,25 @@ class RuleProcessor:
                 sorted_rules.extend(f"{rule_type},{v}" for v in sorted_values)
         return sorted_rules
 
-    def generate_json_rules(self):
-        for rule_type in TYPE_ORDER:
-            if values := self.rule_data.get(rule_type):
-                for value in values:
-                    if rule_type == "DOMAIN-KEYWORD":
-                        self.rules_for_json.append({"domain_keyword": value})
-                    elif rule_type == "DOMAIN-SUFFIX":
-                        self.rules_for_json.append({"domain_suffix": value})
-                    elif rule_type == "DOMAIN":
-                        self.rules_for_json.append({"domain": value})
-                    else:
-                        print(f"警告：JSON 未处理的规则类型: {rule_type}, 值: {value}")
-        for line in self.other_lines:
-            self.rules_for_json.append({"domain": line.strip().lower()})
+    def generate_json_output(self, rules: list):
+        json_rules = []
+        for rule in rules:
+            rule_type = rule["type"]
+            value = rule["value"]
+            if rule_type == "DOMAIN-KEYWORD":
+                json_rules.append({"domain_keyword": value})
+            elif rule_type == "DOMAIN-SUFFIX":
+                json_rules.append({"domain_suffix": value})
+            elif rule_type == "DOMAIN":
+                json_rules.append({"domain": value})
+            elif rule_type in ["PROCESS-NAME", "USER-AGENT", "IP-CIDR"]:
+                print(f"警告：JSON 可能需要特殊处理的规则类型: {rule_type}, 值: {value}")
+            else:
+                print(f"警告：JSON 未处理的规则类型: {rule_type}, 值: {value}")
 
-    def generate_json_output(self):
         output_data = {
             "version": 1,
-            "rules": self.rules_for_json
+            "rules": json_rules
         }
         try:
             with open(OUTPUT_JSON_FILE, 'w', encoding='utf-8') as outfile:
@@ -106,24 +108,27 @@ class RuleProcessor:
             sys.exit(1)
 
     def process(self):
-        body = self.load_content()
-        for line in body.splitlines():
-            self.parse_line(line)
-        sorted_rules = self.sort_and_format_rules()
+        content = self.load_content()
+        parsed_rules = []
+
+        for line in content.splitlines():
+            rule = self.parse_line(line)
+            if rule:
+                parsed_rules.append(rule)
+
+        sorted_rules_text = self.sort_and_format_rules()
+        header_text = self.generate_header()
+
         new_content = (
-            self.generate_header()
+            header_text
             + "\n".join(self.comments)
             + ("\n" if self.comments else "")
-            + "\n".join(sorted_rules)
+            + "\n".join(sorted_rules_text)
             + ("\n" + "\n".join(self.other_lines) if self.other_lines else "")
         )
         self.save_file(new_content.strip() + "\n")
-        self.rule_data = defaultdict(set)
-        self.other_lines = []
-        for line in new_content.splitlines():
-            self.parse_line(line)
-        self.generate_json_rules()
-        self.generate_json_output()
+
+        self.generate_json_output(parsed_rules)
 
 if __name__ == "__main__":
     RuleProcessor().process()
