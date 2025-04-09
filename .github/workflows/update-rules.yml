@@ -36,8 +36,8 @@ jobs:
         run: |
           wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
           tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
-          chmod +x sing-box-1.11.7
-          sudo mv sing-box-1.11.7 /usr/local/bin/sing-box
+          chmod +x sing-box
+          sudo mv sing-box /usr/local/bin/sing-box
 
       - name: Convert emby.list to emby.srs
         run: |
