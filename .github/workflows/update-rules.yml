@@ -39,7 +39,7 @@ jobs:
           git add emby.list emby.srs
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-process: update rules & stats & compiled .srs"
-            git pull --rebase
+            git pull --rebase --autostash
             git push origin main
             echo "✅ Changes committed"
           else
