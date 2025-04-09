@@ -39,7 +39,7 @@ jobs:
           mkdir -p mihomo-bin
           mv mihomo-linux-amd64-v1.19.4 mihomo-bin/mihomo
       - name: Convert emby.list to MRS format (domain)
-        run: ./mihomo-bin/mihomo convert-ruleset domain text mrs emby.list emby.mrs
+        run: ./mihomo-bin/mihomo convert-ruleset domain text emby.list emby.mrs
       - name: Commit changes
         if: success()
         run: |
