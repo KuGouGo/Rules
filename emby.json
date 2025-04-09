@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": "# NAME: Emby"
+    },
+    {
+      "domain": "# AUTHOR: KuGouGo"
+    },
+    {
+      "domain": "# REPO: https://github.com/KuGouGo/Rules"
+    },
+    {
+      "domain": "# UPDATED: 2025-04-02 12:07:15"
+    },
+    {
+      "domain": "# DOMAIN: 8"
+    },
+    {
+      "domain": "# DOMAIN-KEYWORD: 1"
+    },
+    {
+      "domain": "# DOMAIN-SUFFIX: 1"
+    },
+    {
+      "domain": "# TOTAL: 10"
+    },
+    {
+      "domain": "emby.cn2gias.uk"
+    },
+    {
+      "domain": "jsq.mooguu.xyz"
+    },
+    {
+      "domain": "lite.saturday.video"
+    },
+    {
+      "domain": "misty.cx"
+    },
+    {
+      "domain": "pe.cn2gias.uk"
+    },
+    {
+      "domain": "temby856.285286.xyz"
+    },
+    {
+      "domain": "tv.worldline.space"
+    },
+    {
+      "domain": "us.nanflix.net"
+    },
+    {
+      "domain_keyword": "emby"
+    },
+    {
+      "domain_suffix": "pilipiliultra.com"
+    }
+  ]
+}
