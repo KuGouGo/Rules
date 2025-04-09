@@ -36,16 +36,12 @@ jobs:
         run: |
           wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
           tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
-          cd sing-box-1.11.7-linux-amd64 # 请根据实际解压目录名称修改
-
-      - name: Set executable permission and move Sing-box
-        run: |
-          chmod +x sing-box
-          sudo mv sing-box /usr/local/bin/sing-box
+          mkdir -p sing-box-bin # 创建一个临时目录
+          mv sing-box-1.11.7-linux-amd64/sing-box sing-box-bin/sing-box # 将解压后的可执行文件移动到临时目录并重命名
 
       - name: Convert emby.list to emby.srs
         run: |
-          sing-box rule-set convert -t domain -i ../emby.list -o ../emby.srs # 注意这里的路径
+          ./sing-box-bin/sing-box rule-set convert -t domain -i emby.list -o emby.srs
 
       - name: Commit changes
         if: success()
