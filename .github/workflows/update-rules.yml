@@ -32,10 +32,10 @@ jobs:
       # 添加 Sing-box 编译步骤
       - name: Download Sing-box
         run: |
-          wget https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz
-          tar -xzf sing-box-linux-amd64.tar.gz
-          chmod +x sing-box
-          sudo mv sing-box /usr/local/bin/
+          wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
+          tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
+          chmod +x sing-box-1.11.7
+          sudo mv sing-box-1.11.7 /usr/local/bin/sing-box
 
       - name: Compile to .srs format
         run: |
