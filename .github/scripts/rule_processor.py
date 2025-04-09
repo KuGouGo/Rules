@@ -5,9 +5,11 @@ import sys
 import datetime
 from pathlib import Path
 from collections import defaultdict
+import json
 
 # 配置文件路径（支持命令行参数）
 RULE_FILE = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("emby.list")
+OUTPUT_JSON_FILE = Path("emby.json")
 TYPE_ORDER = ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX", "PROCESS-NAME", "USER-AGENT", "IP-CIDR"]
 RULE_PATTERN = re.compile(
     r"^(?P<type>" + "|".join(TYPE_ORDER) + r")"
@@ -22,6 +24,7 @@ class RuleProcessor:
         self.rule_data = defaultdict(set)
         self.comments = []
         self.other_lines = []
+        self.rules = [] # 用于存储最终的规则列表
 
     def load_content(self):
         """加载并解析规则文件"""
@@ -31,81 +34,58 @@ class RuleProcessor:
             print(f"错误：文件 {RULE_FILE} 不存在")
             sys.exit(1)
 
-        header_match = re.search(r"^# NAME:.*?(?=\n[^#]|\Z)", content, re.DOTALL)
-        self.header = header_match.group(0) if header_match else ""
+        self.header_match = re.search(r"^# NAME:.*?(?=\n[^#]|\Z)", content, re.DOTALL)
+        self.header = self.header_match.group(0) if self.header_match else ""
         return content[len(self.header):].lstrip('\n')
 
     def parse_line(self, line: str):
-        """解析单行内容"""
+        """解析单行内容并添加到 rules 列表"""
         line = line.strip()
         if not line:
             return
         if line.startswith("#"):
-            self.comments.append(line)
             return
 
         if match := RULE_PATTERN.match(line):
             rule_type = match.group("type").upper()  # 统一转为大写
             value = match.group("value").lower().strip()
-            self.rule_data[rule_type].add(value)
-            
-            # 保留行尾注释
-            if comment := match.group("comment"):
-                self.comments.append(f"# {comment}")
+            if rule_type == "DOMAIN-KEYWORD":
+                self.rules.append({"domain_keyword": value})
+            elif rule_type == "DOMAIN-SUFFIX":
+                self.rules.append({"domain_suffix": value})
+            elif rule_type == "DOMAIN":
+                self.rules.append({"domain": value})
+            else:
+                # 对于其他类型的规则，如果 Sing-box 需要，你可以在这里添加处理逻辑
+                print(f"警告：未处理的规则类型: {rule_type}, 值: {value}")
         else:
-            self.other_lines.append(line)
+            # 如果没有匹配到任何前缀，则尝试作为纯域名处理
+            self.rules.append({"domain": line})
 
-    def generate_header(self) -> str:
-        """生成元数据头"""
-        stats = {k: len(v) for k, v in self.rule_data.items()}
-        return (
-            f"# NAME: Emby\n"
-            f"# AUTHOR: KuGouGo\n"
-            f"# REPO: https://github.com/KuGouGo/Rules\n"
-            f"# UPDATED: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-            + "\n".join(f"# {k}: {v}" for k, v in stats.items() if v > 0)
-            + f"\n# TOTAL: {sum(stats.values())}\n\n"
-        )
-
-    def sort_rules(self) -> list:
-        """生成排序后的规则列表（纯字母顺序）"""
-        sorted_rules = []
-        for rule_type in TYPE_ORDER:
-            if values := self.rule_data.get(rule_type):
-                # 按纯字母顺序排序
-                sorted_values = sorted(values)
-                sorted_rules.extend(
-                    f"{rule_type},{v}" 
-                    for v in sorted_values
-                )
-        return sorted_rules
-
-    def save_file(self, new_content: str):
-        """保存处理后的内容"""
+    def generate_json_output(self):
+        """生成 Sing-box 格式的 JSON 输出"""
+        output_data = {
+            "version": 1,
+            "rules": self.rules
+        }
         try:
-            RULE_FILE.write_text(new_content, encoding="utf-8")
+            with open(OUTPUT_JSON_FILE, 'w', encoding='utf-8') as outfile:
+                json.dump(output_data, outfile, indent=2)
+            print(f"成功生成 {OUTPUT_JSON_FILE}")
         except PermissionError:
-            print(f"错误：无权限写入文件 {RULE_FILE}")
+            print(f"错误：无权限写入文件 {OUTPUT_JSON_FILE}")
             sys.exit(1)
 
     def process(self):
         """主处理流程"""
         body = self.load_content()
-        
-        # 解析内容
+
+        # 解析内容并添加到 rules 列表
         for line in body.splitlines():
             self.parse_line(line)
 
-        # 生成新内容
-        new_content = (
-            self.generate_header()
-            + "\n".join(self.comments)
-            + ("\n" if self.comments else "")
-            + "\n".join(self.sort_rules())
-            + ("\n" + "\n".join(self.other_lines) if self.other_lines else "")
-        )
-
-        self.save_file(new_content.strip() + "\n")
+        # 生成 JSON 输出
+        self.generate_json_output()
 
 if __name__ == "__main__":
     RuleProcessor().process()
