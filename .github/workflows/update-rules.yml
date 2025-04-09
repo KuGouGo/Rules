@@ -1,60 +1,52 @@
 name: Auto Process Rules
-
 on:
   push:
     paths:
       - 'emby.list'
     branches: [ "main" ]
-  workflow_dispatch:  # 允许手动触发
-
+  workflow_dispatch:
 jobs:
   process-rules:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: write  # 关键权限设置
-
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整提交历史
-
+          fetch-depth: 1
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-
       - name: Run rule processor and convert to JSON
-        run: |
-          python .github/scripts/process_rules.py emby.list
-
-      # 添加 Sing-box 编译步骤
-      - name: Download Sing-box
+        run: python .github/scripts/process_rules.py emby.list
+      - name: Download and Cache Sing-box
+        id: cache-sing-box
+        uses: actions/cache@v4
+        with:
+          path: sing-box-bin
+          key: sing-box-linux-amd64-v1.11.7
+      - name: Download Sing-box if cache missed
+        if: steps.cache-sing-box.outputs.cache-hit != 'true'
         run: |
           wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
           tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
           mkdir -p sing-box-bin
-          # 根据实际解压后的目录结构调整 mv 命令
           mv sing-box-1.11.7-linux-amd64/sing-box sing-box-bin/sing-box
           chmod +x sing-box-bin/sing-box
-
       - name: Compile to .srs format
-        run: |
-          ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
-
+        run: ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
       - name: Commit changes
         if: success()
         run: |
-          # 配置 Git 身份
           git config --global user.name "RuleBot"
           git config --global user.email "actions@github.com"
-
-          # 检查是否有变更
-          git add emby.list emby.json emby.srs # 同时添加原始列表、JSON 和 SRS 文件
+          git add emby.list emby.srs
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-process: update rules & stats & compiled .srs"
-            git pull --rebase  # 避免冲突
+            git pull --rebase
             git push origin main
             echo "✅ Changes committed"
           else
