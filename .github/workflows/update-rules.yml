@@ -34,8 +34,14 @@ jobs:
         run: |
           wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
           tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
-          chmod +x sing-box-1.11.7
-          sudo mv sing-box-1.11.7 /usr/local/bin/sing-box
+
+      - name: List directory contents
+        run: ls -l
+
+      - name: Set executable permission and move Sing-box
+        run: |
+          chmod +x sing-box
+          sudo mv sing-box /usr/local/bin/sing-box
 
       - name: Compile to .srs format
         run: |
