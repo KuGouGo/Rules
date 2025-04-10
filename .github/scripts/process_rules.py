@@ -73,17 +73,17 @@ class RuleProcessor:
         return sorted_rules
 
     def generate_json_output(self, rules: list):
-        grouped_rules = defaultdict(list)
+        json_rules = []
         for rule in rules:
             rule_type = rule["type"].lower().replace('-', '_')
             value = rule["value"]
-            grouped_rules[rule_type].append(value)
+            json_rules.append({rule_type: value})
             if rule_type not in ["domain", "domain_keyword", "domain_suffix", "ip_cidr", "process_name", "user_agent"]:
                 print(f"Warning: JSON not handling rule type: {rule_type}, value: {value}")
 
         output_data = {
             "version": 3,
-            "rules": dict(grouped_rules)
+            "rules": json_rules
         }
 
         try:
