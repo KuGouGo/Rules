@@ -1,141 +1,50 @@
 #!/usr/bin/env python3
 import re
 import sys
-import datetime
-from pathlib import Path
-from collections import defaultdict
 import json
-
-RULE_FILE = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("emby.list")
-OUTPUT_JSON_FILE = Path("emby.json")
-TYPE_ORDER = ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX", "PROCESS-NAME", "USER-AGENT", "IP-CIDR"]
-RULE_PATTERN = re.compile(
-    r"^(?P<type>" + "|".join(TYPE_ORDER) + r")"
-    r"[,\s]+"
-    r"(?P<value>[^#\s]+)"
-    r"(?:\s*#\s*(?P<comment>.*))?$",
-    re.IGNORECASE
-)
+from pathlib import Path
+from datetime import datetime, timezone
+from collections import defaultdict
 
 class RuleProcessor:
-    def __init__(self):
-        self.rule_data = defaultdict(set)
-        self.comments = []
-        self.other_lines = []
+    TYPE_ORDER = ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX", "IP-CIDR"]
+    JSON_MAP = {"DOMAIN":"domain", "DOMAIN-KEYWORD":"domain_keyword",
+                "DOMAIN-SUFFIX":"domain_suffix", "IP-CIDR":"ip_cidr"}
+    
+    def __init__(self, input_file, output_json):
+        self.input_file = Path(input_file)
+        self.output_json = Path(output_json)
+        self.rules = defaultdict(set)
 
-    def load_content(self):
-        try:
-            content = RULE_FILE.read_text(encoding="utf-8")
-        except FileNotFoundError:
-            print(f"Error: File {RULE_FILE} does not exist")
-            sys.exit(1)
+    def _load_content(self):
+        with open(self.input_file, encoding="utf-8") as f:
+            content = f.read()
+        header = re.search(r"^# NAME:.*?(?=\n[^#]|\Z)", content, re.DOTALL)
+        return content[len(header.group(0)):].lstrip('\n') if header else content
 
-        header_match = re.search(r"^# NAME:.*?(?=\n[^#]|\Z)", content, re.DOTALL)
-        self.header = header_match.group(0) if header_match else ""
-        return content[len(self.header):].lstrip('\n')
-
-    def parse_line(self, line: str):
+    def _parse_line(self, line):
         line = line.strip()
-        if not line:
-            return None
-        if line.startswith("#"):
-            self.comments.append(line)
-            return None
+        if not line or line.startswith("#"): return
+        match = re.match(rf"^({'|'.join(self.TYPE_ORDER)})[,\s]+([^#\s]+)", line, re.I)
+        return {"type": match.group(1).upper(), "value": match.group(2).lower()} if match else {"type": "DOMAIN", "value": line.lower()}
 
-        if match := RULE_PATTERN.match(line):
-            rule_type = match.group("type").upper()
-            value = match.group("value").lower().strip()
-            return {"type": rule_type, "value": value}
-        else:
-            value = line.strip().lower()
-            return {"type": "DOMAIN", "value": value}
+    def _filter_rules(self, rules):
+        suffixes = {r["value"] for r in rules if r["type"] == "DOMAIN-SUFFIX"}
+        return [r for r in rules if not (r["type"] == "DOMAIN" and r["value"] in suffixes)]
 
-    def generate_header(self) -> str:
-        stats = {k: len(v) for k, v in self.rule_data.items()}
-        return (
-            f"# NAME: Emby\n"
-            f"# AUTHOR: KuGouGo\n"
-            f"# REPO: https://github.com/KuGouGo/Rules\n"
-            f"# UPDATED: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-            + "\n".join(f"# {k}: {v}" for k, v in stats.items() if v > 0)
-            + f"\n# TOTAL: {sum(stats.values())}\n\n"
-        )
-
-    def sort_and_format_rules(self) -> list:
-        sorted_rules = []
-        for rule_type in TYPE_ORDER:
-            if values := self.rule_data.get(rule_type):
-                sorted_values = sorted(values)
-                sorted_rules.extend(f"{rule_type},{v}" for v in sorted_values)
-        return sorted_rules
-
-    def generate_json_output(self, rules: list):
-        json_rules = []
-        for rule in rules:
-            rule_type = rule["type"].lower().replace('-', '_')
-            value = rule["value"]
-            json_rules.append({rule_type: value})
-            if rule_type not in ["domain", "domain_keyword", "domain_suffix", "ip_cidr", "process_name", "user_agent"]:
-                print(f"Warning: JSON not handling rule type: {rule_type}, value: {value}")
-
-        output_data = {
-            "version": 3,
-            "rules": json_rules
-        }
-
-        try:
-            with open(OUTPUT_JSON_FILE, 'w', encoding='utf-8') as outfile:
-                json.dump(output_data, outfile, indent=2)
-            print(f"Successfully generated {OUTPUT_JSON_FILE}")
-        except PermissionError:
-            print(f"Error: Permission denied to write file {OUTPUT_JSON_FILE}")
-            sys.exit(1)
-
-    def save_file(self, new_content: str):
-        try:
-            RULE_FILE.write_text(new_content, encoding="utf-8")
-        except PermissionError:
-            print(f"Error: Permission denied to write file {RULE_FILE}")
-            sys.exit(1)
+    def _generate_header(self, stats):
+        return f"# NAME: Emby\n# AUTHOR: KuGouGo\n# REPO: https://github.com/KuGouGo/Rules\n# UPDATED: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}\n" + \
+               "\n".join(f"# {k}: {v}" for k,v in stats.items() if v) + f"\n# TOTAL: {sum(stats.values())}\n\n"
 
     def process(self):
-        content = self.load_content()
-        parsed_rules = []
-
-        for line in content.splitlines():
-            rule = self.parse_line(line)
-            if rule:
-                parsed_rules.append(rule)
-
-        domain_suffix_rules = {rule['value'] for rule in parsed_rules if rule['type'] == 'DOMAIN-SUFFIX'}
-        final_unique_rules = []
-
-        for rule in parsed_rules:
-            if rule['type'] == 'DOMAIN-SUFFIX':
-                final_unique_rules.append(rule)
-            elif rule['type'] == 'DOMAIN':
-                if rule['value'] not in domain_suffix_rules:
-                    final_unique_rules.append(rule)
-            elif rule['type'] in TYPE_ORDER and rule['type'] not in ['DOMAIN', 'DOMAIN-SUFFIX']:
-                final_unique_rules.append(rule)
-
-        parsed_rules = final_unique_rules
-
-        self.rule_data.clear()
-        for rule in parsed_rules:
-            self.rule_data[rule['type']].add(rule['value'])
-
-        sorted_rules_text = self.sort_and_format_rules()
-        header_text = self.generate_header()
-
-        new_content = (
-            header_text
-            + "\n".join(sorted_rules_text)
-            + ("\n" + "\n".join(self.other_lines) if self.other_lines else "")
-        )
-        self.save_file(new_content.strip() + "\n")
-
-        self.generate_json_output(parsed_rules)
-
-if __name__ == "__main__":
-    RuleProcessor().process()
+        rules = [r for r in (self._parse_line(l) for l in self._load_content().splitlines()) if r]
+        filtered = self._filter_rules(rules)
+        
+        for r in filtered:
+            self.rules[r["type"]].add(r["value"])
+        
+        sorted_rules = []
+        for t in self.TYPE_ORDER:
+            sorted_rules.extend(f"{t},{v}" for v in sorted(self.rules.get(t, [])))
+        
+        with open(self.input_file, "
