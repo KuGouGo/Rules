@@ -1,76 +1,75 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-04-09 16:23:50
-# DOMAIN: 8
+# UPDATED: 2025-04-10 03:18:57
+# DOMAIN: 15
 # DOMAIN-KEYWORD: 1
-# DOMAIN-SUFFIX: 1
-# TOTAL: 10
+# DOMAIN-SUFFIX: 50
+# TOTAL: 66
 
+DOMAIN,cc.ccemby.tk
+DOMAIN,direct.nebula-emby.com
 DOMAIN,emby.cn2gias.uk
+DOMAIN,emby.flowercloud
+DOMAIN,emby.maying.club
+DOMAIN,emby.nexitally.com
 DOMAIN,jsq.mooguu.xyz
 DOMAIN,lite.saturday.video
 DOMAIN,misty.cx
+DOMAIN,ntrrr.am.sb
 DOMAIN,pe.cn2gias.uk
+DOMAIN,push-kr.cfprefer3.xyz
 DOMAIN,temby856.285286.xyz
 DOMAIN,tv.worldline.space
 DOMAIN,us.nanflix.net
 DOMAIN-KEYWORD,emby
+DOMAIN-SUFFIX,023168.xyz
+DOMAIN-SUFFIX,116.163.28.190
+DOMAIN-SUFFIX,120.226.149.35
+DOMAIN-SUFFIX,127066.xyz
+DOMAIN-SUFFIX,127255.best
+DOMAIN-SUFFIX,204cloud.com
+DOMAIN-SUFFIX,223789.xyz
+DOMAIN-SUFFIX,313445.xyz
+DOMAIN-SUFFIX,5203166.xyz
+DOMAIN-SUFFIX,616626.xyz
+DOMAIN-SUFFIX,994959.xyz
+DOMAIN-SUFFIX,aliz.work
+DOMAIN-SUFFIX,alphatvapp.top
+DOMAIN-SUFFIX,as174.de
+DOMAIN-SUFFIX,bangumi.ca
+DOMAIN-SUFFIX,cdn.bgp.yt
+DOMAIN-SUFFIX,charontv.com
+DOMAIN-SUFFIX,cherry-pornemby.top
+DOMAIN-SUFFIX,cn2gias.uk
+DOMAIN-SUFFIX,dhyy.eu.org
+DOMAIN-SUFFIX,emby.immtel.com
+DOMAIN-SUFFIX,embyplus.org
+DOMAIN-SUFFIX,guguemby.site
+DOMAIN-SUFFIX,ii00.cc
+DOMAIN-SUFFIX,jmsooo.com
+DOMAIN-SUFFIX,ju.dog
+DOMAIN-SUFFIX,kevinchen.vip
+DOMAIN-SUFFIX,line.emby.men
+DOMAIN-SUFFIX,mefun.org
+DOMAIN-SUFFIX,mius.uk
+DOMAIN-SUFFIX,mjjemby.org
+DOMAIN-SUFFIX,mobaiemby.site
+DOMAIN-SUFFIX,nezhasu.com
+DOMAIN-SUFFIX,niceduck.lol
+DOMAIN-SUFFIX,nijigem.by
+DOMAIN-SUFFIX,oceancloud.asia
+DOMAIN-SUFFIX,odysseyplus.site
+DOMAIN-SUFFIX,pili.im
+DOMAIN-SUFFIX,pilipili.me
 DOMAIN-SUFFIX,pilipiliultra.com
-
-  DOMAIN-SUFFIX,cn2gias.uk
-  DOMAIN-SUFFIX,jmsooo.com
-  DOMAIN-SUFFIX,023168.xyz
-  DOMAIN-SUFFIX,223789.xyz
-  DOMAIN,cc.ccemby.tk
-  DOMAIN-SUFFIX,line.emby.men
-  DOMAIN-SUFFIX,mius.uk
-  DOMAIN,emby.flowercloud
-  DOMAIN-SUFFIX,emby.immtel.com
-  DOMAIN-SUFFIX,ju.dog
-  DOMAIN-SUFFIX,charontv.com
-  DOMAIN,push-kr.cfprefer3.xyz
-  DOMAIN-SUFFIX,mjjemby.org
-  DOMAIN,emby.maying.club
-  DOMAIN,ntrrr.am.sb
-  DOMAIN,emby.nexitally.com
-  DOMAIN,direct.nebula-emby.com
-  DOMAIN-SUFFIX,odysseyplus.site
-  DOMAIN-SUFFIX,zox.show
-  DOMAIN-SUFFIX,nezhasu.com 
-  DOMAIN-SUFFIX,roboemby.de
-  DOMAIN-SUFFIX,616626.xyz
-  DOMAIN-SUFFIX,niceduck.lol
-  DOMAIN-SUFFIX,kevinchen.vip
-  DOMAIN-SUFFIX,5203166.xyz
-  DOMAIN-SUFFIX,alphatvapp.top
-  DOMAIN-SUFFIX,204cloud.com
-  DOMAIN-SUFFIX,313445.xyz
-  DOMAIN-SUFFIX,synn.cc
-  DOMAIN-SUFFIX,127255.best
-  DOMAIN-SUFFIX,127066.xyz
-  DOMAIN-SUFFIX,raisemby.com
-  DOMAIN-SUFFIX,oceancloud.asia
-  DOMAIN-SUFFIX,embyplus.org
-  DOMAIN-SUFFIX,nijigem.by
-  DOMAIN-SUFFIX,cdn.bgp.yt
-  DOMAIN-SUFFIX,bangumi.ca
-  DOMAIN-SUFFIX,aliz.work
-  DOMAIN-SUFFIX,cherry-pornemby.top
-  DOMAIN-SUFFIX,dhyy.eu.org
-  DOMAIN-SUFFIX,xxxh.de
-  DOMAIN-SUFFIX,mefun.org
-  DOMAIN-SUFFIX,mobaiemby.site
-  DOMAIN-SUFFIX,ii00.cc
-  DOMAIN-SUFFIX,guguemby.site
-  DOMAIN-SUFFIX,sexemby.com
-  DOMAIN-SUFFIX,pilipili.me
-  DOMAIN-SUFFIX,pili.im
-  DOMAIN-SUFFIX,994959.xyz
-  DOMAIN-SUFFIX,wenjian.de
-  DOMAIN-SUFFIX,tanhuatv.site
-  DOMAIN-SUFFIX,younoyes.com
-  DOMAIN-SUFFIX,120.226.149.35
-  DOMAIN-SUFFIX,116.163.28.190
-  DOMAIN-SUFFIX,as174.de  
-  DOMAIN-SUFFIX,xmsl.org  
+DOMAIN-SUFFIX,raisemby.com
+DOMAIN-SUFFIX,roboemby.de
+DOMAIN-SUFFIX,sexemby.com
+DOMAIN-SUFFIX,synn.cc
+DOMAIN-SUFFIX,tanhuatv.site
+DOMAIN-SUFFIX,wenjian.de
+DOMAIN-SUFFIX,xmsl.org
+DOMAIN-SUFFIX,xxxh.de
+DOMAIN-SUFFIX,younoyes.com
+DOMAIN-SUFFIX,zox.show
