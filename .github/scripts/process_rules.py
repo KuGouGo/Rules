@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import re
 import sys
 import datetime
@@ -108,15 +107,22 @@ class RuleProcessor:
             if rule:
                 parsed_rules.append(rule)
 
-        # Deduplication step
-        unique_rules = set()
+        domain_rules_to_remove = set()
+        domain_suffix_rules = defaultdict(set)
+        final_unique_rules = []
+
         for rule in parsed_rules:
-            unique_rules.add((rule['type'], rule['value']))
+            if rule['type'] == 'DOMAIN-SUFFIX':
+                domain_suffix_rules[rule['value']].add(rule['value'])
+                final_unique_rules.append(rule)
+            elif rule['type'] == 'DOMAIN':
+                if rule['value'] not in domain_suffix_rules:
+                    final_unique_rules.append(rule)
+        else:
+            final_unique_rules.append(rule)
 
-        parsed_rules = [{'type': r[0], 'value': r[1]} for r in unique_rules]
-        # End of deduplication
+        parsed_rules = final_unique_rules
 
-        # Populate rule_data with unique rules for generating sorted list
         self.rule_data.clear()
         for rule in parsed_rules:
             self.rule_data[rule['type']].add(rule['value'])
@@ -126,8 +132,6 @@ class RuleProcessor:
 
         new_content = (
             header_text
-            + "\n".join(self.comments)
-            + ("\n" if self.comments else "")
             + "\n".join(sorted_rules_text)
             + ("\n" + "\n".join(self.other_lines) if self.other_lines else "")
         )
