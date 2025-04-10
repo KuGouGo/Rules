@@ -46,11 +46,9 @@ class RuleProcessor:
         if match := RULE_PATTERN.match(line):
             rule_type = match.group("type").upper()
             value = match.group("value").lower().strip()
-            self.rule_data[rule_type].add(value)
             return {"type": rule_type, "value": value}
         else:
             value = line.strip().lower()
-            self.rule_data["DOMAIN"].add(value)
             return {"type": "DOMAIN", "value": value}
 
     def generate_header(self) -> str:
@@ -109,6 +107,19 @@ class RuleProcessor:
             rule = self.parse_line(line)
             if rule:
                 parsed_rules.append(rule)
+
+        # Deduplication step
+        unique_rules = set()
+        for rule in parsed_rules:
+            unique_rules.add((rule['type'], rule['value']))
+
+        parsed_rules = [{'type': r[0], 'value': r[1]} for r in unique_rules]
+        # End of deduplication
+
+        # Populate rule_data with unique rules for generating sorted list
+        self.rule_data.clear()
+        for rule in parsed_rules:
+            self.rule_data[rule['type']].add(rule['value'])
 
         sorted_rules_text = self.sort_and_format_rules()
         header_text = self.generate_header()
