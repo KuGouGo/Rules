@@ -107,7 +107,7 @@ class RuleProcessor:
 
         try:
             with open(self.output_json, "w", encoding="utf-8") as f:
-                json.dump({"rules": output_rules}, f, indent=2)
+                json.dump({"version": 3, "rules": output_rules}, f, indent=2)
         except Exception as e:
             print(f"Error writing to output JSON file '{self.output_json}': {e}")
 
