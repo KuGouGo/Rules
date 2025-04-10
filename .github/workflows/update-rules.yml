@@ -35,6 +35,9 @@ jobs:
       - name: Process rules
         run: python .github/scripts/process_rules.py emby.list
 
+      - name: Create Sing-box bin directory
+        run: mkdir -p sing-box-bin
+
       - name: Cache Sing-box
         id: cache-sing-box
         uses: actions/cache@v3
@@ -47,7 +50,6 @@ jobs:
         run: |
           wget -q "https://github.com/SagerNet/sing-box/releases/download/${{ steps.get_version.outputs.full_version }}/sing-box-${{ steps.get_version.outputs.sing_box_version }}-linux-amd64.tar.gz"
           tar -xzf sing-box-*.tar.gz
-          mkdir -p sing-box-bin
           mv sing-box-*/sing-box sing-box-bin/
           chmod +x sing-box-bin/sing-box
           echo "$GITHUB_WORKSPACE/sing-box-bin" >> $GITHUB_PATH
