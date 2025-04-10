@@ -103,6 +103,12 @@ class RuleProcessor:
                     rule_entry["domain_suffix"] = sorted_values
                 elif json_key == "ip_cidr":
                     rule_entry["ip_cidr"] = sorted_values
+
+        if not rule_entry.get("domain_keyword"):
+            rule_entry.pop("domain_keyword", None)
+        if not rule_entry.get("domain_regex"):
+            rule_entry.pop("domain_regex", None)
+
         output_rules.append(rule_entry)
 
         try:
