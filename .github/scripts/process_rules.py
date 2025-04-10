@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 from collections import defaultdict
-import argparse  # Import the argparse module for command-line arguments
+import argparse
 
 class RuleProcessor:
     TYPE_ORDER = ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX", "IP-CIDR"]
@@ -13,13 +13,11 @@ class RuleProcessor:
                 "DOMAIN-SUFFIX": "domain_suffix", "IP-CIDR": "ip_cidr"}
 
     def __init__(self, input_file, output_json):
-        """Initializes the RuleProcessor with input and output file paths."""
         self.input_file = Path(input_file)
         self.output_json = Path(output_json)
         self.rules = defaultdict(set)
 
     def _load_content(self):
-        """Loads content from the input file, skipping the header."""
         try:
             with open(self.input_file, encoding="utf-8") as f:
                 content = f.read()
@@ -35,7 +33,6 @@ class RuleProcessor:
             sys.exit(1)
 
     def _parse_line(self, line):
-        """Parses a single line from the input file into a rule dictionary."""
         line = line.strip()
         if not line or line.startswith("#"):
             return None
@@ -45,12 +42,10 @@ class RuleProcessor:
         return {"type": "DOMAIN", "value": line.lower()}
 
     def _filter_rules(self, rules):
-        """Filters out DOMAIN rules that are also present as DOMAIN-SUFFIX rules."""
         suffixes = {r["value"] for r in rules if r["type"] == "DOMAIN-SUFFIX"}
         return [r for r in rules if not (r["type"] == "DOMAIN" and r["value"] in suffixes)]
 
     def _generate_header(self, stats):
-        """Generates the header content for the output file."""
         now_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
         header_lines = [
             "# NAME: Emby",
@@ -66,7 +61,6 @@ class RuleProcessor:
         return "\n".join(header_lines) + "\n"
 
     def process(self):
-        """Processes the rules from the input file, filters them, and writes to output files."""
         content = self._load_content()
         rules = [r for r in (self._parse_line(l) for l in content.splitlines()) if r]
         filtered = self._filter_rules(rules)
@@ -89,10 +83,14 @@ class RuleProcessor:
         except Exception as e:
             print(f"Error writing to input file '{self.input_file}': {e}")
 
-        json_rules = [{self.JSON_MAP[r["type"]]: r["value"]} for r in filtered]
+        json_output = {"version": 3}
+        for rule_type_internal, rule_type_json in self.JSON_MAP.items():
+            if rule_type_internal in self.rules:
+                json_output[rule_type_json] = sorted(list(self.rules[rule_type_internal]))
+
         try:
             with open(self.output_json, "w", encoding="utf-8") as f:
-                json.dump({"version": 3, "rules": json_rules}, f, indent=2)
+                json.dump(json_output, f, indent=2)
         except Exception as e:
             print(f"Error writing to output JSON file '{self.output_json}': {e}")
 
