@@ -74,6 +74,7 @@ class RuleProcessor:
 
     def generate_json_output(self, rules: list):
         json_rules = []
+        ip_cidr_rules = []
         for rule in rules:
             rule_type = rule["type"]
             value = rule["value"]
@@ -83,13 +84,18 @@ class RuleProcessor:
                 json_rules.append({"domain_suffix": value})
             elif rule_type == "DOMAIN":
                 json_rules.append({"domain": value})
-            elif rule_type not in ["PROCESS-NAME", "USER-AGENT", "IP-CIDR"]:
+            elif rule_type == "IP-CIDR":
+                ip_cidr_rules.append(value)
+            elif rule_type not in ["PROCESS-NAME", "USER-AGENT"]:
                 print(f"警告：JSON 未处理的规则类型: {rule_type}, 值: {value}")
 
         output_data = {
             "version": 3,
             "rules": json_rules
         }
+        if ip_cidr_rules:
+            output_data["ip_cidr"] = sorted(list(set(ip_cidr_rules)))
+
         try:
             with open(OUTPUT_JSON_FILE, 'w', encoding='utf-8') as outfile:
                 json.dump(output_data, outfile, indent=2)
