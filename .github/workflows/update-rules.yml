@@ -31,21 +31,12 @@ jobs:
           chmod +x sing-box-bin/sing-box
       - name: Compile to .srs format using emby.json
         run: ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
-      - name: Download Mihomo (v1.19.4)
-        run: |
-          wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.4/mihomo-linux-amd64-v1.19.4.gz
-          gunzip mihomo-linux-amd64-v1.19.4.gz
-          chmod +x mihomo-linux-amd64-v1.19.4
-          mkdir -p mihomo-bin
-          mv mihomo-linux-amd64-v1.19.4 mihomo-bin/mihomo
-      - name: Convert emby.list to MRS format (domain)
-        run: ./mihomo-bin/mihomo convert-ruleset domain text emby.list emby.mrs
       - name: Commit changes
         if: success()
         run: |
           git config --global user.name "RuleBot"
           git config --global user.email "actions@github.com"
-          git add emby.list emby.srs emby.mrs emby.json
+          git add emby.list emby.srs 
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-process: update rules & stats & compiled .srs & .mrs"
             git pull --rebase --autostash
