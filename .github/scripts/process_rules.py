@@ -33,11 +33,13 @@ class RuleProcessor:
         return [r for r in rules if not (r["type"] == "DOMAIN" and r["value"] in suffixes)]
 
     def _generate_header(self, stats):
-        return f"# NAME: Emby\n# AUTHOR: KuGouGo\n# REPO: https://github.com/KuGouGo/Rules\n# UPDATED: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}\n" + \
-               "\n".join(f"# {k}: {v}" for k,v in stats.items() if v) + f"\n# TOTAL: {sum(stats.values())}\n\n"
+        return (f"# NAME: Emby\n# AUTHOR: KuGouGo\n# REPO: https://github.com/KuGouGo/Rules\n"
+                f"# UPDATED: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+                + "\n".join(f"# {k}: {v}" for k,v in stats.items() if v)
+                + f"\n# TOTAL: {sum(stats.values())}\n\n")
 
     def process(self):
-        rules = [r for r in (self._parse_line(l) for l in self._load_content().splitlines()) if r]
+        rules = [r for r in (self._parse_line(l) for l in self._load_content().splitlines() if r]
         filtered = self._filter_rules(rules)
         
         for r in filtered:
@@ -47,4 +49,14 @@ class RuleProcessor:
         for t in self.TYPE_ORDER:
             sorted_rules.extend(f"{t},{v}" for v in sorted(self.rules.get(t, [])))
         
-        with open(self.input_file, "
+        with open(self.input_file, "w", encoding="utf-8") as f:
+            f.write(self._generate_header({k: len(v) for k,v in self.rules.items()}) 
+            f.write("\n".join(sorted_rules))
+        
+        json_rules = [{self.JSON_MAP[r["type"]]: r["value"]} for r in filtered]
+        with open(self.output_json, "w", encoding="utf-8") as f:
+            json.dump({"version":3, "rules":json_rules}, f, indent=2)
+
+if __name__ == "__main__":
+    input_file = sys.argv[1] if len(sys.argv) > 1 else "emby.list"
+    RuleProcessor(input_file, "emby.json").process()
