@@ -22,43 +22,22 @@ jobs:
       - name: Get latest Sing-box version
         id: get_version
         run: |
-          # 使用 GitHub API 获取最新稳定版
           LATEST_VERSION=$(curl -sL "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-          
-          # 验证版本号格式
-          if [[ ! $LATEST_VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid version format: $LATEST_VERSION"
-            exit 1
-          fi
-          
-          # 去除版本号前的 'v' 字符
           CLEAN_VERSION=${LATEST_VERSION#v}
-          echo "::notice::Using Sing-box version: $CLEAN_VERSION"
-          
-          # 设置输出变量
           echo "sing_box_version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
           echo "full_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'pip'
 
-      - name: Run rule processor
+      - name: Process rules
         run: python .github/scripts/process_rules.py emby.list
 
       - name: Download Sing-box
         run: |
-          # 使用上一步获取的版本号
           wget -q "https://github.com/SagerNet/sing-box/releases/download/${{ steps.get_version.outputs.full_version }}/sing-box-${{ steps.get_version.outputs.sing_box_version }}-linux-amd64.tar.gz"
-          
-          # 验证下载完整性
-          if [ ! -f sing-box-*.tar.gz ]; then
-            echo "::error::Failed to download Sing-box archive"
-            exit 1
-          fi
-          
           tar -xzf sing-box-*.tar.gz
           mkdir -p sing-box-bin
           mv sing-box-*/sing-box sing-box-bin/
@@ -68,39 +47,23 @@ jobs:
       - name: Compile ruleset
         run: |
           sing-box rule-set compile --output emby.srs emby.json
-          if [ ! -f emby.srs ]; then
-            echo "::error::Compilation failed: emby.srs not generated"
-            exit 1
-          fi
+          [ -f emby.srs ] || exit 1
 
       - name: Commit changes
-        id: commit
         run: |
-          CHANGES=$(git status --porcelain ${{ env.TARGET_FILES }})
-          if [ -z "$CHANGES" ]; then
-            echo "::notice::No changes detected"
-            exit 0
-          fi
-
           git config --global user.name "RuleBot"
           git config --global user.email "actions@github.com"
           git add ${{ env.TARGET_FILES }}
-          
           git pull --rebase --autostash --quiet
-          git commit -m "🤖 Auto-process: update rules & compiled assets (sing-box ${{ steps.get_version.outputs.full_version }})"
-          
-          RETRY=0
+          git commit -m "🤖 Auto-process: update rules (sing-box ${{ steps.get_version.outputs.full_version }})"
+          retry=0
           until git push origin main; do
-            ((RETRY++))
-            if [ $RETRY -ge 3 ]; then
-              echo "::error::Push failed after 3 attempts"
-              exit 1
-            fi
+            ((retry++))
+            [ $retry -ge 3 ] && exit 1
             sleep 5
             git pull --rebase --autostash --quiet
           done
-          echo "::notice::Changes committed successfully"
 
-      - name: Cleanup workspace
+      - name: Cleanup
         if: always()
         run: rm -rf sing-box-*.tar.gz sing-box-*/
