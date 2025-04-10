@@ -84,10 +84,12 @@ class RuleProcessor:
             print(f"Error writing to input file '{self.input_file}': {e}")
 
         json_rules_list = []
-        for rule_type in self.TYPE_ORDER:
-            if rule_type in self.rules:
-                for value in sorted(list(self.rules[rule_type])):
-                    json_rules_list.append({"type": rule_type.lower(), "value": value})
+        for rule_type_internal in self.TYPE_ORDER:
+            if rule_type_internal in self.rules:
+                rule_type_json = self.JSON_MAP.get(rule_type_internal)
+                if rule_type_json:
+                    for value in sorted(list(self.rules[rule_type_internal])):
+                        json_rules_list.append({"type": rule_type_json, "value": value})
 
         try:
             with open(self.output_json, "w", encoding="utf-8") as f:
