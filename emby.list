@@ -1,21 +1,17 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-04-10 04:08:07
-# DOMAIN-SUFFIX: 190
-# IP-CIDR: 11
-# DOMAIN: 27
-# DOMAIN-KEYWORD: 1
-# TOTAL: 229
-DOMAIN-SUFFIX,mobaiemby.site
+# UPDATED: 2025-04-10 04:22:34
+# DOMAIN-SUFFIX: 174
+# DOMAIN: 14
+# IP-CIDR: 1
+# TOTAL: 189
+
 DOMAIN,cc.ccemby.tk
 DOMAIN,cc.coemn.com
-DOMAIN-SUFFIX,sfcat.link
-DOMAIN-SUFFIX,nebula-emby.com
-DOMAIN-SUFFIX,cn2gias.uk
+DOMAIN,e.degyax.one
 DOMAIN,emby.flowercloud
 DOMAIN,emby.maying.club
-
 DOMAIN,emby.nexitally.com
 DOMAIN,jsq.mooguu.xyz
 DOMAIN,lite.saturday.video
@@ -23,10 +19,8 @@ DOMAIN,misty.cx
 DOMAIN,notnetflix.cos.cat
 DOMAIN,ntrrr.am.sb
 DOMAIN,push-kr.cfprefer3.xyz
-DOMAIN-SUFFIX,nebula-media.org
 DOMAIN,temby856.285286.xyz
 DOMAIN,tv.worldline.space
-DOMAIN-KEYWORD,emby
 DOMAIN-SUFFIX,023168.xyz
 DOMAIN-SUFFIX,123456.al
 DOMAIN-SUFFIX,127066.xyz
@@ -49,7 +43,6 @@ DOMAIN-SUFFIX,91ai.de
 DOMAIN-SUFFIX,9521732.xyz
 DOMAIN-SUFFIX,994959.xyz
 DOMAIN-SUFFIX,acemby.org
-DOMAIN-SUFFIX,odysseyplus.site
 DOMAIN-SUFFIX,agan2.vip
 DOMAIN-SUFFIX,agon.cf
 DOMAIN-SUFFIX,aliz.work
@@ -78,7 +71,6 @@ DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,deja-vu.beauty
 DOMAIN-SUFFIX,dhyy.eu.org
 DOMAIN-SUFFIX,dicarerhome.com
-DOMAIN,e.degyax.one
 DOMAIN-SUFFIX,ednovas.org
 DOMAIN-SUFFIX,em.ssky.me
 DOMAIN-SUFFIX,emby-cf.plusmedia.site
@@ -114,7 +106,6 @@ DOMAIN-SUFFIX,emby.ws
 DOMAIN-SUFFIX,emby.wtf
 DOMAIN-SUFFIX,emby.xeton.dev
 DOMAIN-SUFFIX,emby.ytoo.li
-DOMAIN-SUFFIX,medi4.org
 DOMAIN-SUFFIX,emby2.otakudrive.life
 DOMAIN-SUFFIX,emby77.cf
 DOMAIN-SUFFIX,emby77.org
@@ -150,6 +141,7 @@ DOMAIN-SUFFIX,lyrebirdemby.com
 DOMAIN-SUFFIX,magpie.cyou
 DOMAIN-SUFFIX,magpiecdn.tech
 DOMAIN-SUFFIX,mcjoker.xyz
+DOMAIN-SUFFIX,medi4.org
 DOMAIN-SUFFIX,mefun.org
 DOMAIN-SUFFIX,misty.ltd
 DOMAIN-SUFFIX,mius.uk
@@ -158,6 +150,8 @@ DOMAIN-SUFFIX,mobaiemby.site
 DOMAIN-SUFFIX,movie.xeton.dev
 DOMAIN-SUFFIX,mulgore.net
 DOMAIN-SUFFIX,nanflix.net
+DOMAIN-SUFFIX,nebula-emby.com
+DOMAIN-SUFFIX,nebula-media.org
 DOMAIN-SUFFIX,newpppp.com
 DOMAIN-SUFFIX,newwan.top
 DOMAIN-SUFFIX,nezhasu.com
@@ -174,13 +168,13 @@ DOMAIN-SUFFIX,pilipiliultra.com
 DOMAIN-SUFFIX,poloemby.xyz
 DOMAIN-SUFFIX,pololine.ml
 DOMAIN-SUFFIX,pornemby.club
-DOMAIN-SUFFIX,emby.wtf
 DOMAIN-SUFFIX,raisemby.com
 DOMAIN-SUFFIX,reddust.link
 DOMAIN-SUFFIX,roboemby.de
 DOMAIN-SUFFIX,ru.odysseyplus.site
 DOMAIN-SUFFIX,servers.xeton.dev
 DOMAIN-SUFFIX,sexemby.com
+DOMAIN-SUFFIX,sfcat.link
 DOMAIN-SUFFIX,shuipo.lol
 DOMAIN-SUFFIX,speedx.one
 DOMAIN-SUFFIX,starcat.eu.org
@@ -201,14 +195,4 @@ DOMAIN-SUFFIX,xxxh.de
 DOMAIN-SUFFIX,younoyes.com
 DOMAIN-SUFFIX,zi0.icu
 DOMAIN-SUFFIX,zox.show
-IP-CIDR,116.163.28.190/32
-IP-CIDR,120.226.149.35/32
-IP-CIDR,152.53.67.239/32
-IP-CIDR,168.119.137.205/32
-IP-CIDR,188.172.228.49/32
-IP-CIDR,195.128.100.146/32
-IP-CIDR,195.128.102.208/32
-IP-CIDR,195.201.86.86/32
-IP-CIDR,202.61.247.129/32
-IP-CIDR,202.61.255.248/32
 IP-CIDR,212.90.120.164/32

@@ -2,691 +2,583 @@
   "version": 3,
   "rules": [
     {
-      "domain_suffix": "cf.odysseyplus.site"
-    },
-    {
-      "domain_suffix": "nijigem.by"
-    },
-    {
-      "domain_suffix": "magpiecdn.tech"
-    },
-    {
-      "domain_suffix": "pili.im"
-    },
-    {
       "domain_suffix": "mobaiemby.site"
-    },
-    {
-      "domain_suffix": "embyplus.club"
-    },
-    {
-      "ip_cidr": "195.128.102.208/32"
-    },
-    {
-      "domain_suffix": "carlos.trade"
-    },
-    {
-      "domain_suffix": "emby.nexitally.com"
-    },
-    {
-      "domain_suffix": "emby.mdss.cloud"
-    },
-    {
-      "domain_suffix": "stream.synn.cc"
-    },
-    {
-      "domain_suffix": "pub2cf.emby.wtf"
-    },
-    {
-      "domain_suffix": "xxxh.de"
-    },
-    {
-      "domain_suffix": "studyfun.live"
-    },
-    {
-      "domain_suffix": "pilipili.me"
-    },
-    {
-      "domain_suffix": "zi0.icu"
-    },
-    {
-      "domain_suffix": "odysseyplus.site"
-    },
-    {
-      "domain_suffix": "oceancloud.asia"
-    },
-    {
-      "domain_suffix": "tanhuatv.site"
-    },
-    {
-      "domain_suffix": "ouonet.org"
-    },
-    {
-      "domain_suffix": "emby2.medi4.org"
-    },
-    {
-      "domain_suffix": "guguemby.site"
-    },
-    {
-      "domain_suffix": "misty.ltd"
-    },
-    {
-      "domain": "starharn.nebula-media.org"
-    },
-    {
-      "domain_suffix": "texon.fans"
-    },
-    {
-      "domain_suffix": "123456.al"
-    },
-    {
-      "domain_suffix": "nezhasu.com"
-    },
-    {
-      "domain_suffix": "5203166.xyz"
-    },
-    {
-      "domain_suffix": "xmsl.org"
-    },
-    {
-      "domain_suffix": "servers.xeton.dev"
-    },
-    {
-      "domain_suffix": "embymv.tk"
-    },
-    {
-      "domain_suffix": "cc.semby.ink"
-    },
-    {
-      "domain_suffix": "jmsooo.com"
-    },
-    {
-      "domain_suffix": "lucasmedia.top"
-    },
-    {
-      "domain": "2pfdml.mobaiemby.site"
-    },
-    {
-      "domain_suffix": "poloemby.xyz"
-    },
-    {
-      "domain_suffix": "agahk.odysseyplus.site"
-    },
-    {
-      "domain_suffix": "raisemby.com"
-    },
-    {
-      "domain_suffix": "newpppp.com"
-    },
-    {
-      "domain_suffix": "emby.xeton.dev"
-    },
-    {
-      "domain_suffix": "pololine.ml"
-    },
-    {
-      "domain_suffix": "pub1.emby.wtf"
-    },
-    {
-      "domain_suffix": "blueseacdn.com"
-    },
-    {
-      "domain_suffix": "wiri.tk"
-    },
-    {
-      "domain_suffix": "az-hk.embyclub.com"
-    },
-    {
-      "domain": "temby856.285286.xyz"
-    },
-    {
-      "domain_suffix": "dicarerhome.com"
-    },
-    {
-      "domain_suffix": "cn2gias.uk"
-    },
-    {
-      "domain_keyword": "emby"
-    },
-    {
-      "domain_suffix": "bili.de"
-    },
-    {
-      "domain_suffix": "mius.uk"
-    },
-    {
-      "domain_suffix": "cherry-pornemby.top"
-    },
-    {
-      "domain_suffix": "sexemby.com"
-    },
-    {
-      "domain_suffix": "niceduck.lol"
-    },
-    {
-      "domain_suffix": "20120714.xyz"
-    },
-    {
-      "domain_suffix": "emby-sg.plusmedia.site"
-    },
-    {
-      "domain_suffix": "ohhhh.org"
-    },
-    {
-      "domain_suffix": "emby.ssltd.xyz"
-    },
-    {
-      "domain_suffix": "cinema.facmata.net"
-    },
-    {
-      "domain_suffix": "emby.cjpc.cc"
-    },
-    {
-      "domain_suffix": "emby.loan"
-    },
-    {
-      "domain_suffix": "91ai.de"
-    },
-    {
-      "domain_suffix": "catlinks.co.uk"
-    },
-    {
-      "domain_suffix": "cdn.bgp.yt"
-    },
-    {
-      "domain_suffix": "emby.run"
-    },
-    {
-      "domain_suffix": "roboemby.de"
-    },
-    {
-      "domain_suffix": "agon.cf"
-    },
-    {
-      "domain_suffix": "freetz.top"
-    },
-    {
-      "domain_suffix": "aliz.work"
-    },
-    {
-      "domain_suffix": "pilipiliultra.com"
-    },
-    {
-      "domain_suffix": "emby.maying.club"
-    },
-    {
-      "domain_suffix": "4545.cf"
-    },
-    {
-      "domain_suffix": "emby.otakudrive.life"
-    },
-    {
-      "ip_cidr": "152.53.67.239/32"
-    },
-    {
-      "domain_suffix": "pilipili.club"
-    },
-    {
-      "domain_suffix": "lyrebirdemby.com"
-    },
-    {
-      "domain_suffix": "emby.ml"
-    },
-    {
-      "domain_suffix": "9191001.xyz"
-    },
-    {
-      "domain": "lite.saturday.video"
-    },
-    {
-      "domain_suffix": "speedx.one"
-    },
-    {
-      "domain_suffix": "emby.aiyowei.ml"
-    },
-    {
-      "domain_suffix": "goodisp.org"
-    },
-    {
-      "domain_suffix": "line.emby.men"
-    },
-    {
-      "domain_suffix": "223789.xyz"
-    },
-    {
-      "domain_suffix": "newwan.top"
-    },
-    {
-      "domain_suffix": "emby.kim"
-    },
-    {
-      "domain_suffix": "jellyfin.xeton.dev"
-    },
-    {
-      "domain_suffix": "zox.show"
-    },
-    {
-      "domain_suffix": "emby.eu.org"
-    },
-    {
-      "domain_suffix": "loseremby.org"
-    },
-    {
-      "domain_suffix": "emby.cn2gias.uk"
-    },
-    {
-      "domain_suffix": "cherrytv.one"
-    },
-    {
-      "domain_suffix": "nanflix.net"
-    },
-    {
-      "domain_suffix": "emby.pro"
-    },
-    {
-      "domain_suffix": "emby.wtf"
-    },
-    {
-      "domain_suffix": "i109.com"
-    },
-    {
-      "domain_suffix": "stream.ntrrr.top"
-    },
-    {
-      "domain_suffix": "7777777.buzz"
-    },
-    {
-      "domain_suffix": "synn.cc"
-    },
-    {
-      "domain_suffix": "bddup.com"
-    },
-    {
-      "domain_suffix": "ju.dog"
-    },
-    {
-      "domain_suffix": "ru.odysseyplus.site"
-    },
-    {
-      "domain_suffix": "agasg.odysseyplus.site"
-    },
-    {
-      "domain_suffix": "deja-vu.beauty"
-    },
-    {
-      "domain_suffix": "gfwemby.org"
-    },
-    {
-      "domain_suffix": "pub1back.emby.wtf"
-    },
-    {
-      "domain": "cc.coemn.com"
-    },
-    {
-      "domain_suffix": "carryz.net"
-    },
-    {
-      "domain": "emby.maying.club"
-    },
-    {
-      "domain_suffix": "285286.xyz"
-    },
-    {
-      "domain_suffix": "movie.xeton.dev"
-    },
-    {
-      "domain_suffix": "pub2back.emby.wtf"
-    },
-    {
-      "ip_cidr": "116.163.28.190/32"
-    },
-    {
-      "domain_suffix": "nvidia.rip"
-    },
-    {
-      "ip_cidr": "202.61.247.129/32"
-    },
-    {
-      "domain_suffix": "mefun.org"
-    },
-    {
-      "domain_suffix": "charontv.com"
-    },
-    {
-      "domain_suffix": "252798.xyz"
-    },
-    {
-      "domain_suffix": "wenjian.de"
-    },
-    {
-      "domain_suffix": "emby.neko.edu.rs"
-    },
-    {
-      "domain_suffix": "pub2.emby.wtf"
-    },
-    {
-      "domain_suffix": "581658.best"
-    },
-    {
-      "domain": "cuinf.sfcat.link"
-    },
-    {
-      "domain_suffix": "pub3back.emby.wtf"
-    },
-    {
-      "domain_suffix": "azsgp.embyclub.com"
-    },
-    {
-      "domain": "emby.flowercloud"
-    },
-    {
-      "ip_cidr": "202.61.255.248/32"
-    },
-    {
-      "domain": "cminf.sfcat.link"
-    },
-    {
-      "domain_suffix": "mulgore.net"
     },
     {
       "domain": "cc.ccemby.tk"
     },
     {
-      "domain": "ntrrr.am.sb"
+      "domain": "cc.coemn.com"
     },
     {
-      "domain_suffix": "dhyy.eu.org"
+      "domain_suffix": "sfcat.link"
     },
     {
-      "domain_suffix": "as174.de"
+      "domain_suffix": "nebula-emby.com"
     },
     {
-      "domain_suffix": "emby.moe"
+      "domain_suffix": "cn2gias.uk"
     },
     {
-      "domain_suffix": "embyclub.com"
+      "domain": "emby.flowercloud"
     },
     {
-      "domain_suffix": "pilipiliultra.top"
-    },
-    {
-      "domain_suffix": "starcat.eu.org"
-    },
-    {
-      "domain_suffix": "xiaoyi.one"
-    },
-    {
-      "domain": "emby.cn2gias.uk"
-    },
-    {
-      "domain_suffix": "994959.xyz"
-    },
-    {
-      "domain_suffix": "emby.date"
-    },
-    {
-      "domain_suffix": "ednovas.org"
-    },
-    {
-      "domain_suffix": "gtlx.org"
-    },
-    {
-      "domain_suffix": "emby.flowercloud"
-    },
-    {
-      "domain_suffix": "bili.rip"
-    },
-    {
-      "domain_suffix": "emby.ok.edu.hk"
-    },
-    {
-      "domain_suffix": "infinityfly.top"
-    },
-    {
-      "domain_suffix": "magpie.cyou"
-    },
-    {
-      "domain_suffix": "16bit.cfd"
-    },
-    {
-      "domain_suffix": "9521732.xyz"
-    },
-    {
-      "domain": "pe.cn2gias.uk"
-    },
-    {
-      "domain_suffix": "cc.ccemby.tk"
-    },
-    {
-      "domain_suffix": "em.ssky.me"
-    },
-    {
-      "domain_suffix": "ntrrr.am.sb"
-    },
-    {
-      "domain_suffix": "emby.lcloud.wiki"
-    },
-    {
-      "domain": "starharn-cf.nebula-media.org"
-    },
-    {
-      "domain_suffix": "204cloud.com"
-    },
-    {
-      "domain_suffix": "pub1cf.emby.wtf"
-    },
-    {
-      "domain_suffix": "127255.best"
-    },
-    {
-      "domain_suffix": "tkremby.xyz"
-    },
-    {
-      "domain_suffix": "happyav.eu.org"
-    },
-    {
-      "domain": "tv.worldline.space"
-    },
-    {
-      "domain_suffix": "alphatvapp.top"
-    },
-    {
-      "domain_suffix": "ggtt.cf"
-    },
-    {
-      "domain_suffix": "mcjoker.xyz"
-    },
-    {
-      "domain": "jsq.mooguu.xyz"
-    },
-    {
-      "domain_suffix": "pub3cf.emby.wtf"
-    },
-    {
-      "domain": "push-kr.cfprefer3.xyz"
-    },
-    {
-      "domain_suffix": "404.sb"
-    },
-    {
-      "domain_suffix": "pub3.emby.wtf"
-    },
-    {
-      "domain_suffix": "embytv.cf"
-    },
-    {
-      "domain_suffix": "emby.bid"
-    },
-    {
-      "domain_suffix": "imetyou.top"
-    },
-    {
-      "domain_suffix": "emby.nyancat.net"
-    },
-    {
-      "domain_suffix": "bangumi.ca"
-    },
-    {
-      "domain": "emby.nebula-media.org"
-    },
-    {
-      "domain_suffix": "emby2.otakudrive.life"
-    },
-    {
-      "domain_suffix": "ii00.cc"
-    },
-    {
-      "ip_cidr": "195.201.86.86/32"
-    },
-    {
-      "domain_suffix": "emby-myg-de.vfing.de"
-    },
-    {
-      "domain_suffix": "younoyes.com"
-    },
-    {
-      "domain": "us.nanflix.net"
-    },
-    {
-      "ip_cidr": "195.128.100.146/32"
-    },
-    {
-      "domain_suffix": "e.degyax.one"
-    },
-    {
-      "domain_suffix": "tv.worldline.space"
-    },
-    {
-      "domain_suffix": "emby.plusmedia.site"
-    },
-    {
-      "domain": "emby-cdn1.nebula-media.org"
-    },
-    {
-      "ip_cidr": "188.172.228.49/32"
-    },
-    {
-      "domain": "direct.nebula-emby.com"
-    },
-    {
-      "domain_suffix": "nivod4.tv"
-    },
-    {
-      "domain_suffix": "pornemby.club"
-    },
-    {
-      "domain_suffix": "post.cn2gias.uk"
-    },
-    {
-      "domain_suffix": "baisi.pro"
-    },
-    {
-      "domain_suffix": "emby.prprcloud.com"
-    },
-    {
-      "domain_suffix": "kevinchen.vip"
-    },
-    {
-      "domain": "misty.cx"
-    },
-    {
-      "domain_suffix": "shuipo.lol"
-    },
-    {
-      "domain_suffix": "embyplus.org"
-    },
-    {
-      "domain_suffix": "emby.cl"
-    },
-    {
-      "domain": "web-starharn.nebula-media.org"
-    },
-    {
-      "domain_suffix": "emby-cf.plusmedia.site"
-    },
-    {
-      "domain_suffix": "emby.ytoo.li"
-    },
-    {
-      "domain_suffix": "emby1.medi4.org"
-    },
-    {
-      "domain_suffix": "emby77.cf"
-    },
-    {
-      "domain_suffix": "uuuoo.cc"
-    },
-    {
-      "domain_suffix": "embymv.me"
-    },
-    {
-      "domain_suffix": "127066.xyz"
-    },
-    {
-      "domain_suffix": "emby77.org"
-    },
-    {
-      "ip_cidr": "120.226.149.35/32"
-    },
-    {
-      "domain": "cf-cdn1.nebula-media.org"
-    },
-    {
-      "domain_suffix": "agan2.vip"
-    },
-    {
-      "ip_cidr": "168.119.137.205/32"
-    },
-    {
-      "domain_suffix": "embyserver.ga"
-    },
-    {
-      "domain_suffix": "emby.trade"
-    },
-    {
-      "domain": "web.nebula-media.org"
-    },
-    {
-      "domain_suffix": "616626.xyz"
-    },
-    {
-      "ip_cidr": "212.90.120.164/32"
-    },
-    {
-      "domain_suffix": "embymv.link"
-    },
-    {
-      "domain_suffix": "313445.xyz"
-    },
-    {
-      "domain_suffix": "reddust.link"
-    },
-    {
-      "domain_suffix": "gugumedia.link"
+      "domain": "emby.maying.club"
     },
     {
       "domain": "emby.nexitally.com"
     },
     {
-      "domain_suffix": "emby.immtel.com"
+      "domain": "jsq.mooguu.xyz"
     },
     {
-      "domain_suffix": "hovervan.org"
+      "domain": "lite.saturday.video"
     },
     {
-      "domain_suffix": "mjjemby.org"
-    },
-    {
-      "domain_suffix": "emby.ws"
+      "domain": "misty.cx"
     },
     {
       "domain": "notnetflix.cos.cat"
     },
     {
+      "domain": "ntrrr.am.sb"
+    },
+    {
+      "domain": "push-kr.cfprefer3.xyz"
+    },
+    {
+      "domain_suffix": "nebula-media.org"
+    },
+    {
+      "domain": "temby856.285286.xyz"
+    },
+    {
+      "domain": "tv.worldline.space"
+    },
+    {
       "domain_suffix": "023168.xyz"
     },
     {
+      "domain_suffix": "123456.al"
+    },
+    {
+      "domain_suffix": "127066.xyz"
+    },
+    {
+      "domain_suffix": "127255.best"
+    },
+    {
+      "domain_suffix": "16bit.cfd"
+    },
+    {
+      "domain_suffix": "20120714.xyz"
+    },
+    {
+      "domain_suffix": "204cloud.com"
+    },
+    {
+      "domain_suffix": "223789.xyz"
+    },
+    {
+      "domain_suffix": "252798.xyz"
+    },
+    {
+      "domain_suffix": "285286.xyz"
+    },
+    {
+      "domain_suffix": "313445.xyz"
+    },
+    {
+      "domain_suffix": "404.sb"
+    },
+    {
+      "domain_suffix": "4545.cf"
+    },
+    {
+      "domain_suffix": "5203166.xyz"
+    },
+    {
+      "domain_suffix": "581658.best"
+    },
+    {
+      "domain_suffix": "616626.xyz"
+    },
+    {
+      "domain_suffix": "7777777.buzz"
+    },
+    {
+      "domain_suffix": "9191001.xyz"
+    },
+    {
+      "domain_suffix": "91ai.de"
+    },
+    {
+      "domain_suffix": "9521732.xyz"
+    },
+    {
+      "domain_suffix": "994959.xyz"
+    },
+    {
       "domain_suffix": "acemby.org"
+    },
+    {
+      "domain_suffix": "odysseyplus.site"
+    },
+    {
+      "domain_suffix": "agan2.vip"
+    },
+    {
+      "domain_suffix": "agon.cf"
+    },
+    {
+      "domain_suffix": "aliz.work"
+    },
+    {
+      "domain_suffix": "alphatvapp.top"
+    },
+    {
+      "domain_suffix": "as174.de"
+    },
+    {
+      "domain_suffix": "az-hk.embyclub.com"
+    },
+    {
+      "domain_suffix": "azsgp.embyclub.com"
+    },
+    {
+      "domain_suffix": "baisi.pro"
+    },
+    {
+      "domain_suffix": "bangumi.ca"
+    },
+    {
+      "domain_suffix": "bddup.com"
+    },
+    {
+      "domain_suffix": "bili.de"
+    },
+    {
+      "domain_suffix": "bili.rip"
+    },
+    {
+      "domain_suffix": "blueseacdn.com"
+    },
+    {
+      "domain_suffix": "carlos.trade"
+    },
+    {
+      "domain_suffix": "carryz.net"
+    },
+    {
+      "domain_suffix": "catlinks.co.uk"
+    },
+    {
+      "domain_suffix": "cc.ccemby.tk"
+    },
+    {
+      "domain_suffix": "cc.semby.ink"
+    },
+    {
+      "domain_suffix": "cdn.bgp.yt"
+    },
+    {
+      "domain_suffix": "cf.odysseyplus.site"
+    },
+    {
+      "domain_suffix": "charontv.com"
+    },
+    {
+      "domain_suffix": "cherry-pornemby.top"
+    },
+    {
+      "domain_suffix": "cherrytv.one"
+    },
+    {
+      "domain_suffix": "cinema.facmata.net"
+    },
+    {
+      "domain_suffix": "cn2gias.uk"
+    },
+    {
+      "domain_suffix": "deja-vu.beauty"
+    },
+    {
+      "domain_suffix": "dhyy.eu.org"
+    },
+    {
+      "domain_suffix": "dicarerhome.com"
+    },
+    {
+      "domain": "e.degyax.one"
+    },
+    {
+      "domain_suffix": "ednovas.org"
+    },
+    {
+      "domain_suffix": "em.ssky.me"
+    },
+    {
+      "domain_suffix": "emby-cf.plusmedia.site"
+    },
+    {
+      "domain_suffix": "emby-myg-de.vfing.de"
+    },
+    {
+      "domain_suffix": "emby-sg.plusmedia.site"
+    },
+    {
+      "domain_suffix": "emby.aiyowei.ml"
+    },
+    {
+      "domain_suffix": "emby.bid"
+    },
+    {
+      "domain_suffix": "emby.cjpc.cc"
+    },
+    {
+      "domain_suffix": "emby.cl"
+    },
+    {
+      "domain_suffix": "emby.date"
+    },
+    {
+      "domain_suffix": "emby.eu.org"
+    },
+    {
+      "domain_suffix": "emby.flowercloud"
+    },
+    {
+      "domain_suffix": "emby.immtel.com"
+    },
+    {
+      "domain_suffix": "emby.kim"
+    },
+    {
+      "domain_suffix": "emby.lcloud.wiki"
+    },
+    {
+      "domain_suffix": "emby.loan"
+    },
+    {
+      "domain_suffix": "emby.maying.club"
+    },
+    {
+      "domain_suffix": "emby.mdss.cloud"
+    },
+    {
+      "domain_suffix": "emby.ml"
+    },
+    {
+      "domain_suffix": "emby.moe"
+    },
+    {
+      "domain_suffix": "emby.neko.edu.rs"
+    },
+    {
+      "domain_suffix": "emby.nexitally.com"
+    },
+    {
+      "domain_suffix": "emby.nyancat.net"
+    },
+    {
+      "domain_suffix": "emby.ok.edu.hk"
+    },
+    {
+      "domain_suffix": "emby.otakudrive.life"
+    },
+    {
+      "domain_suffix": "emby.plusmedia.site"
+    },
+    {
+      "domain_suffix": "emby.pro"
+    },
+    {
+      "domain_suffix": "emby.prprcloud.com"
+    },
+    {
+      "domain_suffix": "emby.run"
+    },
+    {
+      "domain_suffix": "emby.ssltd.xyz"
+    },
+    {
+      "domain_suffix": "emby.trade"
+    },
+    {
+      "domain_suffix": "emby.ws"
+    },
+    {
+      "domain_suffix": "emby.wtf"
+    },
+    {
+      "domain_suffix": "emby.xeton.dev"
+    },
+    {
+      "domain_suffix": "emby.ytoo.li"
+    },
+    {
+      "domain_suffix": "medi4.org"
+    },
+    {
+      "domain_suffix": "emby2.otakudrive.life"
+    },
+    {
+      "domain_suffix": "emby77.cf"
+    },
+    {
+      "domain_suffix": "emby77.org"
+    },
+    {
+      "domain_suffix": "embyclub.com"
+    },
+    {
+      "domain_suffix": "embymv.link"
+    },
+    {
+      "domain_suffix": "embymv.me"
+    },
+    {
+      "domain_suffix": "embymv.tk"
+    },
+    {
+      "domain_suffix": "embyplus.club"
+    },
+    {
+      "domain_suffix": "embyplus.org"
+    },
+    {
+      "domain_suffix": "embyserver.ga"
+    },
+    {
+      "domain_suffix": "embytv.cf"
+    },
+    {
+      "domain_suffix": "freetz.top"
+    },
+    {
+      "domain_suffix": "gfwemby.org"
+    },
+    {
+      "domain_suffix": "ggtt.cf"
+    },
+    {
+      "domain_suffix": "goodisp.org"
+    },
+    {
+      "domain_suffix": "gtlx.org"
+    },
+    {
+      "domain_suffix": "guguemby.site"
+    },
+    {
+      "domain_suffix": "gugumedia.link"
+    },
+    {
+      "domain_suffix": "happyav.eu.org"
+    },
+    {
+      "domain_suffix": "hovervan.org"
+    },
+    {
+      "domain_suffix": "i109.com"
+    },
+    {
+      "domain_suffix": "ii00.cc"
+    },
+    {
+      "domain_suffix": "imetyou.top"
+    },
+    {
+      "domain_suffix": "infinityfly.top"
+    },
+    {
+      "domain_suffix": "jellyfin.xeton.dev"
+    },
+    {
+      "domain_suffix": "jmsooo.com"
+    },
+    {
+      "domain_suffix": "ju.dog"
+    },
+    {
+      "domain_suffix": "kevinchen.vip"
+    },
+    {
+      "domain_suffix": "line.emby.men"
+    },
+    {
+      "domain_suffix": "loseremby.org"
+    },
+    {
+      "domain_suffix": "lucasmedia.top"
+    },
+    {
+      "domain_suffix": "lyrebirdemby.com"
+    },
+    {
+      "domain_suffix": "magpie.cyou"
+    },
+    {
+      "domain_suffix": "magpiecdn.tech"
+    },
+    {
+      "domain_suffix": "mcjoker.xyz"
+    },
+    {
+      "domain_suffix": "mefun.org"
+    },
+    {
+      "domain_suffix": "misty.ltd"
+    },
+    {
+      "domain_suffix": "mius.uk"
+    },
+    {
+      "domain_suffix": "mjjemby.org"
+    },
+    {
+      "domain_suffix": "mobaiemby.site"
+    },
+    {
+      "domain_suffix": "movie.xeton.dev"
+    },
+    {
+      "domain_suffix": "mulgore.net"
+    },
+    {
+      "domain_suffix": "nanflix.net"
+    },
+    {
+      "domain_suffix": "newpppp.com"
+    },
+    {
+      "domain_suffix": "newwan.top"
+    },
+    {
+      "domain_suffix": "nezhasu.com"
+    },
+    {
+      "domain_suffix": "niceduck.lol"
+    },
+    {
+      "domain_suffix": "nijigem.by"
+    },
+    {
+      "domain_suffix": "nivod4.tv"
+    },
+    {
+      "domain_suffix": "ntrrr.am.sb"
+    },
+    {
+      "domain_suffix": "nvidia.rip"
+    },
+    {
+      "domain_suffix": "oceancloud.asia"
+    },
+    {
+      "domain_suffix": "odysseyplus.site"
+    },
+    {
+      "domain_suffix": "ohhhh.org"
+    },
+    {
+      "domain_suffix": "ouonet.org"
+    },
+    {
+      "domain_suffix": "pilipiliultra.com"
+    },
+    {
+      "domain_suffix": "poloemby.xyz"
+    },
+    {
+      "domain_suffix": "pololine.ml"
+    },
+    {
+      "domain_suffix": "pornemby.club"
+    },
+    {
+      "domain_suffix": "emby.wtf"
+    },
+    {
+      "domain_suffix": "raisemby.com"
+    },
+    {
+      "domain_suffix": "reddust.link"
+    },
+    {
+      "domain_suffix": "roboemby.de"
+    },
+    {
+      "domain_suffix": "ru.odysseyplus.site"
+    },
+    {
+      "domain_suffix": "servers.xeton.dev"
+    },
+    {
+      "domain_suffix": "sexemby.com"
+    },
+    {
+      "domain_suffix": "shuipo.lol"
+    },
+    {
+      "domain_suffix": "speedx.one"
+    },
+    {
+      "domain_suffix": "starcat.eu.org"
+    },
+    {
+      "domain_suffix": "stream.ntrrr.top"
+    },
+    {
+      "domain_suffix": "stream.synn.cc"
+    },
+    {
+      "domain_suffix": "studyfun.live"
+    },
+    {
+      "domain_suffix": "synn.cc"
+    },
+    {
+      "domain_suffix": "tanhuatv.site"
+    },
+    {
+      "domain_suffix": "texon.fans"
+    },
+    {
+      "domain_suffix": "tkremby.xyz"
+    },
+    {
+      "domain_suffix": "tv.worldline.space"
+    },
+    {
+      "domain_suffix": "uuuoo.cc"
+    },
+    {
+      "domain_suffix": "wenjian.de"
+    },
+    {
+      "domain_suffix": "wiri.tk"
+    },
+    {
+      "domain_suffix": "xiaoyi.one"
+    },
+    {
+      "domain_suffix": "xmsl.org"
+    },
+    {
+      "domain_suffix": "xxxh.de"
+    },
+    {
+      "domain_suffix": "younoyes.com"
+    },
+    {
+      "domain_suffix": "zi0.icu"
+    },
+    {
+      "domain_suffix": "zox.show"
+    },
+    {
+      "ip_cidr": "212.90.120.164/32"
     }
   ]
 }
