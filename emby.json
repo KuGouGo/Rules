@@ -2,31 +2,10 @@
   "version": 3,
   "rules": [
     {
-      "domain_suffix": "mobaiemby.site"
-    },
-    {
-      "domain": "cc.ccemby.tk"
-    },
-    {
       "domain": "cc.coemn.com"
     },
     {
-      "domain_suffix": "sfcat.link"
-    },
-    {
-      "domain_suffix": "nebula-emby.com"
-    },
-    {
-      "domain_suffix": "cn2gias.uk"
-    },
-    {
-      "domain": "emby.flowercloud"
-    },
-    {
-      "domain": "emby.maying.club"
-    },
-    {
-      "domain": "emby.nexitally.com"
+      "domain": "e.degyax.one"
     },
     {
       "domain": "jsq.mooguu.xyz"
@@ -41,19 +20,10 @@
       "domain": "notnetflix.cos.cat"
     },
     {
-      "domain": "ntrrr.am.sb"
-    },
-    {
       "domain": "push-kr.cfprefer3.xyz"
     },
     {
-      "domain_suffix": "nebula-media.org"
-    },
-    {
       "domain": "temby856.285286.xyz"
-    },
-    {
-      "domain": "tv.worldline.space"
     },
     {
       "domain_suffix": "023168.xyz"
@@ -120,9 +90,6 @@
     },
     {
       "domain_suffix": "acemby.org"
-    },
-    {
-      "domain_suffix": "odysseyplus.site"
     },
     {
       "domain_suffix": "agan2.vip"
@@ -207,9 +174,6 @@
     },
     {
       "domain_suffix": "dicarerhome.com"
-    },
-    {
-      "domain": "e.degyax.one"
     },
     {
       "domain_suffix": "ednovas.org"
@@ -317,9 +281,6 @@
       "domain_suffix": "emby.ytoo.li"
     },
     {
-      "domain_suffix": "medi4.org"
-    },
-    {
       "domain_suffix": "emby2.otakudrive.life"
     },
     {
@@ -425,6 +386,9 @@
       "domain_suffix": "mcjoker.xyz"
     },
     {
+      "domain_suffix": "medi4.org"
+    },
+    {
       "domain_suffix": "mefun.org"
     },
     {
@@ -447,6 +411,12 @@
     },
     {
       "domain_suffix": "nanflix.net"
+    },
+    {
+      "domain_suffix": "nebula-emby.com"
+    },
+    {
+      "domain_suffix": "nebula-media.org"
     },
     {
       "domain_suffix": "newpppp.com"
@@ -497,9 +467,6 @@
       "domain_suffix": "pornemby.club"
     },
     {
-      "domain_suffix": "emby.wtf"
-    },
-    {
       "domain_suffix": "raisemby.com"
     },
     {
@@ -516,6 +483,9 @@
     },
     {
       "domain_suffix": "sexemby.com"
+    },
+    {
+      "domain_suffix": "sfcat.link"
     },
     {
       "domain_suffix": "shuipo.lol"
@@ -576,6 +546,33 @@
     },
     {
       "domain_suffix": "zox.show"
+    },
+    {
+      "ip_cidr": "212.90.120.164/32"
+    },
+    {
+      "ip_cidr": "152.53.67.239/32"
+    },
+    {
+      "ip_cidr": "168.119.137.205/32"
+    },
+    {
+      "ip_cidr": "188.172.228.49/32"
+    },
+    {
+      "ip_cidr": "195.128.100.146/32"
+    },
+    {
+      "ip_cidr": "195.128.102.208/32"
+    },
+    {
+      "ip_cidr": "195.201.86.86/32"
+    },
+    {
+      "ip_cidr": "202.61.247.129/32"
+    },
+    {
+      "ip_cidr": "202.61.255.248/32"
     },
     {
       "ip_cidr": "212.90.120.164/32"

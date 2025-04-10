@@ -1,26 +1,20 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-04-10 04:22:34
+# UPDATED: 2025-04-10 04:27:45
+# DOMAIN: 8
 # DOMAIN-SUFFIX: 174
-# DOMAIN: 14
-# IP-CIDR: 1
-# TOTAL: 189
+# IP-CIDR: 9
+# TOTAL: 191
 
-DOMAIN,cc.ccemby.tk
 DOMAIN,cc.coemn.com
 DOMAIN,e.degyax.one
-DOMAIN,emby.flowercloud
-DOMAIN,emby.maying.club
-DOMAIN,emby.nexitally.com
 DOMAIN,jsq.mooguu.xyz
 DOMAIN,lite.saturday.video
 DOMAIN,misty.cx
 DOMAIN,notnetflix.cos.cat
-DOMAIN,ntrrr.am.sb
 DOMAIN,push-kr.cfprefer3.xyz
 DOMAIN,temby856.285286.xyz
-DOMAIN,tv.worldline.space
 DOMAIN-SUFFIX,023168.xyz
 DOMAIN-SUFFIX,123456.al
 DOMAIN-SUFFIX,127066.xyz
@@ -195,7 +189,6 @@ DOMAIN-SUFFIX,xxxh.de
 DOMAIN-SUFFIX,younoyes.com
 DOMAIN-SUFFIX,zi0.icu
 DOMAIN-SUFFIX,zox.show
-IP-CIDR,212.90.120.164/32
 IP-CIDR,152.53.67.239/32
 IP-CIDR,168.119.137.205/32
 IP-CIDR,188.172.228.49/32
