@@ -107,19 +107,17 @@ class RuleProcessor:
             if rule:
                 parsed_rules.append(rule)
 
-        domain_rules_to_remove = set()
-        domain_suffix_rules = defaultdict(set)
+        domain_suffix_rules = {rule['value'] for rule in parsed_rules if rule['type'] == 'DOMAIN-SUFFIX'}
         final_unique_rules = []
 
         for rule in parsed_rules:
             if rule['type'] == 'DOMAIN-SUFFIX':
-                domain_suffix_rules[rule['value']].add(rule['value'])
                 final_unique_rules.append(rule)
             elif rule['type'] == 'DOMAIN':
                 if rule['value'] not in domain_suffix_rules:
                     final_unique_rules.append(rule)
-        else:
-            final_unique_rules.append(rule)
+            elif rule['type'] in TYPE_ORDER and rule['type'] not in ['DOMAIN', 'DOMAIN-SUFFIX']:
+                final_unique_rules.append(rule)
 
         parsed_rules = final_unique_rules
 
