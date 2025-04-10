@@ -11,37 +11,96 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+    env:
+      TARGET_FILES: "emby.list emby.srs"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Get latest Sing-box version
+        id: get_version
+        run: |
+          # 使用 GitHub API 获取最新稳定版
+          LATEST_VERSION=$(curl -sL "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          
+          # 验证版本号格式
+          if [[ ! $LATEST_VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format: $LATEST_VERSION"
+            exit 1
+          fi
+          
+          # 去除版本号前的 'v' 字符
+          CLEAN_VERSION=${LATEST_VERSION#v}
+          echo "::notice::Using Sing-box version: $CLEAN_VERSION"
+          
+          # 设置输出变量
+          echo "sing_box_version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+          echo "full_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-      - name: Run rule processor, update emby.list, and generate emby.json
+          cache: 'pip'
+
+      - name: Run rule processor
         run: python .github/scripts/process_rules.py emby.list
-      - name: Download Sing-box (v1.11.7)
+
+      - name: Download Sing-box
         run: |
-          wget https://github.com/SagerNet/sing-box/releases/download/v1.11.7/sing-box-1.11.7-linux-amd64.tar.gz
-          tar -xzf sing-box-1.11.7-linux-amd64.tar.gz
+          # 使用上一步获取的版本号
+          wget -q "https://github.com/SagerNet/sing-box/releases/download/${{ steps.get_version.outputs.full_version }}/sing-box-${{ steps.get_version.outputs.sing_box_version }}-linux-amd64.tar.gz"
+          
+          # 验证下载完整性
+          if [ ! -f sing-box-*.tar.gz ]; then
+            echo "::error::Failed to download Sing-box archive"
+            exit 1
+          fi
+          
+          tar -xzf sing-box-*.tar.gz
           mkdir -p sing-box-bin
-          mv sing-box-1.11.7-linux-amd64/sing-box sing-box-bin/sing-box
+          mv sing-box-*/sing-box sing-box-bin/
           chmod +x sing-box-bin/sing-box
-      - name: Compile to .srs format using emby.json
-        run: ./sing-box-bin/sing-box rule-set compile --output emby.srs emby.json
-      - name: Commit changes
-        if: success()
+          echo "$GITHUB_WORKSPACE/sing-box-bin" >> $GITHUB_PATH
+
+      - name: Compile ruleset
         run: |
+          sing-box rule-set compile --output emby.srs emby.json
+          if [ ! -f emby.srs ]; then
+            echo "::error::Compilation failed: emby.srs not generated"
+            exit 1
+          fi
+
+      - name: Commit changes
+        id: commit
+        run: |
+          CHANGES=$(git status --porcelain ${{ env.TARGET_FILES }})
+          if [ -z "$CHANGES" ]; then
+            echo "::notice::No changes detected"
+            exit 0
+          fi
+
           git config --global user.name "RuleBot"
           git config --global user.email "actions@github.com"
-          git add emby.list emby.srs 
-          if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-process: update rules & stats & compiled .srs & .mrs"
-            git pull --rebase --autostash
-            git push origin main
-            echo "✅ Changes committed"
-          else
-            echo "🟢 No changes to commit"
-          fi
+          git add ${{ env.TARGET_FILES }}
+          
+          git pull --rebase --autostash --quiet
+          git commit -m "🤖 Auto-process: update rules & compiled assets (sing-box ${{ steps.get_version.outputs.full_version }})"
+          
+          RETRY=0
+          until git push origin main; do
+            ((RETRY++))
+            if [ $RETRY -ge 3 ]; then
+              echo "::error::Push failed after 3 attempts"
+              exit 1
+            fi
+            sleep 5
+            git pull --rebase --autostash --quiet
+          done
+          echo "::notice::Changes committed successfully"
+
+      - name: Cleanup workspace
+        if: always()
+        run: rm -rf sing-box-*.tar.gz sing-box-*/
