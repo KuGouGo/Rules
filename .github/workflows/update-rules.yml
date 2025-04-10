@@ -57,6 +57,12 @@ jobs:
           sing-box rule-set compile --output emby.srs emby.json
           [ -f emby.srs ] || exit 1
 
+      - name: Upload emby.json
+        uses: actions/upload-artifact@v3
+        with:
+          name: emby-rules
+          path: emby.json
+
       - name: Commit changes
         run: |
           git config --global user.name "RuleBot"
