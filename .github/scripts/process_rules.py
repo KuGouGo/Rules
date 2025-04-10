@@ -28,7 +28,7 @@ class RuleProcessor:
         try:
             content = RULE_FILE.read_text(encoding="utf-8")
         except FileNotFoundError:
-            print(f"错误：文件 {RULE_FILE} 不存在")
+            print(f"Error: File {RULE_FILE} does not exist")
             sys.exit(1)
 
         header_match = re.search(r"^# NAME:.*?(?=\n[^#]|\Z)", content, re.DOTALL)
@@ -74,7 +74,6 @@ class RuleProcessor:
 
     def generate_json_output(self, rules: list):
         json_rules = []
-        ip_cidr_rules = []
         for rule in rules:
             rule_type = rule["type"]
             value = rule["value"]
@@ -85,30 +84,28 @@ class RuleProcessor:
             elif rule_type == "DOMAIN":
                 json_rules.append({"domain": value})
             elif rule_type == "IP-CIDR":
-                ip_cidr_rules.append(value)
+                json_rules.append({"ip_cidr": value})
             elif rule_type not in ["PROCESS-NAME", "USER-AGENT"]:
-                print(f"警告：JSON 未处理的规则类型: {rule_type}, 值: {value}")
+                print(f"Warning: JSON not handling rule type: {rule_type}, value: {value}")
 
         output_data = {
             "version": 3,
             "rules": json_rules
         }
-        if ip_cidr_rules:
-            output_data["ip_cidr"] = sorted(list(set(ip_cidr_rules)))
 
         try:
             with open(OUTPUT_JSON_FILE, 'w', encoding='utf-8') as outfile:
                 json.dump(output_data, outfile, indent=2)
-            print(f"成功生成 {OUTPUT_JSON_FILE}")
+            print(f"Successfully generated {OUTPUT_JSON_FILE}")
         except PermissionError:
-            print(f"错误：无权限写入文件 {OUTPUT_JSON_FILE}")
+            print(f"Error: Permission denied to write file {OUTPUT_JSON_FILE}")
             sys.exit(1)
 
     def save_file(self, new_content: str):
         try:
             RULE_FILE.write_text(new_content, encoding="utf-8")
         except PermissionError:
-            print(f"错误：无权限写入文件 {RULE_FILE}")
+            print(f"Error: Permission denied to write file {RULE_FILE}")
             sys.exit(1)
 
     def process(self):
