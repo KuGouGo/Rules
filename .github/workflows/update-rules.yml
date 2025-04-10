@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
     env:
-      TARGET_FILES: "emby.list emby.srs"
+      TARGET_FILES: "emby.list emby.srs emby.json"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,12 +56,6 @@ jobs:
         run: |
           sing-box rule-set compile --output emby.srs emby.json
           [ -f emby.srs ] || exit 1
-
-      - name: Upload emby.json
-        uses: actions/upload-artifact@v3
-        with:
-          name: emby-rules
-          path: emby.json
 
       - name: Commit changes
         run: |
