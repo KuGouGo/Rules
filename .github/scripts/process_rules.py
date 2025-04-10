@@ -83,15 +83,31 @@ class RuleProcessor:
         except Exception as e:
             print(f"Error writing to input file '{self.input_file}': {e}")
 
-        json_rules_list = []
+        output_rules = []
+        rule_entry = {
+            "domain": [],
+            "domain_suffix": [],
+            "domain_keyword": [],
+            "domain_regex": [],
+            "ip_cidr": []
+        }
         for rule_type_internal in self.TYPE_ORDER:
             if rule_type_internal in self.rules:
-                for value in sorted(list(self.rules[rule_type_internal])):
-                    json_rules_list.append({"type": rule_type_internal.lower(), "value": value})
+                sorted_values = sorted(list(self.rules[rule_type_internal]))
+                json_key = self.JSON_MAP.get(rule_type_internal)
+                if json_key == "domain":
+                    rule_entry["domain"] = sorted_values
+                elif json_key == "domain_keyword":
+                    rule_entry["domain_keyword"] = sorted_values
+                elif json_key == "domain_suffix":
+                    rule_entry["domain_suffix"] = sorted_values
+                elif json_key == "ip_cidr":
+                    rule_entry["ip_cidr"] = sorted_values
+        output_rules.append(rule_entry)
 
         try:
             with open(self.output_json, "w", encoding="utf-8") as f:
-                json.dump({"version": 3, "rules": json_rules_list}, f, indent=2)
+                json.dump({"rules": output_rules}, f, indent=2)
         except Exception as e:
             print(f"Error writing to output JSON file '{self.output_json}': {e}")
 
