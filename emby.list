@@ -1,10 +1,10 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-04-10 09:51:29 UTC
-# DOMAIN-SUFFIX: 175
+# UPDATED: 2025-04-14 06:31:01 UTC
+# DOMAIN-SUFFIX: 173
 # IP-CIDR: 9
-# TOTAL: 184
+# TOTAL: 182
 
 DOMAIN-SUFFIX,023168.xyz
 DOMAIN-SUFFIX,123456.al
@@ -164,11 +164,9 @@ DOMAIN-SUFFIX,shuipo.lol
 DOMAIN-SUFFIX,speedx.one
 DOMAIN-SUFFIX,starcat.eu.org
 DOMAIN-SUFFIX,stream.ntrrr.top
-DOMAIN-SUFFIX,stream.synn.cc
 DOMAIN-SUFFIX,studyfun.live
 DOMAIN-SUFFIX,synn.cc
 DOMAIN-SUFFIX,tanhuatv.site
-DOMAIN-SUFFIX,temby856.285286.xyz
 DOMAIN-SUFFIX,texon.fans
 DOMAIN-SUFFIX,tkremby.xyz
 DOMAIN-SUFFIX,tv.worldline.space
