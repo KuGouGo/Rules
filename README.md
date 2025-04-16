@@ -31,10 +31,10 @@
     rule-providers:
       emby:
         type: http
-        behavior: domain # 如果是 IP 列表用 ipcidr，如果是完整规则用 classical
+        behavior: classical 
         url: "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list"
-        path: ./ruleset/emby.yaml # 本地缓存路径
-        interval: 86400 # 更新间隔 (秒, 86400 为 1 天)
+        path: ./ruleset/emby.yaml
+        interval: 86400
 
     # Clash 配置文件的 rules 段
     rules:
@@ -50,19 +50,19 @@
 *   **定义 Rule Set (在 `route.rule_set` 数组中):**
     ```json
     {
-      "tag": "emby-rules",      // 自定义标签名
-      "type": "remote",         // 类型为远程
-      "format": "source",       // 格式为 source (明文规则)
-      "url": "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs", // 文件 URL
-      "download_detour": "DIRECT" // 下载规则时使用的出口 (outbound)
-      // 可选: "update_interval": "1d" // 更新间隔，例如 "1d" 代表一天
+      "tag": "emby-rules",    
+      "type": "remote",        
+      "format": "source",       
+      "url": "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs", 
+      "download_detour": "DIRECT" 
+      // 可选: "update_interval": "1d" 
     }
     ```
 *   **在规则中引用 (在 `route.rules` 数组中):**
     ```json
     {
-      "rule_set": "emby-rules", // 引用上面定义的 rule_set 标签
-      "outbound": "DIRECT"      // 符合该规则集的流量的目标出口 (outbound)
+      "rule_set": "emby-rules", 
+      "outbound": "DIRECT"  # 或其他你希望走的策略
     }
     ```
 
