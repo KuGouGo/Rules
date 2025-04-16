@@ -1,74 +1,95 @@
-# KuGouGo Rules
+# KuGouGo Rules for Emby
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/KuGouGo/Rules)](https://github.com/KuGouGo/Rules/commits/master)
+[![GitHub last commit](https://img.shields.io/github/last-commit/KuGouGo/Rules?label=Last%20Updated)](https://github.com/KuGouGo/Rules/commits/main)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/KuGouGo/Rules/update-rules.yml?branch=main&label=Auto%20Update)](https://github.com/KuGouGo/Rules/actions/workflows/update-rules.yml)
 
-为网络代理工具提供的emby规则集，自动更新。
-
----
-
-## 🚀 用法
-
-直接使用文件的 Raw URL 即可。
-
-**Raw 文件基础 URL:** `https://raw.githubusercontent.com/KuGouGo/Rules/master/`
+**自动更新**的 Emby 专用网络代理规则集。
 
 ---
 
-**1. `emby.list` (通用域名列表)**
+## ✨ 文件说明
 
-适用于 Surge / Loon / Stash / Clash (rule-provider) 等。
+*   **`emby.list`**: 纯文本域名列表，兼容多数客户端。
+*   **`emby.json`**: sing-box JSON 规则源片段。
+*   **`emby.srs`**: sing-box 编译后的二进制规则集 (推荐 sing-box 使用)。
 
-*   **示例 (Surge / Loon):**
-    ```
-    # Surge / Loon 的 [Rule] 段
-    DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list,DIRECT
-    ```
-*   **示例 (Stash):**
-    *   可以直接在 Stash 的覆写 (Overrides) 中引用，或在配置文件的 `rule-set` 部分引用。
-*   **示例 (Clash Rule Provider):**
+---
+
+## 🚀 使用方法
+
+### 规则列表 URL (通用)
+
+https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
+
+### 客户端配置
+
+**通用说明:**
+*   以下示例中 `DIRECT` 策略表示直连。请根据你的需求将其替换为希望使用的策略名称（例如 `PROXY` 或特定的策略组）。
+*   确保规则在客户端的规则列表中**优先级较高**，避免被后续的通用规则（如 `FINAL` 或 `MATCH`）覆盖。
+
+**1. Surge / Loon / Quantumult X (UI 添加)**
+
+1.  在 App 的 **规则 (Rules)** 或 **规则集 (Rule Sets)** / **外部资源 (External Resources)** / **远程规则 (Remote Rule)** 部分添加新规则。
+2.  粘贴上方 **规则列表 URL**。
+3.  选择或输入要应用的 **策略** (例如 `DIRECT` 或自定义策略名)。
+4.  (可选) 添加别名/标签 (例如 `EMBY`)。
+5.  保存。
+
+**2. Stash / Clash (Mihomo/Meta Core) (文本配置)**
+
+*   **步骤一：添加到 `rule-providers` (或 Stash `rule-set`) 段:**
     ```yaml
-    # Clash 配置文件的 rule-providers 段
-    rule-providers:
-      emby:
-        type: http
-        behavior: classical 
-        url: "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list"
-        path: ./ruleset/emby.yaml
-        interval: 86400
+    # rule-providers (或 rule-set) 段
+    emby:
+      type: http
+      behavior: domain
+      url: "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list"
+      path: ./ruleset/emby.yaml # 缓存路径
+      interval: 86400          # 更新间隔 (秒)
+    ```
+*   **步骤二：添加到 `rules` 段:**
+    ```yaml
+    # rules 段
+    - RULE-SET,emby,DIRECT # 'emby' 对应上方名称, DIRECT 为策略
+    ```
 
-    # Clash 配置文件的 rules 段
-    rules:
-      - RULE-SET,emby,DIRECT # 或其他你希望走的策略
+**4. sing-box (文本配置)**
+
+*   **规则集 URL (推荐):** `https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs`
+*   **步骤一：添加到 `route.rule_set` 数组:**
+    ```json
+    // route.rule_set 数组
+    {
+      "tag": "emby-rules",
+      "type": "remote",
+      "format": "binary", // 使用 .srs 文件
+      "url": "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs",
+      "download_detour": "DIRECT", // 下载规则使用的出口
+      "update_interval": "1d"      // 更新间隔
+    }
+    ```
+*   **步骤二：添加到 `route.rules` 数组:**
+    ```json
+    // route.rules 数组
+    {
+      "rule_set": "emby-rules", // 引用上方 tag
+      "outbound": "DIRECT"      // 指定出站策略
+    }
     ```
 
 ---
 
-**2. `emby.srs` (sing-box 规则集)**
+## ⚙️ 自动更新
 
-用于 sing-box 的 `route.rules`。
-
-*   **定义 Rule Set (在 `route.rule_set` 数组中):**
-    ```json
-    {
-      "tag": "emby-rules",    
-      "type": "remote",        
-      "format": "source",       
-      "url": "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs", 
-      "download_detour": "DIRECT" 
-      // 可选: "update_interval": "1d" 
-    }
-    ```
-*   **在规则中引用 (在 `route.rules` 数组中):**
-    ```json
-    {
-      "rule_set": "emby-rules", 
-      "outbound": "DIRECT"  # 或其他你希望走的策略
-    }
-    ```
+本仓库使用 [GitHub Actions](https://github.com/KuGouGo/Rules/actions) 自动处理 `emby.list` 文件，并生成 `emby.json` 和 `emby.srs`。
 
 ---
 
-## ⚠️ 注意
+## ⚠️ 注意事项
 
-*   规则通过 GitHub Actions 自动更新。
-*   请自行承担使用风险，不当配置可能导致网络问题。
+*   规则集旨在匹配 Emby 相关域名和 IP。请根据网络环境选择合适的策略（如 `DIRECT` 或 `PROXY`）。
+*   使用风险自负。不当配置可能导致网络问题。
+*   欢迎通过 [Issues](https://github.com/KuGouGo/Rules/issues) 反馈。
+content_copy
+download
+Use code with caution.
