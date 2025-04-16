@@ -1,10 +1,12 @@
 name: Auto Process Rules
+
 on:
   push:
     paths:
       - 'emby.list'
     branches: [ "main" ]
   workflow_dispatch:
+
 jobs:
   process-rules:
     runs-on: ubuntu-latest
@@ -12,17 +14,22 @@ jobs:
     permissions:
       contents: write
     env:
-      TARGET_FILES: "emby.list emby.srs"
+      TARGET_FILES: "emby.list emby.json emby.srs" # Added emby.json
+      PYTHON_SCRIPT_PATH: ".github/scripts/process_rules.py"
+      INPUT_LIST: "emby.list"
+      OUTPUT_JSON: "emby.json"
+      OUTPUT_SRS: "emby.srs"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 1 # Fetch only the latest commit
 
       - name: Get latest Sing-box version
         id: get_version
         run: |
-          LATEST_VERSION=$(curl -sL "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | jq -r '.tag_name')
+          LATEST_VERSION=$(curl -sfL "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | jq -r '.tag_name')
           CLEAN_VERSION=${LATEST_VERSION#v}
           echo "sing_box_version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
           echo "full_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
@@ -32,8 +39,12 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Process rules
-        run: python .github/scripts/process_rules.py emby.list
+      - name: Process rules list and generate JSON
+        run: |
+          python ${{ env.PYTHON_SCRIPT_PATH }} \
+            ${{ env.INPUT_LIST }} \
+            -ol ${{ env.INPUT_LIST }} \
+            -oj ${{ env.OUTPUT_JSON }}
 
       - name: Create Sing-box bin directory
         run: mkdir -p sing-box-bin
@@ -45,35 +56,60 @@ jobs:
           path: sing-box-bin
           key: sing-box-${{ steps.get_version.outputs.full_version }}-linux-amd64
 
-      - name: Download Sing-box
+      - name: Download and prepare Sing-box
         if: steps.cache-sing-box.outputs.cache-hit != 'true'
         run: |
-          wget -q "https://github.com/SagerNet/sing-box/releases/download/${{ steps.get_version.outputs.full_version }}/sing-box-${{ steps.get_version.outputs.sing_box_version }}-linux-amd64.tar.gz"
-          tar -xzf sing-box-*.tar.gz
+          wget -qO sing-box.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${{ steps.get_version.outputs.full_version }}/sing-box-${{ steps.get_version.outputs.sing_box_version }}-linux-amd64.tar.gz"
+          tar -xzf sing-box.tar.gz
           mv sing-box-*/sing-box sing-box-bin/
           chmod +x sing-box-bin/sing-box
           echo "$GITHUB_WORKSPACE/sing-box-bin" >> $GITHUB_PATH
 
-      - name: Compile ruleset
+      - name: Ensure Sing-box in PATH if cached
+        if: steps.cache-sing-box.outputs.cache-hit == 'true'
         run: |
-          sing-box rule-set compile --output emby.srs emby.json
-          [ -f emby.srs ] || exit 1
+          echo "$GITHUB_WORKSPACE/sing-box-bin" >> $GITHUB_PATH
+          chmod +x sing-box-bin/sing-box
+
+      - name: Compile Sing-box ruleset
+        run: |
+          sing-box rule-set compile --output ${{ env.OUTPUT_SRS }} ${{ env.OUTPUT_JSON }}
+          if [ ! -f "${{ env.OUTPUT_SRS }}" ]; then
+             echo "Error: Failed to create ${{ env.OUTPUT_SRS }}"
+             exit 1
+          fi
 
       - name: Commit changes
         run: |
-          git config --global user.name "RuleBot"
+          git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           git add ${{ env.TARGET_FILES }}
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          # Pull latest changes before committing
           git pull --rebase --autostash --quiet
           git commit -m "🤖 Auto-process: update rules (sing-box ${{ steps.get_version.outputs.full_version }})"
-          retry=0
+
+          # Push with retry
+          retry_count=0
+          max_retries=3
+          retry_delay=5
           until git push origin main; do
-            ((retry++))
-            [ $retry -ge 3 ] && exit 1
-            sleep 5
+            ((retry_count++))
+            if [ $retry_count -ge $max_retries ]; then
+              echo "Push failed after $max_retries attempts."
+              exit 1
+            fi
+            echo "Push failed. Retrying in $retry_delay seconds..."
+            sleep $retry_delay
+            # Pull again before retrying push in case of conflicts
             git pull --rebase --autostash --quiet
           done
+          echo "Push successful."
 
-      - name: Cleanup
+      - name: Cleanup downloaded files
         if: always()
-        run: rm -rf sing-box-*.tar.gz sing-box-*/
+        run: rm -rf sing-box.tar.gz sing-box-*/
