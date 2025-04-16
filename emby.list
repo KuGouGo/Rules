@@ -97,16 +97,12 @@ DOMAIN-SUFFIX,embyserver.ga
 DOMAIN-SUFFIX,embytv.cf
 DOMAIN-SUFFIX,facmata.net
 DOMAIN-SUFFIX,freetz.top
-DOMAIN-SUFFIX,gfwemby.org
-DOMAIN-SUFFIX,ggtt.cf
-DOMAIN-SUFFIX,goodisp.org
 DOMAIN-SUFFIX,gtlx.org
+DOMAIN-SUFFIX,onyra.cc
 DOMAIN-SUFFIX,guguemby.site
 DOMAIN-SUFFIX,gugumedia.link
 DOMAIN-SUFFIX,happyav.eu.org
 DOMAIN-SUFFIX,hovervan.org
-DOMAIN-SUFFIX,i109.com
-DOMAIN-SUFFIX,ii00.cc
 DOMAIN-SUFFIX,imetyou.top
 DOMAIN-SUFFIX,infinityfly.top
 DOMAIN-SUFFIX,jellyfin.xeton.dev
@@ -125,7 +121,6 @@ DOMAIN-SUFFIX,mcjoker.xyz
 DOMAIN-SUFFIX,medi4.org
 DOMAIN-SUFFIX,mefun.org
 DOMAIN-SUFFIX,misty.cx
-DOMAIN-SUFFIX,misty.ltd
 DOMAIN-SUFFIX,mius.uk
 DOMAIN-SUFFIX,mjjemby.org
 DOMAIN-SUFFIX,mobaiemby.site
@@ -138,18 +133,11 @@ DOMAIN-SUFFIX,newpppp.com
 DOMAIN-SUFFIX,newwan.top
 DOMAIN-SUFFIX,nezhasu.com
 DOMAIN-SUFFIX,niceduck.lol
-DOMAIN-SUFFIX,nijigem.by
-DOMAIN-SUFFIX,nivod4.tv
 DOMAIN-SUFFIX,notnetflix.cos.cat
 DOMAIN-SUFFIX,ntrrr.am.sb
-DOMAIN-SUFFIX,nvidia.rip
 DOMAIN-SUFFIX,oceancloud.asia
 DOMAIN-SUFFIX,odysseyplus.site
-DOMAIN-SUFFIX,ohhhh.org
-DOMAIN-SUFFIX,otakudrive.life
-DOMAIN-SUFFIX,ouonet.org
 DOMAIN-SUFFIX,pilipiliultra.com
-DOMAIN-SUFFIX,plusmedia.site
 DOMAIN-SUFFIX,poloemby.xyz
 DOMAIN-SUFFIX,pololine.ml
 DOMAIN-SUFFIX,pornemby.club
@@ -160,8 +148,6 @@ DOMAIN-SUFFIX,roboemby.de
 DOMAIN-SUFFIX,servers.xeton.dev
 DOMAIN-SUFFIX,sexemby.com
 DOMAIN-SUFFIX,sfcat.link
-DOMAIN-SUFFIX,shuipo.lol
-DOMAIN-SUFFIX,speedx.one
 DOMAIN-SUFFIX,starcat.eu.org
 DOMAIN-SUFFIX,stream.ntrrr.top
 DOMAIN-SUFFIX,studyfun.live
@@ -174,11 +160,69 @@ DOMAIN-SUFFIX,uuuoo.cc
 DOMAIN-SUFFIX,wenjian.de
 DOMAIN-SUFFIX,wiri.tk
 DOMAIN-SUFFIX,xiaoyi.one
-DOMAIN-SUFFIX,xmsl.org
 DOMAIN-SUFFIX,xxxh.de
 DOMAIN-SUFFIX,younoyes.com
-DOMAIN-SUFFIX,zi0.icu
-DOMAIN-SUFFIX,zox.show
+
+ DOMAIN-SUFFIX,cn2gias.uk
+ DOMAIN-SUFFIX,jmsooo.com
+ DOMAIN-SUFFIX,023168.xyz
+ DOMAIN-SUFFIX,223789.xyz
+ DOMAIN-SUFFIX,cc.ccemby.tk
+ DOMAIN-SUFFIX,line.emby.men
+ DOMAIN-SUFFIX,mius.uk
+ DOMAIN-SUFFIX,emby.flowercloud
+ DOMAIN-SUFFIX,emby.immtel.com
+ DOMAIN-SUFFIX,ju.dog
+ DOMAIN-SUFFIX,charontv.com
+ DOMAIN-SUFFIX,push-kr.cfprefer3.xyz
+ DOMAIN-SUFFIX,mjjemby.org
+ DOMAIN-SUFFIX,emby.maying.club
+ DOMAIN-SUFFIX,ntrrr.am.sb
+ DOMAIN-SUFFIX,emby.nexitally.com
+ DOMAIN-SUFFIX,direct.nebula-emby.com
+ DOMAIN-SUFFIX,odysseyplus.site
+ DOMAIN-SUFFIX,zox.show
+ DOMAIN-SUFFIX,nezhasu.com 
+ DOMAIN-SUFFIX,roboemby.de
+ DOMAIN-SUFFIX,616626.xyz
+ DOMAIN-SUFFIX,niceduck.lol
+ DOMAIN-SUFFIX,kevinchen.vip
+ DOMAIN-SUFFIX,5203166.xyz
+ DOMAIN-SUFFIX,alphatvapp.top
+ DOMAIN-SUFFIX,204cloud.com
+ DOMAIN-SUFFIX,misty.cx
+ DOMAIN-SUFFIX,313445.xyz
+ DOMAIN-SUFFIX,synn.cc
+ DOMAIN-SUFFIX,127255.best
+ DOMAIN-SUFFIX,127066.xyz
+ DOMAIN-SUFFIX,raisemby.com
+ DOMAIN-SUFFIX,oceancloud.asia
+ DOMAIN-SUFFIX,embyplus.org
+ DOMAIN-SUFFIX,nijigem.by
+ DOMAIN-SUFFIX,cdn.bgp.yt
+ DOMAIN-SUFFIX,bangumi.ca
+ DOMAIN-SUFFIX,aliz.work
+ DOMAIN-SUFFIX,cherry-pornemby.top
+ DOMAIN-SUFFIX,dhyy.eu.org
+ DOMAIN-SUFFIX,xxxh.de
+ DOMAIN-SUFFIX,mefun.org
+ DOMAIN-SUFFIX,mobaiemby.site
+ DOMAIN-SUFFIX,ii00.cc
+ DOMAIN-SUFFIX,guguemby.site
+ DOMAIN-SUFFIX,sexemby.com
+ DOMAIN-SUFFIX,pilipiliultra.com
+ DOMAIN-SUFFIX,pilipili.me
+ DOMAIN-SUFFIX,pili.im
+ DOMAIN-SUFFIX,994959.xyz
+ DOMAIN-SUFFIX,wenjian.de
+ DOMAIN-SUFFIX,tanhuatv.site
+ DOMAIN-SUFFIX,younoyes.com
+ DOMAIN-SUFFIX,120.226.149.35
+ DOMAIN-SUFFIX,116.163.28.190:60748
+ DOMAIN-SUFFIX,as174.de  
+ DOMAIN-SUFFIX,xmsl.org  
+ DOMAIN-SUFFIX,nanflix.net
+ DOMAIN-SUFFIX,liustar.click
 IP-CIDR,152.53.67.239/32
 IP-CIDR,168.119.137.205/32
 IP-CIDR,188.172.228.49/32
