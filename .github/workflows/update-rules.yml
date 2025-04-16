@@ -91,8 +91,8 @@ jobs:
           fi
           # Pull latest changes before committing
           git pull --rebase --autostash --quiet
-          git commit -m "🤖 Auto-process: update rules (sing-box ${{ steps.get_version.outputs.full_version }})"
-
+          git commit -m "🤖 Auto-process: Update rule files"
+          
           # Push with retry
           retry_count=0
           max_retries=3
