@@ -42,7 +42,7 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
     # rule-providers (或 rule-set) 段
     emby:
       type: http
-      behavior: domain
+      behavior: classical
       url: "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list"
       path: ./ruleset/emby.yaml # 缓存路径
       interval: 86400          # 更新间隔 (秒)
