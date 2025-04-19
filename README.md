@@ -43,6 +43,7 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
     emby:
       type: http
       behavior: classical
+      format: text
       url: "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list"
       path: ./ruleset/emby.yaml # 缓存路径
       interval: 86400          # 更新间隔 (秒)
