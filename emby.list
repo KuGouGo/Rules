@@ -1,16 +1,11 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-04-16 17:43:56 UTC
-# DOMAIN-SUFFIX: 165
-# IP-CIDR: 9
-# TOTAL: 174
-
-
-DOMAIN-SUFFIX,temby856.285286.xyz
+# UPDATED: 2025-04-25 01:54:09 UTC
+# DOMAIN-SUFFIX: 30
+# TOTAL: 30
 
 DOMAIN-SUFFIX,alphatvapp.top
-
 DOMAIN-SUFFIX,cherry-pornemby.top
 DOMAIN-SUFFIX,cherrytv.one
 DOMAIN-SUFFIX,cn2gias.uk
@@ -23,24 +18,20 @@ DOMAIN-SUFFIX,jsq.mooguu.xyz
 DOMAIN-SUFFIX,lite.saturday.video
 DOMAIN-SUFFIX,magpie.cyou
 DOMAIN-SUFFIX,magpiecdn.tech
-
 DOMAIN-SUFFIX,mefun.org
 DOMAIN-SUFFIX,misty.cx
 DOMAIN-SUFFIX,mobaiemby.site
 DOMAIN-SUFFIX,nanflix.net
 DOMAIN-SUFFIX,nebula-emby.com
 DOMAIN-SUFFIX,nebula-media.org
-
 DOMAIN-SUFFIX,odysseyplus.site
 DOMAIN-SUFFIX,pilipiliultra.com
-
 DOMAIN-SUFFIX,pornemby.club
-
 DOMAIN-SUFFIX,raisemby.com
 DOMAIN-SUFFIX,roboemby.de
-
 DOMAIN-SUFFIX,stream.ntrrr.top
 DOMAIN-SUFFIX,studyfun.live
 DOMAIN-SUFFIX,synn.cc
 DOMAIN-SUFFIX,tanhuatv.site
+DOMAIN-SUFFIX,temby856.285286.xyz
 DOMAIN-SUFFIX,tv.worldline.space
