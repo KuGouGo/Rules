@@ -54,27 +54,25 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
     - RULE-SET,emby,DIRECT # 'emby' 对应上方名称, DIRECT 为策略
     ```
 
-**4. sing-box (文本配置)**
+**3. sing-box (文本配置)**
 
 *   **规则集 URL (推荐):** `https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs`
 *   **步骤一：添加到 `route.rule_set` 数组:**
     ```json
-    // route.rule_set 数组
     {
       "tag": "emby-rules",
       "type": "remote",
-      "format": "binary", // 使用 .srs 文件
+      "format": "binary",
       "url": "https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs",
-      "download_detour": "DIRECT", // 下载规则使用的出口
-      "update_interval": "1d"      // 更新间隔
+      "download_detour": "DIRECT", 
+      "update_interval": "1d"      
     }
     ```
 *   **步骤二：添加到 `route.rules` 数组:**
     ```json
-    // route.rules 数组
     {
-      "rule_set": "emby-rules", // 引用上方 tag
-      "outbound": "DIRECT"      // 指定出站策略
+      "rule_set": "emby-rules", 
+      "outbound": "DIRECT"     
     }
     ```
 
@@ -90,7 +88,3 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
 
 *   规则集旨在匹配 Emby 相关域名和 IP。请根据网络环境选择合适的策略（如 `DIRECT` 或 `PROXY`）。
 *   使用风险自负。不当配置可能导致网络问题。
-*   欢迎通过 [Issues](https://github.com/KuGouGo/Rules/issues) 反馈。
-content_copy
-download
-Use code with caution.
