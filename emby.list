@@ -1,16 +1,15 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-04-26 03:21:35 UTC
-# DOMAIN-SUFFIX: 29
-# TOTAL: 29
+# UPDATED: 2025-05-13 08:45:07 UTC
+# DOMAIN-SUFFIX: 28
+# TOTAL: 28
 
 DOMAIN-SUFFIX,alphatvapp.top
 DOMAIN-SUFFIX,cherry-pornemby.top
 DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,embyplus.org
 DOMAIN-SUFFIX,facmata.net
-DOMAIN-SUFFIX,niceduck.lol
 DOMAIN-SUFFIX,jmsooo.com
 DOMAIN-SUFFIX,jsq.mooguu.xyz
 DOMAIN-SUFFIX,lite.saturdayvideo.top
@@ -22,6 +21,7 @@ DOMAIN-SUFFIX,mobaiemby.site
 DOMAIN-SUFFIX,nanflix.net
 DOMAIN-SUFFIX,nebula-emby.com
 DOMAIN-SUFFIX,nebula-media.org
+DOMAIN-SUFFIX,niceduck.lol
 DOMAIN-SUFFIX,odysseyplus.site
 DOMAIN-SUFFIX,pilipiliultra.com
 DOMAIN-SUFFIX,pornemby.club
