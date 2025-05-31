@@ -1,20 +1,20 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-05-18 14:35:35 UTC
-# DOMAIN-SUFFIX: 30
-# TOTAL: 30
+# UPDATED: 2025-05-31 08:35:09 UTC
+# DOMAIN-SUFFIX: 31
+# TOTAL: 31
 
 DOMAIN-SUFFIX,023168.xyz
 DOMAIN-SUFFIX,313445.xyz
 DOMAIN-SUFFIX,alphatvapp.top
-DOMAIN-SUFFIX,lilyemby.my
 DOMAIN-SUFFIX,cherry-pornemby.top
 DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,embyplus.org
 DOMAIN-SUFFIX,facmata.net
 DOMAIN-SUFFIX,jmsooo.com
 DOMAIN-SUFFIX,jsq.mooguu.xyz
+DOMAIN-SUFFIX,lilyemby.my
 DOMAIN-SUFFIX,lite.saturdayvideo.top
 DOMAIN-SUFFIX,magpie.cyou
 DOMAIN-SUFFIX,magpiecdn.tech
