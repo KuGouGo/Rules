@@ -35,7 +35,6 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
 
 *   **添加到 `rule-providers` (或 Stash `rule-set`) 段:**
     ```yaml
-    # rule-providers (或 rule-set) 段
     emby:
       type: http
       behavior: classical
