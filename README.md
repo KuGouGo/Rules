@@ -29,15 +29,11 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
 
 **1. Surge / Loon / Quantumult X (UI 添加)**
 
-1.  在 App 的 **规则 (Rules)** 或 **规则集 (Rule Sets)** / **外部资源 (External Resources)** / **远程规则 (Remote Rule)** 部分添加新规则。
-2.  粘贴上方 **规则列表 URL**。
-3.  选择或输入要应用的 **策略** (例如 `DIRECT` 或自定义策略名)。
-4.  (可选) 添加别名/标签 (例如 `EMBY`)。
-5.  保存。
+*   **在 App 的 **规则 (Rules)** 或 **规则集 (Rule Sets)** / **外部资源 (External Resources)** / **远程规则 (Remote Rule)** 部分添加新规则。
 
 **2. Stash / Clash (Mihomo/Meta Core) (文本配置)**
 
-*   **步骤一：添加到 `rule-providers` (或 Stash `rule-set`) 段:**
+*   **添加到 `rule-providers` (或 Stash `rule-set`) 段:**
     ```yaml
     # rule-providers (或 rule-set) 段
     emby:
@@ -48,16 +44,10 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
       path: ./ruleset/emby.yaml # 缓存路径
       interval: 86400          # 更新间隔 (秒)
     ```
-*   **步骤二：添加到 `rules` 段:**
-    ```yaml
-    # rules 段
-    - RULE-SET,emby,DIRECT # 'emby' 对应上方名称, DIRECT 为策略
-    ```
-
 **3. sing-box (文本配置)**
 
 *   **规则集 URL (推荐):** `https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.srs`
-*   **步骤一：添加到 `route.rule_set` 数组:**
+*   **添加到 `route.rule_set` 数组:**
     ```json
     {
       "tag": "emby-rules",
@@ -68,14 +58,6 @@ https://raw.githubusercontent.com/KuGouGo/Rules/master/emby.list
       "update_interval": "1d"      
     }
     ```
-*   **步骤二：添加到 `route.rules` 数组:**
-    ```json
-    {
-      "rule_set": "emby-rules", 
-      "outbound": "DIRECT"     
-    }
-    ```
-
 ---
 
 ## ⚙️ 自动更新
