@@ -2,12 +2,13 @@ name: Auto Process Rules
 on:
   push:
     paths:
-      - '*.list'
+      - 'rules/*.list'
     branches: [ "main" ]
   workflow_dispatch:
 
 env:
   PYTHON_SCRIPT: ".github/scripts/process_rules.py"
+  SOURCE_DIR: "rules"
 
 jobs:
   process-rules:
@@ -38,27 +39,27 @@ jobs:
         id: cache-singbox
         uses: actions/cache@v3
         with:
-          path: singbox-bin
+          path: .cache/singbox-bin
           key: singbox-${{ steps.singbox-version.outputs.version }}-linux-amd64
 
       - name: Download Sing-box
         if: steps.cache-singbox.outputs.cache-hit != 'true'
         run: |
-          mkdir -p singbox-bin
-          wget -qO singbox.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${{ steps.singbox-version.outputs.version }}/sing-box-${{ steps.singbox-version.outputs.clean_version }}-linux-amd64.tar.gz"
-          tar -xzf singbox.tar.gz --strip-components=1 -C singbox-bin
-          chmod +x singbox-bin/sing-box
+          mkdir -p .cache/singbox-bin
+          wget -qO .cache/singbox.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${{ steps.singbox-version.outputs.version }}/sing-box-${{ steps.singbox-version.outputs.clean_version }}-linux-amd64.tar.gz"
+          tar -xzf .cache/singbox.tar.gz --strip-components=1 -C .cache/singbox-bin
+          chmod +x .cache/singbox-bin/sing-box
 
       - name: Setup Sing-box PATH
-        run: echo "${{ github.workspace }}/singbox-bin" >> $GITHUB_PATH
+        run: echo "${{ github.workspace }}/.cache/singbox-bin" >> $GITHUB_PATH
 
       - name: Process rule files into directories
         run: |
-          python ${{ env.PYTHON_SCRIPT }} . --output-dir .
+          python ${{ env.PYTHON_SCRIPT }} ${{ env.SOURCE_DIR }} --output-dir .
 
       - name: Compile JSON files to SRS
         run: |
-          find . -maxdepth 2 -name "*.json" -path "./*/.*" -prune -o -name "*.json" -print | while read json_file; do
+          find . -maxdepth 2 -name "*.json" -not -path "./.cache/*" -not -path "./.git/*" -not -path "./.github/*" | while read json_file; do
             if [ -f "$json_file" ]; then
               dir_name=$(dirname "$json_file")
               base_name=$(basename "$json_file" .json)
@@ -77,7 +78,7 @@ jobs:
       - name: Check for changes and organize
         id: check-changes
         run: |
-          for list_file in *.list; do
+          for list_file in ${{ env.SOURCE_DIR }}/*.list; do
             if [ -f "$list_file" ]; then
               base_name=$(basename "$list_file" .list)
               if [ -d "$base_name" ]; then
@@ -106,8 +107,16 @@ jobs:
           echo "" >> structure_summary.md
           echo "\`\`\`" >> structure_summary.md
           echo "repository/" >> structure_summary.md
+          echo "├── rules/                    # Source directory" >> structure_summary.md
           
-          for list_file in *.list; do
+          for list_file in ${{ env.SOURCE_DIR }}/*.list; do
+            if [ -f "$list_file" ]; then
+              filename=$(basename "$list_file")
+              echo "│   ├── $filename" >> structure_summary.md
+            fi
+          done
+          
+          for list_file in ${{ env.SOURCE_DIR }}/*.list; do
             if [ -f "$list_file" ]; then
               base_name=$(basename "$list_file" .list)
               if [ -d "$base_name" ]; then
@@ -125,12 +134,6 @@ jobs:
                   fi
                 done
               fi
-            fi
-          done
-          
-          for list_file in *.list; do
-            if [ -f "$list_file" ]; then
-              echo "├── $list_file  # Source file" >> structure_summary.md
             fi
           done
           
@@ -155,21 +158,27 @@ jobs:
           
           git commit -m "$commit_msg"
           
-          for i in {1..3}; do
+          max_retries=5
+          retry_count=0
+          
+          while [ $retry_count -lt $max_retries ]; do
             if git push origin main; then
               echo "Push successful"
               break
             else
-              echo "Push failed, retrying... ($i/3)"
-              sleep 5
-              git pull --rebase --autostash origin main
-            fi
-            
-            if [ $i -eq 3 ]; then
-              echo "Push failed after 3 attempts"
-              exit 1
+              retry_count=$((retry_count + 1))
+              echo "Push failed, retrying... ($retry_count/$max_retries)"
+              if [ $retry_count -lt $max_retries ]; then
+                sleep $((retry_count * 2))
+                git pull --rebase --autostash origin main
+              fi
             fi
           done
+          
+          if [ $retry_count -eq $max_retries ]; then
+            echo "Push failed after $max_retries attempts"
+            exit 1
+          fi
 
       - name: Create processing summary
         if: steps.check-changes.outputs.has_changes == 'true'
@@ -191,7 +200,7 @@ jobs:
           done
           
           echo "### 📋 File Organization:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source**: \`.list\` files in root directory" >> $GITHUB_STEP_SUMMARY  
+          echo "- **Source**: \`.list\` files in \`rules/\` directory" >> $GITHUB_STEP_SUMMARY  
           echo "- **Output**: Each rule set in its own directory" >> $GITHUB_STEP_SUMMARY
           echo "- **Structure**: \`{name}/{name}.{list,json,srs}\`" >> $GITHUB_STEP_SUMMARY
           
@@ -200,7 +209,7 @@ jobs:
             cat structure_summary.md >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Cleanup
+      - name: Cleanup temporary files
         if: always()
         run: |
-          rm -rf singbox.tar.gz structure_summary.md
+          rm -rf .cache/singbox.tar.gz structure_summary.md 2>/dev/null || true
