@@ -5,114 +5,202 @@ on:
       - '*.list'
     branches: [ "main" ]
   workflow_dispatch:
+
+env:
+  PYTHON_SCRIPT: ".github/scripts/process_rules.py"
+
 jobs:
   process-rules:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: write
-    env:
-      PYTHON_SCRIPT_PATH: ".github/scripts/process_rules.py"
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      
-      - name: Get latest Sing-box version
-        id: get_version
-        run: |
-          LATEST_VERSION=$(curl -sfL "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | jq -r '.tag_name')
-          CLEAN_VERSION=${LATEST_VERSION#v}
-          echo "sing_box_version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
-          echo "full_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-      
-      - name: Set up Python
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
-      
-      - name: Process all .list files
+          python-version: "3.11"
+
+      - name: Get Sing-box version
+        id: singbox-version
         run: |
-          python ${{ env.PYTHON_SCRIPT_PATH }} .
-      
-      - name: Create Sing-box bin directory
-        run: mkdir -p sing-box-bin
-      
-      - name: Cache Sing-box
-        id: cache-sing-box
+          VERSION=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | jq -r '.tag_name')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "clean_version=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Cache Sing-box binary
+        id: cache-singbox
         uses: actions/cache@v3
         with:
-          path: sing-box-bin
-          key: sing-box-${{ steps.get_version.outputs.full_version }}-linux-amd64
-      
-      - name: Download and prepare Sing-box
-        if: steps.cache-sing-box.outputs.cache-hit != 'true'
+          path: singbox-bin
+          key: singbox-${{ steps.singbox-version.outputs.version }}-linux-amd64
+
+      - name: Download Sing-box
+        if: steps.cache-singbox.outputs.cache-hit != 'true'
         run: |
-          wget -qO sing-box.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${{ steps.get_version.outputs.full_version }}/sing-box-${{ steps.get_version.outputs.sing_box_version }}-linux-amd64.tar.gz"
-          tar -xzf sing-box.tar.gz
-          mv sing-box-*/sing-box sing-box-bin/
-          chmod +x sing-box-bin/sing-box
-          echo "$GITHUB_WORKSPACE/sing-box-bin" >> $GITHUB_PATH
-      
-      - name: Ensure Sing-box in PATH if cached
-        if: steps.cache-sing-box.outputs.cache-hit == 'true'
+          mkdir -p singbox-bin
+          wget -qO singbox.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${{ steps.singbox-version.outputs.version }}/sing-box-${{ steps.singbox-version.outputs.clean_version }}-linux-amd64.tar.gz"
+          tar -xzf singbox.tar.gz --strip-components=1 -C singbox-bin
+          chmod +x singbox-bin/sing-box
+
+      - name: Setup Sing-box PATH
+        run: echo "${{ github.workspace }}/singbox-bin" >> $GITHUB_PATH
+
+      - name: Process rule files into directories
         run: |
-          echo "$GITHUB_WORKSPACE/sing-box-bin" >> $GITHUB_PATH
-          chmod +x sing-box-bin/sing-box
-      
-      - name: Compile all JSON files to SRS
+          python ${{ env.PYTHON_SCRIPT }} . --output-dir .
+
+      - name: Compile JSON files to SRS
         run: |
-          for json_file in *.json; do
+          find . -maxdepth 2 -name "*.json" -path "./*/.*" -prune -o -name "*.json" -print | while read json_file; do
             if [ -f "$json_file" ]; then
+              dir_name=$(dirname "$json_file")
               base_name=$(basename "$json_file" .json)
-              srs_file="${base_name}.srs"
-              echo "Compiling $json_file to $srs_file"
+              srs_file="${dir_name}/${base_name}.srs"
+              
+              echo "Compiling: $json_file -> $srs_file"
               sing-box rule-set compile --output "$srs_file" "$json_file"
+              
               if [ ! -f "$srs_file" ]; then
-                echo "Error: Failed to create $srs_file"
+                echo "Failed to compile: $json_file"
                 exit 1
               fi
             fi
           done
-      
-      - name: Get changed files
-        id: changed-files
+
+      - name: Check for changes and organize
+        id: check-changes
         run: |
-          git add -A
-          CHANGED_FILES=$(git diff --cached --name-only | grep -E '\.(list|json|srs)$' | tr '\n' ' ')
-          echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "Changed files: $CHANGED_FILES"
-      
-      - name: Commit changes
-        if: steps.changed-files.outputs.changed_files != ''
+          for list_file in *.list; do
+            if [ -f "$list_file" ]; then
+              base_name=$(basename "$list_file" .list)
+              if [ -d "$base_name" ]; then
+                git add "$base_name/"
+              fi
+            fi
+          done
+          
+          if git diff --staged --quiet; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            
+            echo "Changed directories:"
+            git diff --staged --name-only | cut -d'/' -f1 | sort -u
+            
+            echo "rule_dirs=$(git diff --staged --name-only | cut -d'/' -f1 | sort -u | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create directory structure summary
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "## 📁 Directory Structure" >> structure_summary.md
+          echo "" >> structure_summary.md
+          echo "\`\`\`" >> structure_summary.md
+          echo "repository/" >> structure_summary.md
+          
+          for list_file in *.list; do
+            if [ -f "$list_file" ]; then
+              base_name=$(basename "$list_file" .list)
+              if [ -d "$base_name" ]; then
+                echo "├── $base_name/" >> structure_summary.md
+                for file in "$base_name"/*; do
+                  if [ -f "$file" ]; then
+                    filename=$(basename "$file")
+                    if [ "$filename" = "${base_name}.list" ]; then
+                      echo "│   ├── $filename  # Processed rules" >> structure_summary.md
+                    elif [ "$filename" = "${base_name}.json" ]; then
+                      echo "│   ├── $filename  # Sing-box JSON config" >> structure_summary.md
+                    elif [ "$filename" = "${base_name}.srs" ]; then
+                      echo "│   └── $filename   # Compiled binary ruleset" >> structure_summary.md
+                    fi
+                  fi
+                done
+              fi
+            fi
+          done
+          
+          for list_file in *.list; do
+            if [ -f "$list_file" ]; then
+              echo "├── $list_file  # Source file" >> structure_summary.md
+            fi
+          done
+          
+          echo "\`\`\`" >> structure_summary.md
+
+      - name: Commit and push changes
+        if: steps.check-changes.outputs.has_changes == 'true'
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
+          git pull --rebase --autostash origin main
           
-          git pull --rebase --autostash --quiet
-          git commit -m "🤖 Auto-process: Update rule files"
+          commit_msg="🤖 Auto-process: Update rule directories
+
+          Updated rule sets: ${{ steps.check-changes.outputs.rule_dirs }}
           
-          retry_count=0
-          max_retries=3
-          retry_delay=5
-          until git push origin main; do
-            ((retry_count++))
-            if [ $retry_count -ge $max_retries ]; then
-              echo "Push failed after $max_retries attempts."
+          Each rule set now contains:
+          - {name}.list (processed rules)
+          - {name}.json (sing-box config)  
+          - {name}.srs (compiled binary)"
+          
+          git commit -m "$commit_msg"
+          
+          for i in {1..3}; do
+            if git push origin main; then
+              echo "Push successful"
+              break
+            else
+              echo "Push failed, retrying... ($i/3)"
+              sleep 5
+              git pull --rebase --autostash origin main
+            fi
+            
+            if [ $i -eq 3 ]; then
+              echo "Push failed after 3 attempts"
               exit 1
             fi
-            echo "Push failed. Retrying in $retry_delay seconds..."
-            sleep $retry_delay
-            git pull --rebase --autostash --quiet
           done
-          echo "Push successful."
-      
-      - name: Cleanup downloaded files
+
+      - name: Create processing summary
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "## 🎯 Processing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Rule Sets Processed:" >> $GITHUB_STEP_SUMMARY
+          
+          for dir in ${{ steps.check-changes.outputs.rule_dirs }}; do
+            if [ -d "$dir" ]; then
+              echo "#### \`$dir/\`" >> $GITHUB_STEP_SUMMARY
+              if [ -f "$dir/$dir.list" ]; then
+                rule_count=$(grep -c "^[^#]" "$dir/$dir.list" 2>/dev/null || echo "0")
+                echo "- **Rules**: $rule_count" >> $GITHUB_STEP_SUMMARY
+              fi
+              echo "- **Files**: \`$dir.list\`, \`$dir.json\`, \`$dir.srs\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          echo "### 📋 File Organization:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Source**: \`.list\` files in root directory" >> $GITHUB_STEP_SUMMARY  
+          echo "- **Output**: Each rule set in its own directory" >> $GITHUB_STEP_SUMMARY
+          echo "- **Structure**: \`{name}/{name}.{list,json,srs}\`" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "structure_summary.md" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat structure_summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Cleanup
         if: always()
-        run: rm -rf sing-box.tar.gz sing-box-*/
+        run: |
+          rm -rf singbox.tar.gz structure_summary.md
