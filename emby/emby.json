@@ -2,6 +2,10 @@
   "version": 3,
   "rules": [
     {
+      "domain_keyword": [
+        "emby",
+        "magpie"
+      ],
       "domain_suffix": [
         "023168.xyz",
         "285286.xyz",
