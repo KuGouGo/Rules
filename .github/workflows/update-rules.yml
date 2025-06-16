@@ -67,9 +67,11 @@ jobs:
       - name: Compile JSON files to SRS
         if: steps.process-rules.outputs.process_success == 'true'
         run: |
+          mkdir -p srs
+          
           if [ -d "json" ] && [ "$(ls -A json/*.json 2>/dev/null)" ]; then
-            mkdir -p srs
             compiled_count=0
+            failed_count=0
             
             for json_file in json/*.json; do
               if [ -f "$json_file" ]; then
@@ -81,12 +83,15 @@ jobs:
                   compiled_count=$((compiled_count + 1))
                 else
                   echo "Failed to compile: $json_file"
-                  exit 1
+                  failed_count=$((failed_count + 1))
                 fi
               fi
             done
             
             echo "Successfully compiled $compiled_count SRS files"
+            if [ $failed_count -gt 0 ]; then
+              echo "Failed to compile $failed_count files"
+            fi
             echo "srs_count=$compiled_count" >> $GITHUB_OUTPUT
           else
             echo "No JSON files found to compile"
@@ -105,6 +110,7 @@ jobs:
             echo "Changes detected"
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
+            # 统计文件数量
             rules_count=$(find rules -name "*.list" -type f 2>/dev/null | wc -l)
             json_count=$(find json -name "*.json" -type f 2>/dev/null | wc -l)
             srs_count=$(find srs -name "*.srs" -type f 2>/dev/null | wc -l)
@@ -113,9 +119,11 @@ jobs:
             echo "json_count=$json_count" >> $GITHUB_OUTPUT
             echo "srs_count=$srs_count" >> $GITHUB_OUTPUT
             
+            # 统计变更文件
             changed_files=$(git diff --staged --name-only | grep -E '\.(list|json|srs)$' | wc -l)
             echo "changed_files=$changed_files" >> $GITHUB_OUTPUT
             
+            # 获取规则名称列表
             rule_names=$(find rules -name "*.list" -type f -exec basename {} .list \; | sort | tr '\n' ' ')
             echo "rule_names=$rule_names" >> $GITHUB_OUTPUT
           fi
@@ -126,8 +134,10 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           
-          git pull --rebase --autostash origin main
+          # 尝试重新获取最新代码
+          git pull --rebase --autostash origin main || true
           
+          # 构建提交消息
           commit_msg="🤖 Auto-process: Update rule files
 
           📊 Processing Summary:
@@ -145,6 +155,7 @@ jobs:
           
           git commit -m "$commit_msg"
           
+          # 推送变更，带重试机制
           max_retries=3
           retry_count=0
           
@@ -157,7 +168,7 @@ jobs:
               echo "❌ Push failed, retrying... ($retry_count/$max_retries)"
               if [ $retry_count -lt $max_retries ]; then
                 sleep $((retry_count * 2))
-                git pull --rebase --autostash origin main
+                git pull --rebase --autostash origin main || true
               fi
             fi
           done
@@ -204,4 +215,3 @@ jobs:
         if: always()
         run: |
           rm -rf .cache/singbox.tar.gz 2>/dev/null || true
-          find . -name "*.list.bak" -delete 2>/dev/null || true
