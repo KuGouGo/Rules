@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "rules": [
+    {
+      "domain_keyword": [
+        "emby",
+        "magpie"
+      ],
+      "domain_suffix": [
+        "023168.xyz",
+        "285286.xyz",
+        "313445.xyz",
+        "alphatvapp.top",
+        "cn2gias.uk",
+        "embyplus.org",
+        "jsq.vban.xyz",
+        "lilyemby.my",
+        "lite.saturdayvideo.top",
+        "mefun.org",
+        "misty.cx",
+        "pilipiliultra.com",
+        "pornemby.club",
+        "studyfun.live",
+        "worldline.space"
+      ]
+    }
+  ]
+}

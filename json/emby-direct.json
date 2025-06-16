@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "rules": [
+    {
+      "domain": [
+        "abs2.204cloud.com",
+        "emby-direct.pilipiliultra.com",
+        "x991291.as9929.uk"
+      ]
+    }
+  ]
+}
