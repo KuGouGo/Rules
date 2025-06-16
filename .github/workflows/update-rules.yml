@@ -8,7 +8,6 @@ on:
 
 env:
   PYTHON_SCRIPT: ".github/scripts/process_rules.py"
-  SOURCE_DIR: "rules"
 
 jobs:
   process-rules:
@@ -53,39 +52,51 @@ jobs:
       - name: Setup Sing-box PATH
         run: echo "${{ github.workspace }}/.cache/singbox-bin" >> $GITHUB_PATH
 
-      - name: Process rule files into directories
+      - name: Process rule files
+        id: process-rules
         run: |
-          python ${{ env.PYTHON_SCRIPT }} ${{ env.SOURCE_DIR }} --output-dir .
+          python ${{ env.PYTHON_SCRIPT }} --rules-dir rules --output-dir .
+          
+          if [ $? -eq 0 ]; then
+            echo "process_success=true" >> $GITHUB_OUTPUT
+          else
+            echo "process_success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
 
       - name: Compile JSON files to SRS
+        if: steps.process-rules.outputs.process_success == 'true'
         run: |
-          find . -maxdepth 2 -name "*.json" -not -path "./.cache/*" -not -path "./.git/*" -not -path "./.github/*" | while read json_file; do
-            if [ -f "$json_file" ]; then
-              dir_name=$(dirname "$json_file")
-              base_name=$(basename "$json_file" .json)
-              srs_file="${dir_name}/${base_name}.srs"
-              
-              echo "Compiling: $json_file -> $srs_file"
-              sing-box rule-set compile --output "$srs_file" "$json_file"
-              
-              if [ ! -f "$srs_file" ]; then
-                echo "Failed to compile: $json_file"
-                exit 1
+          if [ -d "json" ] && [ "$(ls -A json/*.json 2>/dev/null)" ]; then
+            mkdir -p srs
+            compiled_count=0
+            
+            for json_file in json/*.json; do
+              if [ -f "$json_file" ]; then
+                base_name=$(basename "$json_file" .json)
+                srs_file="srs/${base_name}.srs"
+                
+                echo "Compiling: $json_file -> $srs_file"
+                if sing-box rule-set compile --output "$srs_file" "$json_file"; then
+                  compiled_count=$((compiled_count + 1))
+                else
+                  echo "Failed to compile: $json_file"
+                  exit 1
+                fi
               fi
-            fi
-          done
+            done
+            
+            echo "Successfully compiled $compiled_count SRS files"
+            echo "srs_count=$compiled_count" >> $GITHUB_OUTPUT
+          else
+            echo "No JSON files found to compile"
+            echo "srs_count=0" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Check for changes and organize
+      - name: Check for changes
         id: check-changes
         run: |
-          for list_file in ${{ env.SOURCE_DIR }}/*.list; do
-            if [ -f "$list_file" ]; then
-              base_name=$(basename "$list_file" .list)
-              if [ -d "$base_name" ]; then
-                git add "$base_name/"
-              fi
-            fi
-          done
+          git add rules/ json/ srs/ 2>/dev/null || true
           
           if git diff --staged --quiet; then
             echo "No changes detected"
@@ -94,50 +105,20 @@ jobs:
             echo "Changes detected"
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
-            echo "Changed directories:"
-            git diff --staged --name-only | cut -d'/' -f1 | sort -u
+            rules_count=$(find rules -name "*.list" -type f 2>/dev/null | wc -l)
+            json_count=$(find json -name "*.json" -type f 2>/dev/null | wc -l)
+            srs_count=$(find srs -name "*.srs" -type f 2>/dev/null | wc -l)
             
-            echo "rule_dirs=$(git diff --staged --name-only | cut -d'/' -f1 | sort -u | tr '\n' ' ')" >> $GITHUB_OUTPUT
+            echo "rules_count=$rules_count" >> $GITHUB_OUTPUT
+            echo "json_count=$json_count" >> $GITHUB_OUTPUT
+            echo "srs_count=$srs_count" >> $GITHUB_OUTPUT
+            
+            changed_files=$(git diff --staged --name-only | grep -E '\.(list|json|srs)$' | wc -l)
+            echo "changed_files=$changed_files" >> $GITHUB_OUTPUT
+            
+            rule_names=$(find rules -name "*.list" -type f -exec basename {} .list \; | sort | tr '\n' ' ')
+            echo "rule_names=$rule_names" >> $GITHUB_OUTPUT
           fi
-
-      - name: Create directory structure summary
-        if: steps.check-changes.outputs.has_changes == 'true'
-        run: |
-          echo "## 📁 Directory Structure" >> structure_summary.md
-          echo "" >> structure_summary.md
-          echo "\`\`\`" >> structure_summary.md
-          echo "repository/" >> structure_summary.md
-          echo "├── rules/                    # Source directory" >> structure_summary.md
-          
-          for list_file in ${{ env.SOURCE_DIR }}/*.list; do
-            if [ -f "$list_file" ]; then
-              filename=$(basename "$list_file")
-              echo "│   ├── $filename" >> structure_summary.md
-            fi
-          done
-          
-          for list_file in ${{ env.SOURCE_DIR }}/*.list; do
-            if [ -f "$list_file" ]; then
-              base_name=$(basename "$list_file" .list)
-              if [ -d "$base_name" ]; then
-                echo "├── $base_name/" >> structure_summary.md
-                for file in "$base_name"/*; do
-                  if [ -f "$file" ]; then
-                    filename=$(basename "$file")
-                    if [ "$filename" = "${base_name}.list" ]; then
-                      echo "│   ├── $filename  # Processed rules" >> structure_summary.md
-                    elif [ "$filename" = "${base_name}.json" ]; then
-                      echo "│   ├── $filename  # Sing-box JSON config" >> structure_summary.md
-                    elif [ "$filename" = "${base_name}.srs" ]; then
-                      echo "│   └── $filename   # Compiled binary ruleset" >> structure_summary.md
-                    fi
-                  fi
-                done
-              fi
-            fi
-          done
-          
-          echo "\`\`\`" >> structure_summary.md
 
       - name: Commit and push changes
         if: steps.check-changes.outputs.has_changes == 'true'
@@ -147,27 +128,33 @@ jobs:
           
           git pull --rebase --autostash origin main
           
-          commit_msg="🤖 Auto-process: Update rule directories
+          commit_msg="🤖 Auto-process: Update rule files
 
-          Updated rule sets: ${{ steps.check-changes.outputs.rule_dirs }}
+          📊 Processing Summary:
+          - Rules: ${{ steps.check-changes.outputs.rules_count }} files (processed in-place)
+          - JSON configs: ${{ steps.check-changes.outputs.json_count }} files
+          - Binary rulesets: ${{ steps.check-changes.outputs.srs_count }} files
+          - Total changes: ${{ steps.check-changes.outputs.changed_files }} files
           
-          Each rule set now contains:
-          - {name}.list (processed rules)
-          - {name}.json (sing-box config)  
-          - {name}.srs (compiled binary)"
+          📝 Rule sets: ${{ steps.check-changes.outputs.rule_names }}
+          
+          📁 Directory structure:
+          - rules/ → Processed .list files (in-place)
+          - json/  → Sing-box JSON configs  
+          - srs/   → Compiled binary rulesets"
           
           git commit -m "$commit_msg"
           
-          max_retries=5
+          max_retries=3
           retry_count=0
           
           while [ $retry_count -lt $max_retries ]; do
             if git push origin main; then
-              echo "Push successful"
+              echo "✅ Push successful"
               break
             else
               retry_count=$((retry_count + 1))
-              echo "Push failed, retrying... ($retry_count/$max_retries)"
+              echo "❌ Push failed, retrying... ($retry_count/$max_retries)"
               if [ $retry_count -lt $max_retries ]; then
                 sleep $((retry_count * 2))
                 git pull --rebase --autostash origin main
@@ -176,40 +163,45 @@ jobs:
           done
           
           if [ $retry_count -eq $max_retries ]; then
-            echo "Push failed after $max_retries attempts"
+            echo "💥 Push failed after $max_retries attempts"
             exit 1
           fi
 
       - name: Create processing summary
         if: steps.check-changes.outputs.has_changes == 'true'
         run: |
-          echo "## 🎯 Processing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Rule Processing Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📦 Rule Sets Processed:" >> $GITHUB_STEP_SUMMARY
           
-          for dir in ${{ steps.check-changes.outputs.rule_dirs }}; do
-            if [ -d "$dir" ]; then
-              echo "#### \`$dir/\`" >> $GITHUB_STEP_SUMMARY
-              if [ -f "$dir/$dir.list" ]; then
-                rule_count=$(grep -c "^[^#]" "$dir/$dir.list" 2>/dev/null || echo "0")
-                echo "- **Rules**: $rule_count" >> $GITHUB_STEP_SUMMARY
-              fi
-              echo "- **Files**: \`$dir.list\`, \`$dir.json\`, \`$dir.srs\`" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-            fi
-          done
+          echo "### 📊 File Statistics:" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | Count | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Rules** | ${{ steps.check-changes.outputs.rules_count }} | Processed .list files |" >> $GITHUB_STEP_SUMMARY
+          echo "| **JSON** | ${{ steps.check-changes.outputs.json_count }} | Sing-box JSON configs |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SRS** | ${{ steps.check-changes.outputs.srs_count }} | Compiled binary rulesets |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | ${{ steps.check-changes.outputs.changed_files }} | Files changed |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
-          echo "### 📋 File Organization:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source**: \`.list\` files in \`rules/\` directory" >> $GITHUB_STEP_SUMMARY  
-          echo "- **Output**: Each rule set in its own directory" >> $GITHUB_STEP_SUMMARY
-          echo "- **Structure**: \`{name}/{name}.{list,json,srs}\`" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Directory Structure:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "repository/" >> $GITHUB_STEP_SUMMARY
+          echo "├── rules/            # Processed rule files (in-place)" >> $GITHUB_STEP_SUMMARY
+          echo "├── json/             # Sing-box JSON configs" >> $GITHUB_STEP_SUMMARY
+          echo "└── srs/              # Compiled binary rulesets" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ -f "structure_summary.md" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            cat structure_summary.md >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### 🚀 Usage Examples:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Clash/Surge**: \`https://raw.githubusercontent.com/user/repo/main/rules/{name}.list\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Sing-box JSON**: \`https://raw.githubusercontent.com/user/repo/main/json/{name}.json\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Sing-box Binary**: \`https://raw.githubusercontent.com/user/repo/main/srs/{name}.srs\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 📝 Processed Rule Sets:" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.check-changes.outputs.rule_names }}" | tr ' ' '\n' | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
 
-      - name: Cleanup temporary files
+      - name: Cleanup
         if: always()
         run: |
-          rm -rf .cache/singbox.tar.gz structure_summary.md 2>/dev/null || true
+          rm -rf .cache/singbox.tar.gz 2>/dev/null || true
+          find . -name "*.list.bak" -delete 2>/dev/null || true

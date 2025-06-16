@@ -22,9 +22,20 @@ class RuleProcessor:
     IPV4_REGEX = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/(?:3[0-2]|[12]?[0-9]))?$")
     IPV6_REGEX = re.compile(r"^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(?:/(?:12[0-8]|1[01][0-9]|[1-9]?[0-9]))?$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}(?:/(?:12[0-8]|1[01][0-9]|[1-9]?[0-9]))?$|^(?:[0-9a-fA-F]{1,4}:){1,7}:(?:/(?:12[0-8]|1[01][0-9]|[1-9]?[0-9]))?$")
 
-    def __init__(self, source_dir: Path, output_base_dir: Path):
-        self.source_dir = source_dir
-        self.output_base_dir = output_base_dir
+    def __init__(self, rules_dir: Path, output_base_dir: Path):
+        self.rules_dir = rules_dir
+        self.json_dir = output_base_dir / "json"
+        self.srs_dir = output_base_dir / "srs"
+
+    def _create_output_dirs(self):
+        for dir_path in [self.json_dir, self.srs_dir]:
+            dir_path.mkdir(parents=True, exist_ok=True)
+
+    def _backup_original(self, file_path: Path) -> Path:
+        backup_path = file_path.with_suffix('.list.bak')
+        if not backup_path.exists():
+            backup_path.write_bytes(file_path.read_bytes())
+        return backup_path
 
     def _load_content(self, file_path: Path) -> Optional[str]:
         try:
@@ -136,7 +147,6 @@ class RuleProcessor:
 
     def _write_list_file(self, output_file: Path, header: str, sorted_rules: Dict[str, List[str]]) -> bool:
         try:
-            output_file.parent.mkdir(parents=True, exist_ok=True)
             with output_file.open("w", encoding="utf-8") as f:
                 f.write(header)
                 for rule_type in self.TYPE_ORDER:
@@ -169,7 +179,6 @@ class RuleProcessor:
         }
 
         try:
-            output_file.parent.mkdir(parents=True, exist_ok=True)
             with output_file.open("w", encoding="utf-8") as f:
                 json.dump(json_data, f, indent=2, ensure_ascii=False)
                 f.write("\n")
@@ -179,6 +188,8 @@ class RuleProcessor:
             return False
 
     def _process_single_file(self, input_file: Path) -> Optional[Dict[str, any]]:
+        self._backup_original(input_file)
+        
         content = self._load_content(input_file)
         if content is None:
             return None
@@ -186,7 +197,7 @@ class RuleProcessor:
         rules_data: Dict[str, Set[str]] = defaultdict(set)
         invalid_lines = 0
         
-        for line_no, line in enumerate(content.splitlines(), 1):
+        for line in content.splitlines():
             parsed = self._parse_line(line)
             if parsed:
                 rule_type, value = parsed
@@ -197,18 +208,18 @@ class RuleProcessor:
         if invalid_lines > 0:
             print(f"Warning: {invalid_lines} invalid lines in {input_file.name}", file=sys.stderr)
 
+        original_counts = {k: len(v) for k, v in rules_data.items()}
+
         if "DOMAIN-SUFFIX" in rules_data:
-            original_count = len(rules_data["DOMAIN-SUFFIX"])
             filtered_suffixes = self._filter_redundant_suffixes(rules_data["DOMAIN-SUFFIX"])
-            removed_count = original_count - len(filtered_suffixes)
+            removed_count = len(rules_data["DOMAIN-SUFFIX"]) - len(filtered_suffixes)
             if removed_count > 0:
                 print(f"Filtered {removed_count} redundant DOMAIN-SUFFIX rules in {input_file.name}", file=sys.stderr)
             rules_data["DOMAIN-SUFFIX"] = filtered_suffixes
 
         if "DOMAIN" in rules_data and "DOMAIN-SUFFIX" in rules_data:
-            original_count = len(rules_data["DOMAIN"])
             filtered_domains = self._deduplicate_domains(rules_data["DOMAIN"], rules_data["DOMAIN-SUFFIX"])
-            removed_count = original_count - len(filtered_domains)
+            removed_count = len(rules_data["DOMAIN"]) - len(filtered_domains)
             if removed_count > 0:
                 print(f"Filtered {removed_count} redundant DOMAIN rules in {input_file.name}", file=sys.stderr)
             rules_data["DOMAIN"] = filtered_domains
@@ -226,23 +237,32 @@ class RuleProcessor:
             'name': input_file.stem,
             'sorted_rules': sorted_rules,
             'stats': stats,
-            'invalid_lines': invalid_lines
+            'invalid_lines': invalid_lines,
+            'original_counts': original_counts
         }
 
-    def process_all_files(self) -> List[str]:
-        list_files = list(self.source_dir.glob("*.list"))
+    def process_all_files(self) -> Dict[str, any]:
+        self._create_output_dirs()
+        
+        list_files = list(self.rules_dir.glob("*.list"))
         
         if not list_files:
-            print(f"No .list files found in {self.source_dir}", file=sys.stderr)
-            return []
+            print(f"No .list files found in {self.rules_dir}", file=sys.stderr)
+            return {'success': False, 'message': 'No files found'}
 
-        print(f"Found {len(list_files)} .list files in {self.source_dir}", file=sys.stderr)
-        processed_dirs = []
-        total_processed_rules = 0
+        print(f"Found {len(list_files)} .list files in {self.rules_dir}", file=sys.stderr)
+        
+        results = {
+            'success': True,
+            'processed': [],
+            'failed': [],
+            'total_rules': 0
+        }
 
         for list_file in sorted(list_files):
             result = self._process_single_file(list_file)
             if not result:
+                results['failed'].append(list_file.name)
                 continue
 
             name = result['name']
@@ -252,61 +272,71 @@ class RuleProcessor:
 
             if not sorted_rules:
                 print(f"No valid rules found in {list_file.name}", file=sys.stderr)
+                results['failed'].append(list_file.name)
                 continue
 
-            rule_dir = self.output_base_dir / name
             header = self._generate_header(name.title(), stats)
             
-            list_output = rule_dir / f"{name}.list"
-            json_output = rule_dir / f"{name}.json"
+            list_output = self.rules_dir / f"{name}.list"
+            json_output = self.json_dir / f"{name}.json"
 
             list_success = self._write_list_file(list_output, header, sorted_rules)
             json_success = self._write_json_file(json_output, sorted_rules)
 
             if list_success and json_success:
-                processed_dirs.append(name)
                 total_rules = sum(stats.values())
-                total_processed_rules += total_rules
-                status = f"✓ {name}/ ({total_rules} rules"
+                results['total_rules'] += total_rules
+                results['processed'].append({
+                    'name': name,
+                    'rules': total_rules,
+                    'invalid': invalid_lines,
+                    'stats': stats
+                })
+                
+                status_parts = [f"✓ {name}.list ({total_rules} rules"]
                 if invalid_lines > 0:
-                    status += f", {invalid_lines} invalid"
-                status += ")"
-                print(status, file=sys.stderr)
+                    status_parts.append(f"{invalid_lines} invalid")
+                status_parts.append(")")
+                print(" ".join(status_parts), file=sys.stderr)
+            else:
+                results['failed'].append(name)
 
-        if processed_dirs:
-            print(f"Successfully processed {len(processed_dirs)} rule sets with {total_processed_rules} total rules", file=sys.stderr)
+        success_count = len(results['processed'])
+        if success_count > 0:
+            print(f"\nProcessing completed:", file=sys.stderr)
+            print(f"  ✓ {success_count} files processed successfully", file=sys.stderr)
+            print(f"  ✓ {results['total_rules']} total rules", file=sys.stderr)
+            print(f"  ✓ {success_count} JSON configs generated", file=sys.stderr)
+            if results['failed']:
+                print(f"  ✗ {len(results['failed'])} files failed", file=sys.stderr)
 
-        return processed_dirs
+        return results
 
 def main():
-    parser = argparse.ArgumentParser(description="Process rule files into organized directories")
-    parser.add_argument("source_dir", type=Path, help="Source directory containing .list files")
-    parser.add_argument("--output-dir", type=Path, default=Path("."), help="Base output directory")
+    parser = argparse.ArgumentParser(description="Process rule files in-place with organized output")
+    parser.add_argument("--rules-dir", type=Path, default=Path("rules"), help="Directory containing .list files")
+    parser.add_argument("--output-dir", type=Path, default=Path("."), help="Base output directory for json/ and srs/")
     args = parser.parse_args()
 
-    if not args.source_dir.exists():
-        print(f"Source directory {args.source_dir} does not exist", file=sys.stderr)
+    if not args.rules_dir.exists():
+        print(f"Rules directory {args.rules_dir} does not exist", file=sys.stderr)
         sys.exit(1)
 
-    if not args.source_dir.is_dir():
-        print(f"Source path {args.source_dir} is not a directory", file=sys.stderr)
+    if not args.rules_dir.is_dir():
+        print(f"Rules path {args.rules_dir} is not a directory", file=sys.stderr)
         sys.exit(1)
 
-    processor = RuleProcessor(args.source_dir, args.output_dir)
-    processed_dirs = processor.process_all_files()
+    processor = RuleProcessor(args.rules_dir, args.output_dir)
+    results = processor.process_all_files()
 
-    if processed_dirs:
-        print(f"Processing completed. Created {len(processed_dirs)} directories:", file=sys.stderr)
-        for dir_name in processed_dirs:
-            rule_dir = args.output_dir / dir_name
-            print(f"  {dir_name}/", file=sys.stderr)
-            for file in sorted(rule_dir.glob(f"{dir_name}.*")):
-                file_size = file.stat().st_size
-                size_str = f"({file_size:,} bytes)" if file_size > 1024 else f"({file_size} bytes)"
-                print(f"    ├── {file.name} {size_str}", file=sys.stderr)
+    if results['success'] and results['processed']:
+        print(f"\n🎯 Summary:", file=sys.stderr)
+        print(f"   Rules: {len(results['processed'])} files processed in rules/", file=sys.stderr)
+        print(f"   JSON:  {len(results['processed'])} files generated in json/", file=sys.stderr)
+        print(f"   Ready for SRS compilation", file=sys.stderr)
         sys.exit(0)
     else:
-        print("No files were processed successfully", file=sys.stderr)
+        print("Processing failed or no files processed", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
