@@ -1,9 +1,10 @@
 # NAME: Emby-Direct
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-07-01 12:02:37 UTC
+# UPDATED: 2025-07-03 17:33:52 UTC
 # DOMAIN: 3
-# TOTAL: 3
+# IP-CIDR: 1
+# TOTAL: 4
 DOMAIN,abs2.204cloud.com
 DOMAIN,emby-direct.pilipiliultra.com
 DOMAIN,x991291.as9929.uk

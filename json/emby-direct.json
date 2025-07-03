@@ -6,6 +6,9 @@
         "abs2.204cloud.com",
         "emby-direct.pilipiliultra.com",
         "x991291.as9929.uk"
+      ],
+      "ip_cidr": [
+        "103.83.72.53"
       ]
     }
   ]
