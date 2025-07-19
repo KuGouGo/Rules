@@ -6,7 +6,6 @@
 # DOMAIN-SUFFIX: 16
 # TOTAL: 18
 DOMAIN-KEYWORD,emby
-DOMAIN-KEYWORD,magpie
 DOMAIN-SUFFIX,023168.xyz
 DOMAIN-SUFFIX,223789.xyz
 DOMAIN-SUFFIX,285286.xyz
@@ -14,9 +13,9 @@ DOMAIN-SUFFIX,313445.xyz
 DOMAIN-SUFFIX,alphatvapp.top
 DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,embyplus.org
-DOMAIN-SUFFIX,jsq.vban.xyz
+DOMAIN,jsq.vban.xyz
 DOMAIN-SUFFIX,lilyemby.my
-DOMAIN-SUFFIX,lite.saturdayvideo.top
+DOMAIN,lite.saturdayvideo.top
 DOMAIN-SUFFIX,mefun.org
 DOMAIN-SUFFIX,misty.cx
 DOMAIN-SUFFIX,pilipiliultra.com
