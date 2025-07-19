@@ -2,9 +2,12 @@
   "version": 3,
   "rules": [
     {
+      "domain": [
+        "jsq.vban.xyz",
+        "lite.saturdayvideo.top"
+      ],
       "domain_keyword": [
-        "emby",
-        "magpie"
+        "emby"
       ],
       "domain_suffix": [
         "023168.xyz",
@@ -14,9 +17,7 @@
         "alphatvapp.top",
         "cn2gias.uk",
         "embyplus.org",
-        "jsq.vban.xyz",
         "lilyemby.my",
-        "lite.saturdayvideo.top",
         "mefun.org",
         "misty.cx",
         "pilipiliultra.com",
