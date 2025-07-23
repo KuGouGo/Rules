@@ -1,14 +1,14 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-07-22 15:34:33 UTC
-# DOMAIN: 2
+# UPDATED: 2025-07-23 11:25:35 UTC
+# DOMAIN: 3
 # DOMAIN-KEYWORD: 1
 # DOMAIN-SUFFIX: 6
-# TOTAL: 9
+# TOTAL: 10
 DOMAIN,jsq.vban.xyz
-DOMAIN,usertest.as9929.uk 
 DOMAIN,lite.saturdayvideo.top
+DOMAIN,usertest.as9929.uk
 DOMAIN-KEYWORD,emby
 DOMAIN-SUFFIX,023168.xyz
 DOMAIN-SUFFIX,223789.xyz
