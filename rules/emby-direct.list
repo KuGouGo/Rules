@@ -1,9 +1,8 @@
 # NAME: Emby-Direct
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-07-23 15:27:03 UTC
-# DOMAIN: 3
-# IP-CIDR: 1
-# TOTAL: 4
+# UPDATED: 2025-07-24 22:58:22 UTC
+# DOMAIN: 2
+# TOTAL: 2
 DOMAIN,abs2.204cloud.com
 DOMAIN,x991291.as9929.uk
