@@ -8,8 +8,6 @@ import argparse
 from typing import Dict, Set, List, Optional, Tuple
 
 class RuleProcessor:
-    """处理规则文件的主要类，支持多种规则类型和格式转换"""
-    
     TYPE_ORDER: List[str] = ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX", "DOMAIN-REGEX", "IP-CIDR", "IP-CIDR6"]
     
     JSON_MAP: Dict[str, str] = {
@@ -21,32 +19,27 @@ class RuleProcessor:
         "IP-CIDR6": "ip_cidr"
     }
     
-    # 预编译正则表达式以提高性能
     HEADER_REGEX = re.compile(r"^# NAME:.*?(?=\n[^#]|\Z)", re.DOTALL | re.MULTILINE)
     RULE_TYPE_REGEX = re.compile(rf"^({'|'.join(TYPE_ORDER)})[,\s]+([^#\s]+)", re.IGNORECASE)
     DOMAIN_ONLY_REGEX = re.compile(r"^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
     IPV4_REGEX = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/(?:3[0-2]|[12]?[0-9]))?$")
     IPV6_REGEX = re.compile(r"^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(?:/(?:12[0-8]|1[01][0-9]|[1-9]?[0-9]))?$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}(?:/(?:12[0-8]|1[01][0-9]|[1-9]?[0-9]))?$|^(?:[0-9a-fA-F]{1,4}:){1,7}:(?:/(?:12[0-8]|1[01][0-9]|[1-9]?[0-9]))?$")
-    REGEX_PATTERN_REGEX = re.compile(r"^[^#\s]+$")  # 基本的正则表达式格式检查
+    REGEX_PATTERN_REGEX = re.compile(r"^[^#\s]+$")
 
     def __init__(self, rules_dir: Path, output_base_dir: Path):
-        """初始化处理器"""
         self.rules_dir = rules_dir
         self.json_dir = output_base_dir / "json"
         self.srs_dir = output_base_dir / "srs"
 
     def _create_output_dirs(self) -> None:
-        """创建输出目录"""
         for dir_path in [self.json_dir, self.srs_dir]:
             dir_path.mkdir(parents=True, exist_ok=True)
 
     def _load_content(self, file_path: Path) -> Optional[str]:
-        """加载文件内容并去除头部信息"""
         try:
             print(f"Processing: {file_path.name}", file=sys.stderr)
             content = file_path.read_text(encoding="utf-8")
             
-            # 去除头部信息
             header_match = self.HEADER_REGEX.search(content)
             if header_match:
                 return content[len(header_match.group(0)):].lstrip('\n')
@@ -57,12 +50,10 @@ class RuleProcessor:
             return None
 
     def _parse_line(self, line: str) -> Optional[Tuple[str, str]]:
-        """解析单行规则"""
         line = line.strip()
         if not line or line.startswith("#"):
             return None
 
-        # 尝试匹配规则类型格式
         match = self.RULE_TYPE_REGEX.match(line)
         if match:
             rule_type = match.group(1).upper()
@@ -73,11 +64,9 @@ class RuleProcessor:
             
             return self._validate_and_normalize_rule(rule_type, value)
 
-        # 尝试自动检测规则类型
         return self._auto_detect_rule_type(line)
 
     def _validate_and_normalize_rule(self, rule_type: str, value: str) -> Optional[Tuple[str, str]]:
-        """验证并标准化规则"""
         if rule_type in ["DOMAIN", "DOMAIN-KEYWORD", "DOMAIN-SUFFIX"]:
             return (rule_type, value.lower())
             
@@ -101,7 +90,6 @@ class RuleProcessor:
         return None
 
     def _auto_detect_rule_type(self, line: str) -> Optional[Tuple[str, str]]:
-        """自动检测规则类型"""
         if self.DOMAIN_ONLY_REGEX.match(line):
             return ("DOMAIN", line.lower())
         
@@ -114,7 +102,6 @@ class RuleProcessor:
         return None
 
     def _generate_header(self, name: str, stats: Dict[str, int]) -> str:
-        """生成文件头部信息"""
         now_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
         header_lines = [
             f"# NAME: {name}",
@@ -134,7 +121,6 @@ class RuleProcessor:
         return "\n".join(header_lines)
 
     def _write_list_file(self, output_file: Path, header: str, sorted_rules: Dict[str, List[str]]) -> bool:
-        """写入.list格式文件"""
         try:
             with output_file.open("w", encoding="utf-8") as f:
                 f.write(header)
@@ -148,12 +134,10 @@ class RuleProcessor:
             return False
 
     def _write_json_file(self, output_file: Path, sorted_rules: Dict[str, List[str]]) -> bool:
-        """写入JSON格式文件"""
         rule_entry = {}
         
         for rule_type, json_key in self.JSON_MAP.items():
             if rule_type in sorted_rules:
-                # 合并IPv4和IPv6到同一个ip_cidr字段
                 if json_key == "ip_cidr":
                     if "ip_cidr" not in rule_entry:
                         rule_entry["ip_cidr"] = []
@@ -179,7 +163,6 @@ class RuleProcessor:
             return False
 
     def _process_single_file(self, input_file: Path) -> Optional[Dict[str, any]]:
-        """处理单个规则文件"""
         content = self._load_content(input_file)
         if content is None:
             return None
@@ -187,7 +170,6 @@ class RuleProcessor:
         rules_data: Dict[str, Set[str]] = defaultdict(set)
         invalid_lines = 0
         
-        # 解析所有行
         for line in content.splitlines():
             parsed = self._parse_line(line)
             if parsed:
@@ -199,7 +181,6 @@ class RuleProcessor:
         if invalid_lines > 0:
             print(f"Warning: {invalid_lines} invalid lines in {input_file.name}", file=sys.stderr)
 
-        # 排序并生成统计信息
         sorted_rules = {}
         stats = {}
         
@@ -217,7 +198,6 @@ class RuleProcessor:
         }
 
     def process_all_files(self) -> Dict[str, any]:
-        """处理所有规则文件"""
         self._create_output_dirs()
         
         list_files = list(self.rules_dir.glob("*.list"))
@@ -251,7 +231,6 @@ class RuleProcessor:
                 results['failed'].append(list_file.name)
                 continue
 
-            # 生成文件
             header = self._generate_header(name.title(), stats)
             list_output = self.rules_dir / f"{name}.list"
             json_output = self.json_dir / f"{name}.json"
@@ -269,7 +248,6 @@ class RuleProcessor:
                     'stats': stats
                 })
                 
-                # 输出处理状态
                 status_parts = [f"✓ {name}.list ({total_rules} rules"]
                 if invalid_lines > 0:
                     status_parts.append(f"{invalid_lines} invalid")
@@ -278,7 +256,6 @@ class RuleProcessor:
             else:
                 results['failed'].append(name)
 
-        # 输出总结
         success_count = len(results['processed'])
         if success_count > 0:
             print(f"\nProcessing completed:", file=sys.stderr)
@@ -292,15 +269,13 @@ class RuleProcessor:
 
 
 def main():
-    """主函数"""
     parser = argparse.ArgumentParser(description="Process rule files with organized output")
-    parser.add_argument("--rules-dir", type=Path, default=Path("rules"), 
+    parser.add_argument("--rules-dir", type=Path, default=Path("Rules/rules"), 
                        help="Directory containing .list files")
     parser.add_argument("--output-dir", type=Path, default=Path("."), 
                        help="Base output directory for json/ and srs/")
     args = parser.parse_args()
 
-    # 验证输入目录
     if not args.rules_dir.exists():
         print(f"Rules directory {args.rules_dir} does not exist", file=sys.stderr)
         sys.exit(1)
@@ -309,14 +284,12 @@ def main():
         print(f"Rules path {args.rules_dir} is not a directory", file=sys.stderr)
         sys.exit(1)
 
-    # 处理文件
     processor = RuleProcessor(args.rules_dir, args.output_dir)
     results = processor.process_all_files()
 
-    # 输出结果
     if results['success'] and results['processed']:
         print(f"\n🎯 Summary:", file=sys.stderr)
-        print(f"   Rules: {len(results['processed'])} files processed in rules/", file=sys.stderr)
+        print(f"   Rules: {len(results['processed'])} files processed in Rules/rules/", file=sys.stderr)
         print(f"   JSON:  {len(results['processed'])} files generated in json/", file=sys.stderr)
         print(f"   Ready for SRS compilation", file=sys.stderr)
         sys.exit(0)
