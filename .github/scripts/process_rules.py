@@ -227,8 +227,30 @@ class RuleProcessor:
             invalid_lines = result['invalid_lines']
 
             if not sorted_rules:
-                print(f"No valid rules found in {list_file.name}", file=sys.stderr)
-                results['failed'].append(list_file.name)
+                print(f"Warning: No valid rules found in {list_file.name}, creating empty JSON", file=sys.stderr)
+                header = self._generate_header(name.title(), {})
+                json_output = self.json_dir / f"{name}.json"
+                
+                empty_json_data = {
+                    "version": 3,
+                    "rules": []
+                }
+                
+                try:
+                    with json_output.open("w", encoding="utf-8") as f:
+                        json.dump(empty_json_data, f, indent=2, ensure_ascii=False)
+                        f.write("\n")
+                    
+                    results['processed'].append({
+                        'name': name,
+                        'rules': 0,
+                        'invalid': invalid_lines,
+                        'stats': {}
+                    })
+                    print(f"✓ {name}.list (0 rules - empty file)", file=sys.stderr)
+                except Exception as e:
+                    print(f"Error writing empty JSON {json_output}: {e}", file=sys.stderr)
+                    results['failed'].append(name)
                 continue
 
             header = self._generate_header(name.title(), stats)
@@ -270,7 +292,7 @@ class RuleProcessor:
 
 def main():
     parser = argparse.ArgumentParser(description="Process rule files with organized output")
-    parser.add_argument("--rules-dir", type=Path, default=Path("Rules/rules"), 
+    parser.add_argument("--rules-dir", type=Path, default=Path("rules"), 
                        help="Directory containing .list files")
     parser.add_argument("--output-dir", type=Path, default=Path("."), 
                        help="Base output directory for json/ and srs/")
@@ -289,7 +311,7 @@ def main():
 
     if results['success'] and results['processed']:
         print(f"\n🎯 Summary:", file=sys.stderr)
-        print(f"   Rules: {len(results['processed'])} files processed in Rules/rules/", file=sys.stderr)
+        print(f"   Rules: {len(results['processed'])} files processed in rules/", file=sys.stderr)
         print(f"   JSON:  {len(results['processed'])} files generated in json/", file=sys.stderr)
         print(f"   Ready for SRS compilation", file=sys.stderr)
         sys.exit(0)

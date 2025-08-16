@@ -2,7 +2,7 @@ name: Auto Process Rules
 on:
   push:
     paths:
-      - 'Rules/rules/*.list'
+      - 'rules/*.list'
     branches: [ "main" ]
   workflow_dispatch:
 
@@ -55,7 +55,7 @@ jobs:
       - name: Process rule files
         id: process-rules
         run: |
-          python ${{ env.PYTHON_SCRIPT }} --rules-dir Rules/rules --output-dir .
+          python ${{ env.PYTHON_SCRIPT }} --rules-dir rules --output-dir .
           
           if [ $? -eq 0 ]; then
             echo "process_success=true" >> $GITHUB_OUTPUT
@@ -101,7 +101,7 @@ jobs:
       - name: Check for changes
         id: check-changes
         run: |
-          git add Rules/rules/ json/ srs/ 2>/dev/null || true
+          git add rules/ json/ srs/ 2>/dev/null || true
           
           if git diff --staged --quiet; then
             echo "No changes detected"
@@ -110,7 +110,7 @@ jobs:
             echo "Changes detected"
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
-            rules_count=$(find Rules/rules -name "*.list" -type f 2>/dev/null | wc -l)
+            rules_count=$(find rules -name "*.list" -type f 2>/dev/null | wc -l)
             json_count=$(find json -name "*.json" -type f 2>/dev/null | wc -l)
             srs_count=$(find srs -name "*.srs" -type f 2>/dev/null | wc -l)
             
@@ -121,7 +121,7 @@ jobs:
             changed_files=$(git diff --staged --name-only | grep -E '\.(list|json|srs)$' | wc -l)
             echo "changed_files=$changed_files" >> $GITHUB_OUTPUT
             
-            rule_names=$(find Rules/rules -name "*.list" -type f -exec basename {} .list \; | sort | tr '\n' ' ')
+            rule_names=$(find rules -name "*.list" -type f -exec basename {} .list \; | sort | tr '\n' ' ')
             echo "rule_names=$rule_names" >> $GITHUB_OUTPUT
           fi
 
@@ -136,7 +136,7 @@ jobs:
           commit_msg="🤖 Auto-process: Update rule files
 
           📊 Processing Summary:
-          - Rules: ${{ steps.check-changes.outputs.rules_count }} files (processed in Rules/rules/)
+          - Rules: ${{ steps.check-changes.outputs.rules_count }} files (processed in rules/)
           - JSON configs: ${{ steps.check-changes.outputs.json_count }} files
           - Binary rulesets: ${{ steps.check-changes.outputs.srs_count }} files
           - Total changes: ${{ steps.check-changes.outputs.changed_files }} files
@@ -144,7 +144,7 @@ jobs:
           📝 Rule sets: ${{ steps.check-changes.outputs.rule_names }}
           
           📁 Directory structure:
-          - Rules/rules/ → Processed .list files
+          - rules/ → Processed .list files
           - json/  → Sing-box JSON configs  
           - srs/   → Compiled binary rulesets"
           
@@ -190,14 +190,14 @@ jobs:
           echo "### 📁 Directory Structure:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "repository/" >> $GITHUB_STEP_SUMMARY
-          echo "├── Rules/rules/      # Processed rule files" >> $GITHUB_STEP_SUMMARY
+          echo "├── rules/            # Processed rule files" >> $GITHUB_STEP_SUMMARY
           echo "├── json/             # Sing-box JSON configs" >> $GITHUB_STEP_SUMMARY
           echo "└── srs/              # Compiled binary rulesets" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           echo "### 🚀 Usage Examples:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Clash/Surge**: \`https://raw.githubusercontent.com/user/repo/main/Rules/rules/{name}.list\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Clash/Surge**: \`https://raw.githubusercontent.com/user/repo/main/rules/{name}.list\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Sing-box JSON**: \`https://raw.githubusercontent.com/user/repo/main/json/{name}.json\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Sing-box Binary**: \`https://raw.githubusercontent.com/user/repo/main/srs/{name}.srs\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
