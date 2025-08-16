@@ -32,9 +32,6 @@
         "tx.me",
         "usercontent.dev",
         "walletbot.me"
-      ],
-      "ip_cidr": [
-        "5.28.192.0/18"
       ]
     }
   ]
