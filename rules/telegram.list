@@ -1,3 +1,15 @@
+# NAME: Telegram
+# AUTHOR: KuGouGo
+# REPO: https://github.com/KuGouGo/Rules
+# UPDATED: 2025-08-16 07:40:02 UTC
+# DOMAIN: 1
+# DOMAIN-KEYWORD: 1
+# DOMAIN-SUFFIX: 23
+# IP-CIDR: 1
+# TOTAL: 26
+DOMAIN,events-gateway.ncdev.site
+DOMAIN-KEYWORD,telegram
+DOMAIN-SUFFIX,cdn-telegram.org
 DOMAIN-SUFFIX,comments.app
 DOMAIN-SUFFIX,contest.com
 DOMAIN-SUFFIX,graph.org
@@ -10,7 +22,6 @@ DOMAIN-SUFFIX,tdesktop.com
 DOMAIN-SUFFIX,telega.one
 DOMAIN-SUFFIX,telegra.ph
 DOMAIN-SUFFIX,telegram-cdn.org
-DOMAIN-SUFFIX,cdn-telegram.org
 DOMAIN-SUFFIX,telegram.dog
 DOMAIN-SUFFIX,telegram.me
 DOMAIN-SUFFIX,telegram.org
@@ -20,8 +31,5 @@ DOMAIN-SUFFIX,telesco.pe
 DOMAIN-SUFFIX,tg.dev
 DOMAIN-SUFFIX,tx.me
 DOMAIN-SUFFIX,usercontent.dev
-DOMAIN-KEYWORD,telegram
-
-DOMAIN,events-gateway.ncdev.site
 DOMAIN-SUFFIX,walletbot.me
 IP-CIDR,5.28.192.0/18

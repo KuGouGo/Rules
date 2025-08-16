@@ -1,3 +1,10 @@
+# NAME: Telegram-Dc5
+# AUTHOR: KuGouGo
+# REPO: https://github.com/KuGouGo/Rules
+# UPDATED: 2025-08-16 07:40:02 UTC
+# IP-CIDR: 2
+# IP-CIDR6: 1
+# TOTAL: 3
 IP-CIDR,91.108.16.0/22
 IP-CIDR,91.108.56.0/22
 IP-CIDR6,2001:b28:f23f::/48
