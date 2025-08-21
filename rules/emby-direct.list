@@ -1,8 +1,9 @@
 # NAME: Emby-Direct
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-08-16 11:00:47 UTC
-# DOMAIN: 2
+# UPDATED: 2025-08-21 04:01:14 UTC
+# DOMAIN: 1
+# DOMAIN-SUFFIX: 1
 # TOTAL: 2
 DOMAIN,abs2.204cloud.com
 DOMAIN-SUFFIX,as9929.uk
