@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "rules": [
+    {
+      "domain": [
+        "abs2.204cloud.com"
+      ],
+      "domain_suffix": [
+        "as9929.uk"
+      ]
+    }
+  ]
+}
