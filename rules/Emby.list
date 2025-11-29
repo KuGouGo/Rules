@@ -1,12 +1,11 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-11-22 13:52:12 UTC
-# DOMAIN: 3
+# UPDATED: 2025-11-29 11:57:56 UTC
+# DOMAIN: 2
 # DOMAIN-KEYWORD: 1
-# DOMAIN-SUFFIX: 8
-# TOTAL: 12
-DOMAIN-SUFFIX,sakim.org
+# DOMAIN-SUFFIX: 10
+# TOTAL: 13
 DOMAIN,jsq.vban.xyz
 DOMAIN,lite.saturdayvideo.top
 DOMAIN-KEYWORD,emby
@@ -19,3 +18,4 @@ DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,ii00.cc
 DOMAIN-SUFFIX,mobaiemby.site
 DOMAIN-SUFFIX,pilipiliultra.com
+DOMAIN-SUFFIX,sakim.org
