@@ -1,16 +1,15 @@
 # NAME: Emby
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-11-29 11:57:56 UTC
+# UPDATED: 2025-12-01 10:10:31 UTC
 # DOMAIN: 2
 # DOMAIN-KEYWORD: 1
-# DOMAIN-SUFFIX: 10
-# TOTAL: 13
+# DOMAIN-SUFFIX: 11
+# TOTAL: 14
 DOMAIN,jsq.vban.xyz
 DOMAIN,lite.saturdayvideo.top
 DOMAIN-KEYWORD,emby
 DOMAIN-SUFFIX,023168.xyz
-DOMAIN-SUFFIX,pandtv.de
 DOMAIN-SUFFIX,223789.xyz
 DOMAIN-SUFFIX,285286.xyz
 DOMAIN-SUFFIX,alphatvapp.top
@@ -18,5 +17,6 @@ DOMAIN-SUFFIX,as174.de
 DOMAIN-SUFFIX,cn2gias.uk
 DOMAIN-SUFFIX,ii00.cc
 DOMAIN-SUFFIX,mobaiemby.site
+DOMAIN-SUFFIX,pandtv.de
 DOMAIN-SUFFIX,pilipiliultra.com
 DOMAIN-SUFFIX,sakim.org
