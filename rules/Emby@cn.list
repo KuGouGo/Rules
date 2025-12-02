@@ -1,9 +1,9 @@
 # NAME: Emby@Cn
 # AUTHOR: KuGouGo
 # REPO: https://github.com/KuGouGo/Rules
-# UPDATED: 2025-12-02 05:43:26 UTC
+# UPDATED: 2025-12-02 05:46:29 UTC
 # DOMAIN: 1
-# DOMAIN-SUFFIX: 2
-# TOTAL: 3
+# DOMAIN-SUFFIX: 1
+# TOTAL: 2
 DOMAIN,abs2.204cloud.com
 DOMAIN-SUFFIX,pdtvs.de
