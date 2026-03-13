@@ -1,2 +1,2 @@
-.pingan.com.hk
-pingan.com.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pingan.com.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pingan.com.hk

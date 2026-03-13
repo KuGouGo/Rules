@@ -1,4 +1,4 @@
-.coding.me
-.coding.net
-coding.me
-coding.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coding.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coding.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coding.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coding.net

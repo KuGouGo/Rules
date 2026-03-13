@@ -1,4 +1,4 @@
-.lede-project.org
-.openwrt.org
-lede-project.org
-openwrt.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lede-project.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.openwrt.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lede-project.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,openwrt.org

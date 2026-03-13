@@ -1,2 +1,2 @@
-.fontexplorerx.com
-fontexplorerx.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fontexplorerx.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fontexplorerx.com

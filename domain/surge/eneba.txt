@@ -1,4 +1,4 @@
-.eneba.com
-.eneba.games
-eneba.com
-eneba.games
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.eneba.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.eneba.games
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,eneba.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,eneba.games

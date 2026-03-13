@@ -1,2 +1,2 @@
-.pbs.org
-pbs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pbs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pbs.org

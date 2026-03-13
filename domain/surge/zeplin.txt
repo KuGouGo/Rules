@@ -1,4 +1,4 @@
-.zeplin.dev
-.zeplin.io
-zeplin.dev
-zeplin.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zeplin.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zeplin.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zeplin.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zeplin.io

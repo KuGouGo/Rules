@@ -1,4 +1,4 @@
-.avito.ru
-.avito.st
-avito.ru
-avito.st
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.avito.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.avito.st
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,avito.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,avito.st

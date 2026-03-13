@@ -1,2 +1,2 @@
-.manhuagui.com
-manhuagui.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.manhuagui.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,manhuagui.com

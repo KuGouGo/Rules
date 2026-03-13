@@ -1,4 +1,4 @@
-.nginx.com
-.nginx.org
-nginx.com
-nginx.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nginx.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nginx.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nginx.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nginx.org

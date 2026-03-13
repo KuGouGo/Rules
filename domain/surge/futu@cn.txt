@@ -1,8 +1,8 @@
-.futuesop.com
-.futuniuniu.com
-.futunn.com
-.futustatic.com
-futuesop.com
-futuniuniu.com
-futunn.com
-futustatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.futuesop.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.futuniuniu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.futunn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.futustatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,futuesop.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,futuniuniu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,futunn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,futustatic.com

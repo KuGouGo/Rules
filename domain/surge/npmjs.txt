@@ -1,6 +1,6 @@
-.npm.community
-.npmjs.com
-.npmjs.org
-npm.community
-npmjs.com
-npmjs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.npm.community
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.npmjs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.npmjs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,npm.community
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,npmjs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,npmjs.org

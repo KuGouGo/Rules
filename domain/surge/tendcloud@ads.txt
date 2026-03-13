@@ -1,2 +1,2 @@
-.tdsdk.cpatrk.net
-tdsdk.cpatrk.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tdsdk.cpatrk.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tdsdk.cpatrk.net

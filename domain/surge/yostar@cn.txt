@@ -1,2 +1,2 @@
-.yostar.cn
-yostar.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yostar.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yostar.cn

@@ -1,4 +1,4 @@
-.graph-fallback.instagram.com
-.graph.instagram.com
-graph-fallback.instagram.com
-graph.instagram.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.graph-fallback.instagram.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.graph.instagram.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,graph-fallback.instagram.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,graph.instagram.com

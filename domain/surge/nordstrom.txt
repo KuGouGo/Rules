@@ -1,4 +1,4 @@
-.nordstrom.com
-.nordstrommedia.com
-nordstrom.com
-nordstrommedia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nordstrom.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nordstrommedia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nordstrom.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nordstrommedia.com

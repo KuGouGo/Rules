@@ -1,2 +1,2 @@
-.faststone.org
-faststone.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.faststone.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,faststone.org

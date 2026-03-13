@@ -1,8 +1,8 @@
-.taikang.com
-.taikanglife.com
-.taikangzhijia.com
-.tkhealthcare.com
-taikang.com
-taikanglife.com
-taikangzhijia.com
-tkhealthcare.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taikang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taikanglife.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taikangzhijia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tkhealthcare.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taikang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taikanglife.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taikangzhijia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tkhealthcare.com

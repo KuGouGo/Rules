@@ -1,8 +1,8 @@
-.f-dro1d.org
-.f-droid.com
-.f-droid.org
-.fdroid.org
-f-dro1d.org
-f-droid.com
-f-droid.org
-fdroid.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.f-dro1d.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.f-droid.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.f-droid.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fdroid.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,f-dro1d.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,f-droid.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,f-droid.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fdroid.org

@@ -1,4 +1,4 @@
-.wdfiles.com
-.wikidot.com
-wdfiles.com
-wikidot.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wdfiles.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wikidot.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wdfiles.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wikidot.com

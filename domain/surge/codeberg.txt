@@ -1,4 +1,4 @@
-.codeberg.org
-.codeberg.page
-codeberg.org
-codeberg.page
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.codeberg.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.codeberg.page
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,codeberg.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,codeberg.page

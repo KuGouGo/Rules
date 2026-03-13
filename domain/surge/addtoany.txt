@@ -1,2 +1,2 @@
-.addtoany.com
-addtoany.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.addtoany.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,addtoany.com

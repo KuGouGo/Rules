@@ -1,2 +1,2 @@
-.setapp.com
-setapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.setapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,setapp.com

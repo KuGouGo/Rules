@@ -1,4 +1,4 @@
-.boslife.biz
-.boslife.net
-boslife.biz
-boslife.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boslife.biz
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boslife.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,boslife.biz
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,boslife.net

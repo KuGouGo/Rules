@@ -1,4 +1,4 @@
-.easy-jtag.com
-.z3x-team.com
-easy-jtag.com
-z3x-team.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.easy-jtag.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.z3x-team.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,easy-jtag.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,z3x-team.com

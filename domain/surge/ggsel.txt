@@ -1,4 +1,4 @@
-.ggsel.com
-.ggsel.net
-ggsel.com
-ggsel.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ggsel.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ggsel.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ggsel.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ggsel.net

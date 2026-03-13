@@ -1,4 +1,4 @@
-.qcc.com
-.qichacha.com
-qcc.com
-qichacha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qcc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qichacha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qcc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qichacha.com

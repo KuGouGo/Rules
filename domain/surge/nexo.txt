@@ -1,4 +1,4 @@
-.nexo.com
-.nexo.io
-nexo.com
-nexo.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nexo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nexo.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nexo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nexo.io

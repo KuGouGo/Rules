@@ -1,4 +1,4 @@
-.quickconnect.cn
-.synology.cn
-quickconnect.cn
-synology.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.quickconnect.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.synology.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,quickconnect.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,synology.cn

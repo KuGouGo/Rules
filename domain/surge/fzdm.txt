@@ -1,4 +1,4 @@
-.fffdm.com
-.fzdm.com
-fffdm.com
-fzdm.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fffdm.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fzdm.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fffdm.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fzdm.com

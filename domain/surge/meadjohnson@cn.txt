@@ -1,4 +1,4 @@
-.enfinitas.com.cn
-.meadjohnson.com.cn
-enfinitas.com.cn
-meadjohnson.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.enfinitas.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meadjohnson.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,enfinitas.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meadjohnson.com.cn

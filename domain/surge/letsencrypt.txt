@@ -1,6 +1,6 @@
-.lencr.org
-.letsencrypt.com
-.letsencrypt.org
-lencr.org
-letsencrypt.com
-letsencrypt.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lencr.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.letsencrypt.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.letsencrypt.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lencr.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,letsencrypt.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,letsencrypt.org

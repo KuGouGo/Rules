@@ -1,4 +1,4 @@
-.userdrive.org
-.usersdrive.com
-userdrive.org
-usersdrive.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.userdrive.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.usersdrive.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,userdrive.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,usersdrive.com

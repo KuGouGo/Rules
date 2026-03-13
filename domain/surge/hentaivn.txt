@@ -1,8 +1,8 @@
-.hentaivn.de
-.hentaivn.la
-.hentaivn.net
-.htvncdn.net
-hentaivn.de
-hentaivn.la
-hentaivn.net
-htvncdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hentaivn.de
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hentaivn.la
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hentaivn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.htvncdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hentaivn.de
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hentaivn.la
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hentaivn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,htvncdn.net

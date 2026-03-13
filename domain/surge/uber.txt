@@ -1,6 +1,6 @@
-.uber-assets.com
-.uber.com
-.ubereats.com
-uber-assets.com
-uber.com
-ubereats.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.uber-assets.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.uber.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ubereats.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,uber-assets.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,uber.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ubereats.com

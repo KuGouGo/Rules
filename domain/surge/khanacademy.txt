@@ -1,4 +1,4 @@
-.kastatic.org
-.khanacademy.org
-kastatic.org
-khanacademy.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kastatic.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.khanacademy.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kastatic.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,khanacademy.org

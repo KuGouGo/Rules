@@ -1,6 +1,6 @@
-.nexitally.com
-.nexitallysafe.com
-.nexitcore.com
-nexitally.com
-nexitallysafe.com
-nexitcore.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nexitally.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nexitallysafe.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nexitcore.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nexitally.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nexitallysafe.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nexitcore.com

@@ -1,8 +1,8 @@
-.hecdn.net
-.heweather.net
-.qweather.com
-.qweather.net
-hecdn.net
-heweather.net
-qweather.com
-qweather.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hecdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.heweather.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qweather.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qweather.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hecdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,heweather.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qweather.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qweather.net

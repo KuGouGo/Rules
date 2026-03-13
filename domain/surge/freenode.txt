@@ -1,2 +1,2 @@
-.freenode.net
-freenode.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.freenode.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,freenode.net

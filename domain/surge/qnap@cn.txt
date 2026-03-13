@@ -1,6 +1,6 @@
-.myqnapcloud.cn
-.qlinkto.cn
-.qnap.com.cn
-myqnapcloud.cn
-qlinkto.cn
-qnap.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myqnapcloud.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qlinkto.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qnap.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,myqnapcloud.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qlinkto.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qnap.com.cn

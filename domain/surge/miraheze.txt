@@ -1,2 +1,2 @@
-.miraheze.org
-miraheze.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.miraheze.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,miraheze.org

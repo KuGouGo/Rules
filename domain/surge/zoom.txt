@@ -1,6 +1,6 @@
-.zoom.com
-.zoom.com.cn
-.zoom.us
-zoom.com
-zoom.com.cn
-zoom.us
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zoom.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zoom.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zoom.us
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zoom.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zoom.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zoom.us

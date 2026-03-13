@@ -1,6 +1,6 @@
-.coinone.co.kr
-.coinonecore.com
-.coinonecorp.com
-coinone.co.kr
-coinonecore.com
-coinonecorp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coinone.co.kr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coinonecore.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coinonecorp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coinone.co.kr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coinonecore.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coinonecorp.com

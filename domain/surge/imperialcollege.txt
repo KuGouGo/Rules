@@ -1,7 +1,7 @@
-.ic.ac.uk
-.imperial.ac.uk
-.imperialbusiness.school
-ic.ac.uk
-imperial.ac.uk
-imperial.insendi.com
-imperialbusiness.school
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ic.ac.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imperial.ac.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imperialbusiness.school
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ic.ac.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imperial.ac.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imperial.insendi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imperialbusiness.school

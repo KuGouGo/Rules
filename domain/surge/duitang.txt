@@ -1,4 +1,4 @@
-.dtstatic.com
-.duitang.com
-dtstatic.com
-duitang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dtstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.duitang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dtstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,duitang.com

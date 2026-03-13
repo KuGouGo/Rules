@@ -1,4 +1,4 @@
-.anon-v.com
-.anon-v.lol
-anon-v.com
-anon-v.lol
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.anon-v.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.anon-v.lol
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,anon-v.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,anon-v.lol

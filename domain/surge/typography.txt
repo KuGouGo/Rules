@@ -1,2 +1,2 @@
-.typography.com
-typography.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.typography.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,typography.com

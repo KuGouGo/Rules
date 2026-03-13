@@ -1,2 +1,2 @@
-.spacemail.com
-spacemail.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spacemail.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,spacemail.com

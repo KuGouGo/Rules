@@ -1,6 +1,6 @@
-.amazontrust.com
-.awstrust.com
-.ss2.us
-amazontrust.com
-awstrust.com
-ss2.us
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.amazontrust.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.awstrust.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ss2.us
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,amazontrust.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,awstrust.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ss2.us

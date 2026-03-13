@@ -1,4 +1,4 @@
-.nist.gov
-.time.gov
-nist.gov
-time.gov
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nist.gov
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.time.gov
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nist.gov
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,time.gov

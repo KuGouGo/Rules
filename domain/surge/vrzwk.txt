@@ -1,8 +1,8 @@
-.vrzwk.cn
-.vrzwk.com
-.vrzwk.net
-.vrzwk.top
-vrzwk.cn
-vrzwk.com
-vrzwk.net
-vrzwk.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrzwk.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrzwk.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrzwk.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrzwk.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrzwk.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrzwk.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrzwk.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrzwk.top

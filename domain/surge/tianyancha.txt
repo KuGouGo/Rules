@@ -1,4 +1,4 @@
-.jindidata.com
-.tianyancha.com
-jindidata.com
-tianyancha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jindidata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tianyancha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jindidata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tianyancha.com

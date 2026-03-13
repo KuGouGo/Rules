@@ -1,2 +1,2 @@
-.taptap.io
-taptap.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taptap.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taptap.io

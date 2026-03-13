@@ -1,2 +1,2 @@
-.torproject.org
-torproject.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.torproject.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,torproject.org

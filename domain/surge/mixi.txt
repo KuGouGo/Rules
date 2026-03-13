@@ -1,6 +1,6 @@
-.mixi.co.jp
-.mixi.jp
-.mixi.net
-mixi.co.jp
-mixi.jp
-mixi.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mixi.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mixi.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mixi.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mixi.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mixi.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mixi.net

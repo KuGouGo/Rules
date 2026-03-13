@@ -1,4 +1,4 @@
-.hongen.com
-.ihuman.com
-hongen.com
-ihuman.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hongen.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ihuman.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hongen.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ihuman.com

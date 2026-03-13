@@ -1,8 +1,8 @@
-.arcraiders.com
-.embark-studios.com
-.embark.games
-.reachthefinals.com
-arcraiders.com
-embark-studios.com
-embark.games
-reachthefinals.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.arcraiders.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.embark-studios.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.embark.games
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.reachthefinals.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,arcraiders.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,embark-studios.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,embark.games
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,reachthefinals.com

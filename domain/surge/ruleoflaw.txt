@@ -1,4 +1,4 @@
-.rolfoundation.org
-.rolsociety.org
-rolfoundation.org
-rolsociety.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rolfoundation.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rolsociety.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rolfoundation.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rolsociety.org

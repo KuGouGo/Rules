@@ -1,8 +1,8 @@
-.matters.news
-.matters.one
-.matters.town
-.mattersprotocol.io
-matters.news
-matters.one
-matters.town
-mattersprotocol.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.matters.news
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.matters.one
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.matters.town
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mattersprotocol.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,matters.news
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,matters.one
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,matters.town
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mattersprotocol.io

@@ -1,6 +1,6 @@
-.cnbeta.com
-.cnbeta.com.tw
-.cnbetacdn.com
-cnbeta.com
-cnbeta.com.tw
-cnbetacdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnbeta.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnbeta.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnbetacdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnbeta.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnbeta.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnbetacdn.com

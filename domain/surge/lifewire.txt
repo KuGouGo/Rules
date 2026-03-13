@@ -1,2 +1,2 @@
-.lifewire.com
-lifewire.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lifewire.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lifewire.com

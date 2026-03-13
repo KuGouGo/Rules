@@ -1,2 +1,2 @@
-.intel.cn
-intel.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.intel.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,intel.cn

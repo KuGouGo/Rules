@@ -1,2 +1,2 @@
-.modrinth.com
-modrinth.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.modrinth.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,modrinth.com

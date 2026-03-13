@@ -1,2 +1,2 @@
-.xingrz.me
-xingrz.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xingrz.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xingrz.me

@@ -1,2 +1,2 @@
-.craigslist.org
-craigslist.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.craigslist.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,craigslist.org

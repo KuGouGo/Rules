@@ -1,6 +1,6 @@
-.coolapk.com
-.coolapkmarket.com
-.coolapkmarket.net
-coolapk.com
-coolapkmarket.com
-coolapkmarket.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coolapk.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coolapkmarket.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coolapkmarket.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coolapk.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coolapkmarket.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coolapkmarket.net

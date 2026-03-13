@@ -1,8 +1,8 @@
-.cici.com
-.ciciai.com
-.ciciaicdn.com
-.dola.com
-cici.com
-ciciai.com
-ciciaicdn.com
-dola.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cici.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ciciai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ciciaicdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dola.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cici.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ciciai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ciciaicdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dola.com

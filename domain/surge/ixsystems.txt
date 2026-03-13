@@ -1,4 +1,4 @@
-.ixsystems.com
-.truenas.com
-ixsystems.com
-truenas.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ixsystems.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.truenas.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ixsystems.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,truenas.com

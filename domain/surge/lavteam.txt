@@ -1,2 +1,2 @@
-.lavteam.org
-lavteam.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lavteam.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lavteam.org

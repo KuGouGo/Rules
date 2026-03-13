@@ -1,4 +1,4 @@
-.symantec.com
-.symantecliveupdate.com
-symantec.com
-symantecliveupdate.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.symantec.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.symantecliveupdate.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,symantec.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,symantecliveupdate.com

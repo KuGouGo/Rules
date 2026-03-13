@@ -1,4 +1,4 @@
-.techpowerup.com
-.tpucdn.com
-techpowerup.com
-tpucdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.techpowerup.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tpucdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,techpowerup.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tpucdn.com

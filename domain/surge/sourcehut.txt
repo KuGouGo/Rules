@@ -1,4 +1,4 @@
-.sourcehut.org
-.sr.ht
-sourcehut.org
-sr.ht
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sourcehut.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sr.ht
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sourcehut.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sr.ht

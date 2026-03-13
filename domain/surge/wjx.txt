@@ -1,8 +1,8 @@
-.sojump.com
-.wjx.cn
-.wjx.com
-.wjx.top
-sojump.com
-wjx.cn
-wjx.com
-wjx.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sojump.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wjx.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wjx.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wjx.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sojump.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wjx.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wjx.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wjx.top

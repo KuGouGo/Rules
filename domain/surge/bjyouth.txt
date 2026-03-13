@@ -1,8 +1,8 @@
-.bjyouth.gov.cn
-.bjyouth.net
-.sqqnh.cn
-.sqqnh.org
-bjyouth.gov.cn
-bjyouth.net
-sqqnh.cn
-sqqnh.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bjyouth.gov.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bjyouth.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sqqnh.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sqqnh.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bjyouth.gov.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bjyouth.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sqqnh.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sqqnh.org

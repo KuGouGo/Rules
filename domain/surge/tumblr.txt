@@ -1,2 +1,2 @@
-.tumblr.com
-tumblr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tumblr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tumblr.com

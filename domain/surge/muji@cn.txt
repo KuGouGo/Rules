@@ -1,2 +1,2 @@
-.muji.com.cn
-muji.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.muji.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,muji.com.cn

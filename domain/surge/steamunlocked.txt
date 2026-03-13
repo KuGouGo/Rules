@@ -1,2 +1,2 @@
-.steamunlocked.net
-steamunlocked.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.steamunlocked.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,steamunlocked.net

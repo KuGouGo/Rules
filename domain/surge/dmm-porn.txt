@@ -1,4 +1,4 @@
-.dmm.co.jp
-.dmmrex.com
-dmm.co.jp
-dmmrex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dmm.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dmmrex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dmm.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dmmrex.com

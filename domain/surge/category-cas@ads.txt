@@ -1,6 +1,6 @@
-.ads.yahoo.com
-.gemini.yahoo.com
-.ysm.yahoo.com
-ads.yahoo.com
-gemini.yahoo.com
-ysm.yahoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ads.yahoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gemini.yahoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ysm.yahoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ads.yahoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gemini.yahoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ysm.yahoo.com

@@ -1,4 +1,4 @@
-.hubblephone.com
-.tsi.ai
-hubblephone.com
-tsi.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hubblephone.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tsi.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hubblephone.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tsi.ai

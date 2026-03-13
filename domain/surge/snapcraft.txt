@@ -1,4 +1,4 @@
-.snapcraft.io
-.snapstore.io
-snapcraft.io
-snapstore.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.snapcraft.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.snapstore.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,snapcraft.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,snapstore.io

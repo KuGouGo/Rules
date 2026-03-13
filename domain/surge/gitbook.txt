@@ -1,4 +1,4 @@
-.gitbook.com
-.gitbook.io
-gitbook.com
-gitbook.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gitbook.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gitbook.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gitbook.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gitbook.io

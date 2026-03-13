@@ -1,4 +1,4 @@
-.rainclassroom.com
-.yuketang.cn
-rainclassroom.com
-yuketang.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rainclassroom.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yuketang.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rainclassroom.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yuketang.cn

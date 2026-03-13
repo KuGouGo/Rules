@@ -1,6 +1,6 @@
-.tokyo-tosho.net
-.tokyotosho.info
-.tokyotosho.se
-tokyo-tosho.net
-tokyotosho.info
-tokyotosho.se
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tokyo-tosho.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tokyotosho.info
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tokyotosho.se
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tokyo-tosho.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tokyotosho.info
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tokyotosho.se

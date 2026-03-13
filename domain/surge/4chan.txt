@@ -1,6 +1,6 @@
-.4cdn.org
-.4chan.org
-.4channel.org
-4cdn.org
-4chan.org
-4channel.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.4cdn.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.4chan.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.4channel.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,4cdn.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,4chan.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,4channel.org

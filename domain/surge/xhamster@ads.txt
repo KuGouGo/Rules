@@ -1,2 +1,2 @@
-.collector.xhamster.com
-collector.xhamster.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.collector.xhamster.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,collector.xhamster.com

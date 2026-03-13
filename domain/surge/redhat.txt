@@ -1,4 +1,4 @@
-.redhat.com
-.redhat.org
-redhat.com
-redhat.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.redhat.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.redhat.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,redhat.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,redhat.org

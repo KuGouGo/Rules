@@ -1,6 +1,6 @@
-.tailscale.com
-.tailscale.io
-.ts.net
-tailscale.com
-tailscale.io
-ts.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tailscale.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tailscale.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ts.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tailscale.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tailscale.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ts.net

@@ -1,8 +1,8 @@
-.mycdn.me
-.ok.ru
-.okcdn.ru
-mycdn.me
-ok.ru
-okcdn.ru
-st-ok-pts.cdn-vk.ru
-st-ok.cdn-vk.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mycdn.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ok.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.okcdn.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mycdn.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ok.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,okcdn.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,st-ok-pts.cdn-vk.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,st-ok.cdn-vk.ru

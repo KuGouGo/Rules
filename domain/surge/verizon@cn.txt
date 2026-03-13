@@ -1,4 +1,4 @@
-.yahoo.cn
-.yahoo.com.cn
-yahoo.cn
-yahoo.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yahoo.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yahoo.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yahoo.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yahoo.com.cn

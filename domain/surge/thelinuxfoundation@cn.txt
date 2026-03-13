@@ -1,1 +1,1 @@
-cdn.ampproject.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cdn.ampproject.org

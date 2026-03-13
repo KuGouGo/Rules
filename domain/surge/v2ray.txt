@@ -1,6 +1,6 @@
-.v2fly.org
-.v2ray.com
-.v2ray.cool
-v2fly.org
-v2ray.com
-v2ray.cool
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.v2fly.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.v2ray.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.v2ray.cool
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,v2fly.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,v2ray.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,v2ray.cool

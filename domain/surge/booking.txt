@@ -1,6 +1,6 @@
-.booking.cn
-.booking.com
-.bstatic.com
-booking.cn
-booking.com
-bstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.booking.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.booking.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,booking.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,booking.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bstatic.com

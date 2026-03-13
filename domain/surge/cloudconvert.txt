@@ -1,2 +1,2 @@
-.cloudconvert.com
-cloudconvert.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudconvert.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudconvert.com

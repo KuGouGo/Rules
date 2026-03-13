@@ -1,4 +1,4 @@
-.manoto1.tv
-.manototv.com
-manoto1.tv
-manototv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.manoto1.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.manototv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,manoto1.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,manototv.com

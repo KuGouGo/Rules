@@ -1,2 +1,2 @@
-.windy.com
-windy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.windy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,windy.com

@@ -1,4 +1,4 @@
-.doi.info
-.doi.org
-doi.info
-doi.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.doi.info
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.doi.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,doi.info
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,doi.org

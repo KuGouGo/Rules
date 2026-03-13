@@ -1,2 +1,2 @@
-.mortein.cn
-mortein.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mortein.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mortein.cn

@@ -1,4 +1,4 @@
-.liveperson.net
-.lpsnmedia.net
-liveperson.net
-lpsnmedia.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.liveperson.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lpsnmedia.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,liveperson.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lpsnmedia.net

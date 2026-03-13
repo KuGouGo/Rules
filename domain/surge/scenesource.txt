@@ -1,6 +1,6 @@
-.predb.me
-.scenesource.me
-.scnsrc.me
-predb.me
-scenesource.me
-scnsrc.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.predb.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.scenesource.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.scnsrc.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,predb.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,scenesource.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,scnsrc.me

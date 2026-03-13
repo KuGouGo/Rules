@@ -1,6 +1,6 @@
-.javbus.com
-.javbus22.com
-.javcdn.cc
-javbus.com
-javbus22.com
-javcdn.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javbus.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javbus22.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javcdn.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,javbus.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,javbus22.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,javcdn.cc

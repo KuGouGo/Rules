@@ -1,6 +1,6 @@
-.kktv.com.tw
-.kktv.me
-.theater-kktv.cdn.hinet.net
-kktv.com.tw
-kktv.me
-theater-kktv.cdn.hinet.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kktv.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kktv.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.theater-kktv.cdn.hinet.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kktv.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kktv.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,theater-kktv.cdn.hinet.net

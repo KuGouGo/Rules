@@ -1,8 +1,8 @@
-.duowan.com
-.dwstatic.com
-.yy.com
-.yystatic.com
-duowan.com
-dwstatic.com
-yy.com
-yystatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.duowan.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dwstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yystatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,duowan.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dwstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yystatic.com

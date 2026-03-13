@@ -1,3 +1,3 @@
-adeventtracker.spotify.com
-adstudio-assets.scdn.co
-bloodhound.spotify.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adeventtracker.spotify.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adstudio-assets.scdn.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bloodhound.spotify.com

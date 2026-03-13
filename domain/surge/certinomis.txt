@@ -1,4 +1,4 @@
-.certinomis.com
-.certinomis.fr
-certinomis.com
-certinomis.fr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.certinomis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.certinomis.fr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,certinomis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,certinomis.fr

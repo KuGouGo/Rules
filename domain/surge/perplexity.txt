@@ -1,8 +1,8 @@
-.perplexity.ai
-.perplexity.com
-.pplx.ai
-perplexity.ai
-perplexity.com
-ppl-ai-file-upload.s3.amazonaws.com
-pplx-res.cloudinary.com
-pplx.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.perplexity.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.perplexity.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pplx.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,perplexity.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,perplexity.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ppl-ai-file-upload.s3.amazonaws.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pplx-res.cloudinary.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pplx.ai

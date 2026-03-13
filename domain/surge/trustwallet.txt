@@ -1,2 +1,2 @@
-.trustwallet.com
-trustwallet.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.trustwallet.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,trustwallet.com

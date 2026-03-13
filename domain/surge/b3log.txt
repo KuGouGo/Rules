@@ -1,8 +1,8 @@
-.b3log.org
-.b3logfile.com
-.hacpai.com
-.ld246.com
-b3log.org
-b3logfile.com
-hacpai.com
-ld246.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.b3log.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.b3logfile.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hacpai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ld246.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,b3log.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,b3logfile.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hacpai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ld246.com

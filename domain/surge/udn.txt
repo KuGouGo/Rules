@@ -1,8 +1,8 @@
-.udn.com
-.udn.com.tw
-.udndata.com
-.udnfunlife.com
-udn.com
-udn.com.tw
-udndata.com
-udnfunlife.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udn.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udndata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udnfunlife.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udn.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udndata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udnfunlife.com

@@ -1,4 +1,4 @@
-.capitalonline.net
-.mirrors.yun-idc.com
-capitalonline.net
-mirrors.yun-idc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.capitalonline.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mirrors.yun-idc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,capitalonline.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mirrors.yun-idc.com

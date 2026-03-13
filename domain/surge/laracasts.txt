@@ -1,2 +1,2 @@
-.laracasts.com
-laracasts.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.laracasts.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,laracasts.com

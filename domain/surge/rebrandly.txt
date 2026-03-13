@@ -1,4 +1,4 @@
-.rb.gy
-.rebrandly.com
-rb.gy
-rebrandly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rb.gy
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rebrandly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rb.gy
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rebrandly.com

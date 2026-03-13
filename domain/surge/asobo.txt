@@ -1,5 +1,5 @@
-.asobostudio.com
-.flightsimulator.com
-asobostudio.com
-flightsimulator.azureedge.net
-flightsimulator.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.asobostudio.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.flightsimulator.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,asobostudio.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,flightsimulator.azureedge.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,flightsimulator.com

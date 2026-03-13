@@ -1,2 +1,2 @@
-.inoreader.com
-inoreader.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.inoreader.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,inoreader.com

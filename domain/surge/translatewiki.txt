@@ -1,4 +1,4 @@
-.translatewiki.net
-.translatewiki.org
-translatewiki.net
-translatewiki.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.translatewiki.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.translatewiki.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,translatewiki.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,translatewiki.org

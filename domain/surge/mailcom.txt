@@ -1,8 +1,8 @@
-.mail.com
-.ui-portal.de
-.uicdn.com
-.uimserv.net
-mail.com
-ui-portal.de
-uicdn.com
-uimserv.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mail.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ui-portal.de
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.uicdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.uimserv.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mail.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ui-portal.de
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,uicdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,uimserv.net

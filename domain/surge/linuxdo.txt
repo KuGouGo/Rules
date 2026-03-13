@@ -1,4 +1,4 @@
-.ldstatic.com
-.linux.do
-ldstatic.com
-linux.do
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ldstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.linux.do
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ldstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,linux.do

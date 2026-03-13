@@ -1,2 +1,2 @@
-.tsquare.tv
-tsquare.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tsquare.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tsquare.tv

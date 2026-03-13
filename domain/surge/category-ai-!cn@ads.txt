@@ -1,2 +1,2 @@
-browser-intake-datadoghq.com
-o33249.ingest.sentry.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,browser-intake-datadoghq.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,o33249.ingest.sentry.io

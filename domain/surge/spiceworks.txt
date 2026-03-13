@@ -1,4 +1,4 @@
-.spiceworks.com
-.spiceworksstatic.com
-spiceworks.com
-spiceworksstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spiceworks.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spiceworksstatic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,spiceworks.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,spiceworksstatic.com

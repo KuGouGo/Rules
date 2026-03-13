@@ -1,2 +1,2 @@
-.taboola.com
-taboola.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taboola.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taboola.com

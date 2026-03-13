@@ -1,6 +1,6 @@
-.bestbuy.cn
-.bestbuy.com.cn
-.magnoliaav.com.cn
-bestbuy.cn
-bestbuy.com.cn
-magnoliaav.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bestbuy.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bestbuy.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.magnoliaav.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bestbuy.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bestbuy.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,magnoliaav.com.cn

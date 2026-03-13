@@ -1,4 +1,4 @@
-.kubakuba.global
-.kubakuba1996.com
-kubakuba.global
-kubakuba1996.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kubakuba.global
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kubakuba1996.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kubakuba.global
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kubakuba1996.com

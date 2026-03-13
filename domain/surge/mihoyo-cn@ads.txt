@@ -1,2 +1,2 @@
-.log-upload.mihoyo.com
-log-upload.mihoyo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.log-upload.mihoyo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,log-upload.mihoyo.com

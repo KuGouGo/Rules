@@ -1,2 +1,2 @@
-.lowiro.com
-lowiro.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lowiro.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lowiro.com

@@ -1,6 +1,6 @@
-.flutter.dev
-.flutterapp.com
-.pub.dev
-flutter.dev
-flutterapp.com
-pub.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.flutter.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.flutterapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pub.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,flutter.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,flutterapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pub.dev

@@ -1,2 +1,2 @@
-.ynoproject.net
-ynoproject.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ynoproject.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ynoproject.net

@@ -1,2 +1,2 @@
-.thetvdb.com
-thetvdb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thetvdb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,thetvdb.com

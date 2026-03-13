@@ -1,6 +1,6 @@
-.citics.com.hk
-.cncbinternational.com
-.csci.hk
-citics.com.hk
-cncbinternational.com
-csci.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.citics.com.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cncbinternational.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.csci.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,citics.com.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cncbinternational.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,csci.hk

@@ -1,6 +1,6 @@
-.zynga.com
-.zyngaplayersupport.com
-.zyngapoker.com
-zynga.com
-zyngaplayersupport.com
-zyngapoker.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zynga.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zyngaplayersupport.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zyngapoker.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zynga.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zyngaplayersupport.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zyngapoker.com

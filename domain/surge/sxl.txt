@@ -1,6 +1,6 @@
-.mysxl.cn
-.sxl.cn
-.sxlcdn.cn
-mysxl.cn
-sxl.cn
-sxlcdn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mysxl.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sxl.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sxlcdn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mysxl.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sxl.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sxlcdn.cn

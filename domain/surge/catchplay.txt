@@ -1,4 +1,4 @@
-.catchplay.com
-.tra-ww000-cp.akamaized.net
-catchplay.com
-tra-ww000-cp.akamaized.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.catchplay.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tra-ww000-cp.akamaized.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,catchplay.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tra-ww000-cp.akamaized.net

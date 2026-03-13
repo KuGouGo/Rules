@@ -1,4 +1,4 @@
-.mongodb.com
-.mongodb.org
-mongodb.com
-mongodb.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mongodb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mongodb.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mongodb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mongodb.org

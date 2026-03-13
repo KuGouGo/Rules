@@ -1,4 +1,4 @@
-.morisawa.co.jp
-.typesquare.com
-morisawa.co.jp
-typesquare.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.morisawa.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.typesquare.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,morisawa.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,typesquare.com

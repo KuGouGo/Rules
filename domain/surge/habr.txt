@@ -1,4 +1,4 @@
-.habr.com
-.habrastorage.org
-habr.com
-habrastorage.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.habr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.habrastorage.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,habr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,habrastorage.org

@@ -1,4 +1,4 @@
-.omaps.app
-.organicmaps.app
-omaps.app
-organicmaps.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.omaps.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.organicmaps.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,omaps.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,organicmaps.app

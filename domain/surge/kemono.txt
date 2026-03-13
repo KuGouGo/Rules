@@ -1,6 +1,6 @@
-.kemono.cr
-.kemono.party
-.kemono.su
-kemono.cr
-kemono.party
-kemono.su
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kemono.cr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kemono.party
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kemono.su
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kemono.cr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kemono.party
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kemono.su

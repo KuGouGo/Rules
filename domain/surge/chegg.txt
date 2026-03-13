@@ -1,4 +1,4 @@
-.chegg.com
-.cheggcdn.com
-chegg.com
-cheggcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.chegg.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cheggcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,chegg.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cheggcdn.com

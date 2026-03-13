@@ -1,4 +1,4 @@
-.chinaso.com
-.pg0.cn
-chinaso.com
-pg0.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.chinaso.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pg0.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,chinaso.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pg0.cn

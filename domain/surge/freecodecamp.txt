@@ -1,2 +1,2 @@
-.freecodecamp.org
-freecodecamp.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.freecodecamp.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,freecodecamp.org

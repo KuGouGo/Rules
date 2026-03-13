@@ -1,8 +1,8 @@
-.ganjiangvpn.com
-.glxcc.net
-.xedge.cc
-.xn0.cc
-ganjiangvpn.com
-glxcc.net
-xedge.cc
-xn0.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ganjiangvpn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.glxcc.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xedge.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xn0.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ganjiangvpn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,glxcc.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xedge.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xn0.cc

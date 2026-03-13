@@ -1,2 +1,2 @@
-.badjs.weixinbridge.com
-badjs.weixinbridge.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.badjs.weixinbridge.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,badjs.weixinbridge.com

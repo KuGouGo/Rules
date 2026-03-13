@@ -1,6 +1,6 @@
-.zaobao.com
-.zaobao.com.sg
-.zaobao.sg
-zaobao.com
-zaobao.com.sg
-zaobao.sg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zaobao.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zaobao.com.sg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zaobao.sg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zaobao.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zaobao.com.sg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zaobao.sg

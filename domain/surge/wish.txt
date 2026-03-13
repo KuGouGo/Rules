@@ -1,2 +1,2 @@
-.wish.com
-wish.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wish.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wish.com

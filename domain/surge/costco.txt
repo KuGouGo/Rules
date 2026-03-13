@@ -1,6 +1,6 @@
-.costco-static.com
-.costco.com
-.costcobusinessdelivery.com
-costco-static.com
-costco.com
-costcobusinessdelivery.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.costco-static.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.costco.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.costcobusinessdelivery.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,costco-static.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,costco.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,costcobusinessdelivery.com

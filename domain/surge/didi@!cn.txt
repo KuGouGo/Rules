@@ -1,8 +1,8 @@
-.didi-food.com
-.didiaustralia.blog
-.didiglobal.com
-.didimobility.co.jp
-didi-food.com
-didiaustralia.blog
-didiglobal.com
-didimobility.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.didi-food.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.didiaustralia.blog
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.didiglobal.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.didimobility.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,didi-food.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,didiaustralia.blog
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,didiglobal.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,didimobility.co.jp

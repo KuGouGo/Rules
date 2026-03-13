@@ -1,2 +1,2 @@
-.vultr.com
-vultr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vultr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vultr.com

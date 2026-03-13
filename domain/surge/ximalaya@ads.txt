@@ -1,6 +1,6 @@
-.adbehavior.ximalaya.com
-.adse.wsa.ximalaya.com
-.adse.ximalaya.com
-adbehavior.ximalaya.com
-adse.wsa.ximalaya.com
-adse.ximalaya.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adbehavior.ximalaya.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adse.wsa.ximalaya.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adse.ximalaya.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adbehavior.ximalaya.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adse.wsa.ximalaya.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adse.ximalaya.com

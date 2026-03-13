@@ -1,4 +1,4 @@
-.pornpros.com
-.pornprosnetwork.com
-pornpros.com
-pornprosnetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pornpros.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pornprosnetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pornpros.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pornprosnetwork.com

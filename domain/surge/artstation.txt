@@ -1,4 +1,4 @@
-.artstation.com
-.artstationmedia.com
-artstation.com
-artstationmedia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.artstation.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.artstationmedia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,artstation.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,artstationmedia.com

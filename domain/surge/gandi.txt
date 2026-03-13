@@ -1,2 +1,2 @@
-.gandi.net
-gandi.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gandi.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gandi.net

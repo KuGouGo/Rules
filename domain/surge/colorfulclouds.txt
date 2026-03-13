@@ -1,4 +1,4 @@
-.caiyunai.com
-.caiyunapp.com
-caiyunai.com
-caiyunapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.caiyunai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.caiyunapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,caiyunai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,caiyunapp.com

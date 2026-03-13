@@ -1,4 +1,4 @@
-.debian.org
-.dotdeb.org
-debian.org
-dotdeb.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.debian.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dotdeb.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,debian.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dotdeb.org

@@ -1,2 +1,2 @@
-.glyphsapp.com
-glyphsapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.glyphsapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,glyphsapp.com

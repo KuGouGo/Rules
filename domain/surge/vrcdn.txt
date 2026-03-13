@@ -1,6 +1,6 @@
-.vrcdn.cloud
-.vrcdn.live
-.vrcdn.video
-vrcdn.cloud
-vrcdn.live
-vrcdn.video
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrcdn.cloud
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrcdn.live
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrcdn.video
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrcdn.cloud
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrcdn.live
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrcdn.video

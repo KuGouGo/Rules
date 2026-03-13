@@ -1,4 +1,4 @@
-.ad-survey.com
-.browser.events.data.msn.cn
-ad-survey.com
-browser.events.data.msn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ad-survey.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.browser.events.data.msn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ad-survey.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,browser.events.data.msn.cn

@@ -1,8 +1,8 @@
-gog-cdn-fastly.gog.com
-gog-cdn.akamaized.net
-gog.qtlglb.com
-gogalaxy.gog-statics.com
-menu-static.gog-statics.com
-productcard.gog-statics.com
-static-login.gog-statics.com
-www4-static.gog-statics.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gog-cdn-fastly.gog.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gog-cdn.akamaized.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gog.qtlglb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gogalaxy.gog-statics.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,menu-static.gog-statics.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,productcard.gog-statics.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,static-login.gog-statics.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,www4-static.gog-statics.com

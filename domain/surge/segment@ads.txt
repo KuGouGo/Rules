@@ -1,8 +1,8 @@
-.segment.com
-.segment.io
-.segmenthub.com
-.segmentify.com
-segment.com
-segment.io
-segmenthub.com
-segmentify.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.segment.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.segment.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.segmenthub.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.segmentify.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,segment.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,segment.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,segmenthub.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,segmentify.com

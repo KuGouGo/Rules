@@ -1,4 +1,4 @@
-.bootstrapcdn.com
-.getbootstrap.com
-bootstrapcdn.com
-getbootstrap.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bootstrapcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.getbootstrap.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bootstrapcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,getbootstrap.com

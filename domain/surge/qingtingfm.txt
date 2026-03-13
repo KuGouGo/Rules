@@ -1,4 +1,4 @@
-.qingting.fm
-.qtfm.cn
-qingting.fm
-qtfm.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qingting.fm
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qtfm.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qingting.fm
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qtfm.cn

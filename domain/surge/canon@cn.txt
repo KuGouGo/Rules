@@ -1,4 +1,4 @@
-.canon.cn
-.canon.com.cn
-canon.cn
-canon.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.canon.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.canon.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,canon.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,canon.com.cn

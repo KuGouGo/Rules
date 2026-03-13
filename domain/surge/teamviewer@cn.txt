@@ -1,2 +1,2 @@
-.teamviewer.cn
-teamviewer.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teamviewer.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,teamviewer.cn

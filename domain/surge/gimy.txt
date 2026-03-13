@@ -1,8 +1,8 @@
-.gimy.cc
-.gimy.co
-.gimy.to
-.gimy.tv
-gimy.cc
-gimy.co
-gimy.to
-gimy.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gimy.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gimy.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gimy.to
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gimy.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gimy.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gimy.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gimy.to
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gimy.tv

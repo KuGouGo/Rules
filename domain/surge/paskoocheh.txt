@@ -1,2 +1,2 @@
-.paskoocheh.com
-paskoocheh.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.paskoocheh.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,paskoocheh.com

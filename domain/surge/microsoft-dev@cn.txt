@@ -1,6 +1,6 @@
-.microsoftreactor.cn
-.microsoftreactor.com.cn
-.reactorms.com.cn
-microsoftreactor.cn
-microsoftreactor.com.cn
-reactorms.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.microsoftreactor.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.microsoftreactor.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.reactorms.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,microsoftreactor.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,microsoftreactor.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,reactorms.com.cn

@@ -1,8 +1,8 @@
-.coursera-for-business.org
-.coursera.community
-.coursera.help
-.coursera.org
-coursera-for-business.org
-coursera.community
-coursera.help
-coursera.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coursera-for-business.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coursera.community
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coursera.help
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coursera.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coursera-for-business.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coursera.community
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coursera.help
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,coursera.org

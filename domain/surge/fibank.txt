@@ -1,6 +1,6 @@
-.fibank.bg
-.meawallet.app
-.myfin.bg
-fibank.bg
-meawallet.app
-myfin.bg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fibank.bg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meawallet.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myfin.bg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fibank.bg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meawallet.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,myfin.bg

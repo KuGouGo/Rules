@@ -1,6 +1,6 @@
-.dart.dev
-.dartlang.org
-.dartpad.dev
-dart.dev
-dartlang.org
-dartpad.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dart.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dartlang.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dartpad.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dart.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dartlang.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dartpad.dev

@@ -1,4 +1,4 @@
-.qt-project.org
-.qt.io
-qt-project.org
-qt.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qt-project.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qt.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qt-project.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qt.io

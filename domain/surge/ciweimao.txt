@@ -1,6 +1,6 @@
-.ciweimao.com
-.hbooker.com
-.kuangxiangit.com
-ciweimao.com
-hbooker.com
-kuangxiangit.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ciweimao.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hbooker.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kuangxiangit.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ciweimao.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hbooker.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kuangxiangit.com

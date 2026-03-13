@@ -1,4 +1,4 @@
-.aixcoder.com
-.nnthink.com
-aixcoder.com
-nnthink.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aixcoder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nnthink.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aixcoder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nnthink.com

@@ -1,8 +1,8 @@
-.btt804.com
-.btt904.com
-.bttzyw.com
-.bttzyw.net
-btt804.com
-btt904.com
-bttzyw.com
-bttzyw.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.btt804.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.btt904.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bttzyw.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bttzyw.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,btt804.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,btt904.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bttzyw.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bttzyw.net

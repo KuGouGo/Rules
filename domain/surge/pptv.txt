@@ -1,6 +1,6 @@
-.pplive.cn
-.pplive.com
-.pptv.com
-pplive.cn
-pplive.com
-pptv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pplive.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pplive.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pptv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pplive.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pplive.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pptv.com

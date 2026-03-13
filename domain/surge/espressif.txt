@@ -1,6 +1,6 @@
-.esp32.com
-.esp8266.com
-.espressif.com
-esp32.com
-esp8266.com
-espressif.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.esp32.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.esp8266.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.espressif.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,esp32.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,esp8266.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,espressif.com

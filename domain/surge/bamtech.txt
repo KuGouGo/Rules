@@ -1,4 +1,4 @@
-.bamgrid.com
-.dmed.technology
-bamgrid.com
-dmed.technology
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bamgrid.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dmed.technology
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bamgrid.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dmed.technology

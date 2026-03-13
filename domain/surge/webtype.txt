@@ -1,2 +1,2 @@
-.webtype.com
-webtype.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.webtype.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,webtype.com

@@ -1,4 +1,4 @@
-.apifox.cn
-.apifox.com
-apifox.cn
-apifox.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apifox.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apifox.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,apifox.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,apifox.com

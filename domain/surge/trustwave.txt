@@ -1,2 +1,2 @@
-.trustwave.com
-trustwave.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.trustwave.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,trustwave.com
