@@ -7,12 +7,12 @@ cd "$ROOT"
 CUSTOM_SRC_DIR="$ROOT/sources/domain/custom"
 TMP_DIR="$ROOT/.tmp/custom"
 BIN_DIR="$ROOT/.bin"
-SURGE_DIR="$ROOT/domain/custom-surge"
-SINGBOX_DIR="$ROOT/domain/custom-sing-box"
-MIHOMO_DIR="$ROOT/domain/custom-mihomo"
+SURGE_DIR="$ROOT/domain/surge"
+SINGBOX_DIR="$ROOT/domain/sing-box"
+MIHOMO_DIR="$ROOT/domain/mihomo"
 
 mkdir -p "$SURGE_DIR" "$SINGBOX_DIR" "$MIHOMO_DIR" "$TMP_DIR" "$BIN_DIR"
-rm -f "$SURGE_DIR"/* "$SINGBOX_DIR"/* "$MIHOMO_DIR"/* "$TMP_DIR"/*
+rm -f "$TMP_DIR"/*
 
 shopt -s nullglob
 custom_lists=("$CUSTOM_SRC_DIR"/*.list)
