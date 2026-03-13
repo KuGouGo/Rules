@@ -1,2 +1,2 @@
-.sandisk.cn
-sandisk.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sandisk.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sandisk.cn

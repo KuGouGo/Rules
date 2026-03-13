@@ -1,4 +1,4 @@
-.dmit.io
-.dmit.sh
-dmit.io
-dmit.sh
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dmit.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dmit.sh
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dmit.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dmit.sh

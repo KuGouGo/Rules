@@ -1,6 +1,6 @@
-.imgur.com
-.imgur.io
-.imgurinc.com
-imgur.com
-imgur.io
-imgurinc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgur.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgur.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgurinc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgur.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgur.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgurinc.com

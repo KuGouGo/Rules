@@ -1,4 +1,4 @@
-.dandanzan.cc
-.nunuyy.cc
-dandanzan.cc
-nunuyy.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dandanzan.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nunuyy.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dandanzan.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nunuyy.cc

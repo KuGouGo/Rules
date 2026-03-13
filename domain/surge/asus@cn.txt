@@ -1,2 +1,2 @@
-.asus.com.cn
-asus.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.asus.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,asus.com.cn

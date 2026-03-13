@@ -1,4 +1,4 @@
-.giffgaff.com
-.giffgaff.design
-giffgaff.com
-giffgaff.design
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.giffgaff.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.giffgaff.design
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,giffgaff.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,giffgaff.design

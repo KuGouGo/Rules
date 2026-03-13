@@ -1,2 +1,2 @@
-.linux.org
-linux.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.linux.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,linux.org

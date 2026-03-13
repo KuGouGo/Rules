@@ -1,7 +1,7 @@
-.fontbook.com
-.fontshop.com
-.fstopimages.com
-fontbook.com
-fontshop-prod-responsive-images.s3.amazonaws.com
-fontshop.com
-fstopimages.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fontbook.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fontshop.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fstopimages.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fontbook.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fontshop-prod-responsive-images.s3.amazonaws.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fontshop.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fstopimages.com

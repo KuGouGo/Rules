@@ -1,2 +1,2 @@
-.mochajs.org
-mochajs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mochajs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mochajs.org

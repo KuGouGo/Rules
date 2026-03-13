@@ -1,2 +1,2 @@
-.easebar.com
-easebar.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.easebar.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,easebar.com

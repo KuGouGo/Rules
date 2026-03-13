@@ -1,6 +1,6 @@
-.snodehome.cn
-.snodehome.com
-.szbdyd.com
-snodehome.cn
-snodehome.com
-szbdyd.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.snodehome.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.snodehome.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.szbdyd.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,snodehome.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,snodehome.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,szbdyd.com

@@ -1,7 +1,7 @@
-.mit
-.mit.edu
-.mit.net
-.mitpressjournals.org
-mit.edu
-mit.net
-mitpressjournals.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mit
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mit.edu
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mit.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mitpressjournals.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mit.edu
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mit.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mitpressjournals.org

@@ -1,6 +1,6 @@
-.inshot.cc
-.inshot.com
-.inshotapp.com
-inshot.cc
-inshot.com
-inshotapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.inshot.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.inshot.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.inshotapp.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,inshot.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,inshot.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,inshotapp.com

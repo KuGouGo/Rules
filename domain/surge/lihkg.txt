@@ -1,4 +1,4 @@
-.lih.kg
-.lihkg.com
-lih.kg
-lihkg.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lih.kg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lihkg.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lih.kg
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,lihkg.com

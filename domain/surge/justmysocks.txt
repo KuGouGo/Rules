@@ -1,8 +1,8 @@
-.justmysocks.net
-.justmysocks1.net
-.justmysocks2.net
-.justmysocks4.net
-justmysocks.net
-justmysocks1.net
-justmysocks2.net
-justmysocks4.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.justmysocks.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.justmysocks1.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.justmysocks2.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.justmysocks4.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,justmysocks.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,justmysocks1.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,justmysocks2.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,justmysocks4.net

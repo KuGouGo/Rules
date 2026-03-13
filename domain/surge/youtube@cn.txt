@@ -1,2 +1,2 @@
-.ggpht.cn
-ggpht.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ggpht.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ggpht.cn

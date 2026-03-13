@@ -1,2 +1,2 @@
-.thepoizon.ru
-thepoizon.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thepoizon.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,thepoizon.ru

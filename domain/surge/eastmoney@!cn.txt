@@ -1,2 +1,2 @@
-.emsec.hk
-emsec.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.emsec.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,emsec.hk

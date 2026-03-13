@@ -1,2 +1,2 @@
-.adblockplus.org
-adblockplus.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adblockplus.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adblockplus.org

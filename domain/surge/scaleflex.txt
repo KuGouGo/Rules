@@ -1,6 +1,6 @@
-.cloudimage.io
-.cloudimg.io
-.scaleflex.com
-cloudimage.io
-cloudimg.io
-scaleflex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudimage.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudimg.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.scaleflex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudimage.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudimg.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,scaleflex.com

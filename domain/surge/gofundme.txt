@@ -1,2 +1,2 @@
-.gofundme.com
-gofundme.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gofundme.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gofundme.com

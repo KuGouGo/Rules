@@ -1,4 +1,4 @@
-.asproex.com
-.asproexapi.com
-asproex.com
-asproexapi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.asproex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.asproexapi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,asproex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,asproexapi.com

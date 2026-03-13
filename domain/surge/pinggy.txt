@@ -1,4 +1,4 @@
-.pinggy.io
-.pinggy.link
-pinggy.io
-pinggy.link
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pinggy.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pinggy.link
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pinggy.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pinggy.link

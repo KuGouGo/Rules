@@ -1,4 +1,4 @@
-.pagecdn.com
-.pagecdn.io
-pagecdn.com
-pagecdn.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pagecdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pagecdn.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pagecdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pagecdn.io

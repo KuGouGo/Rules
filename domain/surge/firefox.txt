@@ -1,4 +1,4 @@
-.firefox.com
-.firefoxusercontent.com
-firefox.com
-firefoxusercontent.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.firefox.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.firefoxusercontent.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,firefox.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,firefoxusercontent.com

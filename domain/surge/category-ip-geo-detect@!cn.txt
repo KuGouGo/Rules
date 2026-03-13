@@ -1,2 +1,2 @@
-.myip.la
-myip.la
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myip.la
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,myip.la

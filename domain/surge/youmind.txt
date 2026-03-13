@@ -1,6 +1,6 @@
-.youmind.ai
-.youmind.com
-.youmind.site
-youmind.ai
-youmind.com
-youmind.site
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.youmind.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.youmind.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.youmind.site
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,youmind.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,youmind.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,youmind.site

@@ -1,6 +1,6 @@
-.dailymotion.com
-.dm-event.net
-.dmcdn.net
-dailymotion.com
-dm-event.net
-dmcdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dailymotion.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dm-event.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dmcdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dailymotion.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dm-event.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dmcdn.net

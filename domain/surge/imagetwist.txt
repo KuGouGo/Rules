@@ -1,2 +1,2 @@
-.imagetwist.com
-imagetwist.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imagetwist.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imagetwist.com

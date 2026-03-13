@@ -1,6 +1,6 @@
-.aiqicha.baidu.com
-.aiqicha.cn
-.aiqicha.com
-aiqicha.baidu.com
-aiqicha.cn
-aiqicha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aiqicha.baidu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aiqicha.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aiqicha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aiqicha.baidu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aiqicha.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aiqicha.com

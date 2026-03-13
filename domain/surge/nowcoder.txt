@@ -1,8 +1,8 @@
-.newcoder.com
-.nowcoder.com
-.nowcoder.net
-.nowcoder.org
-newcoder.com
-nowcoder.com
-nowcoder.net
-nowcoder.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.newcoder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nowcoder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nowcoder.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nowcoder.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,newcoder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nowcoder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nowcoder.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nowcoder.org

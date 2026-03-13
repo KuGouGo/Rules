@@ -1,6 +1,6 @@
-.deppon.com
-.deppon.com.cn
-.dpma.cc
-deppon.com
-deppon.com.cn
-dpma.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deppon.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deppon.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dpma.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,deppon.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,deppon.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dpma.cc

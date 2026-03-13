@@ -1,4 +1,4 @@
-.waa.tw
-.watchout.tw
-waa.tw
-watchout.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.waa.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.watchout.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,waa.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,watchout.tw

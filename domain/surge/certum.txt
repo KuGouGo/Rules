@@ -1,6 +1,6 @@
-.certum.pl
-.ocsp-certum.com
-.ocsp-responder.com
-certum.pl
-ocsp-certum.com
-ocsp-responder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.certum.pl
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ocsp-certum.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ocsp-responder.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,certum.pl
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ocsp-certum.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ocsp-responder.com

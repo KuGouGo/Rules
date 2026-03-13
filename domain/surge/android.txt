@@ -1,6 +1,6 @@
-.android
-.android.com
-.androidify.com
-android.com
-android.googlesource.com
-androidify.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.android
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.android.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.androidify.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,android.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,android.googlesource.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,androidify.com

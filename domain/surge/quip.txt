@@ -1,6 +1,6 @@
-.quip-cdn.com
-.quip.com
-.quipelements.com
-quip-cdn.com
-quip.com
-quipelements.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.quip-cdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.quip.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.quipelements.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,quip-cdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,quip.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,quipelements.com

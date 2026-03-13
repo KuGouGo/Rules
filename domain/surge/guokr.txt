@@ -1,4 +1,4 @@
-.guokr.com
-.guokr.net
-guokr.com
-guokr.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.guokr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.guokr.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,guokr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,guokr.net

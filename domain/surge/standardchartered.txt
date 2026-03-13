@@ -1,6 +1,6 @@
-.sc.com
-.standardchartered.com
-sc.com
-standardchartered.com
-standchartbank.sc.omtrdc.net
-standchartbank.tt.omtrdc.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.standardchartered.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sc.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,standardchartered.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,standchartbank.sc.omtrdc.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,standchartbank.tt.omtrdc.net

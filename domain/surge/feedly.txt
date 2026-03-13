@@ -1,2 +1,2 @@
-.feedly.com
-feedly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.feedly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,feedly.com

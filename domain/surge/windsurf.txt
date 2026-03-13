@@ -1,8 +1,8 @@
-.codeium.com
-.codeiumdata.com
-.windsurf.build
-.windsurf.com
-codeium.com
-codeiumdata.com
-windsurf.build
-windsurf.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.codeium.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.codeiumdata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.windsurf.build
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.windsurf.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,codeium.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,codeiumdata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,windsurf.build
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,windsurf.com

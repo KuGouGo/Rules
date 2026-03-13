@@ -1,4 +1,4 @@
-.ruby-lang.org
-.rubygems.org
-ruby-lang.org
-rubygems.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ruby-lang.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rubygems.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ruby-lang.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rubygems.org

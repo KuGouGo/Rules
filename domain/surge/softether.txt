@@ -1,4 +1,4 @@
-.softether-download.com
-.softether.org
-softether-download.com
-softether.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.softether-download.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.softether.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,softether-download.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,softether.org

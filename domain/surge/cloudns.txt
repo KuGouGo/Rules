@@ -1,4 +1,4 @@
-.cloudns.nz
-.cloudns.ph
-cloudns.nz
-cloudns.ph
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudns.nz
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudns.ph
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudns.nz
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudns.ph

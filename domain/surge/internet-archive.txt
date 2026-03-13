@@ -1,6 +1,6 @@
-.archive-it.org
-.archive.org
-.openlibrary.org
-archive-it.org
-archive.org
-openlibrary.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.archive-it.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.archive.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.openlibrary.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,archive-it.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,archive.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,openlibrary.org

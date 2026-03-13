@@ -1,4 +1,4 @@
-.mdhcdn.com
-.mydirtyhobby.com
-mdhcdn.com
-mydirtyhobby.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mdhcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mydirtyhobby.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mdhcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mydirtyhobby.com

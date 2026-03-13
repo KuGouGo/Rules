@@ -1,8 +1,8 @@
-.ubuntu-touch.io
-.ubuntu.com
-.ubuntu.net
-.ubuntuforums.org
-ubuntu-touch.io
-ubuntu.com
-ubuntu.net
-ubuntuforums.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ubuntu-touch.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ubuntu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ubuntu.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ubuntuforums.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ubuntu-touch.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ubuntu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ubuntu.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ubuntuforums.org

@@ -1,2 +1,2 @@
-.udacity.com
-udacity.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udacity.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udacity.com

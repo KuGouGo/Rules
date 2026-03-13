@@ -1,4 +1,4 @@
-.flibusta.is
-.flisland.net
-flibusta.is
-flisland.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.flibusta.is
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.flisland.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,flibusta.is
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,flisland.net

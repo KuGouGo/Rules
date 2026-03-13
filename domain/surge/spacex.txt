@@ -1,2 +1,2 @@
-.spacex.com
-spacex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spacex.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,spacex.com

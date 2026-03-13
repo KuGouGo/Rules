@@ -1,6 +1,6 @@
-.esm.run
-.jsdelivr.com
-.jsdelivr.net
-esm.run
-jsdelivr.com
-jsdelivr.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.esm.run
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jsdelivr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jsdelivr.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,esm.run
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jsdelivr.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jsdelivr.net

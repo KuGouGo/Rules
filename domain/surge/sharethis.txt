@@ -1,2 +1,2 @@
-.sharethis.com
-sharethis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sharethis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sharethis.com

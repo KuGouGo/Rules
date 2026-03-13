@@ -1,8 +1,8 @@
-.xda-cdn.com
-.xda-developers.com
-.xdaforums.com
-.xdaimages.com
-xda-cdn.com
-xda-developers.com
-xdaforums.com
-xdaimages.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xda-cdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xda-developers.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xdaforums.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xdaimages.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xda-cdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xda-developers.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xdaforums.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xdaimages.com

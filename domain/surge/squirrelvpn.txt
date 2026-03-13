@@ -1,4 +1,4 @@
-.squirrelgroup.net
-.squirrelvpn.com
-squirrelgroup.net
-squirrelvpn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.squirrelgroup.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.squirrelvpn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,squirrelgroup.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,squirrelvpn.com

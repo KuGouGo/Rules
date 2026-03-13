@@ -1,2 +1,2 @@
-.familymart.com.cn
-familymart.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.familymart.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,familymart.com.cn

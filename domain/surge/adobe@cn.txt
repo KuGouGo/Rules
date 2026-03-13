@@ -1,2 +1,2 @@
-.adobedc.cn
-adobedc.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adobedc.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adobedc.cn

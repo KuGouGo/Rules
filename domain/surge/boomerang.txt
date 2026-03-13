@@ -1,4 +1,4 @@
-.boomerang.com
-.wbdnbo.net
-boomerang.com
-wbdnbo.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boomerang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wbdnbo.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,boomerang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wbdnbo.net

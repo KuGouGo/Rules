@@ -1,6 +1,6 @@
-.ivwen.com
-.meipian.cn
-.meipian.me
-ivwen.com
-meipian.cn
-meipian.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ivwen.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meipian.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meipian.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ivwen.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meipian.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meipian.me

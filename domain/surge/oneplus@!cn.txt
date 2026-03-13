@@ -1,2 +1,2 @@
-accounts.oneplus.com
-community.oneplus.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,accounts.oneplus.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,community.oneplus.com

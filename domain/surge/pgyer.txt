@@ -1,6 +1,6 @@
-.frontjs.com
-.pgyer.com
-.tracup.com
-frontjs.com
-pgyer.com
-tracup.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.frontjs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pgyer.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tracup.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,frontjs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pgyer.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tracup.com

@@ -1,6 +1,6 @@
-.ozon.ru
-.ozone.ru
-.ozonusercontent.com
-ozon.ru
-ozone.ru
-ozonusercontent.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ozon.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ozone.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ozonusercontent.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ozon.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ozone.ru
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ozonusercontent.com

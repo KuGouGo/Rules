@@ -1,4 +1,4 @@
-.pca.st
-.pocketcasts.com
-pca.st
-pocketcasts.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pca.st
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pocketcasts.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pca.st
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,pocketcasts.com

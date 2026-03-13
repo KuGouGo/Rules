@@ -1,6 +1,6 @@
-.bigbuckbunny.org
-.blender.org
-.elephantsdream.org
-bigbuckbunny.org
-blender.org
-elephantsdream.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bigbuckbunny.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.blender.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.elephantsdream.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bigbuckbunny.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,blender.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,elephantsdream.org

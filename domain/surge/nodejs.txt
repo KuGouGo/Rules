@@ -1,2 +1,2 @@
-.nodejs.org
-nodejs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nodejs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nodejs.org

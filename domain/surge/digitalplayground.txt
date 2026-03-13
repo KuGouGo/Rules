@@ -1,4 +1,4 @@
-.digitalplayground.com
-.digitalplaygroundnetwork.com
-digitalplayground.com
-digitalplaygroundnetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.digitalplayground.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.digitalplaygroundnetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,digitalplayground.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,digitalplaygroundnetwork.com

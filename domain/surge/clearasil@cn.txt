@@ -1,4 +1,4 @@
-.clearasil.cn
-.clearasil.com.cn
-clearasil.cn
-clearasil.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearasil.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearasil.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearasil.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearasil.com.cn

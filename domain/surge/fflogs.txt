@@ -1,6 +1,6 @@
-.fflogs.com
-.rpglogs.cn
-.rpglogs.com
-fflogs.com
-rpglogs.cn
-rpglogs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fflogs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rpglogs.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rpglogs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fflogs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rpglogs.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rpglogs.com

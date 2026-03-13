@@ -1,4 +1,4 @@
-.aoruszone.cn
-.gigabyte.cn
-aoruszone.cn
-gigabyte.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aoruszone.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gigabyte.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aoruszone.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gigabyte.cn

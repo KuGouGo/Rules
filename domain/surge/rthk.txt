@@ -1,4 +1,4 @@
-.etvonline.hk
-.rthk.hk
-etvonline.hk
-rthk.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.etvonline.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rthk.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,etvonline.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rthk.hk

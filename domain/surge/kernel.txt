@@ -1,2 +1,2 @@
-.kernel.org
-kernel.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kernel.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kernel.org

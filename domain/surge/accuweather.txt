@@ -1,4 +1,4 @@
-.accuweather.com
-.awxcdn.com
-accuweather.com
-awxcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.accuweather.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.awxcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,accuweather.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,awxcdn.com

@@ -1,6 +1,6 @@
-.avmoo.click
-.avmoo.com
-.tellme.pw
-avmoo.click
-avmoo.com
-tellme.pw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.avmoo.click
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.avmoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tellme.pw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,avmoo.click
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,avmoo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tellme.pw

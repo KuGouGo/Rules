@@ -1,2 +1,2 @@
-.movefree.cn
-movefree.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.movefree.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,movefree.cn

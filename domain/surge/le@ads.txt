@@ -1,8 +1,8 @@
-.apple.www.letv.com
-.ark.letv.com
-.dc.letv.com
-.g3.letv.com
-apple.www.letv.com
-ark.letv.com
-dc.letv.com
-g3.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apple.www.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ark.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dc.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.g3.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,apple.www.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ark.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dc.letv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,g3.letv.com

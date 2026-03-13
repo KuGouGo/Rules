@@ -1,4 +1,4 @@
-.jiemian.com
-.jiemian.com.cn
-jiemian.com
-jiemian.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jiemian.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jiemian.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jiemian.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jiemian.com.cn

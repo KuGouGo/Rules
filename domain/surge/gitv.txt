@@ -1,4 +1,4 @@
-.gitv.cn
-.gitv.tv
-gitv.cn
-gitv.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gitv.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gitv.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gitv.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gitv.tv

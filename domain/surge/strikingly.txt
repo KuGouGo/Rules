@@ -1,6 +1,6 @@
-.mystrikingly.com
-.strikingly.com
-.strikinglycdn.com
-mystrikingly.com
-strikingly.com
-strikinglycdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mystrikingly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.strikingly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.strikinglycdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mystrikingly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,strikingly.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,strikinglycdn.com

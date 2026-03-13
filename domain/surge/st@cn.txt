@@ -1,2 +1,2 @@
-.stmicroelectronics.com.cn
-stmicroelectronics.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.stmicroelectronics.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,stmicroelectronics.com.cn

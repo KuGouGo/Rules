@@ -1,4 +1,4 @@
-.moji.com
-.mojichina.com
-moji.com
-mojichina.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.moji.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mojichina.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,moji.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mojichina.com

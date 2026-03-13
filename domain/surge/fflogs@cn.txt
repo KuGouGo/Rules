@@ -1,2 +1,2 @@
-.rpglogs.cn
-rpglogs.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rpglogs.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,rpglogs.cn

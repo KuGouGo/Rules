@@ -1,4 +1,4 @@
-.goproxy.cn
-.goproxy.io
-goproxy.cn
-goproxy.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.goproxy.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.goproxy.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,goproxy.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,goproxy.io

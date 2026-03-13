@@ -1,8 +1,8 @@
-.qwant.com
-.qwant.de
-.qwant.fr
-.qwant.it
-qwant.com
-qwant.de
-qwant.fr
-qwant.it
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qwant.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qwant.de
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qwant.fr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qwant.it
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qwant.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qwant.de
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qwant.fr
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qwant.it

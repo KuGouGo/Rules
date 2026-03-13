@@ -1,6 +1,6 @@
-.mafengwo.cn
-.mafengwo.com
-.mafengwo.net
-mafengwo.cn
-mafengwo.com
-mafengwo.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mafengwo.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mafengwo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mafengwo.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mafengwo.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mafengwo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mafengwo.net

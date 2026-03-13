@@ -1,2 +1,2 @@
-.electronjs.org
-electronjs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.electronjs.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,electronjs.org

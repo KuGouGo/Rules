@@ -1,2 +1,2 @@
-.twca.com.tw
-twca.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.twca.com.tw
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,twca.com.tw

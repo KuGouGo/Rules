@@ -1,4 +1,4 @@
-.schoopia.com
-.tongxuepie.com
-schoopia.com
-tongxuepie.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.schoopia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tongxuepie.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,schoopia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tongxuepie.com

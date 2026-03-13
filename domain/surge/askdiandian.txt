@@ -1,4 +1,4 @@
-.askdiandian.com
-.diandianlife.top
-askdiandian.com
-diandianlife.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.askdiandian.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.diandianlife.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,askdiandian.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,diandianlife.top

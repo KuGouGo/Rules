@@ -1,2 +1,2 @@
-.neuralink.com
-neuralink.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.neuralink.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,neuralink.com

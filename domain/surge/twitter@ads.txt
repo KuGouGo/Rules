@@ -1,2 +1,2 @@
-.ads-twitter.com
-ads-twitter.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ads-twitter.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ads-twitter.com

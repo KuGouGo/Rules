@@ -1,4 +1,4 @@
-.wanfangdata.com.cn
-.wf.pub
-wanfangdata.com.cn
-wf.pub
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wanfangdata.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wf.pub
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wanfangdata.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wf.pub

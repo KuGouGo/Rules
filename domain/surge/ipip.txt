@@ -1,4 +1,4 @@
-.ipip.net
-.myip.la
-ipip.net
-myip.la
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ipip.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myip.la
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ipip.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,myip.la

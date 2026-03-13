@@ -1,4 +1,4 @@
-.spacemail.com
-.spaceship.com
-spacemail.com
-spaceship.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spacemail.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spaceship.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,spacemail.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,spaceship.com

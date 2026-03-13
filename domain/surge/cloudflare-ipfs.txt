@@ -1,4 +1,4 @@
-.cf-ipfs.com
-.cloudflare-ipfs.com
-cf-ipfs.com
-cloudflare-ipfs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cf-ipfs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudflare-ipfs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cf-ipfs.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudflare-ipfs.com

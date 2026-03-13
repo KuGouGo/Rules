@@ -1,1 +1,1 @@
-sentry.hetzner.company
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sentry.hetzner.company

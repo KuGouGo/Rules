@@ -1,2 +1,2 @@
-.huanghuagang.org
-huanghuagang.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.huanghuagang.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,huanghuagang.org

@@ -12,6 +12,7 @@ normalize_domain_dir() {
     awk '
       NF {
         line=$0
+        sub(/^DOMAIN-SUFFIX,/, "", line)
         sub(/^\./, "", line)
         print "DOMAIN-SUFFIX," line
       }

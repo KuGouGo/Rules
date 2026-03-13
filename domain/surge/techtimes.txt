@@ -1,2 +1,2 @@
-.techtimes.com
-techtimes.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.techtimes.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,techtimes.com

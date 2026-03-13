@@ -1,4 +1,4 @@
-.imgix.com
-.imgix.net
-imgix.com
-imgix.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgix.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgix.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgix.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgix.net

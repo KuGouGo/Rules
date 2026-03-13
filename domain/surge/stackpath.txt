@@ -1,4 +1,4 @@
-.stackpath.com
-.stackpath.dev
-stackpath.com
-stackpath.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.stackpath.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.stackpath.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,stackpath.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,stackpath.dev

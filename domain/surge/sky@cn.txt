@@ -1,2 +1,2 @@
-.cn-cdn1.skymansion.net
-cn-cdn1.skymansion.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cn-cdn1.skymansion.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cn-cdn1.skymansion.net

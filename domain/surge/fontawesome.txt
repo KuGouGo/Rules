@@ -1,4 +1,4 @@
-.fontawesome.com
-.fortawesome.com
-fontawesome.com
-fortawesome.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fontawesome.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fortawesome.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fontawesome.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fortawesome.com

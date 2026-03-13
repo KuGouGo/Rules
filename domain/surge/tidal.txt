@@ -1,6 +1,6 @@
-.tidal.com
-.tidalhifi.com
-.wimpmusic.com
-tidal.com
-tidalhifi.com
-wimpmusic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tidal.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tidalhifi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wimpmusic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tidal.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tidalhifi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wimpmusic.com

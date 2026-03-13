@@ -1,2 +1,2 @@
-.skillshare.com
-skillshare.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.skillshare.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,skillshare.com

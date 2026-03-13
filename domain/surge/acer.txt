@@ -1,6 +1,6 @@
-.acer-group.com
-.acer.com
-.acer.com.cn
-acer-group.com
-acer.com
-acer.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.acer-group.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.acer.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.acer.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,acer-group.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,acer.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,acer.com.cn

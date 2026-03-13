@@ -1,6 +1,6 @@
-.embedwistia-a.akamaihd.net
-.wistia.com
-.wistia.net
-embedwistia-a.akamaihd.net
-wistia.com
-wistia.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.embedwistia-a.akamaihd.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wistia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wistia.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,embedwistia-a.akamaihd.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wistia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wistia.net

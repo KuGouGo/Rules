@@ -1,4 +1,4 @@
-.jinshuju.net
-.jinshujucdn.com
-jinshuju.net
-jinshujucdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jinshuju.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jinshujucdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jinshuju.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jinshujucdn.com

@@ -1,2 +1,2 @@
-.ad.cctv.com
-ad.cctv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ad.cctv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ad.cctv.com

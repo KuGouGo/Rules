@@ -1,2 +1,2 @@
-.egghead.io
-egghead.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.egghead.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,egghead.io

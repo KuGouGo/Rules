@@ -1,4 +1,4 @@
-.bowenpress.com
-.boxun.com
-bowenpress.com
-boxun.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bowenpress.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boxun.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bowenpress.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,boxun.com

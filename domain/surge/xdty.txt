@@ -1,2 +1,2 @@
-.xdty.org
-xdty.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xdty.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,xdty.org

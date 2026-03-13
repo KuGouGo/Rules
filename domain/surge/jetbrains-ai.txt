@@ -1,6 +1,6 @@
-.grazie.ai
-.grazie.aws.intellij.net
-.jetbrains.ai
-grazie.ai
-grazie.aws.intellij.net
-jetbrains.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.grazie.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.grazie.aws.intellij.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jetbrains.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,grazie.ai
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,grazie.aws.intellij.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,jetbrains.ai

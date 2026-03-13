@@ -1,2 +1,2 @@
-.sharepoint.cn
-sharepoint.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sharepoint.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sharepoint.cn

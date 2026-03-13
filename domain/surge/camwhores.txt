@@ -1,4 +1,4 @@
-.camwhores.tv
-.camwhores.video
-camwhores.tv
-camwhores.video
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.camwhores.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.camwhores.video
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,camwhores.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,camwhores.video

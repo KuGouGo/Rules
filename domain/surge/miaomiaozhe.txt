@@ -1,4 +1,4 @@
-.miaomiaoz.com
-.miaomiaozhe.com
-miaomiaoz.com
-miaomiaozhe.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.miaomiaoz.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.miaomiaozhe.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,miaomiaoz.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,miaomiaozhe.com

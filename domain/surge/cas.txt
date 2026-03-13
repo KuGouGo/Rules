@@ -1,6 +1,6 @@
-.csdl.ac.cn
-.iscas.ac.cn
-.las.ac.cn
-csdl.ac.cn
-iscas.ac.cn
-las.ac.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.csdl.ac.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.iscas.ac.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.las.ac.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,csdl.ac.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,iscas.ac.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,las.ac.cn

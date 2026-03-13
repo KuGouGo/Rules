@@ -1,2 +1,2 @@
-.vgtime.com
-vgtime.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vgtime.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vgtime.com

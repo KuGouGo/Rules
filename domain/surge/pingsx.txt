@@ -1,3 +1,3 @@
-.ping.sx
-ping.sx
-public-us-pingsx.api.clonoth.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ping.sx
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ping.sx
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,public-us-pingsx.api.clonoth.com

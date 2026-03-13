@@ -1,4 +1,4 @@
-.myfonts.com
-.myfonts.net
-myfonts.com
-myfonts.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myfonts.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myfonts.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,myfonts.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,myfonts.net

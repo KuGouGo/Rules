@@ -1,4 +1,4 @@
-.mytvsuper.com
-.tvb.com
-mytvsuper.com
-tvb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mytvsuper.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tvb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mytvsuper.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tvb.com

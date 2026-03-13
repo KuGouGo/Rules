@@ -1,7 +1,7 @@
-.bilibili.tv
-.biliintl.com
-.dreamcast.hk
-bilibili.tv
-biliintl.com
-dreamcast.hk
-upos-hz-mirrorakam.akamaized.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bilibili.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.biliintl.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dreamcast.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bilibili.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,biliintl.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dreamcast.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,upos-hz-mirrorakam.akamaized.net

@@ -1,1 +1,1 @@
-chinapower.csis.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,chinapower.csis.org

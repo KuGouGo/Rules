@@ -1,6 +1,6 @@
-.meitu.com
-.meitudata.com
-.meitustat.com
-meitu.com
-meitudata.com
-meitustat.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meitu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meitudata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meitustat.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meitu.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meitudata.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,meitustat.com

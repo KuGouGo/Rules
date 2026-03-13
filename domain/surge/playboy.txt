@@ -1,4 +1,4 @@
-.playboy.com
-.playboy.com.uk
-playboy.com
-playboy.com.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playboy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playboy.com.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,playboy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,playboy.com.uk

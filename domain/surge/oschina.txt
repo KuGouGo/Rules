@@ -1,6 +1,6 @@
-.gitee.com
-.gitee.io
-.oschina.net
-gitee.com
-gitee.io
-oschina.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gitee.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gitee.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.oschina.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gitee.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gitee.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,oschina.net

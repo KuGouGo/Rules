@@ -1,6 +1,6 @@
-.archlinux.org
-.archlinuxarm.org
-.archlinuxcn.org
-archlinux.org
-archlinuxarm.org
-archlinuxcn.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.archlinux.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.archlinuxarm.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.archlinuxcn.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,archlinux.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,archlinuxarm.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,archlinuxcn.org

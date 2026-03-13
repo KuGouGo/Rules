@@ -1,8 +1,8 @@
-.afdian.com
-.afdian.net
-.afdiancdn.com
-.ifdian.net
-afdian.com
-afdian.net
-afdiancdn.com
-ifdian.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.afdian.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.afdian.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.afdiancdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ifdian.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,afdian.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,afdian.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,afdiancdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ifdian.net

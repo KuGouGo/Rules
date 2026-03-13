@@ -1,4 +1,4 @@
-.udemy.com
-.udemycdn.com
-udemy.com
-udemycdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udemy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.udemycdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udemy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,udemycdn.com

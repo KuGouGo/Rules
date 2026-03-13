@@ -1,6 +1,6 @@
-.sih-db.com
-.sih.app
-.steaminventoryhelper.com
-sih-db.com
-sih.app
-steaminventoryhelper.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sih-db.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sih.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.steaminventoryhelper.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sih-db.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sih.app
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,steaminventoryhelper.com

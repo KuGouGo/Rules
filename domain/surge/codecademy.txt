@@ -1,2 +1,2 @@
-.codecademy.com
-codecademy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.codecademy.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,codecademy.com

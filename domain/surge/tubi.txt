@@ -1,8 +1,8 @@
-.tubi.io
-.tubi.tv
-.tubi.video
-.tubitv.com
-tubi.io
-tubi.tv
-tubi.video
-tubitv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tubi.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tubi.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tubi.video
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tubitv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tubi.io
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tubi.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tubi.video
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tubitv.com

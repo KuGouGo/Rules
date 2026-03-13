@@ -1,4 +1,4 @@
-.cmbi.com.hk
-.cmbwinglungbank.com
-cmbi.com.hk
-cmbwinglungbank.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cmbi.com.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cmbwinglungbank.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cmbi.com.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cmbwinglungbank.com

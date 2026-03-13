@@ -1,6 +1,6 @@
-.clubhouse.com
-.clubhouseapi.com
-.joinclubhouse.com
-clubhouse.com
-clubhouseapi.com
-joinclubhouse.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clubhouse.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clubhouseapi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.joinclubhouse.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,clubhouse.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,clubhouseapi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,joinclubhouse.com

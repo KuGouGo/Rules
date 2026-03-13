@@ -1,4 +1,4 @@
-.c.mi.com
-.global.market.xiaomi.com
-c.mi.com
-global.market.xiaomi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.c.mi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.global.market.xiaomi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,c.mi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,global.market.xiaomi.com

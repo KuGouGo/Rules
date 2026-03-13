@@ -1,4 +1,4 @@
-.illusion.co.jp
-.illusion.jp
-illusion.co.jp
-illusion.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.illusion.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.illusion.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,illusion.co.jp
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,illusion.jp

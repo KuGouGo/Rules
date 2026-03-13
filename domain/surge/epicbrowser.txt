@@ -1,2 +1,2 @@
-.epicbrowser.com
-epicbrowser.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.epicbrowser.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,epicbrowser.com

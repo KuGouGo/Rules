@@ -1,6 +1,6 @@
-.ibb.co
-.imgbb.com
-.simgbb.com
-ibb.co
-imgbb.com
-simgbb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ibb.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgbb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.simgbb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ibb.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgbb.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,simgbb.com

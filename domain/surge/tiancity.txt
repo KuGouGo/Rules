@@ -1,4 +1,4 @@
-.tiancity.com
-.tiancitycdn.com
-tiancity.com
-tiancitycdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tiancity.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tiancitycdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tiancity.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tiancitycdn.com

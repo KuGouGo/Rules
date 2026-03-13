@@ -1,7 +1,7 @@
-.playstation
-.playstation.com
-.playstation.net
-.sonyentertainmentnetwork.com
-playstation.com
-playstation.net
-sonyentertainmentnetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playstation
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playstation.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playstation.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sonyentertainmentnetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,playstation.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,playstation.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sonyentertainmentnetwork.com

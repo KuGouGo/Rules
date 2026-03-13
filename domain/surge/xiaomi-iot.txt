@@ -1,8 +1,8 @@
-.account.xiaomi.com
-.cn-ha.mqtt.io.mi.com
-.ha.api.io.mi.com
-.miot-spec.org
-account.xiaomi.com
-cn-ha.mqtt.io.mi.com
-ha.api.io.mi.com
-miot-spec.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.account.xiaomi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cn-ha.mqtt.io.mi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ha.api.io.mi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.miot-spec.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,account.xiaomi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cn-ha.mqtt.io.mi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ha.api.io.mi.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,miot-spec.org

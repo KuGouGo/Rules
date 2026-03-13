@@ -1,8 +1,8 @@
-.comfy.org
-.comfyci.org
-.comfyregistry.org
-.oystermercury.top
-comfy.org
-comfyci.org
-comfyregistry.org
-oystermercury.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.comfy.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.comfyci.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.comfyregistry.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.oystermercury.top
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,comfy.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,comfyci.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,comfyregistry.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,oystermercury.top

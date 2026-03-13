@@ -1,6 +1,6 @@
-.da-files.com
-.deviantart.com
-.deviantart.net
-da-files.com
-deviantart.com
-deviantart.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.da-files.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deviantart.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deviantart.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,da-files.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,deviantart.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,deviantart.net

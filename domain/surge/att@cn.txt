@@ -1,4 +1,4 @@
-.att.cn
-.attcorp.cn
-att.cn
-attcorp.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.att.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.attcorp.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,att.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,attcorp.cn

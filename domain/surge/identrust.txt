@@ -1,6 +1,6 @@
-.identrust.co.uk
-.identrust.com
-.identrust.net
-identrust.co.uk
-identrust.com
-identrust.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.identrust.co.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.identrust.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.identrust.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,identrust.co.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,identrust.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,identrust.net

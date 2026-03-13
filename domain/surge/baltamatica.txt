@@ -1,8 +1,8 @@
-.baltamatica.cn
-.baltamatica.com
-.baltamatica.net
-.baltamatica.org.cn
-baltamatica.cn
-baltamatica.com
-baltamatica.net
-baltamatica.org.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.baltamatica.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.baltamatica.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.baltamatica.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.baltamatica.org.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,baltamatica.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,baltamatica.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,baltamatica.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,baltamatica.org.cn

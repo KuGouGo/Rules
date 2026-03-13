@@ -1,2 +1,2 @@
-.sitepoint.com
-sitepoint.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sitepoint.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,sitepoint.com

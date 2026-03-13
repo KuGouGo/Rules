@@ -1,2 +1,2 @@
-.panasonic.cn
-panasonic.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.panasonic.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,panasonic.cn

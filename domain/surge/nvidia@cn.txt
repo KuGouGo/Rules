@@ -1,7 +1,7 @@
-.geforce.cn
-.gputechconf.cn
-.nvidia.cn
-cn.download.nvidia.com
-geforce.cn
-gputechconf.cn
-nvidia.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.geforce.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gputechconf.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nvidia.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,cn.download.nvidia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,geforce.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,gputechconf.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nvidia.cn

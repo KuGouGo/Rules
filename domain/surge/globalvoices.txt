@@ -1,4 +1,4 @@
-.globalvoices.org
-.globalvoicesonline.org
-globalvoices.org
-globalvoicesonline.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.globalvoices.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.globalvoicesonline.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,globalvoices.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,globalvoicesonline.org

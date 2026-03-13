@@ -1,2 +1,2 @@
-.qixin.com
-qixin.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qixin.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,qixin.com

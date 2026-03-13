@@ -1,2 +1,2 @@
-.blurams.com
-blurams.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.blurams.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,blurams.com

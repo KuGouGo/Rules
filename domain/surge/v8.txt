@@ -1,4 +1,4 @@
-.v8.dev
-.v8project.org
-v8.dev
-v8project.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.v8.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.v8project.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,v8.dev
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,v8project.org

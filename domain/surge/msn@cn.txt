@@ -1,6 +1,6 @@
-.browser.events.data.msn.cn
-.microsoftnews.cn
-.msn.cn
-browser.events.data.msn.cn
-microsoftnews.cn
-msn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.browser.events.data.msn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.microsoftnews.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.msn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,browser.events.data.msn.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,microsoftnews.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,msn.cn

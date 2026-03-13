@@ -1,4 +1,4 @@
-.wwe.com
-.wwe9.com
-wwe.com
-wwe9.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wwe.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wwe9.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wwe.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wwe9.com

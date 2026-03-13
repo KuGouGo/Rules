@@ -1,2 +1,2 @@
-.groq.com
-groq.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.groq.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,groq.com

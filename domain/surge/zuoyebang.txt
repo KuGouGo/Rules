@@ -1,8 +1,8 @@
-.syh.zybang.com
-.zuoyebang.cc
-.zuoyebang.com
-.zybang.com
-syh.zybang.com
-zuoyebang.cc
-zuoyebang.com
-zybang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.syh.zybang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zuoyebang.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zuoyebang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zybang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,syh.zybang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zuoyebang.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zuoyebang.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zybang.com

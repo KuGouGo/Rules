@@ -1,2 +1,2 @@
-.oreilly.com.cn
-oreilly.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.oreilly.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,oreilly.com.cn

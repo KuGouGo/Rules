@@ -1,4 +1,4 @@
-.moxing.mobi
-.moxing.news
-moxing.mobi
-moxing.news
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.moxing.mobi
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.moxing.news
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,moxing.mobi
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,moxing.news

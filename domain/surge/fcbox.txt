@@ -1,4 +1,4 @@
-.fcbox.com
-.fcboxmall.com
-fcbox.com
-fcboxmall.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fcbox.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fcboxmall.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fcbox.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fcboxmall.com

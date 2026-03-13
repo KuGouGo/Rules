@@ -1,2 +1,2 @@
-.bingads.com
-bingads.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bingads.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,bingads.com

@@ -1,4 +1,4 @@
-.adblockcdn.com
-.getadblock.com
-adblockcdn.com
-getadblock.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adblockcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.getadblock.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adblockcdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,getadblock.com

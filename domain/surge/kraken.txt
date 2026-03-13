@@ -1,4 +1,4 @@
-.kraken.com
-.kraken.onl
-kraken.com
-kraken.onl
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kraken.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kraken.onl
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kraken.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,kraken.onl

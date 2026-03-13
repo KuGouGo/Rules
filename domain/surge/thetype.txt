@@ -1,6 +1,6 @@
-.thetype.cloud
-.thetype.com
-.typeisbeautiful.com
-thetype.cloud
-thetype.com
-typeisbeautiful.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thetype.cloud
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thetype.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.typeisbeautiful.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,thetype.cloud
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,thetype.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,typeisbeautiful.com

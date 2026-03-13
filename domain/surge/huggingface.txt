@@ -1,6 +1,6 @@
-.hf.co
-.hf.space
-.huggingface.co
-hf.co
-hf.space
-huggingface.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hf.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hf.space
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.huggingface.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hf.co
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hf.space
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,huggingface.co

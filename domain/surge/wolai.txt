@@ -1,6 +1,6 @@
-.wol.tv
-.wolai.com
-.wostatic.cn
-wol.tv
-wolai.com
-wostatic.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wol.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wolai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wostatic.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wol.tv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wolai.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wostatic.cn

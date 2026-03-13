@@ -1,6 +1,6 @@
-.aparat.com
-.aparatkids.com
-.aparatsport.com
-aparat.com
-aparatkids.com
-aparatsport.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aparat.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aparatkids.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aparatsport.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aparat.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aparatkids.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,aparatsport.com

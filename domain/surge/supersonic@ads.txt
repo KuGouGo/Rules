@@ -1,8 +1,8 @@
-.ssacdn.com
-.supersonic.com
-.supersonicads-a.akamaihd.net
-.supersonicads.com
-ssacdn.com
-supersonic.com
-supersonicads-a.akamaihd.net
-supersonicads.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ssacdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.supersonic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.supersonicads-a.akamaihd.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.supersonicads.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ssacdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,supersonic.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,supersonicads-a.akamaihd.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,supersonicads.com

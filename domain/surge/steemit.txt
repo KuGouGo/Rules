@@ -1,2 +1,2 @@
-.steemit.com
-steemit.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.steemit.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,steemit.com

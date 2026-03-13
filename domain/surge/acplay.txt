@@ -1,4 +1,4 @@
-.acplay.net
-.dandanplay.com
-acplay.net
-dandanplay.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.acplay.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dandanplay.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,acplay.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dandanplay.com

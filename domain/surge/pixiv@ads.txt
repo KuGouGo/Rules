@@ -1,2 +1,2 @@
-.ads-pixiv.net
-ads-pixiv.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ads-pixiv.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ads-pixiv.net

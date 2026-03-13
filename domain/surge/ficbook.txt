@@ -1,2 +1,2 @@
-.ficbook.net
-ficbook.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ficbook.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ficbook.net

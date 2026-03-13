@@ -1,8 +1,8 @@
-.10044.cn
-.hainanairlines.com
-.hnacargo.com
-.hnair.com
-10044.cn
-hainanairlines.com
-hnacargo.com
-hnair.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.10044.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hainanairlines.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hnacargo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hnair.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,10044.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hainanairlines.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hnacargo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hnair.com

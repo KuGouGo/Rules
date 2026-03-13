@@ -1,8 +1,8 @@
-.dlercloud.com
-.dlercloud.me
-.dlercloud.org
-.dleris.best
-dlercloud.com
-dlercloud.me
-dlercloud.org
-dleris.best
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dlercloud.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dlercloud.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dlercloud.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dleris.best
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dlercloud.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dlercloud.me
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dlercloud.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,dleris.best

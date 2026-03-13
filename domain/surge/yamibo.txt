@@ -1,2 +1,2 @@
-.yamibo.com
-yamibo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yamibo.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,yamibo.com

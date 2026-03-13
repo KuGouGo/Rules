@@ -1,4 +1,4 @@
-.fantv.hk
-.hkopentv.com
-fantv.hk
-hkopentv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fantv.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hkopentv.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fantv.hk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,hkopentv.com

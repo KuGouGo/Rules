@@ -1,2 +1,2 @@
-.reurl.cc
-reurl.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.reurl.cc
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,reurl.cc

@@ -1,4 +1,4 @@
-.liberapay.com
-.liberapay.org
-liberapay.com
-liberapay.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.liberapay.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.liberapay.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,liberapay.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,liberapay.org

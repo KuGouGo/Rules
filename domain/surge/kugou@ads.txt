@@ -1,6 +1,6 @@
-.ads.service.kugou.com
-.adserviceretry.kglink.cn
-.adserviceretry.kugou.com
-ads.service.kugou.com
-adserviceretry.kglink.cn
-adserviceretry.kugou.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ads.service.kugou.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adserviceretry.kglink.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adserviceretry.kugou.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ads.service.kugou.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adserviceretry.kglink.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adserviceretry.kugou.com

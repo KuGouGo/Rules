@@ -1,4 +1,4 @@
-.vaptcha.com
-.vaptcha.net
-vaptcha.com
-vaptcha.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vaptcha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vaptcha.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vaptcha.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,vaptcha.net

@@ -1,2 +1,2 @@
-.zotero.org
-zotero.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.zotero.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,zotero.org

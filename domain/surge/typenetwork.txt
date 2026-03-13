@@ -1,2 +1,2 @@
-.typenetwork.com
-typenetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.typenetwork.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,typenetwork.com

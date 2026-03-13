@@ -1,2 +1,2 @@
-.chatango.com
-chatango.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.chatango.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,chatango.com

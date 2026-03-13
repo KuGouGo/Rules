@@ -1,4 +1,4 @@
-.nutaku.com
-.nutaku.net
-nutaku.com
-nutaku.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nutaku.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nutaku.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nutaku.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,nutaku.net

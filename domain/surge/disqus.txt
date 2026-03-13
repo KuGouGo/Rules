@@ -1,6 +1,6 @@
-.disqus.com
-.disquscdn.com
-.disqusservice.com
-disqus.com
-disquscdn.com
-disqusservice.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.disqus.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.disquscdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.disqusservice.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,disqus.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,disquscdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,disqusservice.com

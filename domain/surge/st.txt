@@ -1,4 +1,4 @@
-.st.com
-.stmicroelectronics.com.cn
-st.com
-stmicroelectronics.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.st.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.stmicroelectronics.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,st.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,stmicroelectronics.com.cn

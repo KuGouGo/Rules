@@ -1,4 +1,4 @@
-.apipost.cn
-.apipost.net
-apipost.cn
-apipost.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apipost.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apipost.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,apipost.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,apipost.net

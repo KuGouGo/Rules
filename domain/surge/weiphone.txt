@@ -1,6 +1,6 @@
-.feng.com
-.fengimg.com
-.wfdata.club
-feng.com
-fengimg.com
-wfdata.club
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.feng.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fengimg.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wfdata.club
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,feng.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,fengimg.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,wfdata.club

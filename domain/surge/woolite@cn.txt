@@ -1,4 +1,4 @@
-.woolite.cn
-.woolite.com.cn
-woolite.cn
-woolite.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.woolite.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.woolite.com.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,woolite.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,woolite.com.cn

@@ -1,8 +1,8 @@
-.tandf.co.uk
-.tandfonline.com
-.taylorandfrancis.com
-.taylorfrancis.com
-tandf.co.uk
-tandfonline.com
-taylorandfrancis.com
-taylorfrancis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tandf.co.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tandfonline.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taylorandfrancis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.taylorfrancis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tandf.co.uk
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tandfonline.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taylorandfrancis.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,taylorfrancis.com

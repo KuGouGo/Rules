@@ -1,8 +1,8 @@
-.mikrotik.com
-.mt.lv
-.mynetname.net
-.routerboard.com
-mikrotik.com
-mt.lv
-mynetname.net
-routerboard.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mikrotik.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mt.lv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mynetname.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.routerboard.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mikrotik.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mt.lv
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,mynetname.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,routerboard.com

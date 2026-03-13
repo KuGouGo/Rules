@@ -1,4 +1,4 @@
-.curseforge.com
-.forgecdn.net
-curseforge.com
-forgecdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.curseforge.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.forgecdn.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,curseforge.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,forgecdn.net

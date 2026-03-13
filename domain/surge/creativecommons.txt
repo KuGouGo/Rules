@@ -1,8 +1,8 @@
-.ccstatic.org
-.creativecommons.engineering
-.creativecommons.org
-.licensebuttons.net
-ccstatic.org
-creativecommons.engineering
-creativecommons.org
-licensebuttons.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ccstatic.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.creativecommons.engineering
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.creativecommons.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.licensebuttons.net
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ccstatic.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,creativecommons.engineering
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,creativecommons.org
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,licensebuttons.net

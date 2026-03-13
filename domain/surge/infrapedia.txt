@@ -1,2 +1,2 @@
-.infrapedia.com
-infrapedia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.infrapedia.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,infrapedia.com

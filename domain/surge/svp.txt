@@ -1,2 +1,2 @@
-.svp-team.com
-svp-team.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.svp-team.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,svp-team.com

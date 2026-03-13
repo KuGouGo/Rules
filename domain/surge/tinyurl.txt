@@ -1,2 +1,2 @@
-.tinyurl.com
-tinyurl.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tinyurl.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,tinyurl.com

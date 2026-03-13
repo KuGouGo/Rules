@@ -1,4 +1,4 @@
-.ads.uc.cn
-.adslot.uc.cn
-ads.uc.cn
-adslot.uc.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ads.uc.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.adslot.uc.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,ads.uc.cn
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,adslot.uc.cn

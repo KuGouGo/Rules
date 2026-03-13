@@ -1,4 +1,4 @@
-.manus.im
-.manuscdn.com
-manus.im
-manuscdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.manus.im
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,.manuscdn.com
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,manus.im
+DOMAIN-SUFFIX,DOMAIN-SUFFIX,manuscdn.com
