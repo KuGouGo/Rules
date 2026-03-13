@@ -4,7 +4,7 @@
       "type": "maxmindMMDB",
       "action": "add",
       "args": {
-        "uri": "./input/Country.mmdb"
+        "uri": "../../input/Country.mmdb"
       }
     }
   ],
@@ -13,7 +13,7 @@
       "type": "surgeRuleSet",
       "action": "output",
       "args": {
-        "outputDir": "./dist/geoip/surge",
+        "outputDir": "./output/surge",
         "outputExtension": ".txt"
       }
     },
@@ -21,14 +21,14 @@
       "type": "singboxSRS",
       "action": "output",
       "args": {
-        "outputDir": "./dist/geoip/sing-box"
+        "outputDir": "./output/sing-box"
       }
     },
     {
       "type": "mihomoMRS",
       "action": "output",
       "args": {
-        "outputDir": "./dist/geoip/mihomo"
+        "outputDir": "./output/mihomo"
       }
     }
   ]
