@@ -6,6 +6,32 @@ cd "$ROOT"
 
 MAX_DELETE_PERCENT="${MAX_DELETE_PERCENT:-30}"
 MAX_CHANGE_PERCENT="${MAX_CHANGE_PERCENT:-50}"
+SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
+
+print_section() {
+  local title="$1"
+  echo
+  echo "=== $title ==="
+}
+
+summarize_diff() {
+  local label="$1"
+  local pathspec="$2"
+  local changed_sample deleted_sample
+
+  changed_sample="$(git diff --name-only HEAD -- "$pathspec" | sed -n "1,${SUMMARY_LIMIT}p")"
+  deleted_sample="$(git diff --name-only --diff-filter=D HEAD -- "$pathspec" | sed -n "1,${SUMMARY_LIMIT}p")"
+
+  if [ -n "$changed_sample" ]; then
+    echo "$label changed sample:"
+    printf '%s\n' "$changed_sample"
+  fi
+
+  if [ -n "$deleted_sample" ]; then
+    echo "$label deleted sample:"
+    printf '%s\n' "$deleted_sample"
+  fi
+}
 
 check_min_files() {
   local label="$1"
@@ -20,6 +46,7 @@ check_min_files() {
 
   if [ "$count" -lt "$min_expected" ]; then
     echo "artifact guard failed for $label: expected at least $min_expected files, got $count" >&2
+    summarize_diff "$label" "$dir"
     exit 1
   fi
 }
@@ -44,23 +71,26 @@ check_diff_ratio() {
 
   if [ "$delete_percent" -gt "$MAX_DELETE_PERCENT" ]; then
     echo "$label delete ratio too high: ${delete_percent}% > ${MAX_DELETE_PERCENT}%" >&2
+    summarize_diff "$label" "$pathspec"
     exit 1
   fi
 
   if [ "$change_percent" -gt "$MAX_CHANGE_PERCENT" ]; then
     echo "$label change ratio too high: ${change_percent}% > ${MAX_CHANGE_PERCENT}%" >&2
+    summarize_diff "$label" "$pathspec"
     exit 1
   fi
 }
 
+print_section "Artifact count checks"
 check_min_files "domain/surge" "domain/surge/*.txt" 1000
 check_min_files "domain/sing-box" "domain/sing-box/*.srs" 1000
 check_min_files "domain/mihomo" "domain/mihomo/*.mrs" 1000
-
 check_min_files "ip/surge" "ip/surge/*.txt" 8
 check_min_files "ip/sing-box" "ip/sing-box/*.srs" 8
 check_min_files "ip/mihomo" "ip/mihomo/*.mrs" 8
 
+print_section "Artifact diff-ratio checks"
 check_diff_ratio "domain/surge" "domain/surge"
 check_diff_ratio "domain/sing-box" "domain/sing-box"
 check_diff_ratio "domain/mihomo" "domain/mihomo"
@@ -68,4 +98,5 @@ check_diff_ratio "ip/surge" "ip/surge"
 check_diff_ratio "ip/sing-box" "ip/sing-box"
 check_diff_ratio "ip/mihomo" "ip/mihomo"
 
+print_section "Artifact guard result"
 echo "artifact guard passed"
