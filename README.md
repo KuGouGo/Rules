@@ -11,31 +11,45 @@ sources/
   ip/
 
 domain/
-  surge/
-  sing-box/
-  mihomo/
+  surge/         # Surge DOMAIN-SET 文件
+  sing-box/      # sing-box .srs
+  mihomo/        # mihomo .mrs
+  custom-source/ # 自定义域名源文件（保留原始写法）
 
 ip/
-  surge/
-  sing-box/
-  mihomo/
-
-scripts/
-  sync-upstream.sh
-  build-domain.sh
-  build-ip.sh
-  build-mihomo-mrs.sh
-  merge-custom.sh
+  surge/         # Surge/IP 规则文本
+  sing-box/      # sing-box .srs
+  mihomo/        # mihomo .mrs
 ```
 
-## 说明
+## Surge 兼容性约定
 
-- `surge/`：通用文本规则
-- `sing-box/`：sing-box 规则集
-- `mihomo/`：最终 `.mrs` 产物
-- mihomo 转换输入使用临时目录，不提交到仓库
+### domain/surge
+
+这里使用 **DOMAIN-SET** 语义：
+
+- 每行一个域名
+- 若以 `.` 开头，则匹配该域名本身及所有子域名
+- 不转换成 `DOMAIN-SUFFIX` / `DOMAIN` / `DOMAIN-KEYWORD`
+
+这更适合 Surge 的外部规则集加载方式，也更贴近上游输出。
+
+### ip/surge
+
+这里使用 Surge 可识别的 IP 规则文本，例如：
+
+- `IP-CIDR,1.1.1.0/24`
+- 或带 `,no-resolve`
 
 ## 自定义规则
 
 - `sources/domain/custom/emby.list`
 - `sources/domain/custom/emby-cn.list`
+
+当前自定义域名规则会直接复制到：
+
+- `domain/surge/`
+
+并保留原始源文件到：
+
+- `domain/custom-source/`
