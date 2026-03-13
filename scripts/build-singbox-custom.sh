@@ -1,74 +1,51 @@
 #!/usr/bin/env bash
 # Build custom sing-box .srs rule sets from plain domain lists.
-# All domains are treated as suffix matches (matching the domain and all subdomains).
+# Uses sing-box rule-set compile to convert JSON source to binary .srs format.
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-TMP_BUILD_DIR="$ROOT/.tmp/custom-srs-builder"
 PLAIN_INPUT_DIR="$ROOT/.tmp/domain-custom-plain"
-mkdir -p "$TMP_BUILD_DIR" "$ROOT/domain/sing-box"
-rm -f "$TMP_BUILD_DIR"/main.go "$TMP_BUILD_DIR"/go.mod "$TMP_BUILD_DIR"/go.sum
+mkdir -p "$ROOT/domain/sing-box" "$ROOT/.bin"
 
-cat > "$TMP_BUILD_DIR/main.go" <<'EOF'
-package main
-
-import (
-  "os"
-  "strings"
-
-  "github.com/sagernet/sing-box/common/srs"
-  C "github.com/sagernet/sing-box/constant"
-  "github.com/sagernet/sing-box/option"
-)
-
-func main() {
-  if len(os.Args) != 3 {
-    panic("usage: in.txt out.srs")
-  }
-  inPath, outPath := os.Args[1], os.Args[2]
-  data, err := os.ReadFile(inPath)
-  if err != nil {
-    panic(err)
-  }
-  lines := strings.Split(string(data), "\n")
-  var suffixes []string
-  for _, line := range lines {
-    line = strings.TrimSpace(line)
-    if line == "" {
-      continue
-    }
-    // Remove leading dot if present, then treat as suffix
-    line = strings.TrimPrefix(line, ".")
-    suffixes = append(suffixes, line)
-  }
-  rule := option.DefaultHeadlessRule{DomainSuffix: suffixes}
-  plain := option.PlainRuleSet{Rules: []option.HeadlessRule{{Type: C.RuleTypeDefault, DefaultOptions: rule}}}
-  f, err := os.Create(outPath)
-  if err != nil {
-    panic(err)
-  }
-  defer f.Close()
-  if err := srs.Write(f, plain, C.RuleSetVersionCurrent); err != nil {
-    panic(err)
-  }
-}
-EOF
-
-cat > "$TMP_BUILD_DIR/go.mod" <<'EOF'
-module customsrs
-
-go 1.24
-
-require github.com/sagernet/sing-box v1.12.22
-EOF
+# Download sing-box if not present
+if ! command -v sing-box >/dev/null 2>&1; then
+  if [ ! -x "$ROOT/.bin/sing-box" ]; then
+    SINGBOX_VERSION="1.13.2"
+    curl -Lo "$ROOT/.bin/sing-box.tar.gz" \
+      "https://github.com/SagerNet/sing-box/releases/download/v${SINGBOX_VERSION}/sing-box-${SINGBOX_VERSION}-linux-amd64.tar.gz"
+    tar -xzf "$ROOT/.bin/sing-box.tar.gz" -C "$ROOT/.bin" --strip-components=1
+    chmod +x "$ROOT/.bin/sing-box"
+    rm -f "$ROOT/.bin/sing-box.tar.gz"
+  fi
+  export PATH="$ROOT/.bin:$PATH"
+fi
 
 for src in "$PLAIN_INPUT_DIR"/*.txt; do
   [ -f "$src" ] || continue
   base="$(basename "$src" .txt)"
-  (cd "$TMP_BUILD_DIR" && go mod tidy && go run . "$src" "$ROOT/domain/sing-box/$base.srs")
+  
+  # Build JSON source file
+  json_file="$PLAIN_INPUT_DIR/$base.json"
+  
+  # Read domains and format as JSON array for domain_suffix
+  domains=$(awk 'NF {printf "\"%s\",", $0}' "$src" | sed 's/,$//')
+  
+  cat > "$json_file" <<EOF
+{
+  "version": 3,
+  "rules": [
+    {
+      "domain_suffix": [$domains]
+    }
+  ]
+}
+EOF
+  
+  # Compile to .srs
+  sing-box rule-set compile "$json_file" --output "$ROOT/domain/sing-box/$base.srs"
 done
 
 echo "custom sing-box rule sets built"
