@@ -28,13 +28,14 @@
 
 ```text
 geosite/
+  mihomo/     # 预留，必要时放兼容产物
   surge/      # 纯文本 domain-set
   sing-box/   # .srs
 
 geoip/
+  mihomo/     # .mrs
   surge/      # 纯文本 ruleset
   sing-box/   # .srs
-  mihomo/     # .mrs
 ```
 
 ## 当前实现思路
