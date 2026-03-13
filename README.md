@@ -13,15 +13,13 @@
 ## 目录结构
 
 ```text
-custom/
-  domain/
-    emby.list
-    emby-cn.list
-  ip/
-
 sources/
-  domain/      # 域名规则上游构建器源码
-  ip/          # IP 规则上游构建器源码
+  domain/      # 域名规则上游构建器源码 + 自定义域名规则
+    custom/
+      emby.list
+      emby-cn.list
+  ip/          # IP 规则上游构建器源码 + 自定义 IP 规则
+    custom/
 
 domain/
   surge/
@@ -50,17 +48,17 @@ scripts/
 
 - `domain`：最终域名类规则产物
 - `ip`：最终 IP / CIDR / ASN 类规则产物
-- `sources`：上游源码
-- `custom`：手工维护规则
+- `sources`：上游源码，同时允许放自定义源规则
+- `sources/*/custom`：手工维护规则
 
 ## 当前自定义规则
 
-- `custom/domain/emby.list`
-- `custom/domain/emby-cn.list`
+- `sources/domain/custom/emby.list`
+- `sources/domain/custom/emby-cn.list`
 
 ## 设计原则
 
 - 命名直观，优先人能看懂
-- 上游源码、产物、自定义规则三层分离
+- 源、产物分离，但自定义规则贴近对应源
 - 最终产物直接放仓库外层，方便订阅
 - workflow 只做：同步、构建、提交
