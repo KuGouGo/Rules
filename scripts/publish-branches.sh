@@ -23,13 +23,7 @@ publish_branch() {
   cp -R "$ROOT/$domain_dir"/. domain/
   cp -R "$ROOT/$ip_dir"/. ip/
 
-  cat > README.md <<EOF
-# ${branch}
-
-Published artifacts for ${branch}.
-EOF
-
-  git add README.md domain ip
+  git add domain ip
   if git diff --cached --quiet; then
     echo "no changes for $branch"
   else
