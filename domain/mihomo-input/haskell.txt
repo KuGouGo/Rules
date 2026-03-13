@@ -1,6 +1,0 @@
-.haskell.org
-.haskellstack.org
-.stackage.org
-haskell.org
-haskellstack.org
-stackage.org

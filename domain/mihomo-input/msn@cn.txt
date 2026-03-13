@@ -1,6 +1,0 @@
-.browser.events.data.msn.cn
-.microsoftnews.cn
-.msn.cn
-browser.events.data.msn.cn
-microsoftnews.cn
-msn.cn

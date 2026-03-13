@@ -1,6 +1,0 @@
-.embedwistia-a.akamaihd.net
-.wistia.com
-.wistia.net
-embedwistia-a.akamaihd.net
-wistia.com
-wistia.net

@@ -13,13 +13,11 @@ sources/
 domain/
   surge/
   sing-box/
-  mihomo-input/
   mihomo/
 
 ip/
   surge/
   sing-box/
-  mihomo-input/
   mihomo/
 
 scripts/
@@ -34,8 +32,8 @@ scripts/
 
 - `surge/`：通用文本规则
 - `sing-box/`：sing-box 规则集
-- `mihomo-input/`：供 mihomo 进一步处理的输入文件
 - `mihomo/`：最终 `.mrs` 产物
+- mihomo 转换输入使用临时目录，不提交到仓库
 
 ## 自定义规则
 

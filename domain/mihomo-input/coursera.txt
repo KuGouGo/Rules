@@ -1,8 +1,0 @@
-.coursera-for-business.org
-.coursera.community
-.coursera.help
-.coursera.org
-coursera-for-business.org
-coursera.community
-coursera.help
-coursera.org

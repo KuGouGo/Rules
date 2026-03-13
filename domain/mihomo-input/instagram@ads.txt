@@ -1,4 +1,0 @@
-.graph-fallback.instagram.com
-.graph.instagram.com
-graph-fallback.instagram.com
-graph.instagram.com

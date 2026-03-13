@@ -1,6 +1,0 @@
-.bit.ly
-.bitly.com
-.bitly.is
-bit.ly
-bitly.com
-bitly.is

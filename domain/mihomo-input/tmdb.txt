@@ -1,5 +1,0 @@
-.themoviedb.org
-.tmdb.org
-themoviedb.org
-tmdb-image-prod.b-cdn.net
-tmdb.org
