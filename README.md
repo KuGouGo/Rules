@@ -2,6 +2,23 @@
 
 一个可直接订阅的规则仓库，面向 **Surge / sing-box / mihomo**。
 
+## 快速跳转
+
+### Surge
+
+- Domain: [domain/surge/](./domain/surge/)
+- IP: [ip/surge/](./ip/surge/)
+
+### sing-box
+
+- Domain: [domain/sing-box/](./domain/sing-box/)
+- IP: [ip/sing-box/](./ip/sing-box/)
+
+### mihomo
+
+- Domain: [domain/mihomo/](./domain/mihomo/)
+- IP: [ip/mihomo/](./ip/mihomo/)
+
 ## 仓库内容
 
 ### Domain
@@ -28,30 +45,6 @@
   - 来源：`nekolsd/geoip` `release/mrs`
   - 格式：mihomo 二进制规则集（`.mrs`）
 
-## 自定义规则
-
-自定义源文件位于：
-
-- `sources/domain/custom/*.list`
-
-构建后会直接进入公共目录：
-
-- `domain/surge/<name>.txt`
-- `domain/sing-box/<name>.srs`
-- `domain/mihomo/<name>.mrs`
-
-支持格式：
-
-```text
-DOMAIN,example.com
-DOMAIN-SUFFIX,example.com
-```
-
-约定：
-- 支持空行和 `#` 注释
-- 文件名仅允许 `a-z`、`0-9`、`-`
-- 避免与已有公共规则重名；重名时 CI 会失败
-
 ## 使用示例
 
 ### Surge
@@ -60,7 +53,6 @@ DOMAIN-SUFFIX,example.com
 [Rule]
 DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/surge/cn.txt,DIRECT
 RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/cn.txt,DIRECT
-DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/surge/emby.txt,PROXY
 ```
 
 ### sing-box
@@ -80,12 +72,6 @@ DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/surge/emb
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/sing-box/cn.srs"
-      },
-      {
-        "tag": "emby",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/emby.srs"
       }
     ]
   }
@@ -109,24 +95,16 @@ rule-providers:
     format: mrs
     url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/mihomo/cn.mrs"
     interval: 86400
-
-  emby:
-    type: http
-    behavior: domain
-    format: mrs
-    url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/mihomo/emby.mrs"
-    interval: 86400
 ```
 
 ## 同步说明
 
 GitHub Actions 会执行：
 
-1. 检查自定义规则格式
-2. 同步上游规则
-3. 构建自定义规则
-4. 校验产物数量和变更比例
-5. 成功后自动提交
+1. 同步上游规则
+2. 构建规则产物
+3. 校验产物数量和变更比例
+4. 成功后自动提交
 
 触发方式：
 - 手动触发 `workflow_dispatch`
