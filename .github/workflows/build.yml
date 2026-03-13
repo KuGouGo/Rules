@@ -1,4 +1,4 @@
-name: Sync Upstream
+name: Sync Rules
 
 on:
   workflow_dispatch:
@@ -13,19 +13,54 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Sync upstream repos
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+
+      - name: Sync upstream sources
         run: |
           chmod +x scripts/sync-upstream.sh
           ./scripts/sync-upstream.sh
+
+      - name: Build geosite artifacts
+        run: |
+          cd geosite-source
+          go run .
+          cp -R domain-set/. ../geosite/surge/
+          cp -R rule-set/. ../geosite/sing-box/
+          cp -R domain-set/. ../geosite/mihomo/
+
+      - name: Download GeoIP input
+        run: |
+          mkdir -p input
+          curl -L https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb -o input/Country.mmdb
+
+      - name: Build geoip artifacts
+        run: |
+          cd geoip-source
+          go run . convert -c ../configs/geoip-convert.json
+
+      - name: Copy geoip artifacts
+        run: |
+          cp -R geoip-source/dist/geoip/surge/. geoip/surge/
+          cp -R geoip-source/dist/geoip/sing-box/. geoip/sing-box/
+          cp -R geoip-source/dist/geoip/mihomo/. geoip/mihomo/
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add sing-geosite geoip
-          git diff --cached --quiet || git commit -m "chore: sync upstream"
+          git add geosite geoip geosite-source geoip-source custom-rules
+          git diff --cached --quiet || git commit -m "chore: sync upstream rules"
 
       - name: Push changes
-        run: |
-          git push
+        run: git push
