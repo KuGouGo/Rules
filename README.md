@@ -1,88 +1,70 @@
 # Rules
 
-聚合并发布可直接订阅的规则集，目标是**稳定同步上游预构建产物**，同时保留少量独立维护的自定义规则。
+> A cleaner, sharper rule repo for **Surge / sing-box / mihomo**.
 
-## 当前行为
+聚合、整理、发布可直接订阅的规则集。  
+这个仓库的目标不是“重新发明一套规则生态”，而是把**上游成熟产物** + **少量自定义规则**，做成一个更统一、更稳定、也更顺手的订阅入口。
 
-### Domain
+---
+
+## ✨ Why this repo exists
+
+很多规则仓库都有一个共同问题：
+- 目录风格不统一
+- 自定义规则和公共规则割裂
+- 自动同步能跑，但出问题时难排查
+- 文档能看懂，但不够顺手
+
+`Rules` 想做的事很直接：
+
+- **统一目录结构**：domain / ip 分层清楚
+- **统一订阅入口**：自定义规则也并入公共目录
+- **偏工程化维护**：自动同步、构建、防翻车、诊断信息都补齐
+- **尽量贴近真实使用**：面向日常配置订阅，而不是只为“仓库看起来完整”
+
+---
+
+## 🚀 What you get
+
+### Domain rules
+
 - `domain/surge/`
-  - 主体来源：`nekolsd/sing-geosite` 的 `domain-set` 分支
-  - 自定义补充：`sources/domain/custom/*.list`
+  - 主体来源：`nekolsd/sing-geosite` `domain-set`
   - 格式：Surge `DOMAIN-SET` 文本
 - `domain/sing-box/`
-  - 主体来源：`nekolsd/sing-geosite` 的 `rule-set` 分支
-  - 自定义补充：`sources/domain/custom/*.list`
+  - 主体来源：`nekolsd/sing-geosite` `rule-set`
   - 格式：sing-box 二进制规则集（`.srs`）
 - `domain/mihomo/`
-  - 主体来源：本仓库根据 `domain/surge/*.txt` 本地转换生成
-  - 自定义补充：`sources/domain/custom/*.list`
+  - 主体来源：基于 `domain/surge/*.txt` 本地转换生成
   - 格式：mihomo 二进制规则集（`.mrs`）
-  - 说明：当前仍不是直接同步上游单独发布分支，而是由 Surge domain-set 文本稳定转换得到
 
-### IP
+### IP rules
+
 - `ip/surge/`
-  - 来源：`nekolsd/geoip` 的 `release/surge`
+  - 来源：`nekolsd/geoip` `release/surge`
   - 格式：Surge IP 规则文本
 - `ip/sing-box/`
-  - 来源：`nekolsd/geoip` 的 `release/srs`
+  - 来源：`nekolsd/geoip` `release/srs`
   - 格式：sing-box 二进制规则集（`.srs`）
 - `ip/mihomo/`
-  - 来源：`nekolsd/geoip` 的 `release/mrs`
+  - 来源：`nekolsd/geoip` `release/mrs`
   - 格式：mihomo 二进制规则集（`.mrs`）
 
-## 自定义规则
+### Custom rules
 
-`sources/domain/custom/*.list` 会直接生成到公共规则目录中，而不是单独放在外部目录：
+`sources/domain/custom/*.list` 会**直接生成进公共目录**，而不是挂在额外的 `custom-*` 目录外面：
 
 - `domain/surge/<name>.txt`
 - `domain/sing-box/<name>.srs`
 - `domain/mihomo/<name>.mrs`
 
-目前仓库内置了：
+目前内置：
 - `emby.list`
 - `emby-cn.list`
 
-### 自定义规则写法
+---
 
-支持以下两种：
-
-```text
-# Emby 节点
-DOMAIN,example.com
-DOMAIN-SUFFIX,example.com
-```
-
-生成逻辑：
-- Surge：保留 `DOMAIN-SET` 语义
-  - `DOMAIN,example.com` -> `example.com`
-  - `DOMAIN-SUFFIX,example.com` -> `.example.com`
-- sing-box / mihomo：统一按域后缀规则集生成
-
-空行和 `#` 注释会被忽略。
-
-### 命名约定
-
-自定义规则会直接占用公共文件名，因此应避免与上游已有规则重名。
-
-要求：
-- 文件名只允许 `a-z`、`0-9`、`-`
-- 建议使用清晰语义名，如 `emby`、`emby-cn`
-- 避免使用过于通用的名字，如 `media`、`global`、`proxy`
-
-如果与上游同名，当前 workflow 会直接报错并停止，避免自定义规则在你没注意时覆盖公共规则文件。
-
-### 自定义规则 lint 规则
-
-CI 会在构建前检查 `sources/domain/custom/*.list`：
-
-- 文件名必须符合命名约定
-- 每个文件必须至少有一条有效规则
-- 每条规则必须是以下格式之一：
-  - `DOMAIN,example.com`
-  - `DOMAIN-SUFFIX,example.com`
-- 域名值前面不能带 `.`
-
-## 目录结构
+## 🗂 Structure
 
 ```text
 domain/
@@ -99,69 +81,142 @@ sources/
   domain/
     custom/
   ip/
+
+scripts/
+  sync-all.sh
+  build-custom.sh
+  guard-artifacts.sh
+  lint-custom-rules.sh
 ```
 
-## Workflow
+---
 
-GitHub Actions 会执行三步：
+## 🧩 Custom rules
 
-1. `scripts/sync-all.sh`
-   - 同步上游已经构建好的 domain / ip 产物
-   - 并将 `domain/surge/*.txt` 本地转换为 `domain/mihomo/*.mrs`
-2. `scripts/build-custom.sh`
-   - 将 `sources/domain/custom/*.list` 直接构建进公共 domain 目录
-3. `scripts/guard-artifacts.sh`
-   - 对关键目录做最小文件数校验
-   - 并检查相对 `HEAD` 的单次删除/变更比例
-   - 失败时输出样本 diff，帮助快速定位是大删减、结构变化还是同步异常
-   - 避免上游异常、同步逻辑错误或产物结构突变时直接提交“大面积清空/骤减”结果
+### Syntax
+
+支持两种写法：
+
+```text
+# Emby nodes
+DOMAIN,example.com
+DOMAIN-SUFFIX,example.com
+```
+
+转换逻辑：
+
+- **Surge**
+  - `DOMAIN,example.com` → `example.com`
+  - `DOMAIN-SUFFIX,example.com` → `.example.com`
+- **sing-box / mihomo**
+  - 统一生成域后缀规则集
+
+说明：
+- 空行会忽略
+- `#` 注释会忽略
+- 域名前不要带 `.`
+
+### Naming
+
+因为自定义规则会直接进入公共目录，所以命名要克制一点。
+
+要求：
+- 只允许 `a-z`、`0-9`、`-`
+- 建议使用清晰语义名：`emby`、`emby-cn`
+- 不建议用过于泛化的名字：`global`、`media`、`proxy`
+
+如果与上游公共规则重名，CI 会**直接失败**，不会静默覆盖。
+
+### Lint rules
+
+CI 在构建前会检查 `sources/domain/custom/*.list`：
+
+- 文件名是否合法
+- 文件是否至少包含一条有效规则
+- 每条规则是否符合格式：
+  - `DOMAIN,example.com`
+  - `DOMAIN-SUFFIX,example.com`
+- 域名前是否误带 `.`
+
+---
+
+## ⚙️ Workflow
+
+GitHub Actions 当前执行链路：
+
+1. **Lint custom rules**
+   - 先检查自定义规则命名和格式
+2. **Sync all rules**
+   - 同步上游 domain / ip 产物
+   - 本地补齐 `domain/mihomo/*.mrs`
+3. **Build custom rules**
+   - 将 `sources/domain/custom/*.list` 构建进公共 `domain/*`
+4. **Guard artifacts**
+   - 校验文件数量
+   - 校验单次删除比例 / 总变更比例
+   - 失败时输出样本 diff
+5. **Show summary**
+   - 无论成功失败都输出概要
+6. **Commit**
+   - 仅在前面全部成功时提交
 
 触发方式：
-- 手动触发 `workflow_dispatch`
-- 每 6 小时定时同步一次
+- `workflow_dispatch`
+- 每 6 小时自动同步一次
 
-### 产物保护策略
+---
 
-当前采用两层轻量保护：
+## 🛡 Guard rails
 
-#### 1) 最小文件数阈值
+这个仓库现在不是“只要能跑就提交”，而是加了几道刹车。
 
-- `domain/surge/*.txt` ≥ 1000
-- `domain/sing-box/*.srs` ≥ 1000
-- `domain/mihomo/*.mrs` ≥ 1000
-- `ip/surge/*.txt` ≥ 8
-- `ip/sing-box/*.srs` ≥ 8
-- `ip/mihomo/*.mrs` ≥ 8
+### 1. Minimum artifact count
 
-#### 2) 单次变更比例阈值
+- `domain/surge/*.txt` ≥ `1000`
+- `domain/sing-box/*.srs` ≥ `1000`
+- `domain/mihomo/*.mrs` ≥ `1000`
+- `ip/surge/*.txt` ≥ `8`
+- `ip/sing-box/*.srs` ≥ `8`
+- `ip/mihomo/*.mrs` ≥ `8`
 
-脚本会把当前工作区和 `HEAD` 基线进行比较，对每个产物目录检查：
+### 2. Diff ratio guard
 
-- **删除比例** 默认不得超过 `30%`
-- **总变更比例** 默认不得超过 `50%`
+默认阈值：
+- **删除比例** 不得超过 `30%`
+- **总变更比例** 不得超过 `50%`
 
-可通过环境变量调整：
-
+可通过环境变量覆盖：
 - `MAX_DELETE_PERCENT`
 - `MAX_CHANGE_PERCENT`
 
-默认目标是拦住最危险的几类事故：
-- 上游异常导致大面积删库
-- 同步脚本跑偏，结果只生成一小部分文件
-- 目录结构变化导致一整类产物被替换或清空
+### 3. Conflict protection
 
-它仍然不是完整审计系统，但已经足够实用，能在自动提交前先踩一脚刹车。
+如果 custom 规则名撞上已有公共规则：
+- 直接报错
+- 列出冲突文件
+- 停止构建
 
-## 上游来源
+### 4. No-op write avoidance
 
-- Domain Surge / sing-box:
-  - <https://github.com/nekolsd/sing-geosite>
-- IP Surge / sing-box / mihomo:
-  - <https://github.com/nekolsd/geoip>
-- mihomo 二进制规则转换工具：
-  - <https://github.com/MetaCubeX/mihomo>
+如果生成结果内容没变：
+- 不改写目标文件
+- 不制造无意义 diff
+- `git status` 更干净
 
-## 使用示例
+---
+
+## 📦 Sources
+
+- Domain Surge / sing-box:  
+  <https://github.com/nekolsd/sing-geosite>
+- IP Surge / sing-box / mihomo:  
+  <https://github.com/nekolsd/geoip>
+- mihomo conversion tool:  
+  <https://github.com/MetaCubeX/mihomo>
+
+---
+
+## 🔗 Usage
 
 ### Surge
 
@@ -227,10 +282,16 @@ rule-providers:
     interval: 86400
 ```
 
-## 说明
+---
 
-这个仓库的定位不是重新发明规则生成工具链，而是：
-- 主规则尽量直接复用上游已构建产物
+## 🧠 Design notes
+
+这个仓库的思路很明确：
+
+- 主规则尽量复用上游成熟产物
 - mihomo domain 在当前阶段通过本地稳定转换补齐
-- 自定义规则直接并入公共目录，方便统一订阅
-- 对外提供统一且稳定的订阅目录结构
+- 自定义规则直接并入公共目录，订阅路径更统一
+- 自动同步不是目的，**可维护、可诊断、可持续跑** 才是目的
+
+如果你只想拿来订阅，它应该够直接。  
+如果你想长期维护，它现在也已经比较像一个正经工程仓库了。
