@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.razerapi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.razersynapse.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.razerzone.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,razerapi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,razersynapse.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,razerzone.com
+.razerapi.com
+.razersynapse.com
+.razerzone.com
+razerapi.com
+razersynapse.com
+razerzone.com

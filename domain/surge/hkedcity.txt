@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.edcity.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hkedcity.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hkreadingcity.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,edcity.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hkedcity.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hkreadingcity.net
+.edcity.hk
+.hkedcity.net
+.hkreadingcity.net
+edcity.hk
+hkedcity.net
+hkreadingcity.net

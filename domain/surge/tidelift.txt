@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tidelift.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tidelift.com
+.tidelift.com
+tidelift.com

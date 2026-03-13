@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cisco.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cisco.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.network-auth.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.webex.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cisco.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cisco.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,network-auth.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,webex.com.cn
+.cisco.cn
+.cisco.com.cn
+.network-auth.cn
+.webex.com.cn
+cisco.cn
+cisco.com.cn
+network-auth.cn
+webex.com.cn

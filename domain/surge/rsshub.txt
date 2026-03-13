@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rsshub.app
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rsshub.app
+.rsshub.app
+rsshub.app

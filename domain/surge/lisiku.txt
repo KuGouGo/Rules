@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lisiku.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lisiku1.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lisiku.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lisiku1.com
+.lisiku.com
+.lisiku1.com
+lisiku.com
+lisiku1.com

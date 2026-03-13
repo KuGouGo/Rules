@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.4pcdn.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.4plebs.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,4pcdn.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,4plebs.org
+.4pcdn.org
+.4plebs.org
+4pcdn.org
+4plebs.org

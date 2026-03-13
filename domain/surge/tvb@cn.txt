@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tvbc.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tvbc.com.cn
+.tvbc.com.cn
+tvbc.com.cn

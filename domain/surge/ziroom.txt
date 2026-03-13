@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ziroom.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ziroomapartment.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ziroom.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ziroomapartment.com
+.ziroom.com
+.ziroomapartment.com
+ziroom.com
+ziroomapartment.com

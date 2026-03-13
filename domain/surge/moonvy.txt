@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.moonvy.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.moonvy.cool
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,moonvy.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,moonvy.cool
+.moonvy.com
+.moonvy.cool
+moonvy.com
+moonvy.cool

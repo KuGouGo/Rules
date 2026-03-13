@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.censorship.no
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,censorship.no
+.censorship.no
+censorship.no

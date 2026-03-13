@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cerebras.ai
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cerebras.ai
+.cerebras.ai
+cerebras.ai

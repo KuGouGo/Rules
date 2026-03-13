@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shadowsocks.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shadowsocks.nl
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shadowsocks.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shadowsocks.nl
+.shadowsocks.com
+.shadowsocks.nl
+shadowsocks.com
+shadowsocks.nl

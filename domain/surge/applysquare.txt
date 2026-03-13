@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.applysquare.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.applysquare.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,applysquare.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,applysquare.net
+.applysquare.com
+.applysquare.net
+applysquare.com
+applysquare.net

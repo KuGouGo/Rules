@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pstorage.space
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pstorage.space
+.pstorage.space
+pstorage.space

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.farfetch.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.farfetch.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.farfetch.net.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,farfetch.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,farfetch.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,farfetch.net.cn
+.farfetch.cn
+.farfetch.com.cn
+.farfetch.net.cn
+farfetch.cn
+farfetch.com.cn
+farfetch.net.cn

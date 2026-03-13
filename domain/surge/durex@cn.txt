@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.durex.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.durexchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lovesexdurex.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,durex.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,durexchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lovesexdurex.cn
+.durex.com.cn
+.durexchina.com.cn
+.lovesexdurex.cn
+durex.com.cn
+durexchina.com.cn
+lovesexdurex.cn

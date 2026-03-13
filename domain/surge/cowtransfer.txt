@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.c-t.work
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cowcs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cowtransfer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,c-t.work
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cowcs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cowtransfer.com
+.c-t.work
+.cowcs.com
+.cowtransfer.com
+c-t.work
+cowcs.com
+cowtransfer.com

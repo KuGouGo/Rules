@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.iina.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,iina.io
+.iina.io
+iina.io

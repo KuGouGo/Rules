@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vivoglobal.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vivoglobal.com
+.vivoglobal.com
+vivoglobal.com

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hm.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hm.com.cn
+.hm.com.cn
+hm.com.cn

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.radiko-cf.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.radiko.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.smartstream.ne.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,radiko-cf.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,radiko.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,smartstream.ne.jp
+.radiko-cf.com
+.radiko.jp
+.smartstream.ne.jp
+radiko-cf.com
+radiko.jp
+smartstream.ne.jp

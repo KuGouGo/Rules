@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hugecore.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mojidict.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shareintelli.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hugecore.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mojidict.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shareintelli.com
+.hugecore.net
+.mojidict.com
+.shareintelli.com
+hugecore.net
+mojidict.com
+shareintelli.com

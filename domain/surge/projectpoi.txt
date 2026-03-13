@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.poi.icu
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.poi6.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.poihub.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.project-poi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,poi.icu
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,poi6.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,poihub.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,project-poi.com
+.poi.icu
+.poi6.net
+.poihub.com
+.project-poi.com
+poi.icu
+poi6.net
+poihub.com
+project-poi.com

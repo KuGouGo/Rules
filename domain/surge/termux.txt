@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.termux.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.termux.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.termux.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,termux.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,termux.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,termux.org
+.termux.com
+.termux.dev
+.termux.org
+termux.com
+termux.dev
+termux.org

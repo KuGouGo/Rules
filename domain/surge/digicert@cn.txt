@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dcocsp.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.digicert.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dcocsp.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,digicert.cn
+.dcocsp.cn
+.digicert.cn
+dcocsp.cn
+digicert.cn

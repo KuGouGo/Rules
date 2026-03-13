@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.embed-cdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.streamable.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,embed-cdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,streamable.com
+.embed-cdn.com
+.streamable.com
+embed-cdn.com
+streamable.com

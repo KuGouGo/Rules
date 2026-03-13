@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.saraba1st.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.stage1st.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,saraba1st.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,stage1st.com
+.saraba1st.com
+.stage1st.com
+saraba1st.com
+stage1st.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.realitykings.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rk.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,realitykings.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rk.com
+.realitykings.com
+.rk.com
+realitykings.com
+rk.com

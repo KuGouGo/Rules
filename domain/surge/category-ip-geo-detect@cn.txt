@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.iplark.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ipw.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.whois.pconline.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,iplark.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ipw.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,whois.pconline.com.cn
+.iplark.com
+.ipw.cn
+.whois.pconline.com.cn
+iplark.com
+ipw.cn
+whois.pconline.com.cn

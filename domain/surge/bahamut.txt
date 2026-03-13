@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bahamut.akamaized.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bahamut.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gamer.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bahamut.akamaized.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bahamut.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gamer-cds.cdn.hinet.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gamer.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gamer2-cds.cdn.hinet.net
+.bahamut.akamaized.net
+.bahamut.com.tw
+.gamer.com.tw
+bahamut.akamaized.net
+bahamut.com.tw
+gamer-cds.cdn.hinet.net
+gamer.com.tw
+gamer2-cds.cdn.hinet.net

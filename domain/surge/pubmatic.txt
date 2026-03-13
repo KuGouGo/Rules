@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pubmatic.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pubmatic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pubmatic.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pubmatic.com
+.pubmatic.co.jp
+.pubmatic.com
+pubmatic.co.jp
+pubmatic.com

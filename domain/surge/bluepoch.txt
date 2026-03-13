@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bluepoch.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sl916.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bluepoch.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sl916.com
+.bluepoch.com
+.sl916.com
+bluepoch.com
+sl916.com

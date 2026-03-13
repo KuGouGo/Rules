@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.narwal.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.narwaltech.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,narwal.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,narwaltech.com
+.narwal.com
+.narwaltech.com
+narwal.com
+narwaltech.com

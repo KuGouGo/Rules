@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.isiknowledge.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.newisiknowledge.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,isiknowledge.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,newisiknowledge.com
+.isiknowledge.com
+.newisiknowledge.com
+isiknowledge.com
+newisiknowledge.com

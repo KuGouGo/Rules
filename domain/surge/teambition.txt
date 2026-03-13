@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teambition.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teambition.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teambitionapis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teambition.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teambition.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teambitionapis.com
+.teambition.com
+.teambition.net
+.teambitionapis.com
+teambition.com
+teambition.net
+teambitionapis.com

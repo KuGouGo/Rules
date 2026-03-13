@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.andysparis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.newsmax.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.newsmax.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.newsmaxtv.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,andysparis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,newsmax.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,newsmax.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,newsmaxtv.com
+.andysparis.com
+.newsmax.com
+.newsmax.in
+.newsmaxtv.com
+andysparis.com
+newsmax.com
+newsmax.in
+newsmaxtv.com

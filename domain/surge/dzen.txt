@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dzen.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dzeninfra.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dzen.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dzeninfra.ru
+.dzen.ru
+.dzeninfra.ru
+dzen.ru
+dzeninfra.ru

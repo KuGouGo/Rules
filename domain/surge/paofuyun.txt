@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.paofu.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.paofuyun.me
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,paofu.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,paofuyun.me
+.paofu.cloud
+.paofuyun.me
+paofu.cloud
+paofuyun.me

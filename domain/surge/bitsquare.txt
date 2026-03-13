@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bisq.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bisq.network
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bitsquare.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bisq.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bisq.network
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bitsquare.io
+.bisq.io
+.bisq.network
+.bitsquare.io
+bisq.io
+bisq.network
+bitsquare.io

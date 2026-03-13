@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ebuyer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ebuyer.com
+.ebuyer.com
+ebuyer.com

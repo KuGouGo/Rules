@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mask-api.icloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mask-h2.icloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mask.icloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mask-api.icloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mask-h2.icloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mask.icloud.com
+.mask-api.icloud.com
+.mask-h2.icloud.com
+.mask.icloud.com
+mask-api.icloud.com
+mask-h2.icloud.com
+mask.icloud.com

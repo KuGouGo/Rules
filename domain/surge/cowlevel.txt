@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cdncl.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cowlevel.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cdncl.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cowlevel.net
+.cdncl.net
+.cowlevel.net
+cdncl.net
+cowlevel.net

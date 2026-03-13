@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.internetdownloadmanager.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.registeridm.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tonec.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,internetdownloadmanager.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,registeridm.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tonec.com
+.internetdownloadmanager.com
+.registeridm.com
+.tonec.com
+internetdownloadmanager.com
+registeridm.com
+tonec.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dishwashingexpert.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.finish.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dishwashingexpert.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,finish.com.cn
+.dishwashingexpert.com.cn
+.finish.com.cn
+dishwashingexpert.com.cn
+finish.com.cn

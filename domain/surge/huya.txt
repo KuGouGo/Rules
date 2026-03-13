@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.huya.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.msstatic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,huya.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,msstatic.com
+.huya.com
+.msstatic.com
+huya.com
+msstatic.com

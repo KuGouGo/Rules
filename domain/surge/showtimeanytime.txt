@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.showtime.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.showtimeanytime.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,showtime.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,showtimeanytime.com
+.showtime.com
+.showtimeanytime.com
+showtime.com
+showtimeanytime.com

@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.crates.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.docs.rs
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rust-lang.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rustup.rs
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,crates.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,docs.rs
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rust-lang.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rustup.rs
+.crates.io
+.docs.rs
+.rust-lang.org
+.rustup.rs
+crates.io
+docs.rs
+rust-lang.org
+rustup.rs

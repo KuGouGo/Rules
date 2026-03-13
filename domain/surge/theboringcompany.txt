@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boringcompany.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,boringcompany.com
+.boringcompany.com
+boringcompany.com

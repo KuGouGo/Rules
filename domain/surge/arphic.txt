@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.arphic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.arphic.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.arphic.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ifontcloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,arphic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,arphic.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,arphic.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ifontcloud.com
+.arphic.com
+.arphic.com.cn
+.arphic.com.tw
+.ifontcloud.com
+arphic.com
+arphic.com.cn
+arphic.com.tw
+ifontcloud.com

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.booking.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,booking.cn
+.booking.cn
+booking.cn

@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cn-cdn1.skymansion.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.etnet.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.etnetchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tvbc.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cn-cdn1.skymansion.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,etnet.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,etnetchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tvbc.com.cn
+.cn-cdn1.skymansion.net
+.etnet.com.cn
+.etnetchina.com.cn
+.tvbc.com.cn
+cn-cdn1.skymansion.net
+etnet.com.cn
+etnetchina.com.cn
+tvbc.com.cn

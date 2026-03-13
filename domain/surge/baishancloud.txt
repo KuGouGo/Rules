@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bsclink.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.qingcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.trpcdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bsclink.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,qingcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,trpcdn.net
+.bsclink.cn
+.qingcdn.com
+.trpcdn.net
+bsclink.cn
+qingcdn.com
+trpcdn.net

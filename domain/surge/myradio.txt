@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myradio.com.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.myradio.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,myradio.com.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,myradio.hk
+.myradio.com.hk
+.myradio.hk
+myradio.com.hk
+myradio.hk

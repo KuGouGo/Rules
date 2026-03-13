@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.soyjak.party
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.soyjak.st
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,soyjak.party
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,soyjak.st
+.soyjak.party
+.soyjak.st
+soyjak.party
+soyjak.st

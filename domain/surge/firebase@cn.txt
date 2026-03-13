@@ -1,1 +1,1 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,firebase-settings.crashlytics.com
+firebase-settings.crashlytics.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.filimo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.filimo.school
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,filimo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,filimo.school
+.filimo.com
+.filimo.school
+filimo.com
+filimo.school

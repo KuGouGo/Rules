@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aviasales.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aviasales.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.avs.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aviasales.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aviasales.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,avs.io
+.aviasales.com
+.aviasales.ru
+.avs.io
+aviasales.com
+aviasales.ru
+avs.io

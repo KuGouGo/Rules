@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.botstop.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hcaptcha.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hcaptchastatus.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,botstop.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hcaptcha.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hcaptchastatus.com
+.botstop.com
+.hcaptcha.com
+.hcaptchastatus.com
+botstop.com
+hcaptcha.com
+hcaptchastatus.com

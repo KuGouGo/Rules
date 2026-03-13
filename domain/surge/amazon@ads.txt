@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.amazon-adsystem.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.serving-sys.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,amazon-adsystem.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,serving-sys.com
+.amazon-adsystem.com
+.serving-sys.com
+amazon-adsystem.com
+serving-sys.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.leagueoflegends.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lpl.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,leagueoflegends.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lpl.com.cn
+.leagueoflegends.cn
+.lpl.com.cn
+leagueoflegends.cn
+lpl.com.cn

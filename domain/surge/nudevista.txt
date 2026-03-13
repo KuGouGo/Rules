@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nudevista.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nudevista.es
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nudevista.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nudevista.vip
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nudevista.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nudevista.es
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nudevista.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nudevista.vip
+.nudevista.com
+.nudevista.es
+.nudevista.net
+.nudevista.vip
+nudevista.com
+nudevista.es
+nudevista.net
+nudevista.vip

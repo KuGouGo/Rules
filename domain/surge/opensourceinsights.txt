@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deps.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deps.info
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.opensourceinsight.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.opensourceinsights.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deps.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deps.info
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,opensourceinsight.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,opensourceinsights.dev
+.deps.dev
+.deps.info
+.opensourceinsight.dev
+.opensourceinsights.dev
+deps.dev
+deps.info
+opensourceinsight.dev
+opensourceinsights.dev

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gravatar.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gravatar.com
+.gravatar.com
+gravatar.com

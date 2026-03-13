@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.forbes.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.forbesimg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,forbes.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,forbesimg.com
+.forbes.com
+.forbesimg.com
+forbes.com
+forbesimg.com

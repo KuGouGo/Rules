@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.htrace.wetvinfo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,htrace.wetvinfo.com
+.htrace.wetvinfo.com
+htrace.wetvinfo.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.elevenlabs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.elevenlabs.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,elevenlabs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,elevenlabs.io
+.elevenlabs.com
+.elevenlabs.io
+elevenlabs.com
+elevenlabs.io

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hpstore.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hpstore.cn
+.hpstore.cn
+hpstore.cn

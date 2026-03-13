@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ixquick.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.startpage.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ixquick.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,startpage.com
+.ixquick.com
+.startpage.com
+ixquick.com
+startpage.com

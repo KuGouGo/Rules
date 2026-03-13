@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.init.shop
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.theinitium.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,init.shop
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,theinitium.com
+.init.shop
+.theinitium.com
+init.shop
+theinitium.com

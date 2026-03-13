@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apibay.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pirates-forum.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thepiratebay.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.torrindex.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,apibay.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pirates-forum.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,thepiratebay.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,torrindex.net
+.apibay.org
+.pirates-forum.org
+.thepiratebay.org
+.torrindex.net
+apibay.org
+pirates-forum.org
+thepiratebay.org
+torrindex.net

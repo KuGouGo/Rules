@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javwide.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javwide.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,javwide.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,javwide.tv
+.javwide.com
+.javwide.tv
+javwide.com
+javwide.tv

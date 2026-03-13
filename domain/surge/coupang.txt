@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coupang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coupangcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,coupang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,coupangcdn.com
+.coupang.com
+.coupangcdn.com
+coupang.com
+coupangcdn.com

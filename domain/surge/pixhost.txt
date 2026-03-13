@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pixhost.to
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pixhost.to
+.pixhost.to
+pixhost.to

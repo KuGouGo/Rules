@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bootcdn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bootcdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bootcss.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.phpcomposer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bootcdn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bootcdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bootcss.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,phpcomposer.com
+.bootcdn.cn
+.bootcdn.net
+.bootcss.com
+.phpcomposer.com
+bootcdn.cn
+bootcdn.net
+bootcss.com
+phpcomposer.com

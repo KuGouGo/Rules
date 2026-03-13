@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yjcontentdelivery.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.youjizz.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,yjcontentdelivery.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,youjizz.com
+.yjcontentdelivery.com
+.youjizz.com
+yjcontentdelivery.com
+youjizz.com

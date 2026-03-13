@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.casimages.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,casimages.com
+.casimages.com
+casimages.com

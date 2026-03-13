@@ -1,5 +1,5 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.themoviedb.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tmdb.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,themoviedb.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tmdb-image-prod.b-cdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tmdb.org
+.themoviedb.org
+.tmdb.org
+themoviedb.org
+tmdb-image-prod.b-cdn.net
+tmdb.org

@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.intercom.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.intercom.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.intercomassets.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.intercomcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,intercom.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,intercom.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,intercomassets.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,intercomcdn.com
+.intercom.com
+.intercom.io
+.intercomassets.com
+.intercomcdn.com
+intercom.com
+intercom.io
+intercomassets.com
+intercomcdn.com

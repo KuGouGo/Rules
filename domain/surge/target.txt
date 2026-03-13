@@ -1,5 +1,5 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.target
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.target.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.targetimg1.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,target.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,targetimg1.com
+.target
+.target.com
+.targetimg1.com
+target.com
+targetimg1.com

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sb-cd.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spankbang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.spankbang.party
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sb-cd.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,spankbang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,spankbang.party
+.sb-cd.com
+.spankbang.com
+.spankbang.party
+sb-cd.com
+spankbang.com
+spankbang.party

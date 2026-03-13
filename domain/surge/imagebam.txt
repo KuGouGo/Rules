@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imagebam.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,imagebam.com
+.imagebam.com
+imagebam.com

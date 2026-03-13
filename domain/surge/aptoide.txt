@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aptoide.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aptoide.com
+.aptoide.com
+aptoide.com

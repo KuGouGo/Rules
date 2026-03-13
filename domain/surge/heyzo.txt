@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.heydoga.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.heyzo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,heydoga.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,heyzo.com
+.heydoga.com
+.heyzo.com
+heydoga.com
+heyzo.com

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.starfieldtech.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,starfieldtech.com
+.starfieldtech.com
+starfieldtech.com

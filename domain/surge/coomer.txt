@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coomer.party
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coomer.st
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.coomer.su
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,coomer.party
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,coomer.st
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,coomer.su
+.coomer.party
+.coomer.st
+.coomer.su
+coomer.party
+coomer.st
+coomer.su

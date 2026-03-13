@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.joyjoy.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pandanet-igs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,joyjoy.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pandanet-igs.com
+.joyjoy.net
+.pandanet-igs.com
+joyjoy.net
+pandanet-igs.com

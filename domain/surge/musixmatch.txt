@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.musixmatch.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mxmcdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,musixmatch.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mxmcdn.net
+.musixmatch.com
+.mxmcdn.net
+musixmatch.com
+mxmcdn.net

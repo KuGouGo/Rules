@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.amazonprimevideo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.amazonprimevideo.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,amazonprimevideo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,amazonprimevideo.com.cn
+.amazonprimevideo.cn
+.amazonprimevideo.com.cn
+amazonprimevideo.cn
+amazonprimevideo.com.cn

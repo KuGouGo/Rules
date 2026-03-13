@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.surflite.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.surflite.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,surflite.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,surflite.net
+.surflite.co
+.surflite.net
+surflite.co
+surflite.net

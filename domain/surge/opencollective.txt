@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.opencollective.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,opencollective.com
+.opencollective.com
+opencollective.com

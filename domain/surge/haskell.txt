@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.haskell.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.haskellstack.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.stackage.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,haskell.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,haskellstack.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,stackage.org
+.haskell.org
+.haskellstack.org
+.stackage.org
+haskell.org
+haskellstack.org
+stackage.org

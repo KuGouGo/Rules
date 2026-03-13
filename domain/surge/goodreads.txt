@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.goodreads.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gr-assets.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,goodreads.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gr-assets.com
+.goodreads.com
+.gr-assets.com
+goodreads.com
+gr-assets.com

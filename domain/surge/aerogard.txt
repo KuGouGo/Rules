@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aerogard.com.au
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aerogard.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aerogardcn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aerogard.com.au
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aerogard.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aerogardcn.com
+.aerogard.com.au
+.aerogard.com.cn
+.aerogardcn.com
+aerogard.com.au
+aerogard.com.cn
+aerogardcn.com

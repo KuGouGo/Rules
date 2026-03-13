@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.djreprints.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dowjones.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dowjones.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dowjoneson.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,djreprints.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dowjones.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dowjones.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dowjoneson.com
+.djreprints.com
+.dowjones.com
+.dowjones.io
+.dowjoneson.com
+djreprints.com
+dowjones.com
+dowjones.io
+dowjoneson.com

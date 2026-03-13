@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mzed.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mzed.com
+.mzed.com
+mzed.com

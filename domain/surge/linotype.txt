@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.linotype.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,linotype.com
+.linotype.com
+linotype.com

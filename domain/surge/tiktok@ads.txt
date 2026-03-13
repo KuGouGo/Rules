@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.analytics.tiktok.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,analytics.tiktok.com
+.analytics.tiktok.com
+analytics.tiktok.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gendai.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nikkan-gendai.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gendai.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nikkan-gendai.com
+.gendai.net
+.nikkan-gendai.com
+gendai.net
+nikkan-gendai.com

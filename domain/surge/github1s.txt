@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.github1s.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sourcegraph.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,github1s.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sourcegraph.com
+.github1s.com
+.sourcegraph.com
+github1s.com
+sourcegraph.com

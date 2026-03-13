@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.openkylin.top
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ubuntukylin.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,openkylin.top
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ubuntukylin.com
+.openkylin.top
+.ubuntukylin.com
+openkylin.top
+ubuntukylin.com

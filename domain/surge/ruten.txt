@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rimg.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ruten.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rimg.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ruten.com.tw
+.rimg.com.tw
+.ruten.com.tw
+rimg.com.tw
+ruten.com.tw

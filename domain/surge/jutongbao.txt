@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.guanggaotongapp.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jutongbao.online
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jutongbao.top
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,guanggaotongapp.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jutongbao.online
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jutongbao.top
+.guanggaotongapp.cn
+.jutongbao.online
+.jutongbao.top
+guanggaotongapp.cn
+jutongbao.online
+jutongbao.top

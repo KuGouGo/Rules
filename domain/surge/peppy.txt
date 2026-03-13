@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ppy.sh
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ppy.sh
+.ppy.sh
+ppy.sh

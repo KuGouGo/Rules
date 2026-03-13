@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ted.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tedcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ted.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tedcdn.com
+.ted.com
+.tedcdn.com
+ted.com
+tedcdn.com

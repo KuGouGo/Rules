@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imageshack.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imageshack.us
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,imageshack.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,imageshack.us
+.imageshack.com
+.imageshack.us
+imageshack.com
+imageshack.us

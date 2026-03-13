@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.githubcopilot.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,githubcopilot.com
+.githubcopilot.com
+githubcopilot.com

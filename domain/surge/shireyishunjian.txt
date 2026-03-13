@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shireyishunjian.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yingpianqu.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shireyishunjian.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,yingpianqu.com
+.shireyishunjian.com
+.yingpianqu.com
+shireyishunjian.com
+yingpianqu.com

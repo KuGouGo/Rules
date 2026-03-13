@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wynd.network
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wyndlabs.ai
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wynd.network
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wyndlabs.ai
+.wynd.network
+.wyndlabs.ai
+wynd.network
+wyndlabs.ai

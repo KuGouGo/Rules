@@ -47,9 +47,6 @@ jobs:
       - name: Build mihomo mrs
         run: ./scripts/build-mihomo-mrs.sh
 
-      - name: Merge custom rules
-        run: ./scripts/merge-custom.sh
-
       - name: Normalize surge rules
         run: ./scripts/normalize-surge.sh
 

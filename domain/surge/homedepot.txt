@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.homedepot-static.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.homedepot.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,homedepot-static.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,homedepot.com
+.homedepot-static.com
+.homedepot.com
+homedepot-static.com
+homedepot.com

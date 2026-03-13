@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cdnlab.live
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jable.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mushroomtrack.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cdnlab.live
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jable.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mushroomtrack.com
+.cdnlab.live
+.jable.tv
+.mushroomtrack.com
+cdnlab.live
+jable.tv
+mushroomtrack.com

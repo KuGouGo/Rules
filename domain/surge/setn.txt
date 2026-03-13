@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.setn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.settv.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,setn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,settv.com.tw
+.setn.com
+.settv.com.tw
+setn.com
+settv.com.tw

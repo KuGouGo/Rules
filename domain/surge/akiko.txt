@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.akikocorp.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.emoriko.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sukasuka.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,akikocorp.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,emoriko.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sukasuka.cn
+.akikocorp.cn
+.emoriko.com
+.sukasuka.cn
+akikocorp.cn
+emoriko.com
+sukasuka.cn

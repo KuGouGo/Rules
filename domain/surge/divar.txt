@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.divar.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.divar.ir
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.divarcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,divar.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,divar.ir
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,divarcdn.com
+.divar.cloud
+.divar.ir
+.divarcdn.com
+divar.cloud
+divar.ir
+divarcdn.com

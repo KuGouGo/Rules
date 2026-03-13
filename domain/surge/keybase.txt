@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.keybase.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.keybaseapi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,keybase.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,keybaseapi.com
+.keybase.io
+.keybaseapi.com
+keybase.io
+keybaseapi.com

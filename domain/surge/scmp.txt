@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.i-scmp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.scmp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,i-scmp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,scmp.com
+.i-scmp.com
+.scmp.com
+i-scmp.com
+scmp.com

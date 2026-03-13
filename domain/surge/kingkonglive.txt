@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kingkong.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kingkongapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kingkong.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kingkongapp.com
+.kingkong.com.tw
+.kingkongapp.com
+kingkong.com.tw
+kingkongapp.com

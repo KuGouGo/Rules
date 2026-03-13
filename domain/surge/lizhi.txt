@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lizhi.fm
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lizhifm.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lizhi.fm
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lizhifm.com
+.lizhi.fm
+.lizhifm.com
+lizhi.fm
+lizhifm.com

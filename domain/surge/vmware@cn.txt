@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.heptio.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,heptio.cn
+.heptio.cn
+heptio.cn

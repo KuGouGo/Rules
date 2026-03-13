@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cutt.ly
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cutt.ly
+.cutt.ly
+cutt.ly

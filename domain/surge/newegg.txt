@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.newegg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.neweggimages.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,newegg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,neweggimages.com
+.newegg.com
+.neweggimages.com
+newegg.com
+neweggimages.com

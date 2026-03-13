@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.airport-gov-cn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnix-gov-cn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xn--d4ty0ojsqzfd.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,airport-gov-cn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnix-gov-cn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xn--d4ty0ojsqzfd.com
+.airport-gov-cn.com
+.cnix-gov-cn.com
+.xn--d4ty0ojsqzfd.com
+airport-gov-cn.com
+cnix-gov-cn.com
+xn--d4ty0ojsqzfd.com

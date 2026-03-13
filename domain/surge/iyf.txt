@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.iyf.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yfsp.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,iyf.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,yfsp.tv
+.iyf.tv
+.yfsp.tv
+iyf.tv
+yfsp.tv

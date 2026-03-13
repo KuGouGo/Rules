@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.snapads.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,snapads.com
+.snapads.com
+snapads.com

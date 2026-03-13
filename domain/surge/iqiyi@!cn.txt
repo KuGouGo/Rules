@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.iq.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,iq.com
+.iq.com
+iq.com

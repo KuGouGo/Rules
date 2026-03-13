@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.realtype.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.realtype.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,realtype.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,realtype.jp
+.realtype.co.jp
+.realtype.jp
+realtype.co.jp
+realtype.jp

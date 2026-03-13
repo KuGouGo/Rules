@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.duowan.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dwstatic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,duowan.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dwstatic.com
+.duowan.com
+.dwstatic.com
+duowan.com
+dwstatic.com

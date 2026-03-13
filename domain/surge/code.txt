@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.code.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,code.org
+.code.org
+code.org

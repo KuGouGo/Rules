@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.duolingo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,duolingo.cn
+.duolingo.cn
+duolingo.cn

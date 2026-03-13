@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cybertrust.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cybertrust.ne.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cybertrust.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cybertrust.ne.jp
+.cybertrust.co.jp
+.cybertrust.ne.jp
+cybertrust.co.jp
+cybertrust.ne.jp

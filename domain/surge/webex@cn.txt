@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.webex.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,webex.com.cn
+.webex.com.cn
+webex.com.cn

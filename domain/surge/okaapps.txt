@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.okaapps.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,okaapps.com
+.okaapps.com
+okaapps.com

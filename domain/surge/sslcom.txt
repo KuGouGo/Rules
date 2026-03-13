@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ssl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sslcom.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ssl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sslcom.cn
+.ssl.com
+.sslcom.cn
+ssl.com
+sslcom.cn

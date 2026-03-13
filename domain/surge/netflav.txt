@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.netflav.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.netflav1.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.netflav5.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,netflav.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,netflav1.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,netflav5.com
+.netflav.com
+.netflav1.com
+.netflav5.com
+netflav.com
+netflav1.com
+netflav5.com

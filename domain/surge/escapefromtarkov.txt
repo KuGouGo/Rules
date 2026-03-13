@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.eft-store.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.escapefromtarkov.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tarkov.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,eft-store.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,escapefromtarkov.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tarkov.com
+.eft-store.com
+.escapefromtarkov.com
+.tarkov.com
+eft-store.com
+escapefromtarkov.com
+tarkov.com

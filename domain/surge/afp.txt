@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.afp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.afpforum.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,afp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,afpforum.com
+.afp.com
+.afpforum.com
+afp.com
+afpforum.com

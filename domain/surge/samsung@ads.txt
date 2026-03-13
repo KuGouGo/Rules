@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ad-survey.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.samsungads.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ad-survey.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,samsungads.com
+.ad-survey.com
+.samsungads.com
+ad-survey.com
+samsungads.com

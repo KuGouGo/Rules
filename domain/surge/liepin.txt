@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.liepin.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lietou-static.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lietou.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,liepin.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lietou-static.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lietou.com
+.liepin.com
+.lietou-static.com
+.lietou.com
+liepin.com
+lietou-static.com
+lietou.com

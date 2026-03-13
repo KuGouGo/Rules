@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rmbl.ws
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.rumble.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rmbl.ws
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,rumble.com
+.rmbl.ws
+.rumble.com
+rmbl.ws
+rumble.com

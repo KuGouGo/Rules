@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hitun.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xn--90wwvt03e.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hitun.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xn--90wwvt03e.com
+.hitun.io
+.xn--90wwvt03e.com
+hitun.io
+xn--90wwvt03e.com

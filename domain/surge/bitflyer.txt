@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bitflyer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bitflyer.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bitflyer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bitflyer.jp
+.bitflyer.com
+.bitflyer.jp
+bitflyer.com
+bitflyer.jp

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shopee.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shopeesz.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shopee.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shopeesz.com
+.shopee.cn
+.shopeesz.com
+shopee.cn
+shopeesz.com

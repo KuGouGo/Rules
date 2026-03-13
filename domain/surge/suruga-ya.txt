@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.suruga-ya.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.suruga-ya.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,suruga-ya.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,suruga-ya.jp
+.suruga-ya.com
+.suruga-ya.jp
+suruga-ya.com
+suruga-ya.jp

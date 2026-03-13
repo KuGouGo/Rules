@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jquery.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jquerymobile.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jqueryui.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jquery.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jquerymobile.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jqueryui.com
+.jquery.com
+.jquerymobile.com
+.jqueryui.com
+jquery.com
+jquerymobile.com
+jqueryui.com

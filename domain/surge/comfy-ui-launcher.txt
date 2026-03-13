@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.oystermercury.top
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,oystermercury.top
+.oystermercury.top
+oystermercury.top

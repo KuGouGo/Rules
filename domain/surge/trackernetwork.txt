@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thetrackernetwork.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tracker.gg
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tracker.network
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,thetrackernetwork.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tracker.gg
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tracker.network
+.thetrackernetwork.com
+.tracker.gg
+.tracker.network
+thetrackernetwork.com
+tracker.gg
+tracker.network

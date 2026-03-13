@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deepl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.linguee.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deepl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,linguee.com
+.deepl.com
+.linguee.com
+deepl.com
+linguee.com

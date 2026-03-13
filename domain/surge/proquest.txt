@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.proquest.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.serialssolutions.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,proquest.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,serialssolutions.com
+.proquest.com
+.serialssolutions.com
+proquest.com
+serialssolutions.com

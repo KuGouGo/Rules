@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kindle.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kindleoasis.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kindleoasis.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kindle.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kindleoasis.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kindleoasis.com.cn
+.kindle.cn
+.kindleoasis.cn
+.kindleoasis.com.cn
+kindle.cn
+kindleoasis.cn
+kindleoasis.com.cn

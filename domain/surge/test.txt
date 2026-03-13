@@ -1,1 +1,1 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,test.example.com
+test.example.com

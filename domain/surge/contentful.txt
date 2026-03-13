@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.contentful.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ctfassets.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,contentful.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ctfassets.net
+.contentful.com
+.ctfassets.net
+contentful.com
+ctfassets.net

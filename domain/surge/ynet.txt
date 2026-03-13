@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ynet.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ynet.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ynet.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ynet.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ynet.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ynet.com.cn
+.ynet.cn
+.ynet.com
+.ynet.com.cn
+ynet.cn
+ynet.com
+ynet.com.cn

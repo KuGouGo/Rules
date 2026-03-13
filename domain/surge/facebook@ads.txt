@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.analytics.facebook.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.facebookads.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pixel.facebook.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,analytics.facebook.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,facebookads.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pixel.facebook.com
+.analytics.facebook.com
+.facebookads.com
+.pixel.facebook.com
+analytics.facebook.com
+facebookads.com
+pixel.facebook.com

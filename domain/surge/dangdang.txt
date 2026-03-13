@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dangdang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ddimg.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dangdang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ddimg.cn
+.dangdang.com
+.ddimg.cn
+dangdang.com
+ddimg.cn

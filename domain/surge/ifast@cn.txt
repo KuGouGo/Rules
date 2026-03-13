@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ifastps.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ifastps.com.cn
+.ifastps.com.cn
+ifastps.com.cn

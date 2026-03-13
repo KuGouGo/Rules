@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.chndoi.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnki.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnki.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,chndoi.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnki.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnki.net
+.chndoi.org
+.cnki.com.cn
+.cnki.net
+chndoi.org
+cnki.com.cn
+cnki.net

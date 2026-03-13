@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bandcamp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bcbits.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bandcamp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bcbits.com
+.bandcamp.com
+.bcbits.com
+bandcamp.com
+bcbits.com

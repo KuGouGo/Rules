@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.itch.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.itch.zone
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,itch.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,itch.zone
+.itch.io
+.itch.zone
+itch.io
+itch.zone

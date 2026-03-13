@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cuinc.oen.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cuinc.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cuinc.oen.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cuinc.tw
+.cuinc.oen.tw
+.cuinc.tw
+cuinc.oen.tw
+cuinc.tw

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.okko.sport
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.okko.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playfamily.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,okko.sport
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,okko.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,playfamily.ru
+.okko.sport
+.okko.tv
+.playfamily.ru
+okko.sport
+okko.tv
+playfamily.ru

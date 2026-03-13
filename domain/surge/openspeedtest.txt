@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.open.cachefly.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.openspeedtest.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,open.cachefly.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,openspeedtest.com
+.open.cachefly.net
+.openspeedtest.com
+open.cachefly.net
+openspeedtest.com

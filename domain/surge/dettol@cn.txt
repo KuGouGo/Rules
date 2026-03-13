@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dettol.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dettol.com.cn
+.dettol.com.cn
+dettol.com.cn

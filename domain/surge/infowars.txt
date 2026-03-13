@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.banned.video
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.infowars.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.infowarsmedia.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,banned.video
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,infowars.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,infowarsmedia.com
+.banned.video
+.infowars.com
+.infowarsmedia.com
+banned.video
+infowars.com
+infowarsmedia.com

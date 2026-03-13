@@ -1,5 +1,5 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.louisvuitton.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lvcampaign.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,louisvuitton.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lvcampaign.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tp.louisvuitton.com
+.louisvuitton.cn
+.lvcampaign.com
+louisvuitton.cn
+lvcampaign.com
+tp.louisvuitton.com

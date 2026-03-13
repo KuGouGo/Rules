@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javcc.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.javcc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,javcc.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,javcc.com
+.javcc.cc
+.javcc.com
+javcc.cc
+javcc.com

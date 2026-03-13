@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.airwick.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,airwick.com.cn
+.airwick.com.cn
+airwick.com.cn

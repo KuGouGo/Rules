@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deepseek.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deepseek.com
+.deepseek.com
+deepseek.com

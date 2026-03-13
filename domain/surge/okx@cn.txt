@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.oklink.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,oklink.com
+.oklink.com
+oklink.com
