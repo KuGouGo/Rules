@@ -13,11 +13,11 @@ echo "=== SYNC START ==="
 
 mkdir -p domain ip
 
-# Domain Surge files - from not-sing-geosite release
+# Domain Surge files - from not-sing-geosite main/surge
 echo "Cloning surge files..."
 rm -rf domain/surge
 mkdir -p "$TMP_BASE/nsg"
-git clone --depth=1 --branch release https://github.com/nekolsd/not-sing-geosite.git "$TMP_BASE/nsg"
+git clone --depth=1 --branch main https://github.com/nekolsd/not-sing-geosite.git "$TMP_BASE/nsg"
 cp -R "$TMP_BASE/nsg/surge" domain/surge
 
 # Domain sing-box files - from sing-geosite rule-set
