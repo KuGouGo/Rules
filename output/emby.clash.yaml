@@ -1,0 +1,19 @@
+rules:
+  - DOMAIN-SUFFIX,emby.media,Emby
+  - DOMAIN-SUFFIX,tmdb.org,Emby
+  - DOMAIN-SUFFIX,themoviedb.org,Emby
+  - DOMAIN-SUFFIX,pandtv.de,Emby
+  - DOMAIN-SUFFIX,sakim.org,Emby
+  - DOMAIN-SUFFIX,cn2gias.uk,Emby
+  - DOMAIN-SUFFIX,023168.xyz,Emby
+  - DOMAIN-SUFFIX,223789.xyz,Emby
+  - DOMAIN-SUFFIX,alphatvapp.top,Emby
+  - DOMAIN-SUFFIX,pilipiliultra.com,Emby
+  - DOMAIN,app.emby.media,Emby
+  - DOMAIN,jsq.vban.xyz,Emby
+  - DOMAIN,kkp.zhezhi.art,Emby
+  - DOMAIN,pgy.meowfly.de,Emby
+  - DOMAIN,1mby.hanb1ng.site,Emby
+  - DOMAIN,xiangshechulai.zhyu.de,Emby
+  - DOMAIN-KEYWORD,emby,Emby
+  - IP-CIDR,104.16.0.0/13,Emby,no-resolve

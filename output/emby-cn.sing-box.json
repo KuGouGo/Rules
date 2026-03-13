@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "name": "emby-cn",
+  "rules": [
+    {
+      "domain_suffix": [
+        "emby.wtf",
+        "mijia.cloud",
+        "pdtvs.de"
+      ],
+      "outbound": "DIRECT"
+    },
+    {
+      "domain": [
+        "emby.example.lan",
+        "precdns.cn2gias.uk",
+        "abs2.204cloud.com",
+        "ts.hanb1ng.site",
+        "steamserver.net",
+        "cdn.zhezhi.art"
+      ],
+      "outbound": "DIRECT"
+    },
+    {
+      "domain_keyword": [
+        "emby"
+      ],
+      "outbound": "DIRECT"
+    },
+    {
+      "ip_cidr": [
+        "192.168.0.0/16",
+        "10.0.0.0/8"
+      ],
+      "outbound": "DIRECT"
+    }
+  ]
+}

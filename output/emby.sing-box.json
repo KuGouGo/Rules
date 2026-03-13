@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "name": "emby",
+  "rules": [
+    {
+      "domain_suffix": [
+        "emby.media",
+        "tmdb.org",
+        "themoviedb.org",
+        "pandtv.de",
+        "sakim.org",
+        "cn2gias.uk",
+        "023168.xyz",
+        "223789.xyz",
+        "alphatvapp.top",
+        "pilipiliultra.com"
+      ],
+      "outbound": "Emby"
+    },
+    {
+      "domain": [
+        "app.emby.media",
+        "jsq.vban.xyz",
+        "kkp.zhezhi.art",
+        "pgy.meowfly.de",
+        "1mby.hanb1ng.site",
+        "xiangshechulai.zhyu.de"
+      ],
+      "outbound": "Emby"
+    },
+    {
+      "domain_keyword": [
+        "emby"
+      ],
+      "outbound": "Emby"
+    },
+    {
+      "ip_cidr": [
+        "104.16.0.0/13"
+      ],
+      "outbound": "Emby"
+    }
+  ]
+}

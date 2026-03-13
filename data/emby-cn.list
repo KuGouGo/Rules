@@ -1,0 +1,13 @@
+# emby 直连规则
+DOMAIN-SUFFIX,emby.wtf
+DOMAIN-SUFFIX,mijia.cloud
+DOMAIN,emby.example.lan
+DOMAIN-KEYWORD,emby
+IP-CIDR,192.168.0.0/16
+IP-CIDR,10.0.0.0/8
+DOMAIN,precdns.cn2gias.uk
+DOMAIN,abs2.204cloud.com
+DOMAIN,ts.hanb1ng.site
+DOMAIN,steamserver.net
+DOMAIN,cdn.zhezhi.art
+DOMAIN-SUFFIX,pdtvs.de

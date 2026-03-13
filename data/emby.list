@@ -1,0 +1,19 @@
+# emby 代理规则
+DOMAIN-SUFFIX,emby.media
+DOMAIN-SUFFIX,tmdb.org
+DOMAIN-SUFFIX,themoviedb.org
+DOMAIN,app.emby.media
+DOMAIN-KEYWORD,emby
+IP-CIDR,104.16.0.0/13
+DOMAIN,jsq.vban.xyz
+DOMAIN,kkp.zhezhi.art
+DOMAIN,pgy.meowfly.de
+DOMAIN,1mby.hanb1ng.site
+DOMAIN,xiangshechulai.zhyu.de
+DOMAIN-SUFFIX,pandtv.de
+DOMAIN-SUFFIX,sakim.org
+DOMAIN-SUFFIX,cn2gias.uk
+DOMAIN-SUFFIX,023168.xyz
+DOMAIN-SUFFIX,223789.xyz
+DOMAIN-SUFFIX,alphatvapp.top
+DOMAIN-SUFFIX,pilipiliultra.com

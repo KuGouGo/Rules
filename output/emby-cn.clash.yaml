@@ -1,0 +1,13 @@
+rules:
+  - DOMAIN-SUFFIX,emby.wtf,DIRECT
+  - DOMAIN-SUFFIX,mijia.cloud,DIRECT
+  - DOMAIN-SUFFIX,pdtvs.de,DIRECT
+  - DOMAIN,emby.example.lan,DIRECT
+  - DOMAIN,precdns.cn2gias.uk,DIRECT
+  - DOMAIN,abs2.204cloud.com,DIRECT
+  - DOMAIN,ts.hanb1ng.site,DIRECT
+  - DOMAIN,steamserver.net,DIRECT
+  - DOMAIN,cdn.zhezhi.art,DIRECT
+  - DOMAIN-KEYWORD,emby,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
