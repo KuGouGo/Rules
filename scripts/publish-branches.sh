@@ -4,6 +4,92 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+branch_readme() {
+  local branch="$1"
+  case "$branch" in
+    surge)
+      cat <<'EOF'
+# Rules / Surge
+
+## 目录
+
+- `domain/`
+- `ip/`
+
+## 示例
+
+```ini
+[Rule]
+DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.txt,DIRECT
+RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.txt,DIRECT
+```
+EOF
+      ;;
+    sing-box)
+      cat <<'EOF'
+# Rules / sing-box
+
+## 目录
+
+- `domain/`
+- `ip/`
+
+## 示例
+
+```json
+{
+  "route": {
+    "rule_set": [
+      {
+        "tag": "cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/cn.srs"
+      },
+      {
+        "tag": "cn-ip",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/ip/cn.srs"
+      }
+    ]
+  }
+}
+```
+EOF
+      ;;
+    mihomo)
+      cat <<'EOF'
+# Rules / mihomo
+
+## 目录
+
+- `domain/`
+- `ip/`
+
+## 示例
+
+```yaml
+rule-providers:
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/cn.mrs"
+    interval: 86400
+
+  cn-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: "https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/cn.mrs"
+    interval: 86400
+```
+EOF
+      ;;
+  esac
+}
+
 publish_branch() {
   local branch="$1"
   local domain_dir="$2"
@@ -19,8 +105,9 @@ publish_branch() {
   mkdir -p domain ip
   cp -R "$ROOT/$domain_dir"/. domain/
   cp -R "$ROOT/$ip_dir"/. ip/
+  branch_readme "$branch" > README.md
 
-  git add domain ip
+  git add README.md domain ip
   git config user.name "github-actions[bot]"
   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
