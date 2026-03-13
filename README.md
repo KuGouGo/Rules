@@ -61,7 +61,7 @@ sources/
 
 ## 上游来源
 
-- Surge domain: <https://github.com/nekolsd/not-sing-geosite/tree/release/surge>
+- Surge domain: <https://github.com/nekolsd/sing-geosite/tree/domain-set>
 - sing-box domain: <https://github.com/nekolsd/sing-geosite/tree/rule-set>
 - GeoIP release assets: <https://github.com/nekolsd/geoip/tree/release>
 
