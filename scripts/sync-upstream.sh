@@ -19,4 +19,7 @@ sync_repo() {
 sync_repo "$ROOT/sources/domain" "https://github.com/nekolsd/sing-geosite.git"
 sync_repo "$ROOT/sources/ip" "https://github.com/nekolsd/geoip.git"
 
+rm -rf "$ROOT/sources/domain/surge" "$ROOT/sources/domain/sing-box" "$ROOT/sources/domain/mihomo"
+rm -rf "$ROOT/sources/ip/surge" "$ROOT/sources/ip/sing-box" "$ROOT/sources/ip/mihomo"
+
 echo "upstream sync done"
