@@ -76,6 +76,9 @@
 .llscdn.com
 .llsserver.com
 .magedu.com
+.maimemo.com
+.maimemostatus.com
+.markji.com
 .modex.com.cn
 .mojidict.com
 .mooc.cn
@@ -208,6 +211,9 @@ llsapp.com
 llscdn.com
 llsserver.com
 magedu.com
+maimemo.com
+maimemostatus.com
+markji.com
 modex.com.cn
 mojidict.com
 mooc.cn

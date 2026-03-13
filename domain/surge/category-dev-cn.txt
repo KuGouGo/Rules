@@ -126,6 +126,7 @@
 .weixinbridge.com
 .weui.io
 .xitu.io
+.zuidaima.com
 51changxie.com
 51jianxie.cn
 91changxie.com
@@ -263,3 +264,4 @@ wegamedeveloper.com
 weixinbridge.com
 weui.io
 xitu.io
+zuidaima.com

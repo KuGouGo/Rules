@@ -270,6 +270,7 @@
 .55bbs.com
 .56.com
 .56che.com
+.56img.com
 .56laile.com
 .576nt.cn
 .58.com
@@ -1513,6 +1514,7 @@
 .chicalot.cn
 .china-chair.com
 .china-nengyuan.com
+.china-sss.com
 .china-tower.com
 .china.com
 .chinaaet.com
@@ -4161,6 +4163,7 @@
 .longre.com
 .longtugame.com
 .longzhu.com
+.loongair.cn
 .lorhf.com
 .lotpc.com
 .loupan.com
@@ -4224,6 +4227,8 @@
 .mahjongcup.net
 .mail4399.com
 .maimai.cn
+.maimemo.com
+.maimemostatus.com
 .maindown4399.com
 .maisanqi.com
 .maitix.com
@@ -4243,6 +4248,7 @@
 .maoyuncloud.com
 .mapbar.com
 .marketing.alibaba.com
+.markji.com
 .marscode.cn
 .marscode.com
 .marscode.com.cn
@@ -5168,6 +5174,7 @@
 .scsentry.cn
 .scsjb.cn
 .sczsxx.com
+.sda.cn
 .sdgdwljt.com
 .sdkclick.mobile.sina.cn
 .sdo.com
@@ -5236,6 +5243,7 @@
 .shengyizhuanjia.com
 .shenjing.com
 .shenmayouxi.com
+.shenzhenair.com
 .sheui.com
 .shfft.com
 .shgsec.com
@@ -5384,6 +5392,7 @@
 .speiyou.com
 .splash-ads.cdn.unity.cn
 .splash-ads.unitychina.cn
+.springairlines.com
 .springtour.com
 .sq.cc
 .sqqnh.cn
@@ -6754,6 +6763,7 @@
 .yunqishi.net
 .yunshipei.com
 .yunxiao.com
+.yunxindns.com
 .yunxinfw.com
 .yunzhijia.com
 .yunzhuxue.com
@@ -6900,7 +6910,6 @@
 .zijiewap.com
 .zijiewap.net
 .zilrms.com
-.zimuzu.io
 .ziroom.com
 .ziroomapartment.com
 .zixiaomao.com
@@ -6929,7 +6938,6 @@
 .zoomyou.cn
 .zpb365.com
 .zqrb.cn
-.zrblog.net
 .zs-jlc.com
 .zsxq.com
 .zszq.com
@@ -7247,6 +7255,7 @@
 55bbs.com
 56.com
 56che.com
+56img.com
 56laile.com
 576nt.cn
 58.com
@@ -8494,6 +8503,7 @@ cheyisou.com
 chicalot.cn
 china-chair.com
 china-nengyuan.com
+china-sss.com
 china-tower.com
 china.com
 chinaaet.com
@@ -11146,6 +11156,7 @@ longone.com.cn
 longre.com
 longtugame.com
 longzhu.com
+loongair.cn
 lorhf.com
 lotpc.com
 loupan.com
@@ -11209,6 +11220,8 @@ mahjongcup.com
 mahjongcup.net
 mail4399.com
 maimai.cn
+maimemo.com
+maimemostatus.com
 maindown4399.com
 maisanqi.com
 maitix.com
@@ -11228,6 +11241,7 @@ maoyuncloud.cn
 maoyuncloud.com
 mapbar.com
 marketing.alibaba.com
+markji.com
 marscode.cn
 marscode.com
 marscode.com.cn
@@ -12175,6 +12189,7 @@ scoregg.com
 scsentry.cn
 scsjb.cn
 sczsxx.com
+sda.cn
 sdgdwljt.com
 sdkclick.mobile.sina.cn
 sdo.com
@@ -12243,6 +12258,7 @@ shengyi.ai
 shengyizhuanjia.com
 shenjing.com
 shenmayouxi.com
+shenzhenair.com
 sheui.com
 shfft.com
 shgsec.com
@@ -12390,6 +12406,7 @@ speedws.org
 speiyou.com
 splash-ads.cdn.unity.cn
 splash-ads.unitychina.cn
+springairlines.com
 springtour.com
 sq.cc
 sqqnh.cn
@@ -13761,6 +13778,7 @@ yunpan.com
 yunqishi.net
 yunshipei.com
 yunxiao.com
+yunxindns.com
 yunxinfw.com
 yunzhijia.com
 yunzhuxue.com
@@ -13907,7 +13925,6 @@ zijiewap.cn
 zijiewap.com
 zijiewap.net
 zilrms.com
-zimuzu.io
 ziroom.com
 ziroomapartment.com
 zixiaomao.com
@@ -13936,7 +13953,6 @@ zoom3g.com
 zoomyou.cn
 zpb365.com
 zqrb.cn
-zrblog.net
 zs-jlc.com
 zsxq.com
 zszq.com

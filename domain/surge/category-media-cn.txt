@@ -6,6 +6,8 @@
 .36krcdn.com
 .36krcnd.com
 .3conline.com
+.56.com
+.56img.com
 .6655.com
 .72whys.com
 .ad.cctv.com
@@ -293,6 +295,8 @@
 36krcdn.com
 36krcnd.com
 3conline.com
+56.com
+56img.com
 6655.com
 72whys.com
 ad.cctv.com

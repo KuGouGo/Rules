@@ -1,3 +1,5 @@
+.56.com
+.56img.com
 .adnet.sohu.com
 .ads.sohu.com
 .adv-sv-show.focus.cn
@@ -60,6 +62,8 @@
 .yidianliulan.cn
 .yidianliulan.com
 .yuweikuijianzhan.com
+56.com
+56img.com
 adnet.sohu.com
 ads.sohu.com
 adv-sv-show.focus.cn

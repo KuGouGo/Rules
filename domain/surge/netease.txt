@@ -44,6 +44,7 @@
 .ydstatic.com
 .yeah.net
 .youdao.com
+.yunxindns.com
 .yunxinfw.com
 .zhuanzfx.com
 126.com
@@ -92,5 +93,6 @@ static163.net
 ydstatic.com
 yeah.net
 youdao.com
+yunxindns.com
 yunxinfw.com
 zhuanzfx.com

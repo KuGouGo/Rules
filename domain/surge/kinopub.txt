@@ -1,3 +1,4 @@
+.ahc.ovh
 .cdn-service.space
 .cdn2cdn.com
 .cdn2site.com
@@ -8,6 +9,7 @@
 .mos-gorsud.co
 .pushbr.com
 .smarttvcdn.online
+ahc.ovh
 cdn-service.space
 cdn2cdn.com
 cdn2site.com

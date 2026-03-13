@@ -14,10 +14,12 @@
 .cici.com
 .ciciai.com
 .ciciaicdn.com
+.clau.de
 .claude.ai
 .claude.com
 .claudemcpclient.com
 .claudeusercontent.com
+.clawhub.ai
 .clipdrop.co
 .codeium.com
 .codeiumdata.com
@@ -55,6 +57,7 @@
 .grok.com
 .grok.x.com
 .groq.com
+.h2o.ai
 .hf.co
 .hf.space
 .host.livekit.cloud
@@ -83,6 +86,7 @@
 .openai.com
 .openai.com.cdn.cloudflare.net
 .openart.ai
+.openclaw.ai
 .openrouter.ai
 .oystermercury.top
 .perplexity.ai
@@ -123,10 +127,12 @@ chutes.ai
 cici.com
 ciciai.com
 ciciaicdn.com
+clau.de
 claude.ai
 claude.com
 claudemcpclient.com
 claudeusercontent.com
+clawhub.ai
 clipdrop.co
 cloudaicompanion.googleapis.com
 cloudcode-pa.googleapis.com
@@ -167,6 +173,7 @@ githubcopilot.com
 grok.com
 grok.x.com
 groq.com
+h2o.ai
 hf.co
 hf.space
 host.livekit.cloud
@@ -202,6 +209,7 @@ openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
 openaicom.imgix.net
 openaicomproductionae4b.blob.core.windows.net
 openart.ai
+openclaw.ai
 openrouter.ai
 oystermercury.top
 perplexity.ai
