@@ -26,6 +26,11 @@ jobs:
       - name: Build custom rules
         run: ./scripts/build-custom.sh
 
+      - name: Guard artifact counts
+        run: |
+          chmod +x scripts/guard-artifacts.sh
+          ./scripts/guard-artifacts.sh
+
       - name: Show summary
         run: |
           echo "Domain surge files:"

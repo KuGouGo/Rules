@@ -80,17 +80,34 @@ sources/
 
 ## Workflow
 
-GitHub Actions 会执行两步：
+GitHub Actions 会执行三步：
 
 1. `scripts/sync-all.sh`
    - 同步上游已经构建好的 domain / ip 产物
    - 并将 `domain/surge/*.txt` 本地转换为 `domain/mihomo/*.mrs`
 2. `scripts/build-custom.sh`
    - 将 `sources/domain/custom/*.list` 构建为 Surge / sing-box / mihomo 三种格式
+3. `scripts/guard-artifacts.sh`
+   - 对关键目录做最小文件数校验
+   - 避免上游异常、同步逻辑错误或产物结构突变时直接提交“大面积清空/骤减”结果
 
 触发方式：
 - 手动触发 `workflow_dispatch`
 - 每 6 小时定时同步一次
+
+### 产物保护策略
+
+当前采用**最小文件数阈值**作为轻量保护：
+
+- `domain/surge/*.txt` ≥ 1000
+- `domain/sing-box/*.srs` ≥ 1000
+- `domain/mihomo/*.mrs` ≥ 1000
+- `ip/surge/*.txt` ≥ 8
+- `ip/sing-box/*.srs` ≥ 8
+- `ip/mihomo/*.mrs` ≥ 8
+- 若存在 `sources/domain/custom/*.list`，则三类 custom 产物都至少要有 1 个
+
+这不是严格意义上的变更审计，但足够拦住最危险的“同步后只剩几个文件”或“构建链直接失效”场景。
 
 ## 上游来源
 
