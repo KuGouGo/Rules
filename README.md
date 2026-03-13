@@ -30,12 +30,16 @@
 
 ## 上游来源
 
-本仓库不生产原始规则数据，主要对上游项目做同步、转换和发布。
+本仓库不生产原始规则数据，主要对上游项目做同步、编译和发布。
 
-- Geosite: [nekolsd/sing-geosite](https://github.com/nekolsd/sing-geosite)
-- GeoIP: [nekolsd/geoip](https://github.com/nekolsd/geoip)
-- 基础域名数据: [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)
-- 基础 IP 数据: [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip)
+### 域名规则 (Geosite)
+- 数据源: [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community) (dlc.dat)
+- 编译产物: Surge DOMAIN-SET / sing-box .srs / mihomo .mrs
+
+### IP 规则 (GeoIP)
+- 数据源: [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) (Country.mmdb)
+- sing-box .srs: 来自 [nekolsd/geoip](https://github.com/nekolsd/geoip) release 分支预构建文件
+- 编译脚本: [nekolsd/geoip](https://github.com/nekolsd/geoip)
 
 ## 目录结构
 
