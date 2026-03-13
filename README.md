@@ -6,6 +6,17 @@
 - **sing-box**
 - **mihomo**
 
+## 目录
+
+- [上游来源](#上游来源)
+- [目录结构](#目录结构)
+- [使用示例](#使用示例)
+  - [Surge](#surge)
+  - [sing-box](#sing-box)
+  - [mihomo--clash-meta)
+- [自定义规则](#自定义规则)
+- [更新频率](#更新频率)
+
 ## 上游来源
 
 - Geosite: [nekolsd/sing-geosite](https://github.com/nekolsd/sing-geosite)
@@ -61,31 +72,31 @@ RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/us.txt,Pr
   "route": {
     "rules": [
       {
-        "rule_set": "geosite-cn",
+        "rule_set": "cn",
         "outbound": "direct"
       },
       {
-        "rule_set": "geosite-google",
+        "rule_set": "google",
         "outbound": "proxy"
       }
     ],
     "rule_set": [
       {
-        "tag": "geosite-cn",
+        "tag": "cn",
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/cn.srs",
         "download_detour": "auto"
       },
       {
-        "tag": "geosite-google",
+        "tag": "google",
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/google.srs",
         "download_detour": "auto"
       },
       {
-        "tag": "geoip-cn",
+        "tag": "cn-ip",
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/sing-box/cn.srs",
@@ -100,21 +111,21 @@ RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/us.txt,Pr
 
 ```yaml
 rule-providers:
-  geosite-cn:
+  cn:
     type: http
     behavior: domain
     format: mrs
     url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/mihomo/cn.mrs"
     interval: 86400
 
-  geosite-google:
+  google:
     type: http
     behavior: domain
     format: mrs
     url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/mihomo/google.mrs"
     interval: 86400
 
-  geoip-cn:
+  cn-ip:
     type: http
     behavior: ipcidr
     format: mrs
@@ -129,9 +140,9 @@ rule-providers:
     interval: 86400
 
 rules:
-  - RULE-SET,geosite-cn,DIRECT
-  - RULE-SET,geosite-google,Proxy
-  - RULE-SET,geoip-cn,DIRECT
+  - RULE-SET,cn,DIRECT
+  - RULE-SET,google,Proxy
+  - RULE-SET,cn-ip,DIRECT
   - RULE-SET,emby,Emby
 ```
 
