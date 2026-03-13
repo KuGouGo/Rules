@@ -61,20 +61,11 @@ check_min_files "ip/surge" "ip/surge/*.txt" 8
 check_min_files "ip/sing-box" "ip/sing-box/*.srs" 8
 check_min_files "ip/mihomo" "ip/mihomo/*.mrs" 8
 
-if compgen -G "sources/domain/custom/*.list" >/dev/null; then
-  check_min_files "domain/custom-surge" "domain/custom-surge/*.txt" 1
-  check_min_files "domain/custom-sing-box" "domain/custom-sing-box/*.srs" 1
-  check_min_files "domain/custom-mihomo" "domain/custom-mihomo/*.mrs" 1
-fi
-
 check_diff_ratio "domain/surge" "domain/surge"
 check_diff_ratio "domain/sing-box" "domain/sing-box"
 check_diff_ratio "domain/mihomo" "domain/mihomo"
 check_diff_ratio "ip/surge" "ip/surge"
 check_diff_ratio "ip/sing-box" "ip/sing-box"
 check_diff_ratio "ip/mihomo" "ip/mihomo"
-check_diff_ratio "domain/custom-surge" "domain/custom-surge"
-check_diff_ratio "domain/custom-sing-box" "domain/custom-sing-box"
-check_diff_ratio "domain/custom-mihomo" "domain/custom-mihomo"
 
 echo "artifact guard passed"

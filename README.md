@@ -6,13 +6,16 @@
 
 ### Domain
 - `domain/surge/`
-  - 来源：`nekolsd/sing-geosite` 的 `domain-set` 分支
+  - 主体来源：`nekolsd/sing-geosite` 的 `domain-set` 分支
+  - 自定义补充：`sources/domain/custom/*.list`
   - 格式：Surge `DOMAIN-SET` 文本
 - `domain/sing-box/`
-  - 来源：`nekolsd/sing-geosite` 的 `rule-set` 分支
+  - 主体来源：`nekolsd/sing-geosite` 的 `rule-set` 分支
+  - 自定义补充：`sources/domain/custom/*.list`
   - 格式：sing-box 二进制规则集（`.srs`）
 - `domain/mihomo/`
-  - 来源：本仓库根据 `domain/surge/*.txt` 本地转换生成
+  - 主体来源：本仓库根据 `domain/surge/*.txt` 本地转换生成
+  - 自定义补充：`sources/domain/custom/*.list`
   - 格式：mihomo 二进制规则集（`.mrs`）
   - 说明：当前仍不是直接同步上游单独发布分支，而是由 Surge domain-set 文本稳定转换得到
 
@@ -29,11 +32,11 @@
 
 ## 自定义规则
 
-`sources/domain/custom/*.list` 会独立生成，不并入上游主规则：
+`sources/domain/custom/*.list` 会直接生成到公共规则目录中，而不是单独放在外部目录：
 
-- `domain/custom-surge/*.txt`
-- `domain/custom-sing-box/*.srs`
-- `domain/custom-mihomo/*.mrs`
+- `domain/surge/<name>.txt`
+- `domain/sing-box/<name>.srs`
+- `domain/mihomo/<name>.mrs`
 
 目前仓库内置了：
 - `emby.list`
@@ -56,6 +59,16 @@ DOMAIN-SUFFIX,example.com
 
 空行和 `#` 注释会被忽略。
 
+### 命名约定
+
+自定义规则会直接占用公共文件名，因此应避免与上游已有规则重名。
+
+推荐：
+- 用有语义的名字，如 `emby`、`emby-cn`
+- 尽量避免使用过于通用的名字，如 `media`、`global`、`proxy`
+
+如果与上游同名，当前行为是**以本地自定义文件覆盖同步来的同名文件**。
+
 ## 目录结构
 
 ```text
@@ -63,9 +76,6 @@ domain/
   surge/
   sing-box/
   mihomo/
-  custom-surge/
-  custom-sing-box/
-  custom-mihomo/
 
 ip/
   surge/
@@ -86,9 +96,10 @@ GitHub Actions 会执行三步：
    - 同步上游已经构建好的 domain / ip 产物
    - 并将 `domain/surge/*.txt` 本地转换为 `domain/mihomo/*.mrs`
 2. `scripts/build-custom.sh`
-   - 将 `sources/domain/custom/*.list` 构建为 Surge / sing-box / mihomo 三种格式
+   - 将 `sources/domain/custom/*.list` 直接构建进公共 domain 目录
 3. `scripts/guard-artifacts.sh`
    - 对关键目录做最小文件数校验
+   - 并检查相对 `HEAD` 的单次删除/变更比例
    - 避免上游异常、同步逻辑错误或产物结构突变时直接提交“大面积清空/骤减”结果
 
 触发方式：
@@ -107,7 +118,6 @@ GitHub Actions 会执行三步：
 - `ip/surge/*.txt` ≥ 8
 - `ip/sing-box/*.srs` ≥ 8
 - `ip/mihomo/*.mrs` ≥ 8
-- 若存在 `sources/domain/custom/*.list`，则三类 custom 产物都至少要有 1 个
 
 #### 2) 单次变更比例阈值
 
@@ -145,7 +155,7 @@ GitHub Actions 会执行三步：
 [Rule]
 DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/surge/cn.txt,DIRECT
 RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/cn.txt,DIRECT
-DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/custom-surge/emby.txt,PROXY
+DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/surge/emby.txt,PROXY
 ```
 
 ### sing-box
@@ -170,7 +180,7 @@ DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/custom-su
         "tag": "emby",
         "type": "remote",
         "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/custom-sing-box/emby.srs"
+        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/emby.srs"
       }
     ]
   }
@@ -199,7 +209,7 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/custom-mihomo/emby.mrs"
+    url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/mihomo/emby.mrs"
     interval: 86400
 ```
 
@@ -208,5 +218,5 @@ rule-providers:
 这个仓库的定位不是重新发明规则生成工具链，而是：
 - 主规则尽量直接复用上游已构建产物
 - mihomo domain 在当前阶段通过本地稳定转换补齐
-- 自定义规则保持独立、简单、可维护
+- 自定义规则直接并入公共目录，方便统一订阅
 - 对外提供统一且稳定的订阅目录结构

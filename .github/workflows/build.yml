@@ -45,13 +45,6 @@ jobs:
           ls -1 ip/sing-box/*.srs 2>/dev/null | wc -l
           echo "IP mihomo files:"
           ls -1 ip/mihomo/*.mrs 2>/dev/null | wc -l
-          echo "Custom surge files:"
-          ls -1 domain/custom-surge/*.txt 2>/dev/null | wc -l
-          echo "Custom sing-box files:"
-          ls -1 domain/custom-sing-box/*.srs 2>/dev/null | wc -l
-          echo "Custom mihomo files:"
-          ls -1 domain/custom-mihomo/*.mrs 2>/dev/null | wc -l
-
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
