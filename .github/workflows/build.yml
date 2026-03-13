@@ -61,4 +61,6 @@ jobs:
 
       - name: Publish client branches
         if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/publish-branches.sh
