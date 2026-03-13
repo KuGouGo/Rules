@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Super simple: just copy upstream pre-built files
+# Sync upstream pre-built files only
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,40 +9,37 @@ TMP_BASE="$ROOT/.tmp/sync"
 rm -rf "$TMP_BASE"
 mkdir -p "$TMP_BASE"
 
-echo "=== SYNC START ==="
-
 mkdir -p domain ip
 
-# Domain Surge files - from not-sing-geosite main/surge
-echo "Cloning surge files..."
+echo "=== SYNC START ==="
+
+# Domain surge from sing-geosite/domain-set
 rm -rf domain/surge
-mkdir -p "$TMP_BASE/nsg"
-git clone --depth=1 --branch main https://github.com/nekolsd/not-sing-geosite.git "$TMP_BASE/nsg"
-cp -R "$TMP_BASE/nsg/surge" domain/surge
+mkdir -p "$TMP_BASE/domain-set"
+git clone --depth=1 --branch domain-set https://github.com/nekolsd/sing-geosite.git "$TMP_BASE/domain-set"
+cp -R "$TMP_BASE/domain-set/." domain/surge
+rm -rf domain/surge/.git domain/surge/.github
 
-# Domain sing-box files - from sing-geosite rule-set
-echo "Cloning sing-box files..."
+# Domain sing-box from sing-geosite/rule-set
 rm -rf domain/sing-box
-mkdir -p "$TMP_BASE/srs"
-git clone --depth=1 --branch rule-set https://github.com/nekolsd/sing-geosite.git "$TMP_BASE/srs"
-cp -R "$TMP_BASE/srs" domain/sing-box
-rm -rf domain/sing-box/.git
+mkdir -p "$TMP_BASE/rule-set"
+git clone --depth=1 --branch rule-set https://github.com/nekolsd/sing-geosite.git "$TMP_BASE/rule-set"
+cp -R "$TMP_BASE/rule-set/." domain/sing-box
+rm -rf domain/sing-box/.git domain/sing-box/.github
 
-# Domain mihomo - copy surge files as txt (temporary compatibility mode)
-echo "Setting up mihomo..."
+# Domain mihomo: temporary compatibility copy from surge txt
 rm -rf domain/mihomo
 mkdir -p domain/mihomo
 cp domain/surge/*.txt domain/mihomo/
 
-# IP files - from geoip release
-echo "Cloning IP files..."
+# IP from geoip/release
 rm -rf ip/surge ip/sing-box ip/mihomo
 mkdir -p "$TMP_BASE/geoip"
 git clone --depth=1 --branch release https://github.com/nekolsd/geoip.git "$TMP_BASE/geoip"
 cp -R "$TMP_BASE/geoip/surge" ip/surge
 cp -R "$TMP_BASE/geoip/srs" ip/sing-box
 cp -R "$TMP_BASE/geoip/mrs" ip/mihomo
-rm -rf ip/sing-box/.git ip/mihomo/.git ip/surge/.git
+rm -rf ip/surge/.git ip/sing-box/.git ip/mihomo/.git
 
 rm -rf "$TMP_BASE"
 
