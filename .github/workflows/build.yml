@@ -18,6 +18,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Restore tool cache
+        uses: actions/cache@v4
+        with:
+          path: .bin
+          key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-1.13.2-mihomo-1.19.21
+
+      - name: Lint custom rules
+        run: |
+          chmod +x scripts/lint-custom-rules.sh
+          ./scripts/lint-custom-rules.sh
+
       - name: Sync all rules
         run: |
           chmod +x scripts/sync-all.sh scripts/build-custom.sh
