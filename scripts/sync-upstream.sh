@@ -17,10 +17,10 @@ sync_repo() {
   fi
 }
 
-sync_repo "$ROOT/sources/domain" "https://github.com/nekolsd/sing-geosite.git" "main"
+# IP source: geoip master for build scripts
 sync_repo "$ROOT/sources/ip" "https://github.com/nekolsd/geoip.git" "master"
 
-rm -rf "$ROOT/sources/domain/surge" "$ROOT/sources/domain/sing-box" "$ROOT/sources/domain/mihomo"
-rm -rf "$ROOT/sources/ip/surge" "$ROOT/sources/ip/sing-box" "$ROOT/sources/ip/mihomo"
+# Domain source: we download dlc.dat directly from releases, no git clone needed
+echo "Domain source: dlc.dat will be downloaded during build"
 
 echo "upstream sync done"
