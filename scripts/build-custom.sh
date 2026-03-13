@@ -4,55 +4,138 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-mkdir -p domain/custom-surge domain/custom-sing-box domain/custom-mihomo .tmp/custom .bin
-rm -f domain/custom-surge/* domain/custom-sing-box/* domain/custom-mihomo/* .tmp/custom/*
+CUSTOM_SRC_DIR="$ROOT/sources/domain/custom"
+TMP_DIR="$ROOT/.tmp/custom"
+BIN_DIR="$ROOT/.bin"
+SURGE_DIR="$ROOT/domain/custom-surge"
+SINGBOX_DIR="$ROOT/domain/custom-sing-box"
+MIHOMO_DIR="$ROOT/domain/custom-mihomo"
 
-# convert *.list -> custom-surge + plain list
-for lf in sources/domain/custom/*.list; do
-  [ -f "$lf" ] || continue
-  base="$(basename "$lf" .list)"
-  surgeOut="$ROOT/domain/custom-surge/$base.txt"
-  plainOut="$ROOT/.tmp/custom/$base.txt"
-  awk -F, 'NF>=2 {
-    type=$1; domain=$2;
-    if (type=="DOMAIN") { print domain >> surge; print domain >> plain }
-    else if (type=="DOMAIN-SUFFIX") { print "." domain >> surge; print domain >> plain }
-  }' surge="$surgeOut" plain="$plainOut" "$lf"
+mkdir -p "$SURGE_DIR" "$SINGBOX_DIR" "$MIHOMO_DIR" "$TMP_DIR" "$BIN_DIR"
+rm -f "$SURGE_DIR"/* "$SINGBOX_DIR"/* "$MIHOMO_DIR"/* "$TMP_DIR"/*
+
+shopt -s nullglob
+custom_lists=("$CUSTOM_SRC_DIR"/*.list)
+if [ ${#custom_lists[@]} -eq 0 ]; then
+  echo "no custom domain lists found, skip"
+  exit 0
+fi
+
+build_plain_and_surge() {
+  local list_file="$1"
+  local base surge_out plain_out
+  base="$(basename "$list_file" .list)"
+  surge_out="$SURGE_DIR/$base.txt"
+  plain_out="$TMP_DIR/$base.txt"
+
+  awk -F, '
+    BEGIN {
+      OFS="\n"
+    }
+    /^[[:space:]]*$/ || /^[[:space:]]*#/ {
+      next
+    }
+    NF < 2 {
+      next
+    }
+    {
+      type=$1
+      value=$2
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", type)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      if (type == "DOMAIN") {
+        print value >> surge
+        print value >> plain
+      } else if (type == "DOMAIN-SUFFIX") {
+        print "." value >> surge
+        print value >> plain
+      }
+    }
+  ' surge="$surge_out" plain="$plain_out" "$list_file"
+}
+
+ensure_sing_box() {
+  if command -v sing-box >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [ ! -x "$BIN_DIR/sing-box" ]; then
+    local ver os arch archive package_dir
+    ver="1.13.2"
+    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    arch="$(uname -m)"
+    case "$arch" in
+      x86_64) arch="amd64" ;;
+      arm64|aarch64) arch="arm64" ;;
+      *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+    esac
+    archive="$BIN_DIR/sing-box.tar.gz"
+    package_dir="sing-box-${ver}-${os}-${arch}"
+    curl -fL -o "$archive" "https://github.com/SagerNet/sing-box/releases/download/v${ver}/${package_dir}.tar.gz"
+    tar -xzf "$archive" -C "$BIN_DIR"
+    mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
+    chmod +x "$BIN_DIR/sing-box"
+    rm -rf "$BIN_DIR/$package_dir" "$archive"
+  fi
+
+  export PATH="$BIN_DIR:$PATH"
+}
+
+ensure_mihomo() {
+  if command -v mihomo >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [ ! -x "$BIN_DIR/mihomo" ]; then
+    local os arch asset archive
+    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    arch="$(uname -m)"
+    case "$arch" in
+      x86_64) asset="mihomo-${os}-amd64-compatible-v1.19.21.gz" ;;
+      arm64|aarch64) asset="mihomo-${os}-arm64-v1.19.21.gz" ;;
+      *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+    esac
+    archive="$BIN_DIR/mihomo.gz"
+    curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
+    gzip -df "$archive"
+    chmod +x "$BIN_DIR/mihomo"
+  fi
+
+  export PATH="$BIN_DIR:$PATH"
+}
+
+build_binaries() {
+  local plain_txt="$1"
+  local base json tmp_output domains
+  base="$(basename "$plain_txt" .txt)"
+  json="$TMP_DIR/$base.json"
+  tmp_output="$TMP_DIR/$base.mrs"
+  domains="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_txt" | sed 's/,$//')"
+
+  cat > "$json" <<JSON
+{"version":3,"rules":[{"domain_suffix":[${domains}]}]}
+JSON
+
+  sing-box rule-set compile "$json" --output "$SINGBOX_DIR/$base.srs"
+
+  if mihomo convert-ruleset domain text "$plain_txt" "$tmp_output" >/dev/null 2>&1; then
+    mv "$tmp_output" "$MIHOMO_DIR/$base.mrs"
+  else
+    echo "failed to build mihomo ruleset for $base" >&2
+    return 1
+  fi
+}
+
+for list_file in "${custom_lists[@]}"; do
+  build_plain_and_surge "$list_file"
 done
 
-# sing-box binary
-if ! command -v sing-box >/dev/null 2>&1; then
-  if [ ! -x "$ROOT/.bin/sing-box" ]; then
-    VER="1.13.2"
-    curl -Lo "$ROOT/.bin/sing-box.tar.gz" "https://github.com/SagerNet/sing-box/releases/download/v${VER}/sing-box-${VER}-linux-amd64.tar.gz"
-    tar -xzf "$ROOT/.bin/sing-box.tar.gz" -C "$ROOT/.bin" --strip-components=1
-    chmod +x "$ROOT/.bin/sing-box"
-    rm -f "$ROOT/.bin/sing-box.tar.gz"
-  fi
-  export PATH="$ROOT/.bin:$PATH"
-fi
+ensure_sing_box
+ensure_mihomo
 
-# mihomo binary
-if ! command -v mihomo >/dev/null 2>&1; then
-  if [ ! -x "$ROOT/.bin/mihomo" ]; then
-    curl -L "https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64-compatible-v1.19.21.gz" -o "$ROOT/.bin/mihomo.gz"
-    gzip -df "$ROOT/.bin/mihomo.gz"
-    chmod +x "$ROOT/.bin/mihomo"
-  fi
-  export PATH="$ROOT/.bin:$PATH"
-fi
-
-# plain -> custom-sing-box + custom-mihomo
-for txt in .tmp/custom/*.txt; do
-  [ -f "$txt" ] || continue
-  base="$(basename "$txt" .txt)"
-  json=".tmp/custom/$base.json"
-  domains=$(awk 'NF {printf "\"%s\",", $0}' "$txt" | sed 's/,$//')
-  cat > "$json" <<JSON
-{"version":3,"rules":[{"domain_suffix":[$domains]}]}
-JSON
-  sing-box rule-set compile "$json" --output "$ROOT/domain/custom-sing-box/$base.srs"
-  mihomo convert-ruleset domain text "$txt" "$ROOT/domain/custom-mihomo/$base.mrs" 2>/dev/null || cp "$txt" "$ROOT/domain/custom-mihomo/$base.txt"
+for plain_txt in "$TMP_DIR"/*.txt; do
+  [ -f "$plain_txt" ] || continue
+  build_binaries "$plain_txt"
 done
 
 echo "custom build done"

@@ -29,22 +29,33 @@ jobs:
       - name: Show summary
         run: |
           echo "Domain surge files:"
-          ls -la domain/surge/*.txt 2>/dev/null | wc -l
+          ls -1 domain/surge/*.txt 2>/dev/null | wc -l
           echo "Domain sing-box files:"
-          ls -la domain/sing-box/*.srs 2>/dev/null | wc -l
-          echo "IP files:"
-          ls -la ip/surge/*.txt 2>/dev/null | wc -l
+          ls -1 domain/sing-box/*.srs 2>/dev/null | wc -l
+          echo "Domain mihomo files:"
+          ls -1 domain/mihomo/*.mrs 2>/dev/null | wc -l
+          echo "IP surge files:"
+          ls -1 ip/surge/*.txt 2>/dev/null | wc -l
+          echo "IP sing-box files:"
+          ls -1 ip/sing-box/*.srs 2>/dev/null | wc -l
+          echo "IP mihomo files:"
+          ls -1 ip/mihomo/*.mrs 2>/dev/null | wc -l
           echo "Custom surge files:"
-          ls -la domain/custom-surge/*.txt 2>/dev/null | wc -l
+          ls -1 domain/custom-surge/*.txt 2>/dev/null | wc -l
           echo "Custom sing-box files:"
-          ls -la domain/custom-sing-box/*.srs 2>/dev/null | wc -l
+          ls -1 domain/custom-sing-box/*.srs 2>/dev/null | wc -l
           echo "Custom mihomo files:"
-          ls -la domain/custom-mihomo/* 2>/dev/null | wc -l
+          ls -1 domain/custom-mihomo/*.mrs 2>/dev/null | wc -l
 
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add domain ip sources/custom 2>/dev/null || true
+          git add README.md \
+            .github/workflows/build.yml \
+            scripts \
+            sources/domain/custom \
+            domain \
+            ip
           git diff --cached --quiet || git commit -m "chore: sync rules"
           git push || echo "nothing to push"
