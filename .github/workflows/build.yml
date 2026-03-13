@@ -50,6 +50,9 @@ jobs:
       - name: Normalize surge rules
         run: ./scripts/normalize-surge.sh
 
+      - name: Build custom domain rules
+        run: ./scripts/build-custom.sh
+
       - name: Show summary
         run: |
           echo "domain files:"

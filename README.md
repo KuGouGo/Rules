@@ -8,12 +8,16 @@
 sources/
   domain/
     custom/
+      emby.list          # Surge 格式（DOMAIN/DOMAIN-SUFFIX）
+      emby-domain.txt    # 纯域名列表（用于 mihomo 转换）
+      emby-cn.list
+      emby-cn-domain.txt
   ip/
 
 domain/
   surge/         # Surge DOMAIN-SET 文件
   sing-box/      # sing-box .srs
-  mihomo/        # mihomo .mrs
+  mihomo/        # mihomo .mrs（含自定义规则）
   custom-source/ # 自定义域名源文件（保留原始写法）
 
 ip/
@@ -32,24 +36,27 @@ ip/
 - 若以 `.` 开头，则匹配该域名本身及所有子域名
 - 不转换成 `DOMAIN-SUFFIX` / `DOMAIN` / `DOMAIN-KEYWORD`
 
-这更适合 Surge 的外部规则集加载方式，也更贴近上游输出。
+这更适合 Surge 的外部规则集加载方式。
 
 ### ip/surge
 
-这里使用 Surge 可识别的 IP 规则文本，例如：
-
-- `IP-CIDR,1.1.1.0/24`
-- 或带 `,no-resolve`
+这里使用 Surge 可识别的 IP 规则文本。
 
 ## 自定义规则
 
-- `sources/domain/custom/emby.list`
-- `sources/domain/custom/emby-cn.list`
+### 文件说明
 
-当前自定义域名规则会直接复制到：
+| 文件 | 用途 |
+|------|------|
+| `*.list` | Surge 格式规则 |
+| `*-domain.txt` | 纯域名列表，用于转换为 sing-box/mihomo 格式 |
 
-- `domain/surge/`
+### 当前自定义规则
 
-并保留原始源文件到：
+- `emby`：Emby 服务域名
+- `emby-cn`：Emby 直连/国内域名
 
-- `domain/custom-source/`
+### 输出位置
+
+- Surge：`domain/surge/*.list`
+- mihomo：`domain/mihomo/emby.mrs` / `emby-cn.mrs`
