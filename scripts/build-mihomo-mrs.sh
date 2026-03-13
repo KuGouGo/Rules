@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 mkdir -p .bin domain/mihomo ip/mihomo
+rm -rf domain/mihomo/* ip/mihomo/*
 
 if ! command -v mihomo >/dev/null 2>&1; then
   if [ ! -x .bin/mihomo ]; then
@@ -16,18 +17,40 @@ if ! command -v mihomo >/dev/null 2>&1; then
   export PATH="$ROOT/.bin:$PATH"
 fi
 
-convert_dir() {
-  local behavior="$1"
-  local input_dir="$2"
-  local output_dir="$3"
+convert_domain_dir() {
+  local input_dir="$1"
+  local output_dir="$2"
   shopt -s nullglob
   for f in "$input_dir"/*.txt; do
     base="$(basename "$f" .txt)"
-    mihomo convert-ruleset "$behavior" text "$f" "$output_dir/$base.mrs"
+    mihomo convert-ruleset domain text "$f" "$output_dir/$base.mrs"
   done
 }
 
-convert_dir domain "$ROOT/domain/mihomo-text" "$ROOT/domain/mihomo"
-convert_dir ipcidr "$ROOT/ip/mihomo-text" "$ROOT/ip/mihomo"
+convert_ip_dir() {
+  local input_dir="$1"
+  local output_dir="$2"
+  shopt -s nullglob
+  for f in "$input_dir"/*; do
+    [ -f "$f" ] || continue
+    base="$(basename "$f")"
+    case "$base" in
+      *.txt)
+        out="${base%.txt}.mrs"
+        mihomo convert-ruleset ipcidr text "$f" "$output_dir/$out"
+        ;;
+      *.yaml)
+        out="${base%.yaml}.mrs"
+        mihomo convert-ruleset ipcidr yaml "$f" "$output_dir/$out"
+        ;;
+      *.mrs)
+        cp -f "$f" "$output_dir/$base"
+        ;;
+    esac
+  done
+}
+
+convert_domain_dir "$ROOT/domain/mihomo-text" "$ROOT/domain/mihomo"
+convert_ip_dir "$ROOT/ip/mihomo-text" "$ROOT/ip/mihomo"
 
 echo "mihomo mrs build done"
