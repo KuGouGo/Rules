@@ -10,14 +10,24 @@
 
 - [上游来源](#上游来源)
 - [目录结构](#目录结构)
+  - [sources/domain/custom](#sourcesdomaincustom)
+  - [domain/surge](#domainsurge)
+  - [domain/sing-box](#domainsing-box)
+  - [domain/mihomo](#domainmihomo)
+  - [ip/surge](#ipsurge)
+  - [ip/sing-box](#ipsing-box)
+  - [ip/mihomo](#ipmihomo)
 - [使用示例](#使用示例)
   - [Surge](#surge)
   - [sing-box](#sing-box)
-  - [mihomo--clash-meta)
+  - [mihomo / Clash Meta](#mihomo--clash-meta)
 - [自定义规则](#自定义规则)
 - [更新频率](#更新频率)
+- [License](#license)
 
 ## 上游来源
+
+本仓库不生产原始规则数据，主要是对上游项目做整理、转换和发布。
 
 - Geosite: [nekolsd/sing-geosite](https://github.com/nekolsd/sing-geosite)
 - GeoIP: [nekolsd/geoip](https://github.com/nekolsd/geoip)
@@ -42,6 +52,74 @@ ip/
   sing-box/   # sing-box .srs
   mihomo/     # mihomo .mrs
 ```
+
+### sources/domain/custom
+
+自定义域名规则源文件目录：
+
+- [sources/domain/custom/](./sources/domain/custom/)
+- 示例文件：
+  - [emby.list](./sources/domain/custom/emby.list)
+  - [emby-domain.txt](./sources/domain/custom/emby-domain.txt)
+  - [emby-cn.list](./sources/domain/custom/emby-cn.list)
+  - [emby-cn-domain.txt](./sources/domain/custom/emby-cn-domain.txt)
+
+### domain/surge
+
+Surge 域名规则目录，使用 **DOMAIN-SET** 格式：
+
+- [domain/surge/](./domain/surge/)
+- 常用示例：
+  - [cn.txt](./domain/surge/cn.txt)
+  - [google.txt](./domain/surge/google.txt)
+  - [emby.txt](./domain/surge/emby.txt)
+  - [emby-cn.txt](./domain/surge/emby-cn.txt)
+
+### domain/sing-box
+
+sing-box 域名规则目录，使用 `.srs` 二进制规则集：
+
+- [domain/sing-box/](./domain/sing-box/)
+- 常用示例：
+  - [cn.srs](./domain/sing-box/cn.srs)
+  - [google.srs](./domain/sing-box/google.srs)
+
+### domain/mihomo
+
+mihomo 域名规则目录，使用 `.mrs` 规则集：
+
+- [domain/mihomo/](./domain/mihomo/)
+- 常用示例：
+  - [cn.mrs](./domain/mihomo/cn.mrs)
+  - [google.mrs](./domain/mihomo/google.mrs)
+  - [emby.mrs](./domain/mihomo/emby.mrs)
+
+### ip/surge
+
+Surge IP 规则目录：
+
+- [ip/surge/](./ip/surge/)
+- 常用示例：
+  - [cn.txt](./ip/surge/cn.txt)
+  - [us.txt](./ip/surge/us.txt)
+
+### ip/sing-box
+
+sing-box IP 规则目录：
+
+- [ip/sing-box/](./ip/sing-box/)
+- 常用示例：
+  - [cn.srs](./ip/sing-box/cn.srs)
+  - [us.srs](./ip/sing-box/us.srs)
+
+### ip/mihomo
+
+mihomo IP 规则目录：
+
+- [ip/mihomo/](./ip/mihomo/)
+- 常用示例：
+  - [cn.mrs](./ip/mihomo/cn.mrs)
+  - [us.mrs](./ip/mihomo/us.mrs)
 
 ## 使用示例
 
@@ -148,7 +226,7 @@ rules:
 
 ## 自定义规则
 
-自定义规则位于 `sources/domain/custom/`，详见 [说明文档](sources/domain/custom/README.md)。
+自定义规则位于 [sources/domain/custom/](./sources/domain/custom/)，详见 [说明文档](./sources/domain/custom/README.md)。
 
 ### 文件格式
 
@@ -169,4 +247,5 @@ rules:
 
 ## License
 
-上游项目的许可证适用于其各自的数据。本仓库的自定义规则可自由使用。
+上游项目的许可证适用于其各自的数据。请遵循对应上游仓库的许可证要求。
+本仓库的自定义规则部分可自由使用。
