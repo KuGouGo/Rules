@@ -2,37 +2,26 @@
 
 一个把上游规则整理成可直接使用文件的仓库。
 
-## 目标
-
-输出适合以下客户端直接引用的规则文件：
-
-- **Surge**
-- **sing-box**
-- **mihomo**
-
-## 目录结构
+## 目录
 
 ```text
 sources/
   domain/
     custom/
   ip/
-    custom/
 
 domain/
   surge/
   sing-box/
-  mihomo-text/
+  mihomo-input/
   mihomo/
 
 ip/
   surge/
   sing-box/
-  mihomo-text/
+  mihomo-input/
   mihomo/
 
-configs/
-  geoip-convert.json
 scripts/
   sync-upstream.sh
   build-domain.sh
@@ -45,7 +34,7 @@ scripts/
 
 - `surge/`：通用文本规则
 - `sing-box/`：sing-box 规则集
-- `mihomo-text/`：供 mihomo 转换 `.mrs` 的中间文本产物
+- `mihomo-input/`：供 mihomo 进一步处理的输入文件
 - `mihomo/`：最终 `.mrs` 产物
 
 ## 自定义规则
