@@ -240,6 +240,14 @@ rules:
 - **emby** - Emby 媒体服务域名
 - **emby-cn** - Emby 直连域名
 
+### 自定义规则生成范围
+
+当前自定义域名规则会自动生成：
+
+- `domain/surge/*.txt`
+- `domain/sing-box/*.srs`
+- `domain/mihomo/*.mrs`
+
 ## 更新频率
 
 - 自动同步：每 6 小时

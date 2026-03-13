@@ -44,6 +44,9 @@ jobs:
       - name: Build ip rules
         run: ./scripts/build-ip.sh
 
+      - name: Build custom sing-box rules
+        run: ./scripts/build-singbox-custom.sh
+
       - name: Build mihomo mrs
         run: ./scripts/build-mihomo-mrs.sh
 
