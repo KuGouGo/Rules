@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+git config --global user.name "github-actions[bot]"
+git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
 branch_readme() {
   local branch="$1"
   case "$branch" in
@@ -108,8 +111,6 @@ publish_branch() {
   branch_readme "$branch" > README.md
 
   git add README.md domain ip
-  git config user.name "github-actions[bot]"
-  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
   git remote add origin "$(git -C "$ROOT" remote get-url origin)"
   git push -f origin HEAD:"$branch"
