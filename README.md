@@ -5,27 +5,27 @@
 ## 快速跳转
 
 - **Surge**
-  - Domain: [domain/surge/](./domain/surge/)
-  - IP: [ip/surge/](./ip/surge/)
+  - [domain/surge/](./domain/surge/)
+  - [ip/surge/](./ip/surge/)
 - **sing-box**
-  - Domain: [domain/sing-box/](./domain/sing-box/)
-  - IP: [ip/sing-box/](./ip/sing-box/)
+  - [domain/sing-box/](./domain/sing-box/)
+  - [ip/sing-box/](./ip/sing-box/)
 - **mihomo**
-  - Domain: [domain/mihomo/](./domain/mihomo/)
-  - IP: [ip/mihomo/](./ip/mihomo/)
+  - [domain/mihomo/](./domain/mihomo/)
+  - [ip/mihomo/](./ip/mihomo/)
 
 ## 仓库内容
 
 ```text
 .
 ├── domain/
-│   ├── surge/      # Domain rules for Surge
-│   ├── sing-box/   # Domain rules for sing-box
-│   └── mihomo/     # Domain rules for mihomo
+│   ├── surge/
+│   ├── sing-box/
+│   └── mihomo/
 ├── ip/
-│   ├── surge/      # IP rules for Surge
-│   ├── sing-box/   # IP rules for sing-box
-│   └── mihomo/     # IP rules for mihomo
+│   ├── surge/
+│   ├── sing-box/
+│   └── mihomo/
 ├── scripts/
 │   ├── sync-all.sh
 │   ├── build-custom.sh
