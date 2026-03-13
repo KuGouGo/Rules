@@ -10,13 +10,16 @@
 
 - [上游来源](#上游来源)
 - [目录结构](#目录结构)
+- [快速跳转](#快速跳转)
   - [sources/domain/custom](#sourcesdomaincustom)
+  - [sources/ip](#sourcesip)
   - [domain/surge](#domainsurge)
   - [domain/sing-box](#domainsing-box)
   - [domain/mihomo](#domainmihomo)
   - [ip/surge](#ipsurge)
   - [ip/sing-box](#ipsing-box)
   - [ip/mihomo](#ipmihomo)
+- [快速开始](#快速开始)
 - [使用示例](#使用示例)
   - [Surge](#surge)
   - [sing-box](#sing-box)
@@ -27,31 +30,33 @@
 
 ## 上游来源
 
-本仓库不生产原始规则数据，主要是对上游项目做整理、转换和发布。
+本仓库不生产原始规则数据，主要对上游项目做同步、转换和发布。
 
 - Geosite: [nekolsd/sing-geosite](https://github.com/nekolsd/sing-geosite)
 - GeoIP: [nekolsd/geoip](https://github.com/nekolsd/geoip)
-- 基础数据: [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)
-- IP 数据: [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip)
+- 基础域名数据: [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)
+- 基础 IP 数据: [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip)
 
 ## 目录结构
 
 ```text
 sources/
   domain/
-    custom/     # 自定义域名规则
-  ip/
+    custom/     # 自定义域名规则源
+  ip/           # 上游 IP 规则构建源
 
 domain/
-  surge/      # Surge DOMAIN-SET
-  sing-box/   # sing-box .srs
-  mihomo/     # mihomo .mrs
+  surge/        # Surge DOMAIN-SET
+  sing-box/     # sing-box .srs
+  mihomo/       # mihomo .mrs
 
 ip/
-  surge/      # Surge IP 规则文本
-  sing-box/   # sing-box .srs
-  mihomo/     # mihomo .mrs
+  surge/        # Surge IP 规则文本
+  sing-box/     # sing-box .srs
+  mihomo/       # mihomo .mrs
 ```
+
+## 快速跳转
 
 ### sources/domain/custom
 
@@ -63,6 +68,13 @@ ip/
   - [emby-domain.txt](./sources/domain/custom/emby-domain.txt)
   - [emby-cn.list](./sources/domain/custom/emby-cn.list)
   - [emby-cn-domain.txt](./sources/domain/custom/emby-cn-domain.txt)
+  - [README.md](./sources/domain/custom/README.md)
+
+### sources/ip
+
+IP 规则上游构建源目录：
+
+- [sources/ip/](./sources/ip/)
 
 ### domain/surge
 
@@ -83,6 +95,8 @@ sing-box 域名规则目录，使用 `.srs` 二进制规则集：
 - 常用示例：
   - [cn.srs](./domain/sing-box/cn.srs)
   - [google.srs](./domain/sing-box/google.srs)
+  - [emby.srs](./domain/sing-box/emby.srs)
+  - [emby-cn.srs](./domain/sing-box/emby-cn.srs)
 
 ### domain/mihomo
 
@@ -93,6 +107,7 @@ mihomo 域名规则目录，使用 `.mrs` 规则集：
   - [cn.mrs](./domain/mihomo/cn.mrs)
   - [google.mrs](./domain/mihomo/google.mrs)
   - [emby.mrs](./domain/mihomo/emby.mrs)
+  - [emby-cn.mrs](./domain/mihomo/emby-cn.mrs)
 
 ### ip/surge
 
@@ -120,6 +135,68 @@ mihomo IP 规则目录：
 - 常用示例：
   - [cn.mrs](./ip/mihomo/cn.mrs)
   - [us.mrs](./ip/mihomo/us.mrs)
+
+## 快速开始
+
+### Surge 中国直连
+
+```ini
+[Rule]
+DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/surge/cn.txt,DIRECT
+RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/cn.txt,DIRECT
+```
+
+### sing-box 中国直连
+
+```json
+{
+  "route": {
+    "rules": [
+      {
+        "rule_set": ["cn", "cn-ip"],
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/cn.srs"
+      },
+      {
+        "tag": "cn-ip",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/sing-box/cn.srs"
+      }
+    ]
+  }
+}
+```
+
+### mihomo 中国直连
+
+```yaml
+rule-providers:
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/mihomo/cn.mrs"
+    interval: 86400
+
+  cn-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: "https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/mihomo/cn.mrs"
+    interval: 86400
+
+rules:
+  - RULE-SET,cn,DIRECT
+  - RULE-SET,cn-ip,DIRECT
+```
 
 ## 使用示例
 
@@ -156,6 +233,10 @@ RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/us.txt,Pr
       {
         "rule_set": "google",
         "outbound": "proxy"
+      },
+      {
+        "rule_set": "emby",
+        "outbound": "Emby"
       }
     ],
     "rule_set": [
@@ -171,6 +252,13 @@ RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/main/ip/surge/us.txt,Pr
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/google.srs",
+        "download_detour": "auto"
+      },
+      {
+        "tag": "emby",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/main/domain/sing-box/emby.srs",
         "download_detour": "auto"
       },
       {
@@ -232,8 +320,8 @@ rules:
 
 | 文件 | 用途 |
 |-----|------|
-| `*.list` | Surge 规则格式，用于生成 DOMAIN-SET |
-| `*-domain.txt` | 纯域名列表，用于生成 mihomo `.mrs` |
+| `*.list` | 主维护源，使用 `DOMAIN` / `DOMAIN-SUFFIX` 规则语义 |
+| `*-domain.txt` | 辅助纯域名列表，用于生成 mihomo `.mrs` |
 
 ### 当前自定义规则
 
