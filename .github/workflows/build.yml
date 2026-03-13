@@ -31,11 +31,11 @@ jobs:
           chmod +x scripts/*.sh
           ./scripts/sync-upstream.sh
 
-      - name: Build geosite
-        run: ./scripts/build-geosite.sh
+      - name: Build domain rules
+        run: ./scripts/build-domain.sh
 
-      - name: Build geoip
-        run: ./scripts/build-geoip.sh
+      - name: Build ip rules
+        run: ./scripts/build-ip.sh
 
       - name: Merge custom rules
         run: ./scripts/merge-custom.sh
