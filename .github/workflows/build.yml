@@ -47,9 +47,6 @@ jobs:
       - name: Build mihomo mrs
         run: ./scripts/build-mihomo-mrs.sh
 
-      - name: Normalize surge rules
-        run: ./scripts/normalize-surge.sh
-
       - name: Show summary
         run: |
           echo "domain files:"
