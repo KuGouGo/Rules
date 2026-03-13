@@ -1,0 +1,160 @@
+{
+  "input": [
+    {
+      "type": "ipinfoCountryMMDB",
+      "action": "add",
+      "args": {
+        "uri": "./ipinfo/ipinfo_lite.mmdb",
+        "wantedList": [
+          "cn"
+        ]
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cloudflare",
+        "uri": "https://www.cloudflare.com/ips-v4"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cloudflare",
+        "uri": "https://www.cloudflare.com/ips-v6"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cncu",
+        "uri": "https://ispip.clang.cn/unicom_cnc_cidr.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cncu",
+        "uri": "https://ispip.clang.cn/unicom_cnc_ipv6.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cncm",
+        "uri": "https://ispip.clang.cn/cmcc_cidr.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cncm",
+        "uri": "https://ispip.clang.cn/cmcc_ipv6.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cnct",
+        "uri": "https://ispip.clang.cn/chinatelecom_cidr.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "cnct",
+        "uri": "https://ispip.clang.cn/chinatelecom_ipv6.txt"
+      }
+    },
+    {
+      "type": "text",
+      "action": "add",
+      "args": {
+        "name": "telegram",
+        "uri": "https://core.telegram.org/resources/cidr.txt"
+      }
+    },
+    {
+      "type": "json",
+      "action": "add",
+      "args": {
+        "name": "google",
+        "uri": "https://www.gstatic.com/ipranges/goog.json",
+        "jsonPath": [
+          "prefixes.#.ipv4Prefix",
+          "prefixes.#.ipv6Prefix"
+        ]
+      }
+    },
+    {
+      "type": "json",
+      "action": "add",
+      "args": {
+        "name": "google",
+        "uri": "https://www.gstatic.com/ipranges/cloud.json",
+        "jsonPath": [
+          "prefixes.#.ipv4Prefix",
+          "prefixes.#.ipv6Prefix"
+        ]
+      }
+    },
+    {
+      "type": "json",
+      "action": "add",
+      "args": {
+        "name": "fastly",
+        "uri": "https://api.fastly.com/public-ip-list",
+        "jsonPath": [
+          "addresses",
+          "ipv6_addresses"
+        ]
+      }
+    },
+    {
+      "type": "json",
+      "action": "add",
+      "args": {
+        "name": "cloudfront",
+        "uri": "https://ip-ranges.amazonaws.com/ip-ranges.json",
+        "jsonPath": [
+          "prefixes.#(service==\"CLOUDFRONT\")#.ip_prefix",
+          "ipv6_prefixes.#(service==\"CLOUDFRONT\")#.ipv6_prefix"
+        ]
+      }
+    },
+    {
+      "type": "private",
+      "action": "add"
+    }
+  ],
+  "output": [
+    {
+      "type": "singboxSRS",
+      "action": "output"
+    },
+    {
+      "type": "mihomoMRS",
+      "action": "output"
+    },
+    {
+      "type": "text",
+      "action": "output"
+    },
+    {
+      "type": "clashRuleSet",
+      "action": "output"
+    },
+    {
+      "type": "surgeRuleSet",
+      "action": "output"
+    }
+  ]
+}

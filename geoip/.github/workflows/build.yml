@@ -1,0 +1,77 @@
+name: Build geoip files
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - ".gitignore"
+      - "LICENSE*"
+      - "*.md"
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./go.mod
+
+      - name: Set variables
+        run: |
+          echo "TAG_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          echo "RELEASE_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+        shell: bash
+
+      # - name: Download GeoLite2 databases
+      #   env:
+      #     LICENSE_KEY: ${{ secrets.MAXMIND_GEOLITE2_LICENSE }}
+      #   run: |
+      #     mkdir -p geolite2
+      #     cd geolite2
+      #     curl -L "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${LICENSE_KEY}&suffix=tar.gz" -o ./GeoLite2-Country.tar.gz
+
+      #     tar -xvzf GeoLite2-Country.tar.gz
+      #     cp ./GeoLite2-Country_*/GeoLite2-Country.mmdb ./
+
+      #     rm -rf GeoLite2-Country.tar.gz ./GeoLite2-Country_*
+      #     cd ../
+
+      #     mkdir -p output
+
+      - name: Download IPinfo Lite databases
+        env:
+          LICENSE_KEY: ${{ secrets.IPINFO_LITE_TOKEN }}
+        run: |
+          mkdir -p ipinfo
+          cd ipinfo
+          curl -L "https://ipinfo.io/data/ipinfo_lite.mmdb?_src=frontend&token=${LICENSE_KEY}" -o ./ipinfo_lite.mmdb
+
+          cd ../
+
+          mkdir -p output
+
+      - name: Build geoip files
+        run: |
+          go build ./
+          ./geoip convert -c ./config.json
+
+      - name: Git push assets to "release" branch
+        run: |
+          cd output || exit 1
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b release
+          git add -A
+          git commit -m "${{ env.RELEASE_NAME }}"
+          git remote add geoip "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f -u geoip release
