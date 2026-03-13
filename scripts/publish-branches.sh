@@ -11,19 +11,20 @@ publish_branch() {
   local tmpdir
 
   tmpdir="$(mktemp -d)"
-  trap 'rm -rf "$tmpdir"' RETURN
 
-  git worktree add --detach "$tmpdir" >/dev/null 2>&1
+  git clone --depth=1 --branch "$branch" . "$tmpdir" >/dev/null 2>&1 || git clone --depth=1 . "$tmpdir" >/dev/null 2>&1
   pushd "$tmpdir" >/dev/null
 
   git checkout --orphan "$branch" 2>/dev/null || git checkout "$branch"
-
   find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+
   mkdir -p domain ip
   cp -R "$ROOT/$domain_dir"/. domain/
   cp -R "$ROOT/$ip_dir"/. ip/
 
   git add domain ip
+  git add -u
+
   if git diff --cached --quiet; then
     echo "no changes for $branch"
   else
@@ -34,7 +35,7 @@ publish_branch() {
   fi
 
   popd >/dev/null
-  git worktree remove "$tmpdir" --force >/dev/null 2>&1
+  rm -rf "$tmpdir"
 }
 
 publish_branch surge domain/surge ip/surge
