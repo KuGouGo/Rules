@@ -4,9 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-TMP_DIR="$ROOT/.tmp/upstream"
-mkdir -p "$TMP_DIR"
-
 sync_repo() {
   local dir="$1"
   local url="$2"
@@ -19,7 +16,7 @@ sync_repo() {
   fi
 }
 
-sync_repo "$ROOT/sources/geosite" "https://github.com/nekolsd/sing-geosite.git"
-sync_repo "$ROOT/sources/geoip" "https://github.com/nekolsd/geoip.git"
+sync_repo "$ROOT/sources/domain" "https://github.com/nekolsd/sing-geosite.git"
+sync_repo "$ROOT/sources/ip" "https://github.com/nekolsd/geoip.git"
 
 echo "upstream sync done"
