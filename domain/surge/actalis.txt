@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.actalis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.actalis.it
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,actalis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,actalis.it
+.actalis.com
+.actalis.it
+actalis.com
+actalis.it

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.syh.zybang.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,syh.zybang.com
+.syh.zybang.com
+syh.zybang.com

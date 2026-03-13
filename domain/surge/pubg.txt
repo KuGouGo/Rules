@@ -1,7 +1,7 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kraftonde.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playbattlegrounds.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pubg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kraftonde.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,playbattlegrounds.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pubg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pubg1.battleye.com
+.kraftonde.com
+.playbattlegrounds.com
+.pubg.com
+kraftonde.com
+playbattlegrounds.com
+pubg.com
+pubg1.battleye.com

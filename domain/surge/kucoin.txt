@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kucoin.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kucoin.plus
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kucoin.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kucoin.plus
+.kucoin.com
+.kucoin.plus
+kucoin.com
+kucoin.plus

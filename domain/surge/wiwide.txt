@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wamawama.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wiwide.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wamawama.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wiwide.com
+.wamawama.com
+.wiwide.com
+wamawama.com
+wiwide.com

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.betterexplained.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,betterexplained.com
+.betterexplained.com
+betterexplained.com

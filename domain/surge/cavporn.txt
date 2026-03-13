@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cavporn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cavporn.github.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cavporn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cavporn.github.io
+.cavporn.com
+.cavporn.github.io
+cavporn.com
+cavporn.github.io

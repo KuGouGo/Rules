@@ -1,5 +1,5 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.godaddy
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.godaddy.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.x.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,godaddy.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,x.co
+.godaddy
+.godaddy.com
+.x.co
+godaddy.com
+x.co

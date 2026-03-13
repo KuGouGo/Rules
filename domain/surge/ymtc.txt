@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ymtc.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ymtc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ymtc.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ymtc.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ymtc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ymtc.com.cn
+.ymtc.cn
+.ymtc.com
+.ymtc.com.cn
+ymtc.cn
+ymtc.com
+ymtc.com.cn

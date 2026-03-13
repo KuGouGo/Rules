@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.quantil.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,quantil.com
+.quantil.com
+quantil.com

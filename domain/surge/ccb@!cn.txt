@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ccbintl.com.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ccbseoul.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ccbintl.com.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ccbseoul.com
+.ccbintl.com.hk
+.ccbseoul.com
+ccbintl.com.hk
+ccbseoul.com

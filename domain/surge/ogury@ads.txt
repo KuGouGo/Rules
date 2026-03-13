@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ogury.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ogury.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.presage.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ogury.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ogury.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,presage.io
+.ogury.co
+.ogury.com
+.presage.io
+ogury.co
+ogury.com
+presage.io

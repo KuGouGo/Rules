@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fsdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sf.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sourceforge.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sourceforge.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,fsdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sf.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sourceforge.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sourceforge.net
+.fsdn.com
+.sf.net
+.sourceforge.com
+.sourceforge.net
+fsdn.com
+sf.net
+sourceforge.com
+sourceforge.net

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.koowo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.koowo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kuwo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,koowo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,koowo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kuwo.cn
+.koowo.cn
+.koowo.com
+.kuwo.cn
+koowo.cn
+koowo.com
+kuwo.cn

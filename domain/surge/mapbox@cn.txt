@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mapbox.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mapbox.cn
+.mapbox.cn
+mapbox.cn

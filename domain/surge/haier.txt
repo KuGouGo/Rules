@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ehaier.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.haier.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.haier.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.haiersmarthomes.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ehaier.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,haier.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,haier.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,haiersmarthomes.com
+.ehaier.com
+.haier.com
+.haier.net
+.haiersmarthomes.com
+ehaier.com
+haier.com
+haier.net
+haiersmarthomes.com

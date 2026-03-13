@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pluto.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.plutotv.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pluto.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,plutotv.net
+.pluto.tv
+.plutotv.net
+pluto.tv
+plutotv.net

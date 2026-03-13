@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jiyu-kobo.co.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jiyu-kobo.co.jp
+.jiyu-kobo.co.jp
+jiyu-kobo.co.jp

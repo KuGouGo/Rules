@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.reabble.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,reabble.cn
+.reabble.cn
+reabble.cn

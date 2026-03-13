@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xboxlive.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xboxlive.cn
+.xboxlive.cn
+xboxlive.cn

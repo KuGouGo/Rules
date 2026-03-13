@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.grok.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.grok.x.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.x.ai
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,grok.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,grok.x.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,x.ai
+.grok.com
+.grok.x.com
+.x.ai
+grok.com
+grok.x.com
+x.ai

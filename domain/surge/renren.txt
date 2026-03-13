@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.renren-inc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.renren.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,renren-inc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,renren.com
+.renren-inc.com
+.renren.com
+renren-inc.com
+renren.com

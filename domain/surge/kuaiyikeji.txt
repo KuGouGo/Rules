@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dengguobi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.houyicaiji.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jinglingbiaozhu.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dengguobi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,houyicaiji.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jinglingbiaozhu.com
+.dengguobi.com
+.houyicaiji.com
+.jinglingbiaozhu.com
+dengguobi.com
+houyicaiji.com
+jinglingbiaozhu.com

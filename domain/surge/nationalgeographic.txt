@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.natgeomaps.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nationalgeographic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nationalgeographicpartners.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ngeo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,natgeomaps.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nationalgeographic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nationalgeographicpartners.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ngeo.com
+.natgeomaps.com
+.nationalgeographic.com
+.nationalgeographicpartners.com
+.ngeo.com
+natgeomaps.com
+nationalgeographic.com
+nationalgeographicpartners.com
+ngeo.com

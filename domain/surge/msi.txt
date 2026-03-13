@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.msi.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.msi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,msi.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,msi.com
+.msi.cn
+.msi.com
+msi.cn
+msi.com

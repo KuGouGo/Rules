@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearasil.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearasil.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearasil.us
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearasil.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearasil.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearasil.us
+.clearasil.cn
+.clearasil.com.cn
+.clearasil.us
+clearasil.cn
+clearasil.com.cn
+clearasil.us

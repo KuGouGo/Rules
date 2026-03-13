@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ckd.im
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kd100.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kuaidi100.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kuaidilab.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ckd.im
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kd100.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kuaidi100.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kuaidilab.com
+.ckd.im
+.kd100.com
+.kuaidi100.com
+.kuaidilab.com
+ckd.im
+kd100.com
+kuaidi100.com
+kuaidilab.com

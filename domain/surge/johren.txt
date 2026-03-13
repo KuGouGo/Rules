@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.johren.games
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.johren.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,johren.games
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,johren.net
+.johren.games
+.johren.net
+johren.games
+johren.net

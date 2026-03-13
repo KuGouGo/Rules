@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hoopchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hupu.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hupucdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shihuo.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hoopchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hupu.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hupucdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shihuo.cn
+.hoopchina.com.cn
+.hupu.com
+.hupucdn.com
+.shihuo.cn
+hoopchina.com.cn
+hupu.com
+hupucdn.com
+shihuo.cn

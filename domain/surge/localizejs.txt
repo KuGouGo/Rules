@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.localizecdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.localizejs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.localizestatus.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,localizecdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,localizejs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,localizestatus.com
+.localizecdn.com
+.localizejs.com
+.localizestatus.com
+localizecdn.com
+localizejs.com
+localizestatus.com

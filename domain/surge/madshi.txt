@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.madshi.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.madvr.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.madvr.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.madvrlabs.llc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,madshi.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,madvr.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,madvr.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,madvrlabs.llc
+.madshi.net
+.madvr.com
+.madvr.net
+.madvrlabs.llc
+madshi.net
+madvr.com
+madvr.net
+madvrlabs.llc

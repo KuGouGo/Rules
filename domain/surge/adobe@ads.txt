@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.advertising.adobe.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tubemogul.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,advertising.adobe.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tubemogul.com
+.advertising.adobe.com
+.tubemogul.com
+advertising.adobe.com
+tubemogul.com

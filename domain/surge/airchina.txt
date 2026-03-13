@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.airchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.airchinacargo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,airchina.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,airchinacargo.com
+.airchina.com.cn
+.airchinacargo.com
+airchina.com.cn
+airchinacargo.com

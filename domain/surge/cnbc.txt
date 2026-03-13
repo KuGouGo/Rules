@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnbc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnbcfm.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nbcudigitaladops.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nbcuni.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnbc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnbcfm.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nbcudigitaladops.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nbcuni.com
+.cnbc.com
+.cnbcfm.com
+.nbcudigitaladops.com
+.nbcuni.com
+cnbc.com
+cnbcfm.com
+nbcudigitaladops.com
+nbcuni.com

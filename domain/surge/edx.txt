@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.edx-cdn.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.edx.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,edx-cdn.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,edx.org
+.edx-cdn.org
+.edx.org
+edx-cdn.org
+edx.org

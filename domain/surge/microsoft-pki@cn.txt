@@ -1,1 +1,1 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,www.microsoft.com
+www.microsoft.com

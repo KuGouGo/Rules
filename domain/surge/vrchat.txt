@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrchat.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrchat.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vrchat.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrchat.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrchat.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vrchat.net
+.vrchat.cloud
+.vrchat.com
+.vrchat.net
+vrchat.cloud
+vrchat.com
+vrchat.net

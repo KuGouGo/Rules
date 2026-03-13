@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bochk.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bochk.com
+.bochk.com
+bochk.com

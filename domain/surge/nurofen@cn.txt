@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nurofen.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nurofen.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nurofen.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nurofen.com.cn
+.nurofen.cn
+.nurofen.com.cn
+nurofen.cn
+nurofen.com.cn

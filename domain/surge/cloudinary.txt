@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudinary.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cloudinary.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudinary.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cloudinary.net
+.cloudinary.com
+.cloudinary.net
+cloudinary.com
+cloudinary.net

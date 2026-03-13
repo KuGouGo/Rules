@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ping.pe
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ping.pe
+.ping.pe
+ping.pe

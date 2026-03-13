@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.faceit-cdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.faceit.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,faceit-cdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,faceit.com
+.faceit-cdn.net
+.faceit.com
+faceit-cdn.net
+faceit.com

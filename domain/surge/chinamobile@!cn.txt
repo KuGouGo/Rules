@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.speedtest.hk.chinamobile.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.speedtestbb.hk.chinamobile.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,speedtest.hk.chinamobile.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,speedtestbb.hk.chinamobile.com
+.speedtest.hk.chinamobile.com
+.speedtestbb.hk.chinamobile.com
+speedtest.hk.chinamobile.com
+speedtestbb.hk.chinamobile.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.k8s.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kubernetes.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,k8s.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kubernetes.io
+.k8s.io
+.kubernetes.io
+k8s.io
+kubernetes.io

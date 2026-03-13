@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gracg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.procg.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gracg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,procg.cn
+.gracg.com
+.procg.cn
+gracg.com
+procg.cn

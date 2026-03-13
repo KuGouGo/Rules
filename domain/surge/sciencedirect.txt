@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sciencedirect.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sciencedirectassets.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sciencedirect.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sciencedirectassets.com
+.sciencedirect.com
+.sciencedirectassets.com
+sciencedirect.com
+sciencedirectassets.com

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.illgames.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.japan-illgames.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,illgames.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,japan-illgames.com
+.illgames.jp
+.japan-illgames.com
+illgames.jp
+japan-illgames.com

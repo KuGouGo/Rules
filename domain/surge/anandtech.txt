@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.anandtech.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,anandtech.com
+.anandtech.com
+anandtech.com

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jbcz.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jibencaozuo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.media.paperclipclub.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jbcz.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jibencaozuo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,media.paperclipclub.net
+.jbcz.tv
+.jibencaozuo.com
+.media.paperclipclub.net
+jbcz.tv
+jibencaozuo.com
+media.paperclipclub.net

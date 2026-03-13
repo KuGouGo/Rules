@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.slideshare.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.slideshare.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.slidesharecdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,slideshare.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,slideshare.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,slidesharecdn.com
+.slideshare.com
+.slideshare.net
+.slidesharecdn.com
+slideshare.com
+slideshare.net
+slidesharecdn.com

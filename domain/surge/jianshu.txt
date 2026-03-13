@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jianshu.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jianshu.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.jianshuapi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jianshu.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jianshu.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,jianshuapi.com
+.jianshu.com
+.jianshu.io
+.jianshuapi.com
+jianshu.com
+jianshu.io
+jianshuapi.com

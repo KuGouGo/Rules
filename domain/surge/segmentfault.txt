@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.segmentfault.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sifou.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,segmentfault.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sifou.com
+.segmentfault.com
+.sifou.com
+segmentfault.com
+sifou.com

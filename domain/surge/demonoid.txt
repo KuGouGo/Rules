@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.demonoid.is
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,demonoid.is
+.demonoid.is
+demonoid.is

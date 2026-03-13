@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.acer.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,acer.com.cn
+.acer.com.cn
+acer.com.cn

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tgbus.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tgbus.com
+.tgbus.com
+tgbus.com

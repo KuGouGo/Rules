@@ -1,7 +1,7 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,c.pki.goog
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,crl.pki.goog
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,crls.pki.goog
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,i.pki.goog
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,o.pki.goog
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ocsp.pki.goog
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pki-goog.l.google.com
+c.pki.goog
+crl.pki.goog
+crls.pki.goog
+i.pki.goog
+o.pki.goog
+ocsp.pki.goog
+pki-goog.l.google.com

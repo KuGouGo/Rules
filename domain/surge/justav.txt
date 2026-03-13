@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hkporn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.justav.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.twporn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hkporn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,justav.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,twporn.net
+.hkporn.net
+.justav.net
+.twporn.net
+hkporn.net
+justav.net
+twporn.net

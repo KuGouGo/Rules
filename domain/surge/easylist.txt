@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.easylist.to
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lanik.us
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,easylist.to
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lanik.us
+.easylist.to
+.lanik.us
+easylist.to
+lanik.us

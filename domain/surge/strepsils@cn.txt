@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.strepsils.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.strepsils.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,strepsils.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,strepsils.com.cn
+.strepsils.cn
+.strepsils.com.cn
+strepsils.cn
+strepsils.com.cn

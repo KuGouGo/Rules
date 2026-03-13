@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kinopoisk-ru.clstorage.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kinopoisk.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kinopoisk-ru.clstorage.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kinopoisk.ru
+.kinopoisk-ru.clstorage.net
+.kinopoisk.ru
+kinopoisk-ru.clstorage.net
+kinopoisk.ru

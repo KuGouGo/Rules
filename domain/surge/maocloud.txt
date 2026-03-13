@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.maoyun.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.maoyuncloud.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.maoyuncloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,maoyun.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,maoyuncloud.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,maoyuncloud.com
+.maoyun.com
+.maoyuncloud.cn
+.maoyuncloud.com
+maoyun.com
+maoyuncloud.cn
+maoyuncloud.com

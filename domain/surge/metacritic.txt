@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.metacritic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,metacritic.com
+.metacritic.com
+metacritic.com

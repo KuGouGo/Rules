@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.openweather.co.uk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.openweathermap.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,openweather.co.uk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,openweathermap.org
+.openweather.co.uk
+.openweathermap.org
+openweather.co.uk
+openweathermap.org

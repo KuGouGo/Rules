@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sndcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.soundcloud.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.soundcloud.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sndcdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,soundcloud.cloud
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,soundcloud.com
+.sndcdn.com
+.soundcloud.cloud
+.soundcloud.com
+sndcdn.com
+soundcloud.cloud
+soundcloud.com

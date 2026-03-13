@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ap.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.apnews.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ap.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,apnews.com
+.ap.org
+.apnews.com
+ap.org
+apnews.com

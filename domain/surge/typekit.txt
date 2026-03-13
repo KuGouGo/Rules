@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.typekit.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.typekit.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,typekit.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,typekit.net
+.typekit.com
+.typekit.net
+typekit.com
+typekit.net

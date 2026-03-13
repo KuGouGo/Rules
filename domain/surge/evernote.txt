@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.evernote.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,evernote.com
+.evernote.com
+evernote.com

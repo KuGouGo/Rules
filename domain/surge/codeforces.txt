@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.codeforces.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,codeforces.com
+.codeforces.com
+codeforces.com

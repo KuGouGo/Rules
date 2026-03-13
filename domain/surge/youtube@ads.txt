@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ads.youtube.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ads.youtube.com
+.ads.youtube.com
+ads.youtube.com

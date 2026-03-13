@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.digitalocean.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.digitaloceanspaces.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.do.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nginxconfig.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,digitalocean.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,digitaloceanspaces.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,do.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nginxconfig.io
+.digitalocean.com
+.digitaloceanspaces.com
+.do.co
+.nginxconfig.io
+digitalocean.com
+digitaloceanspaces.com
+do.co
+nginxconfig.io

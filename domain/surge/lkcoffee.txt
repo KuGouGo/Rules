@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lkcoffee.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.luckincoffeecdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yyds.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lkcoffee.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,luckincoffeecdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,yyds.co
+.lkcoffee.com
+.luckincoffeecdn.com
+.yyds.co
+lkcoffee.com
+luckincoffeecdn.com
+yyds.co

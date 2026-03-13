@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.he.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,he.net
+.he.net
+he.net

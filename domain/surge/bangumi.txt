@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bangumi.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bgm.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.chii.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bangumi.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bgm.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,chii.in
+.bangumi.tv
+.bgm.tv
+.chii.in
+bangumi.tv
+bgm.tv
+chii.in

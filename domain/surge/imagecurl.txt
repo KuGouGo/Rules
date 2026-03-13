@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imagecurl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imagecurl.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.imgcrl.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,imagecurl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,imagecurl.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,imgcrl.org
+.imagecurl.com
+.imagecurl.org
+.imgcrl.org
+imagecurl.com
+imagecurl.org
+imgcrl.org

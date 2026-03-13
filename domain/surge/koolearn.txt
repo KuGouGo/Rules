@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.koocdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.koolearn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.koopass.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,koocdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,koolearn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,koopass.com
+.koocdn.com
+.koolearn.com
+.koopass.com
+koocdn.com
+koolearn.com
+koopass.com

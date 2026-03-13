@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.douban.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.douban.fm
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.doubanio.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,douban.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,douban.fm
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,doubanio.com
+.douban.com
+.douban.fm
+.doubanio.com
+douban.com
+douban.fm
+doubanio.com

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.decrypt.day
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,decrypt.day
+.decrypt.day
+decrypt.day

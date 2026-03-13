@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.drbl.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dribbble.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,drbl.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dribbble.com
+.drbl.in
+.dribbble.com
+drbl.in
+dribbble.com

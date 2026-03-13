@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wikihow.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wikihow.com
+.wikihow.com
+wikihow.com

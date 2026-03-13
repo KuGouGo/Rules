@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.localbitcoins.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.localbitcoinschain.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,localbitcoins.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,localbitcoinschain.com
+.localbitcoins.com
+.localbitcoinschain.com
+localbitcoins.com
+localbitcoinschain.com

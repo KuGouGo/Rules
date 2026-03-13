@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bdsm123.xyz
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bondagesm.xyz
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bdsm123.xyz
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bondagesm.xyz
+.bdsm123.xyz
+.bondagesm.xyz
+bdsm123.xyz
+bondagesm.xyz

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.neow.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.neowin.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,neow.in
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,neowin.net
+.neow.in
+.neowin.net
+neow.in
+neowin.net

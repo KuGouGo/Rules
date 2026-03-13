@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.speiyou.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xesimg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xueersi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,speiyou.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xesimg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xueersi.com
+.speiyou.com
+.xesimg.com
+.xueersi.com
+speiyou.com
+xesimg.com
+xueersi.com

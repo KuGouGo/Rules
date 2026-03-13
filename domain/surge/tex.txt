@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ctan.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.latex-project.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.miktex.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tug.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ctan.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,latex-project.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,miktex.org
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tug.org
+.ctan.org
+.latex-project.org
+.miktex.org
+.tug.org
+ctan.org
+latex-project.org
+miktex.org
+tug.org

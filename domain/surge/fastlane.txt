@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fastlane.ci
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fastlane.tools
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,fastlane.ci
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,fastlane.tools
+.fastlane.ci
+.fastlane.tools
+fastlane.ci
+fastlane.tools

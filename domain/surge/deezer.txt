@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deezer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dzcdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deezer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dzcdn.net
+.deezer.com
+.dzcdn.net
+deezer.com
+dzcdn.net

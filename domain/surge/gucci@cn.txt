@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gucci.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gucci.cn
+.gucci.cn
+gucci.cn

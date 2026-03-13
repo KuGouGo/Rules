@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cn.eset.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cn.eset.com
+.cn.eset.com
+cn.eset.com

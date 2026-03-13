@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.swiftui.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.swiftui.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,swiftui.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,swiftui.com.cn
+.swiftui.cn
+.swiftui.com.cn
+swiftui.cn
+swiftui.com.cn

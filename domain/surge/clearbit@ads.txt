@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearbit.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearbitjs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clearbitscripts.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearbit.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearbitjs.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clearbitscripts.com
+.clearbit.com
+.clearbitjs.com
+.clearbitscripts.com
+clearbit.com
+clearbitjs.com
+clearbitscripts.com

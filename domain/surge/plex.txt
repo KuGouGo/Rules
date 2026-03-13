@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.plex.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.plex.services
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.plex.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.plexapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,plex.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,plex.services
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,plex.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,plexapp.com
+.plex.com
+.plex.services
+.plex.tv
+.plexapp.com
+plex.com
+plex.services
+plex.tv
+plexapp.com

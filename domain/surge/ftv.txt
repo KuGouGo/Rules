@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.4gtv.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ftv.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ftvnews.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,4gtv.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ftv.com.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ftvnews.com.tw
+.4gtv.tv
+.ftv.com.tw
+.ftvnews.com.tw
+4gtv.tv
+ftv.com.tw
+ftvnews.com.tw

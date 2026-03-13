@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playcover.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.playcover.workers.dev
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,playcover.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,playcover.workers.dev
+.playcover.io
+.playcover.workers.dev
+playcover.io
+playcover.workers.dev

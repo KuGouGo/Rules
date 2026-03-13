@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pastebin.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pastebin.com
+.pastebin.com
+pastebin.com

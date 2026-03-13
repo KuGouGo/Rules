@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boboporn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.boboporn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bobovip.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sesez.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,boboporn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,boboporn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bobovip.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sesez.com
+.boboporn.com
+.boboporn.net
+.bobovip.cc
+.sesez.com
+boboporn.com
+boboporn.net
+bobovip.cc
+sesez.com

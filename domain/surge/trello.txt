@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.trello.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.trellocdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,trello.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,trellocdn.com
+.trello.com
+.trellocdn.com
+trello.com
+trellocdn.com

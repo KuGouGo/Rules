@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hkgolden.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hkgolden.media
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hkgolden.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hkgolden.media
+.hkgolden.com
+.hkgolden.media
+hkgolden.com
+hkgolden.media

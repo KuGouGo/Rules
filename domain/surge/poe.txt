@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.poe.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.poecdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,poe.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,poecdn.net
+.poe.com
+.poecdn.net
+poe.com
+poecdn.net

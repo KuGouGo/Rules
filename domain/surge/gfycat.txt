@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.gfycat.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,gfycat.com
+.gfycat.com
+gfycat.com

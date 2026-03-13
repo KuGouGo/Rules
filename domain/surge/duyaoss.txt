@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.duyaoss.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.duyaossr.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,duyaoss.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,duyaossr.com
+.duyaoss.com
+.duyaossr.com
+duyaoss.com
+duyaossr.com

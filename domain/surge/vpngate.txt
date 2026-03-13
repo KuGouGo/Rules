@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.opengw.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vpngate.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vpngate.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,opengw.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vpngate.jp
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vpngate.net
+.opengw.net
+.vpngate.jp
+.vpngate.net
+opengw.net
+vpngate.jp
+vpngate.net

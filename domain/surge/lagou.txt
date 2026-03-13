@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lagou.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lgstatic.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lagou.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lgstatic.com
+.lagou.com
+.lgstatic.com
+lagou.com
+lgstatic.com

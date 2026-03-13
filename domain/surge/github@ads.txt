@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.collector.github.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.copilot-telemetry.githubusercontent.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,collector.github.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,copilot-telemetry.githubusercontent.com
+.collector.github.com
+.copilot-telemetry.githubusercontent.com
+collector.github.com
+copilot-telemetry.githubusercontent.com

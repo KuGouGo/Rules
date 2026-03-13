@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.anmo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.djdjapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dongjiao.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.dongjiaoapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,anmo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,djdjapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dongjiao.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,dongjiaoapp.com
+.anmo.com
+.djdjapp.com
+.dongjiao.cc
+.dongjiaoapp.com
+anmo.com
+djdjapp.com
+dongjiao.cc
+dongjiaoapp.com

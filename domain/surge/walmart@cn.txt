@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.walmart.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,walmart.cn
+.walmart.cn
+walmart.cn

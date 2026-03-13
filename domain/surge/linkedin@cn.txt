@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.licdn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.linkedin.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,licdn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,linkedin.cn
+.licdn.cn
+.linkedin.cn
+licdn.cn
+linkedin.cn

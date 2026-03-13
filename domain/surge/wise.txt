@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.transferwise.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wise.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,transferwise.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wise.com
+.transferwise.com
+.wise.com
+transferwise.com
+wise.com

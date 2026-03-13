@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cursor-cdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cursor.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cursor.sh
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cursorapi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cursor-cdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cursor.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cursor.sh
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cursorapi.com
+.cursor-cdn.com
+.cursor.com
+.cursor.sh
+.cursorapi.com
+cursor-cdn.com
+cursor.com
+cursor.sh
+cursorapi.com

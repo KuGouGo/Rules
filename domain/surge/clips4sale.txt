@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.c4slive.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.clips4sale.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.videos4sale.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,c4slive.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,clips4sale.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,videos4sale.com
+.c4slive.com
+.clips4sale.com
+.videos4sale.com
+c4slive.com
+clips4sale.com
+videos4sale.com

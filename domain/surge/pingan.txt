@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pingan.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pingan.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pingan.com.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yqb.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pingan.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pingan.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pingan.com.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,yqb.com
+.pingan.com
+.pingan.com.cn
+.pingan.com.hk
+.yqb.com
+pingan.com
+pingan.com.cn
+pingan.com.hk
+yqb.com

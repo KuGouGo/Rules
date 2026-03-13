@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.arcgis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.arcgisonline.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.esri.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,arcgis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,arcgisonline.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,esri.com
+.arcgis.com
+.arcgisonline.com
+.esri.com
+arcgis.com
+arcgisonline.com
+esri.com

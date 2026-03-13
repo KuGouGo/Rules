@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.allflow.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.flowus.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,allflow.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,flowus.cn
+.allflow.cn
+.flowus.cn
+allflow.cn
+flowus.cn

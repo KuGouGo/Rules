@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.agora.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.agoraio.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.agoralab.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,agora.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,agoraio.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,agoralab.co
+.agora.io
+.agoraio.cn
+.agoralab.co
+agora.io
+agoraio.cn
+agoralab.co

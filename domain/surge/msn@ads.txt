@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.browser.events.data.msn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.browser.events.data.msn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,browser.events.data.msn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,browser.events.data.msn.com
+.browser.events.data.msn.cn
+.browser.events.data.msn.com
+browser.events.data.msn.cn
+browser.events.data.msn.com

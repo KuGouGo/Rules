@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.veet.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.veet.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,veet.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,veet.com.cn
+.veet.cn
+.veet.com.cn
+veet.cn
+veet.com.cn

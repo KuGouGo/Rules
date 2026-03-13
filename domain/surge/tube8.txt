@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tube8.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tube8.fr
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tube8.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tube8.fr
+.tube8.com
+.tube8.fr
+tube8.com
+tube8.fr

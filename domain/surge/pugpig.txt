@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pugpig-dev.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pugpig-stage.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pugpig.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pugpig-dev.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pugpig-stage.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pugpig.com
+.pugpig-dev.com
+.pugpig-stage.com
+.pugpig.com
+pugpig-dev.com
+pugpig-stage.com
+pugpig.com

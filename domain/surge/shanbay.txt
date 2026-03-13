@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.baydn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shanbay.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,baydn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shanbay.com
+.baydn.com
+.shanbay.com
+baydn.com
+shanbay.com

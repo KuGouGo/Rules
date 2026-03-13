@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wallhaven.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.whvn.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wallhaven.cc
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,whvn.cc
+.wallhaven.cc
+.whvn.cc
+wallhaven.cc
+whvn.cc

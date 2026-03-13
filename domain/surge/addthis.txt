@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.addthis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.addthiscdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.addthisedge.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,addthis.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,addthiscdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,addthisedge.com
+.addthis.com
+.addthiscdn.com
+.addthisedge.com
+addthis.com
+addthiscdn.com
+addthisedge.com

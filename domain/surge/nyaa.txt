@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nyaa.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.nyaa.si
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nyaa.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,nyaa.si
+.nyaa.net
+.nyaa.si
+nyaa.net
+nyaa.si

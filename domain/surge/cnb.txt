@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.cnb.cool
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,cnb.cool
+.cnb.cool
+cnb.cool

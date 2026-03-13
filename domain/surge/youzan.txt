@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.youzan.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.youzanyun.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.yzcdn.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,youzan.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,youzanyun.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,yzcdn.cn
+.youzan.com
+.youzanyun.com
+.yzcdn.cn
+youzan.com
+youzanyun.com
+yzcdn.cn

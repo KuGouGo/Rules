@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.masterclass.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,masterclass.com
+.masterclass.com
+masterclass.com

@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.figma.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,figma.com
+.figma.com
+figma.com

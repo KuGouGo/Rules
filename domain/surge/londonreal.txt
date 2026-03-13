@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.freedomplatform.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.londonreal.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,freedomplatform.tv
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,londonreal.tv
+.freedomplatform.tv
+.londonreal.tv
+freedomplatform.tv
+londonreal.tv

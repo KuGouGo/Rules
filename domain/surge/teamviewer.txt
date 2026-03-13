@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teamviewer.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teamviewer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.teamviewer.us
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,client-teamviewer-com.trafficmanager.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teamviewer.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teamviewer.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teamviewer.com.cdn.cloudflare.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,teamviewer.us
+.teamviewer.cn
+.teamviewer.com
+.teamviewer.us
+client-teamviewer-com.trafficmanager.net
+teamviewer.cn
+teamviewer.com
+teamviewer.com.cdn.cloudflare.net
+teamviewer.us

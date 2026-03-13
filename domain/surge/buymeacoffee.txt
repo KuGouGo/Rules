@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.buymeacoff.ee
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.buymeacoffee.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,buymeacoff.ee
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,buymeacoffee.com
+.buymeacoff.ee
+.buymeacoffee.com
+buymeacoff.ee
+buymeacoffee.com

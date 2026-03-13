@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vancl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vanclimg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vcimg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vancl.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vanclimg.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vcimg.com
+.vancl.com
+.vanclimg.com
+.vcimg.com
+vancl.com
+vanclimg.com
+vcimg.com

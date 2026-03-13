@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lethalhardcore.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.lethalhardcorevr.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lethalhardcore.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,lethalhardcorevr.com
+.lethalhardcore.com
+.lethalhardcorevr.com
+lethalhardcore.com
+lethalhardcorevr.com

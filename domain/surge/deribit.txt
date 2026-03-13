@@ -1,3 +1,3 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.deribit.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deribit.cdn.prismic.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,deribit.com
+.deribit.com
+deribit.cdn.prismic.io
+deribit.com

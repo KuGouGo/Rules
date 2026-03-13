@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.testipv6.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,testipv6.cn
+.testipv6.cn
+testipv6.cn

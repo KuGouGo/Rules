@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.shorturl.at
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,shorturl.at
+.shorturl.at
+shorturl.at

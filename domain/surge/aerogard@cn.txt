@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aerogard.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aerogard.com.cn
+.aerogard.com.cn
+aerogard.com.cn

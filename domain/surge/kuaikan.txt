@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kkmh.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kuaikanmanhua.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kkmh.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kuaikanmanhua.com
+.kkmh.com
+.kuaikanmanhua.com
+kkmh.com
+kuaikanmanhua.com

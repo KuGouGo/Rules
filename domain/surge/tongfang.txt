@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mechrevo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.thtf.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.tongfangpc.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mechrevo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,thtf.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,tongfangpc.com
+.mechrevo.com
+.thtf.com.cn
+.tongfangpc.com
+mechrevo.com
+thtf.com.cn
+tongfangpc.com

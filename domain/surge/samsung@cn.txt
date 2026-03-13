@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ad-survey.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.galaxyappstore.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.samsungcloudcn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.samsungeshop.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ad-survey.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,galaxyappstore.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,samsungcloudcn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,samsungeshop.com.cn
+.ad-survey.com
+.galaxyappstore.com
+.samsungcloudcn.com
+.samsungeshop.com.cn
+ad-survey.com
+galaxyappstore.com
+samsungcloudcn.com
+samsungeshop.com.cn

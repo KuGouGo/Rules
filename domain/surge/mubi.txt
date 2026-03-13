@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mubi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.mubicdn.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mubi.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,mubicdn.net
+.mubi.com
+.mubicdn.net
+mubi.com
+mubicdn.net

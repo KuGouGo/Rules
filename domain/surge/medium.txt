@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.medium.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.medium.systems
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,medium.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,medium.systems
+.medium.com
+.medium.systems
+medium.com
+medium.systems

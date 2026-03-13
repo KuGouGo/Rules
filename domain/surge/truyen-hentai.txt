@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.truyen-hentai.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.truyen-hentai.fr
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.truyen-hentai.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,truyen-hentai.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,truyen-hentai.fr
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,truyen-hentai.ru
+.truyen-hentai.com
+.truyen-hentai.fr
+.truyen-hentai.ru
+truyen-hentai.com
+truyen-hentai.fr
+truyen-hentai.ru

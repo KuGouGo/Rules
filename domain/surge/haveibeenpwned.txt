@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.haveibeenpwned.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pwnedpasswords.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,haveibeenpwned.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pwnedpasswords.com
+.haveibeenpwned.com
+.pwnedpasswords.com
+haveibeenpwned.com
+pwnedpasswords.com

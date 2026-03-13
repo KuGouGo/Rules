@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.ecert.gov.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.hongkongpost.gov.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,ecert.gov.hk
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,hongkongpost.gov.hk
+.ecert.gov.hk
+.hongkongpost.gov.hk
+ecert.gov.hk
+hongkongpost.gov.hk

@@ -1,8 +1,8 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.collector.github.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.copilot-telemetry.githubusercontent.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.iads.unity3d.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.unityads.unity3d.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,collector.github.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,copilot-telemetry.githubusercontent.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,iads.unity3d.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,unityads.unity3d.com
+.collector.github.com
+.copilot-telemetry.githubusercontent.com
+.iads.unity3d.com
+.unityads.unity3d.com
+collector.github.com
+copilot-telemetry.githubusercontent.com
+iads.unity3d.com
+unityads.unity3d.com

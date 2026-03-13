@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pinkcore.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.pinkcore.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pinkcore.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,pinkcore.net
+.pinkcore.com
+.pinkcore.net
+pinkcore.com
+pinkcore.net

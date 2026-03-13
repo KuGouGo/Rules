@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bit.ly
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bitly.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.bitly.is
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bit.ly
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bitly.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,bitly.is
+.bit.ly
+.bitly.com
+.bitly.is
+bit.ly
+bitly.com
+bitly.is

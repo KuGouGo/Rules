@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fontsinuse.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,fontsinuse.com
+.fontsinuse.com
+fontsinuse.com

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.5w.ag
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.swag-live.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.swag.live
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,5w.ag
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,swag-live.co
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,swag.live
+.5w.ag
+.swag-live.co
+.swag.live
+5w.ag
+swag-live.co
+swag.live

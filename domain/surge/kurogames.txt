@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.aki-game.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.kurogames.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,aki-game.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,kurogames.com
+.aki-game.com
+.kurogames.com
+aki-game.com
+kurogames.com

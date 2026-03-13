@@ -1,7 +1,7 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.onekey-asset.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.onekey.so
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.onekeycn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,onekey-asset.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,onekey.so
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,onekey.zendesk.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,onekeycn.com
+.onekey-asset.com
+.onekey.so
+.onekeycn.com
+onekey-asset.com
+onekey.so
+onekey.zendesk.com
+onekeycn.com

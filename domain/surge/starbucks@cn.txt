@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.starbucks.com.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,starbucks.com.cn
+.starbucks.com.cn
+starbucks.com.cn

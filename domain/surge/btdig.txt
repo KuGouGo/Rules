@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.btdig.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,btdig.com
+.btdig.com
+btdig.com

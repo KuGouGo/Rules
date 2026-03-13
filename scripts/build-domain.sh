@@ -15,4 +15,6 @@ cp -R rule-set/. "$ROOT/domain/sing-box/"
 cp -R domain-set/. "$TMP_DIR/"
 popd >/dev/null
 
+cp -f sources/domain/custom/*.list "$ROOT/domain/surge/" 2>/dev/null || true
+
 echo "domain build done"

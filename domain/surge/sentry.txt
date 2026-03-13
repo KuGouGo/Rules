@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sentry-cdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.sentry.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sentry-cdn.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,sentry.io
+.sentry-cdn.com
+.sentry.io
+sentry-cdn.com
+sentry.io

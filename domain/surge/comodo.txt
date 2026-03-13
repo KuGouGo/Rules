@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.comodo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.comodo.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,comodo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,comodo.net
+.comodo.com
+.comodo.net
+comodo.com
+comodo.net

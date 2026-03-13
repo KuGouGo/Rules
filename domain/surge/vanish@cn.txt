@@ -1,2 +1,2 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.vanish.cn
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,vanish.cn
+.vanish.cn
+vanish.cn

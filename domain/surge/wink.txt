@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.restream-media.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.wink.ru
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,restream-media.net
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,wink.ru
+.restream-media.net
+.wink.ru
+restream-media.net
+wink.ru

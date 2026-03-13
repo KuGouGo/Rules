@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meduza-flutter.firebaseapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.meduza.io
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,meduza-flutter.firebaseapp.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,meduza.io
+.meduza-flutter.firebaseapp.com
+.meduza.io
+meduza-flutter.firebaseapp.com
+meduza.io

@@ -1,4 +1,4 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fans66.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.fansking.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,fans66.tw
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,fansking.tw
+.fans66.tw
+.fansking.tw
+fans66.tw
+fansking.tw

@@ -1,6 +1,6 @@
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.miaibox.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xiaoaiassist.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,.xiaomimimo.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,miaibox.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xiaoaiassist.com
-DOMAIN-SUFFIX,DOMAIN-SUFFIX,xiaomimimo.com
+.miaibox.com
+.xiaoaiassist.com
+.xiaomimimo.com
+miaibox.com
+xiaoaiassist.com
+xiaomimimo.com
