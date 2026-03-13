@@ -126,7 +126,34 @@ JSON
   fi
 }
 
+tracked_custom_bases="$(find "$CUSTOM_SRC_DIR" -maxdepth 1 -type f -name '*.list' -exec basename {} .list \; | sort)"
+
+is_tracked_custom_base() {
+  local name="$1"
+  printf '%s\n' "$tracked_custom_bases" | grep -Fxq "$name"
+}
+
+assert_no_name_conflict() {
+  local base="$1"
+
+  if is_tracked_custom_base "$base"; then
+    return 0
+  fi
+
+  for tracked_path in \
+    "domain/surge/$base.txt" \
+    "domain/sing-box/$base.srs" \
+    "domain/mihomo/$base.mrs"; do
+    if git ls-tree -r --name-only HEAD -- "$tracked_path" | grep -q .; then
+      echo "custom rule name conflicts with tracked file: $tracked_path" >&2
+      return 1
+    fi
+  done
+}
+
 for list_file in "${custom_lists[@]}"; do
+  base="$(basename "$list_file" .list)"
+  assert_no_name_conflict "$base"
   build_plain_and_surge "$list_file"
 done
 
