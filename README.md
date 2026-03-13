@@ -1,43 +1,55 @@
 # Rules
 
-Convert upstream geosite and geoip data into formats suitable for:
+这个仓库的目标很简单：
 
-- **Surge**: generic text/ruleset files
-- **sing-box**: `.srs`
-- **mihomo**: `.mrs`
+把上游数据同步并整理成适合以下客户端直接使用的文件：
 
-## Upstream sources
+- **Surge**
+  - geosite：纯文本 `domain-set`
+  - geoip：纯文本 ruleset（也可直接复用 mihomo 生成逻辑导出的通用文本）
+- **sing-box**
+  - geosite：`.srs`
+  - geoip：`.srs`
+- **mihomo**
+  - geoip：`.mrs`
 
-- Geosite: <https://github.com/nekolsd/sing-geosite>
-- GeoIP: <https://github.com/nekolsd/geoip>
+## 上游仓库
 
-## Planned outputs
+- geosite: <https://github.com/nekolsd/sing-geosite>
+- geoip: <https://github.com/nekolsd/geoip>
 
-### Geosite
+## 仓库原则
 
-- `geosite/surge/*.txt` — generic domain set files for Surge and general use
-- `geosite/sing-box/*.srs` — sing-box rule-set files
+- **不重新发明解析器**，优先复用上游已有构建逻辑
+- **不强调 release 产物**，主要是把上游同步到本仓库对应文件夹
+- **目录清晰可直接引用**
 
-### GeoIP
+## 目标目录结构
 
-- `geoip/surge/*.txt` — Surge ruleset files
-- `geoip/sing-box/*.srs` — sing-box rule-set files
-- `geoip/mihomo/*.mrs` — mihomo rule providers
+```text
+geosite/
+  surge/      # 纯文本 domain-set
+  sing-box/   # .srs
 
-## Build design
+geoip/
+  surge/      # 纯文本 ruleset
+  sing-box/   # .srs
+  mihomo/     # .mrs
+```
 
-This repository does not reimplement upstream parsers unless necessary.
-Instead, it orchestrates the existing upstream projects and republishes the generated artifacts in a cleaner layout.
+## 当前实现思路
 
-## Repo structure
+- `sing-geosite` 负责生成：
+  - 纯文本域名集合
+  - sing-box `.srs`
+- `geoip` 负责生成：
+  - Surge 纯文本 ruleset
+  - sing-box `.srs`
+  - mihomo `.mrs`
 
-- `configs/` — conversion configs
-- `scripts/` — orchestration scripts
-- `.github/workflows/` — CI release automation
-- `upstream/` — optional vendored or cloned upstream tooling
+## 后续要做的事
 
-## Notes
-
-- `sing-geosite` already supports exporting plain domain text files and sing-box `.srs`
-- `geoip` already supports exporting Surge ruleset, sing-box `.srs`, and mihomo `.mrs`
-- This repo should focus on **integration, normalization, packaging, and release**
+1. 完善同步脚本
+2. 统一输出目录到仓库根目录
+3. 配置 GitHub Actions 定时同步上游
+4. 仅提交需要直接使用的结果文件
