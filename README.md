@@ -23,15 +23,15 @@ sources/
   domain/      # 域名规则上游构建器源码
   ip/          # IP 规则上游构建器源码
 
-output/
-  domain/
-    surge/
-    sing-box/
-    mihomo/
-  ip/
-    surge/
-    sing-box/
-    mihomo/
+domain/
+  surge/
+  sing-box/
+  mihomo/
+
+ip/
+  surge/
+  sing-box/
+  mihomo/
 
 configs/
   geoip-convert.json
@@ -48,10 +48,9 @@ scripts/
 
 ## 约定
 
-- `domain`：域名类规则
-- `ip`：IP / CIDR / ASN 类规则
+- `domain`：最终域名类规则产物
+- `ip`：最终 IP / CIDR / ASN 类规则产物
 - `sources`：上游源码
-- `output`：最终产物
 - `custom`：手工维护规则
 
 ## 当前自定义规则
@@ -63,5 +62,5 @@ scripts/
 
 - 命名直观，优先人能看懂
 - 上游源码、产物、自定义规则三层分离
-- 输出目录稳定，方便订阅
+- 最终产物直接放仓库外层，方便订阅
 - workflow 只做：同步、构建、提交

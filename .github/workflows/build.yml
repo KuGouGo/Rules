@@ -44,7 +44,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add sources output custom configs scripts README.md
+          git add sources domain ip custom configs scripts README.md
           git diff --cached --quiet || git commit -m "chore: sync rules"
 
       - name: Push changes
