@@ -29,7 +29,7 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y unzip
+          sudo apt-get install -y unzip gzip
 
       - name: Sync upstream
         run: |
@@ -44,21 +44,24 @@ jobs:
       - name: Build ip rules
         run: ./scripts/build-ip.sh
 
+      - name: Build mihomo mrs
+        run: ./scripts/build-mihomo-mrs.sh
+
       - name: Merge custom rules
         run: ./scripts/merge-custom.sh
 
       - name: Show summary
         run: |
           echo "domain files:"
-          find domain -type f | sort | sed -n '1,50p'
+          find domain -type f | sort | sed -n '1,80p'
           echo "ip files:"
-          find ip -type f | sort | sed -n '1,50p'
+          find ip -type f | sort | sed -n '1,80p'
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add sources domain ip configs scripts README.md
+          git add sources domain ip configs scripts README.md .bin
           git diff --cached --quiet || git commit -m "chore: sync rules"
 
       - name: Push changes
