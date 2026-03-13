@@ -29,18 +29,17 @@ jobs:
           chmod +x scripts/lint-custom-rules.sh
           ./scripts/lint-custom-rules.sh
 
+      - name: Prepare scripts
+        run: chmod +x scripts/*.sh
+
       - name: Sync all rules
-        run: |
-          chmod +x scripts/sync-all.sh scripts/build-custom.sh
-          ./scripts/sync-all.sh
+        run: ./scripts/sync-all.sh
 
       - name: Build custom rules
         run: ./scripts/build-custom.sh
 
       - name: Guard artifacts
-        run: |
-          chmod +x scripts/guard-artifacts.sh
-          ./scripts/guard-artifacts.sh
+        run: ./scripts/guard-artifacts.sh
 
       - name: Show summary
         if: always()
