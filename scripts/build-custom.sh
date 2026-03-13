@@ -158,6 +158,7 @@ is_tracked_custom_base() {
 
 assert_no_name_conflict() {
   local base="$1"
+  local conflicts=()
 
   if is_tracked_custom_base "$base"; then
     return 0
@@ -168,10 +169,17 @@ assert_no_name_conflict() {
     "domain/sing-box/$base.srs" \
     "domain/mihomo/$base.mrs"; do
     if git ls-tree -r --name-only HEAD -- "$tracked_path" | grep -q .; then
-      echo "custom rule name conflicts with tracked file: $tracked_path" >&2
-      return 1
+      conflicts+=("$tracked_path")
     fi
   done
+
+  if [ ${#conflicts[@]} -gt 0 ]; then
+    echo "custom rule name conflict detected for base '$base'" >&2
+    printf 'conflicting tracked files:\n' >&2
+    printf '  - %s\n' "${conflicts[@]}" >&2
+    echo "rename sources/domain/custom/$base.list to a unique name and retry" >&2
+    return 1
+  fi
 }
 
 for list_file in "${custom_lists[@]}"; do

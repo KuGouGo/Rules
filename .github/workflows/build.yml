@@ -26,12 +26,13 @@ jobs:
       - name: Build custom rules
         run: ./scripts/build-custom.sh
 
-      - name: Guard artifact counts
+      - name: Guard artifacts
         run: |
           chmod +x scripts/guard-artifacts.sh
           ./scripts/guard-artifacts.sh
 
       - name: Show summary
+        if: always()
         run: |
           echo "Domain surge files:"
           ls -1 domain/surge/*.txt 2>/dev/null | wc -l
@@ -45,7 +46,11 @@ jobs:
           ls -1 ip/sing-box/*.srs 2>/dev/null | wc -l
           echo "IP mihomo files:"
           ls -1 ip/mihomo/*.mrs 2>/dev/null | wc -l
+          echo "Changed files summary:"
+          git status --short
+
       - name: Commit
+        if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
