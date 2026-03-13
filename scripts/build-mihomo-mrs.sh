@@ -50,7 +50,7 @@ convert_ip_dir() {
   done
 }
 
-convert_domain_dir "$ROOT/domain/mihomo-text" "$ROOT/domain/mihomo"
-convert_ip_dir "$ROOT/ip/mihomo-text" "$ROOT/ip/mihomo"
+convert_domain_dir "$ROOT/domain/mihomo-input" "$ROOT/domain/mihomo"
+convert_ip_dir "$ROOT/ip/mihomo-input" "$ROOT/ip/mihomo"
 
 echo "mihomo mrs build done"
