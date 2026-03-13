@@ -1,0 +1,35 @@
+{
+  "input": [
+    {
+      "type": "maxmindMMDB",
+      "action": "add",
+      "args": {
+        "uri": "./input/Country.mmdb"
+      }
+    }
+  ],
+  "output": [
+    {
+      "type": "surgeRuleSet",
+      "action": "output",
+      "args": {
+        "outputDir": "./dist/geoip/surge",
+        "outputExtension": ".txt"
+      }
+    },
+    {
+      "type": "singboxSRS",
+      "action": "output",
+      "args": {
+        "outputDir": "./dist/geoip/sing-box"
+      }
+    },
+    {
+      "type": "mihomoMRS",
+      "action": "output",
+      "args": {
+        "outputDir": "./dist/geoip/mihomo"
+      }
+    }
+  ]
+}
