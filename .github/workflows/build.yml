@@ -5,6 +5,14 @@ env:
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build.yml'
+      - 'scripts/**'
+      - 'sources/domain/custom/**'
+      - 'sources/ip/**'
   schedule:
     - cron: '0 */6 * * *'
 
