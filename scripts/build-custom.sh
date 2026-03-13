@@ -21,12 +21,28 @@ if [ ${#custom_lists[@]} -eq 0 ]; then
   exit 0
 fi
 
+write_if_changed() {
+  local src="$1"
+  local dst="$2"
+
+  if [ -f "$dst" ] && cmp -s "$src" "$dst"; then
+    return 0
+  fi
+
+  mv "$src" "$dst"
+}
+
 build_plain_and_surge() {
   local list_file="$1"
-  local base surge_out plain_out
+  local base surge_out plain_out surge_tmp plain_tmp
   base="$(basename "$list_file" .list)"
   surge_out="$SURGE_DIR/$base.txt"
   plain_out="$TMP_DIR/$base.txt"
+  surge_tmp="$TMP_DIR/$base.surge.tmp"
+  plain_tmp="$TMP_DIR/$base.plain.tmp"
+
+  : > "$surge_tmp"
+  : > "$plain_tmp"
 
   awk -F, '
     BEGIN {
@@ -51,7 +67,11 @@ build_plain_and_surge() {
         print value >> plain
       }
     }
-  ' surge="$surge_out" plain="$plain_out" "$list_file"
+  ' surge="$surge_tmp" plain="$plain_tmp" "$list_file"
+
+  write_if_changed "$surge_tmp" "$surge_out"
+  mv "$plain_tmp" "$plain_out"
+  rm -f "$surge_tmp"
 }
 
 ensure_sing_box() {
@@ -106,20 +126,23 @@ ensure_mihomo() {
 
 build_binaries() {
   local plain_txt="$1"
-  local base json tmp_output domains
+  local base json tmp_output srs_tmp mrs_tmp domains
   base="$(basename "$plain_txt" .txt)"
   json="$TMP_DIR/$base.json"
   tmp_output="$TMP_DIR/$base.mrs"
+  srs_tmp="$TMP_DIR/$base.srs.tmp"
+  mrs_tmp="$TMP_DIR/$base.mrs.tmp"
   domains="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_txt" | sed 's/,$//')"
 
   cat > "$json" <<JSON
 {"version":3,"rules":[{"domain_suffix":[${domains}]}]}
 JSON
 
-  sing-box rule-set compile "$json" --output "$SINGBOX_DIR/$base.srs"
+  sing-box rule-set compile "$json" --output "$srs_tmp"
+  write_if_changed "$srs_tmp" "$SINGBOX_DIR/$base.srs"
 
-  if mihomo convert-ruleset domain text "$plain_txt" "$tmp_output" >/dev/null 2>&1; then
-    mv "$tmp_output" "$MIHOMO_DIR/$base.mrs"
+  if mihomo convert-ruleset domain text "$plain_txt" "$mrs_tmp" >/dev/null 2>&1; then
+    write_if_changed "$mrs_tmp" "$MIHOMO_DIR/$base.mrs"
   else
     echo "failed to build mihomo ruleset for $base" >&2
     return 1
