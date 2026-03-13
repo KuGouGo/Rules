@@ -15,15 +15,15 @@ convert_list() {
   [ -f "$input" ] || return 0
 
   awk -F, '
-    NF >= 3 {
+    NF >= 2 {
       type = $1
       domain = $2
       if (type == "DOMAIN") {
-        print domain > plain
-        print domain > surge
+        print domain >> surge
+        print domain >> plain
       } else if (type == "DOMAIN-SUFFIX") {
-        print "." domain > surge
-        print domain > plain
+        print "." domain >> surge
+        print domain >> plain
       }
     }
   ' surge="$surge_output" plain="$plain_output" "$input"
