@@ -112,7 +112,13 @@ publish_branch() {
 
   git add README.md domain ip
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
-  git remote add origin "$(git -C "$ROOT" remote get-url origin)"
+  local remote_url
+  remote_url="$(git -C "$ROOT" remote get-url origin)"
+  if [[ "$remote_url" == https://github.com/* ]] && [ -n "${GITHUB_TOKEN:-}" ]; then
+    remote_url="https://x-access-token:${GITHUB_TOKEN}@${remote_url#https://}"
+  fi
+
+  git remote add origin "$remote_url"
   git push -f origin HEAD:"$branch"
 
   popd >/dev/null
