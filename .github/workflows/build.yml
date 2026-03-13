@@ -1,0 +1,53 @@
+name: Build and Release Rules
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 4'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+
+      - name: Download Country.mmdb
+        run: |
+          mkdir -p input
+          curl -L https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb -o input/Country.mmdb
+
+      - name: Build artifacts
+        run: |
+          chmod +x scripts/build.sh
+          ./scripts/build.sh
+
+      - name: Create archive checksums
+        run: |
+          cd dist
+          find . -type f -exec sha256sum {} \; | sed 's#  \./#  #' > SHA256SUMS
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly-${{ github.run_number }}
+          files: |
+            dist/SHA256SUMS
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rules-dist
+          path: dist/
