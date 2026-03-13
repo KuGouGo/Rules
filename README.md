@@ -47,6 +47,7 @@
 支持以下两种：
 
 ```text
+# Emby 节点
 DOMAIN,example.com
 DOMAIN-SUFFIX,example.com
 ```
@@ -63,11 +64,23 @@ DOMAIN-SUFFIX,example.com
 
 自定义规则会直接占用公共文件名，因此应避免与上游已有规则重名。
 
-推荐：
-- 用有语义的名字，如 `emby`、`emby-cn`
-- 尽量避免使用过于通用的名字，如 `media`、`global`、`proxy`
+要求：
+- 文件名只允许 `a-z`、`0-9`、`-`
+- 建议使用清晰语义名，如 `emby`、`emby-cn`
+- 避免使用过于通用的名字，如 `media`、`global`、`proxy`
 
 如果与上游同名，当前 workflow 会直接报错并停止，避免自定义规则在你没注意时覆盖公共规则文件。
+
+### 自定义规则 lint 规则
+
+CI 会在构建前检查 `sources/domain/custom/*.list`：
+
+- 文件名必须符合命名约定
+- 每个文件必须至少有一条有效规则
+- 每条规则必须是以下格式之一：
+  - `DOMAIN,example.com`
+  - `DOMAIN-SUFFIX,example.com`
+- 域名值前面不能带 `.`
 
 ## 目录结构
 
