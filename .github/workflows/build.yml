@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '0 */6 * * *'
 
+concurrency:
+  group: sync-rules
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -20,6 +24,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+          cache: true
 
       - name: Install tools
         run: |
@@ -32,6 +37,8 @@ jobs:
           ./scripts/sync-upstream.sh
 
       - name: Build domain rules
+        env:
+          NO_SKIP: "true"
         run: ./scripts/build-domain.sh
 
       - name: Build ip rules
@@ -39,6 +46,13 @@ jobs:
 
       - name: Merge custom rules
         run: ./scripts/merge-custom.sh
+
+      - name: Show summary
+        run: |
+          echo "domain files:"
+          find domain -type f | sort | sed -n '1,50p'
+          echo "ip files:"
+          find ip -type f | sort | sed -n '1,50p'
 
       - name: Commit changes
         run: |
