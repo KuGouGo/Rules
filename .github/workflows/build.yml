@@ -26,41 +26,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y unzip
 
-      - name: Sync upstream sources
+      - name: Sync upstream
         run: |
-          chmod +x scripts/sync-upstream.sh
+          chmod +x scripts/*.sh
           ./scripts/sync-upstream.sh
 
-      - name: Build geosite artifacts
-        run: |
-          cd geosite-source
-          go run .
-          cp -R domain-set/. ../geosite/surge/
-          cp -R rule-set/. ../geosite/sing-box/
-          cp -R domain-set/. ../geosite/mihomo/
+      - name: Build geosite
+        run: ./scripts/build-geosite.sh
 
-      - name: Download GeoIP input
-        run: |
-          mkdir -p input
-          curl -L https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb -o input/Country.mmdb
+      - name: Build geoip
+        run: ./scripts/build-geoip.sh
 
-      - name: Build geoip artifacts
-        run: |
-          cd geoip-source
-          go run . convert -c ../configs/geoip-convert.json
-
-      - name: Copy geoip artifacts
-        run: |
-          cp -R geoip-source/dist/geoip/surge/. geoip/surge/
-          cp -R geoip-source/dist/geoip/sing-box/. geoip/sing-box/
-          cp -R geoip-source/dist/geoip/mihomo/. geoip/mihomo/
+      - name: Merge custom rules
+        run: ./scripts/merge-custom.sh
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add geosite geoip geosite-source geoip-source custom-rules
-          git diff --cached --quiet || git commit -m "chore: sync upstream rules"
+          git add sources output custom configs scripts README.md
+          git diff --cached --quiet || git commit -m "chore: sync rules"
 
       - name: Push changes
         run: git push
