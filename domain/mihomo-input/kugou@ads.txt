@@ -1,6 +1,0 @@
-.ads.service.kugou.com
-.adserviceretry.kglink.cn
-.adserviceretry.kugou.com
-ads.service.kugou.com
-adserviceretry.kglink.cn
-adserviceretry.kugou.com

@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+DOMAIN_INPUT_DIR="$ROOT/.tmp/domain-mihomo-input"
+IP_INPUT_DIR="$ROOT/.tmp/ip-mihomo-input"
+
 mkdir -p .bin domain/mihomo ip/mihomo
 rm -rf domain/mihomo/* ip/mihomo/*
 
@@ -50,7 +53,7 @@ convert_ip_dir() {
   done
 }
 
-convert_domain_dir "$ROOT/domain/mihomo-input" "$ROOT/domain/mihomo"
-convert_ip_dir "$ROOT/ip/mihomo-input" "$ROOT/ip/mihomo"
+convert_domain_dir "$DOMAIN_INPUT_DIR" "$ROOT/domain/mihomo"
+convert_ip_dir "$IP_INPUT_DIR" "$ROOT/ip/mihomo"
 
 echo "mihomo mrs build done"

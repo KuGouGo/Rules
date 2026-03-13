@@ -1,4 +1,0 @@
-.ad-survey.com
-.browser.events.data.msn.cn
-ad-survey.com
-browser.events.data.msn.cn

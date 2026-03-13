@@ -1,6 +1,0 @@
-.farfetch.cn
-.farfetch.com.cn
-.farfetch.net.cn
-farfetch.cn
-farfetch.com.cn
-farfetch.net.cn

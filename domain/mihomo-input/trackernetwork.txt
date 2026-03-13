@@ -1,6 +1,0 @@
-.thetrackernetwork.com
-.tracker.gg
-.tracker.network
-thetrackernetwork.com
-tracker.gg
-tracker.network

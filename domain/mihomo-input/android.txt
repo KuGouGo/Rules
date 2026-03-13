@@ -1,6 +1,0 @@
-.android
-.android.com
-.androidify.com
-android.com
-android.googlesource.com
-androidify.com

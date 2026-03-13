@@ -1,6 +1,0 @@
-.opengw.net
-.vpngate.jp
-.vpngate.net
-opengw.net
-vpngate.jp
-vpngate.net

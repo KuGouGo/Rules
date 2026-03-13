@@ -1,6 +1,0 @@
-.clubhouse.com
-.clubhouseapi.com
-.joinclubhouse.com
-clubhouse.com
-clubhouseapi.com
-joinclubhouse.com

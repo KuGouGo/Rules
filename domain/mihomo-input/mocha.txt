@@ -1,2 +1,0 @@
-.mochajs.org
-mochajs.org

@@ -1,4 +1,0 @@
-.apifox.cn
-.apifox.com
-apifox.cn
-apifox.com

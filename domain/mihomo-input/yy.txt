@@ -1,8 +1,0 @@
-.duowan.com
-.dwstatic.com
-.yy.com
-.yystatic.com
-duowan.com
-dwstatic.com
-yy.com
-yystatic.com

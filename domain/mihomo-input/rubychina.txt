@@ -1,4 +1,0 @@
-.ruby-china.org
-.rubyconfchina.org
-ruby-china.org
-rubyconfchina.org
