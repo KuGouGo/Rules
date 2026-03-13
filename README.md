@@ -41,9 +41,9 @@
 
 ```text
 sources/
-  domain/
+  domain/       # 上游域名规则构建源（含 .github/workflows, custom/ 等）
     custom/     # 自定义域名规则源
-  ip/           # 上游 IP 规则构建源
+  ip/           # 上游 IP 规则构建源（含 plugin/, lib/ 等）
 
 domain/
   surge/        # Surge DOMAIN-SET
