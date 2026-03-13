@@ -7,10 +7,11 @@ cd "$ROOT"
 rm -rf domain
 mkdir -p domain/surge domain/sing-box domain/mihomo
 
-cd sources/domain
+pushd sources/domain >/dev/null
 go run .
-cp -R domain-set/. ../../domain/surge/
-cp -R rule-set/. ../../domain/sing-box/
-cp -R domain-set/. ../../domain/mihomo/
+cp -R domain-set/. "$ROOT/domain/surge/"
+cp -R rule-set/. "$ROOT/domain/sing-box/"
+cp -R domain-set/. "$ROOT/domain/mihomo/"
+popd >/dev/null
 
 echo "domain build done"

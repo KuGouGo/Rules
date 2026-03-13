@@ -9,11 +9,11 @@ mkdir -p ip/surge ip/sing-box ip/mihomo input
 
 curl -L https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb -o input/Country.mmdb
 
-cd sources/ip
-go run . convert -c ../../configs/geoip-convert.json
-
-cp -R dist/geoip/surge/. ../../ip/surge/
-cp -R dist/geoip/sing-box/. ../../ip/sing-box/
-cp -R dist/geoip/mihomo/. ../../ip/mihomo/
+pushd sources/ip >/dev/null
+go run . convert -c "$ROOT/configs/geoip-convert.json"
+cp -R output/surge/. "$ROOT/ip/surge/"
+cp -R output/sing-box/. "$ROOT/ip/sing-box/"
+cp -R output/mihomo/. "$ROOT/ip/mihomo/"
+popd >/dev/null
 
 echo "ip build done"
