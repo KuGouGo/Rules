@@ -33,7 +33,7 @@
 本仓库不生产原始规则数据，主要对上游项目做同步、编译和发布。
 
 ### 域名规则 (Geosite)
-- 数据源: [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community) (dlc.dat)
+- 数据源: [nekolsd/domain-list-community](https://github.com/nekolsd/domain-list-community) (dlc.dat)
 - 编译产物: Surge DOMAIN-SET / sing-box .srs / mihomo .mrs
 
 ### IP 规则 (GeoIP)

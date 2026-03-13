@@ -10,9 +10,9 @@ cd "$ROOT"
 rm -rf domain
 mkdir -p domain/surge domain/sing-box domain/mihomo input
 
-# Download latest dlc.dat from domain-list-community
+# Download latest dlc.dat from nekolsd/domain-list-community
 echo "Downloading dlc.dat..."
-curl -L "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat" -o input/dlc.dat
+curl -L "https://github.com/nekolsd/domain-list-community/releases/latest/download/dlc.dat" -o input/dlc.dat
 
 # Setup build directory
 BUILD_DIR="$ROOT/.tmp/domain-build"
