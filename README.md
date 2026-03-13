@@ -1,56 +1,79 @@
 # Rules
 
-这个仓库的目标很简单：
+一个把上游 geosite / geoip 数据整理为可直接使用文件的仓库。
 
-把上游数据同步并整理成适合以下客户端直接使用的文件：
+## 目标
+
+输出适合以下客户端直接引用的规则文件：
 
 - **Surge**
-  - geosite：纯文本 `domain-set`
-  - geoip：纯文本 ruleset（也可直接复用 mihomo 生成逻辑导出的通用文本）
 - **sing-box**
-  - geosite：`.srs`
-  - geoip：`.srs`
 - **mihomo**
-  - geoip：`.mrs`
 
-## 上游仓库
-
-- geosite: <https://github.com/nekolsd/sing-geosite>
-- geoip: <https://github.com/nekolsd/geoip>
-
-## 仓库原则
-
-- **不重新发明解析器**，优先复用上游已有构建逻辑
-- **不强调 release 产物**，主要是把上游同步到本仓库对应文件夹
-- **目录清晰可直接引用**
-
-## 目标目录结构
+## 推荐目录结构
 
 ```text
-geosite/
-  mihomo/     # 预留，必要时放兼容产物
-  surge/      # 纯文本 domain-set
-  sing-box/   # .srs
+custom/
+  domain/
+    emby.list
+    emby-cn.list
 
-geoip/
-  mihomo/     # .mrs
-  surge/      # 纯文本 ruleset
-  sing-box/   # .srs
+sources/
+  geosite/      # 上游 geosite 源构建器
+  geoip/        # 上游 geoip 源构建器
+
+output/
+  geosite/
+    surge/
+    sing-box/
+    mihomo/
+  geoip/
+    surge/
+    sing-box/
+    mihomo/
+
+configs/
+  geoip-convert.json
+
+scripts/
+  sync-upstream.sh
+  build-geosite.sh
+  build-geoip.sh
+  merge-custom.sh
+
+.github/workflows/
+  sync.yml
 ```
 
-## 当前实现思路
+## 当前规划
 
-- `sing-geosite` 负责生成：
-  - 纯文本域名集合
-  - sing-box `.srs`
-- `geoip` 负责生成：
-  - Surge 纯文本 ruleset
-  - sing-box `.srs`
-  - mihomo `.mrs`
+### geosite 输出
 
-## 后续要做的事
+- `output/geosite/surge/`：纯文本 domain-set
+- `output/geosite/sing-box/`：`.srs`
+- `output/geosite/mihomo/`：兼容产物或映射文件
 
-1. 完善同步脚本
-2. 统一输出目录到仓库根目录
-3. 配置 GitHub Actions 定时同步上游
-4. 仅提交需要直接使用的结果文件
+### geoip 输出
+
+- `output/geoip/surge/`：Surge 规则文本
+- `output/geoip/sing-box/`：`.srs`
+- `output/geoip/mihomo/`：`.mrs`
+
+## 自定义规则
+
+当前自定义规则：
+
+- `custom/domain/emby.list`
+- `custom/domain/emby-cn.list`
+
+约定：
+
+- `*-cn`：直连/中国或直连侧规则
+- 主名文件：业务规则本体
+
+## 设计原则
+
+- 上游源码和输出产物分离
+- 自定义规则和上游规则分离
+- 输出目录稳定，方便订阅
+- workflow 只做三件事：同步、构建、提交
