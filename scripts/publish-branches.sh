@@ -13,8 +13,8 @@ branch_readme() {
 
 ## 目录
 
-- `domain/`
-- `ip/`
+- [domain/](./domain/)
+- [ip/](./ip/)
 
 ## 示例
 
@@ -31,8 +31,8 @@ EOF
 
 ## 目录
 
-- `domain/`
-- `ip/`
+- [domain/](./domain/)
+- [ip/](./ip/)
 
 ## 示例
 
@@ -64,8 +64,8 @@ EOF
 
 ## 目录
 
-- `domain/`
-- `ip/`
+- [domain/](./domain/)
+- [ip/](./ip/)
 
 ## 示例
 
