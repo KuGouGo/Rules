@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Build custom sing-box .srs rule sets from plain domain lists.
+# All domains are treated as suffix matches (matching the domain and all subdomains).
+
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -31,20 +34,17 @@ func main() {
     panic(err)
   }
   lines := strings.Split(string(data), "\n")
-  var domains []string
   var suffixes []string
   for _, line := range lines {
     line = strings.TrimSpace(line)
     if line == "" {
       continue
     }
-    if strings.HasPrefix(line, ".") {
-      suffixes = append(suffixes, strings.TrimPrefix(line, "."))
-    } else {
-      domains = append(domains, line)
-    }
+    // Remove leading dot if present, then treat as suffix
+    line = strings.TrimPrefix(line, ".")
+    suffixes = append(suffixes, line)
   }
-  rule := option.DefaultHeadlessRule{Domain: domains, DomainSuffix: suffixes}
+  rule := option.DefaultHeadlessRule{DomainSuffix: suffixes}
   plain := option.PlainRuleSet{Rules: []option.HeadlessRule{{Type: C.RuleTypeDefault, DefaultOptions: rule}}}
   f, err := os.Create(outPath)
   if err != nil {
