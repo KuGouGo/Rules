@@ -113,3 +113,11 @@ rule-providers:
 ## 说明
 
 后续如果要重新接入 custom 规则，建议单独做一条稳定的生成链，不要和当前“纯同步上游产物”的主流程混在一起。
+
+## Custom 独立规则
+
+`sources/domain/custom/*.list` 会独立生成，不并入主规则：
+
+- `domain/custom-surge/*.txt`
+- `domain/custom-sing-box/*.srs`
+- `domain/custom-mihomo/*.mrs`

@@ -20,8 +20,11 @@ jobs:
 
       - name: Sync all rules
         run: |
-          chmod +x scripts/sync-all.sh
+          chmod +x scripts/sync-all.sh scripts/build-custom.sh
           ./scripts/sync-all.sh
+
+      - name: Build custom rules
+        run: ./scripts/build-custom.sh
 
       - name: Show summary
         run: |
@@ -31,6 +34,12 @@ jobs:
           ls -la domain/sing-box/*.srs 2>/dev/null | wc -l
           echo "IP files:"
           ls -la ip/surge/*.txt 2>/dev/null | wc -l
+          echo "Custom surge files:"
+          ls -la domain/custom-surge/*.txt 2>/dev/null | wc -l
+          echo "Custom sing-box files:"
+          ls -la domain/custom-sing-box/*.srs 2>/dev/null | wc -l
+          echo "Custom mihomo files:"
+          ls -la domain/custom-mihomo/* 2>/dev/null | wc -l
 
       - name: Commit
         run: |
