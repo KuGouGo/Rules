@@ -49,6 +49,9 @@ jobs:
       - name: Build custom rules
         run: ./scripts/build-custom.sh
 
+      - name: Fetch extra mihomo rules
+        run: ./scripts/fetch-extra-mihomo.sh
+
       - name: Guard artifacts
         run: ./scripts/guard-artifacts.sh
 
