@@ -80,7 +80,7 @@ check_diff_ratio() {
     return 0
   fi
 
-  if { [ "$pathspec" = "domain/surge" ] || [ "$pathspec" = "ip/surge" ]; } \
+  if { [ "$pathspec" = ".output/domain/surge" ] || [ "$pathspec" = ".output/ip/surge" ]; } \
     && same_logical_files_after_extension_migration "$pathspec"; then
     echo "$label: detected one-time extension migration (.txt -> .list), skip diff-ratio guard"
     return 0
@@ -107,20 +107,20 @@ check_diff_ratio() {
 }
 
 print_section "Artifact count checks"
-check_min_files "domain/surge" "domain/surge/*.list" 1000
-check_min_files "domain/sing-box" "domain/sing-box/*.srs" 1000
-check_min_files "domain/mihomo" "domain/mihomo/*.mrs" 1000
-check_min_files "ip/surge" "ip/surge/*.list" 7
-check_min_files "ip/sing-box" "ip/sing-box/*.srs" 7
-check_min_files "ip/mihomo" "ip/mihomo/*.mrs" 7
+check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
+check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
+check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
+check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 7
+check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 7
+check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 7
 
 print_section "Artifact diff-ratio checks"
-check_diff_ratio "domain/surge" "domain/surge"
-check_diff_ratio "domain/sing-box" "domain/sing-box"
-check_diff_ratio "domain/mihomo" "domain/mihomo"
-check_diff_ratio "ip/surge" "ip/surge"
-check_diff_ratio "ip/sing-box" "ip/sing-box"
-check_diff_ratio "ip/mihomo" "ip/mihomo"
+check_diff_ratio ".output/domain/surge" ".output/domain/surge"
+check_diff_ratio ".output/domain/sing-box" ".output/domain/sing-box"
+check_diff_ratio ".output/domain/mihomo" ".output/domain/mihomo"
+check_diff_ratio ".output/ip/surge" ".output/ip/surge"
+check_diff_ratio ".output/ip/sing-box" ".output/ip/sing-box"
+check_diff_ratio ".output/ip/mihomo" ".output/ip/mihomo"
 
 print_section "Artifact guard result"
 echo "artifact guard passed"

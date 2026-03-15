@@ -44,7 +44,7 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 
 - `sources/`: hand-maintained rule inputs. Custom domain lists live in `sources/domain/custom/`.
 - `tools/`: vendored helper code or upstream tooling kept in-repo for maintenance. `tools/geoip/` contains the geoip generator source that was previously mixed into `sources/`.
-- `domain/` and `ip/`: local build output directories, ignored on `main`, and published only to client-specific branches.
+- `.output/`: local build output directory, ignored on `main`, and used as the publish source for client-specific branches.
 
 ## Custom Sources
 
@@ -57,9 +57,9 @@ Supported entries:
 
 Generated outputs:
 
-- `domain/surge/<name>.list`
-- `domain/sing-box/<name>.srs`
-- `domain/mihomo/<name>.mrs`
+- `.output/domain/surge/<name>.list`
+- `.output/domain/sing-box/<name>.srs`
+- `.output/domain/mihomo/<name>.mrs`
 
 ## Workflow
 
@@ -71,7 +71,7 @@ GitHub Actions will:
 4. verify artifact integrity
 5. publish to client-specific branches
 
-The `main` branch does not keep synced upstream artifacts. Generated files are built in CI or locally and then published to the client branches.
+The `main` branch does not keep synced upstream artifacts. Generated files are built in CI or locally under `.output/` and then published to the client branches.
 Each published client branch is trimmed to `README.md`, `domain/`, and `ip/` only.
 
 Triggers:
