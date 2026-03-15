@@ -36,19 +36,37 @@ ensure_mihomo() {
     return 0
   fi
 
-  if [ ! -x "$BIN_DIR/mihomo" ]; then
-    local os arch asset archive
-    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
-    arch="$(uname -m)"
-    case "$arch" in
-      x86_64) asset="mihomo-${os}-amd64-compatible-v1.19.21.gz" ;;
-      arm64|aarch64) asset="mihomo-${os}-arm64-v1.19.21.gz" ;;
-      *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+  if [ ! -x "$BIN_DIR/mihomo" ] && [ ! -x "$BIN_DIR/mihomo.exe" ]; then
+    local raw_os os arch asset archive
+    raw_os="$(uname -s)"
+    os="$(printf '%s' "$raw_os" | tr '[:upper:]' '[:lower:]')"
+    case "$raw_os" in
+      MINGW*|MSYS*|CYGWIN*) os="windows" ;;
     esac
-    archive="$BIN_DIR/mihomo.gz"
-    curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
-    gzip -df "$archive"
-    chmod +x "$BIN_DIR/mihomo"
+    arch="$(uname -m)"
+    if [ "$os" = "windows" ]; then
+      case "$arch" in
+        x86_64) asset="mihomo-windows-amd64-compatible-v1.19.21.zip" ;;
+        arm64|aarch64) asset="mihomo-windows-arm64-v1.19.21.zip" ;;
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+      esac
+      archive="$BIN_DIR/mihomo.zip"
+      curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
+      unzip -oq "$archive" -d "$BIN_DIR/mihomo-extract"
+      mv "$BIN_DIR/mihomo-extract/mihomo.exe" "$BIN_DIR/mihomo.exe"
+      chmod +x "$BIN_DIR/mihomo.exe"
+      rm -rf "$BIN_DIR/mihomo-extract" "$archive"
+    else
+      case "$arch" in
+        x86_64) asset="mihomo-${os}-amd64-compatible-v1.19.21.gz" ;;
+        arm64|aarch64) asset="mihomo-${os}-arm64-v1.19.21.gz" ;;
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+      esac
+      archive="$BIN_DIR/mihomo.gz"
+      curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
+      gzip -df "$archive"
+      chmod +x "$BIN_DIR/mihomo"
+    fi
   fi
 
   export PATH="$BIN_DIR:$PATH"
@@ -59,12 +77,12 @@ build_mihomo_from_surge() {
   rm -rf domain/mihomo
   mkdir -p domain/mihomo
 
-  local txt base out
-  for txt in domain/surge/*.txt; do
-    [ -f "$txt" ] || continue
-    base="$(basename "$txt" .txt)"
+  local list base out
+  for list in domain/surge/*.list; do
+    [ -f "$list" ] || continue
+    base="$(basename "$list" .list)"
     out="domain/mihomo/$base.mrs"
-    mihomo convert-ruleset domain text "$txt" "$out" >/dev/null 2>&1
+    mihomo convert-ruleset domain text "$list" "$out" >/dev/null 2>&1
   done
 
   require_files "domain/mihomo" "domain/mihomo/*.mrs"
@@ -76,7 +94,11 @@ clone_branch https://github.com/nekolsd/sing-geosite.git domain-set "$TMP_BASE/d
 mkdir -p domain/surge
 cp -R "$TMP_BASE/domain-set"/. domain/surge
 rm -rf domain/surge/.git domain/surge/.github
-require_files "domain/surge" "domain/surge/*.txt"
+for file in domain/surge/*.txt; do
+  [ -f "$file" ] || continue
+  mv "$file" "${file%.txt}.list"
+done
+require_files "domain/surge" "domain/surge/*.list"
 
 # Domain sing-box from sing-geosite/rule-set
 rm -rf domain/sing-box
@@ -96,7 +118,11 @@ cp -R "$TMP_BASE/geoip/surge" ip/surge
 cp -R "$TMP_BASE/geoip/srs" ip/sing-box
 cp -R "$TMP_BASE/geoip/mrs" ip/mihomo
 rm -rf ip/surge/.git ip/sing-box/.git ip/mihomo/.git
-require_files "ip/surge" "ip/surge/*.txt"
+for file in ip/surge/*.txt; do
+  [ -f "$file" ] || continue
+  mv "$file" "${file%.txt}.list"
+done
+require_files "ip/surge" "ip/surge/*.list"
 require_files "ip/sing-box" "ip/sing-box/*.srs"
 require_files "ip/mihomo" "ip/mihomo/*.mrs"
 

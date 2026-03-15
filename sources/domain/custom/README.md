@@ -1,24 +1,24 @@
 # Custom Domain Rules
 
-自定义 domain 规则源目录。
+This directory stores custom domain rule source files.
 
-这些 `*.list` 文件会直接构建进公共规则目录：
+Each `*.list` file is built into:
 
-- `domain/surge/<name>.txt`
+- `domain/surge/<name>.list`
 - `domain/sing-box/<name>.srs`
 - `domain/mihomo/<name>.mrs`
 
-## 文件格式
+## Format
 
-支持两种规则：
+Supported rule types:
 
 - `DOMAIN,example.com`
 - `DOMAIN-SUFFIX,example.com`
 
-额外约定：
+Additional rules:
 
-- 支持空行
-- 支持 `#` 注释
-- 域名前不要带 `.`
-- 文件名仅允许 `a-z`、`0-9`、`-`
-- 避免与公共规则重名；若重名，CI 会直接失败
+- empty lines are allowed
+- lines starting with `#` are treated as comments
+- domains must not start with `.`
+- filenames may only contain lowercase letters, digits, and hyphens
+- avoid names that conflict with tracked public rules, or CI will fail

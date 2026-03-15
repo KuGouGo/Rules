@@ -35,6 +35,7 @@ check_file() {
 
   while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
+    line="${line%$'\r'}"
 
     if [[ "$line" =~ ^[[:space:]]*$ ]] || [[ "$line" =~ ^[[:space:]]*# ]]; then
       continue
