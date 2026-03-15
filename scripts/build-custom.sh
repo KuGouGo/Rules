@@ -7,9 +7,10 @@ cd "$ROOT"
 CUSTOM_SRC_DIR="$ROOT/sources/domain/custom"
 TMP_DIR="$ROOT/.tmp/custom"
 BIN_DIR="$ROOT/.bin"
-SURGE_DIR="$ROOT/domain/surge"
-SINGBOX_DIR="$ROOT/domain/sing-box"
-MIHOMO_DIR="$ROOT/domain/mihomo"
+ARTIFACT_ROOT="$ROOT/.output"
+SURGE_DIR="$ARTIFACT_ROOT/domain/surge"
+SINGBOX_DIR="$ARTIFACT_ROOT/domain/sing-box"
+MIHOMO_DIR="$ARTIFACT_ROOT/domain/mihomo"
 
 mkdir -p "$SURGE_DIR" "$SINGBOX_DIR" "$MIHOMO_DIR" "$TMP_DIR" "$BIN_DIR"
 rm -f "$TMP_DIR"/*
@@ -198,9 +199,9 @@ assert_no_name_conflict() {
   fi
 
   for tracked_path in \
-    "domain/surge/$base.list" \
-    "domain/sing-box/$base.srs" \
-    "domain/mihomo/$base.mrs"; do
+    ".output/domain/surge/$base.list" \
+    ".output/domain/sing-box/$base.srs" \
+    ".output/domain/mihomo/$base.mrs"; do
     if [ -e "$ROOT/$tracked_path" ]; then
       conflicts+=("$tracked_path")
     fi
@@ -208,7 +209,7 @@ assert_no_name_conflict() {
 
   if [ ${#conflicts[@]} -gt 0 ]; then
     echo "custom rule name conflict detected for base '$base'" >&2
-    printf 'conflicting tracked files:\n' >&2
+    printf 'conflicting generated files:\n' >&2
     printf '  - %s\n' "${conflicts[@]}" >&2
     echo "rename $CUSTOM_SRC_DIR/$base.list to a unique name and retry" >&2
     return 1

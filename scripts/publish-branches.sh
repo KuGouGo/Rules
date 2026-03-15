@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 DRY_RUN="${PUBLISH_DRY_RUN:-0}"
+ARTIFACT_ROOT="$ROOT/.output"
 
 branch_readme() {
   local branch="$1"
@@ -111,7 +112,7 @@ copy_artifacts() {
 
   mkdir -p "$dest_dir"
   shopt -s nullglob
-  for file in "$ROOT/$src_dir"/*."$extension"; do
+  for file in "$ARTIFACT_ROOT/$src_dir"/*."$extension"; do
     cp "$file" "$dest_dir/"
     copied=1
   done

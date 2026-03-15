@@ -4,9 +4,9 @@ This directory stores custom domain rule source files.
 
 Each `*.list` file is built into:
 
-- `domain/surge/<name>.list`
-- `domain/sing-box/<name>.srs`
-- `domain/mihomo/<name>.mrs`
+- `.output/domain/surge/<name>.list`
+- `.output/domain/sing-box/<name>.srs`
+- `.output/domain/mihomo/<name>.mrs`
 
 These build outputs are local artifacts and are not tracked on the `main` branch.
 
