@@ -201,7 +201,7 @@ assert_no_name_conflict() {
     "domain/surge/$base.list" \
     "domain/sing-box/$base.srs" \
     "domain/mihomo/$base.mrs"; do
-    if git ls-tree -r --name-only HEAD -- "$tracked_path" | grep -q .; then
+    if [ -e "$ROOT/$tracked_path" ]; then
       conflicts+=("$tracked_path")
     fi
   done

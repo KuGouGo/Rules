@@ -8,6 +8,8 @@ Each `*.list` file is built into:
 - `domain/sing-box/<name>.srs`
 - `domain/mihomo/<name>.mrs`
 
+These build outputs are local artifacts and are not tracked on the `main` branch.
+
 ## Format
 
 Supported rule types:
@@ -21,4 +23,4 @@ Additional rules:
 - lines starting with `#` are treated as comments
 - domains must not start with `.`
 - filenames may only contain lowercase letters, digits, and hyphens
-- avoid names that conflict with tracked public rules, or CI will fail
+- avoid names that conflict with generated public rules, or CI will fail
