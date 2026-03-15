@@ -1,4 +1,6 @@
 .bin/
+domain/
 input/
+ip/
 .tmp/
 Thumbs.db

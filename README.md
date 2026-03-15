@@ -7,7 +7,7 @@
 [![sing-box](https://img.shields.io/badge/client-sing--box-blue)](https://github.com/KuGouGo/Rules/tree/sing-box)
 [![mihomo](https://img.shields.io/badge/client-mihomo-green)](https://github.com/KuGouGo/Rules/tree/mihomo)
 
-A rule repository that syncs upstream data and publishes ready-to-use artifacts for `Surge`, `sing-box`, and `mihomo`.
+A rule repository that keeps source files on `main` and publishes ready-to-use artifacts to the `surge`, `sing-box`, and `mihomo` branches.
 
 ## What This Repo Does
 
@@ -37,8 +37,6 @@ A rule repository that syncs upstream data and publishes ready-to-use artifacts 
 |-- scripts/         # sync/build/publish scripts
 |-- sources/         # editable rule sources only
 |-- tools/           # vendored helper code and generators
-|-- domain/          # generated domain artifacts
-|-- ip/              # generated IP artifacts
 `-- README.md
 ```
 
@@ -46,7 +44,7 @@ A rule repository that syncs upstream data and publishes ready-to-use artifacts 
 
 - `sources/`: hand-maintained rule inputs. Custom domain lists live in `sources/domain/custom/`.
 - `tools/`: vendored helper code or upstream tooling kept in-repo for maintenance. `tools/geoip/` contains the geoip generator source that was previously mixed into `sources/`.
-- `domain/` and `ip/`: generated outputs published to client-specific branches.
+- `domain/` and `ip/`: local build output directories, ignored on `main`, and published only to client-specific branches.
 
 ## Custom Sources
 
@@ -72,6 +70,8 @@ GitHub Actions will:
 3. build local custom artifacts
 4. verify artifact integrity
 5. publish to client-specific branches
+
+The `main` branch does not keep synced upstream artifacts. Generated files are built in CI or locally and then published to the client branches.
 
 Triggers:
 
