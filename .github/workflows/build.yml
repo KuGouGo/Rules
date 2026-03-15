@@ -11,7 +11,7 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'scripts/**'
-      - 'sources/domain/custom/**'
+      - 'sources/custom/**'
       - 'tools/geoip/**'
   schedule:
     - cron: '0 */6 * * *'

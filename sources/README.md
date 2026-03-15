@@ -4,7 +4,8 @@ This directory is reserved for editable rule source files only.
 
 ## Layout
 
-- `domain/custom/`: custom domain rule lists maintained in this repository
+- `custom/domain/`: custom domain rule lists maintained in this repository
+- `custom/ip/`: reserved for future custom IP sources
 
 Generated artifacts do not belong here. They are written to the local `.output/` build directory and published from there.
 

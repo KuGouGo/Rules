@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-CUSTOM_SRC_DIR="$ROOT/sources/domain/custom"
+CUSTOM_SRC_DIR="$ROOT/sources/custom/domain"
 TMP_DIR="$ROOT/.tmp/custom"
 BIN_DIR="$ROOT/.bin"
 ARTIFACT_ROOT="$ROOT/.output"
