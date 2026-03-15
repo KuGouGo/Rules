@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-CUSTOM_DIR="$ROOT/sources/domain/custom"
+CUSTOM_DIR="$ROOT/sources/custom/domain"
 
 if [ ! -d "$CUSTOM_DIR" ]; then
   echo "no custom rule directory, skip"

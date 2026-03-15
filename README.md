@@ -42,13 +42,13 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 
 ## Directory Roles
 
-- `sources/`: hand-maintained rule inputs. Custom domain lists live in `sources/domain/custom/`.
+- `sources/`: hand-maintained rule inputs. Custom sources live under `sources/custom/`.
 - `tools/`: vendored helper code or upstream tooling kept in-repo for maintenance. `tools/geoip/` contains the geoip generator source that was previously mixed into `sources/`.
 - `.output/`: local build output directory, ignored on `main`, and used as the publish source for client-specific branches.
 
 ## Custom Sources
 
-Custom domain lists live in `sources/domain/custom/`.
+Custom domain lists live in `sources/custom/domain/`.
 
 Supported entries:
 
