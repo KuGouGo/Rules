@@ -36,8 +36,8 @@ build_plain_and_surge() {
   local list_file="$1"
   local base surge_out plain_out surge_tmp plain_tmp
   base="$(basename "$list_file" .list)"
-  surge_out="$SURGE_DIR/$base.txt"
-  plain_out="$TMP_DIR/$base.txt"
+  surge_out="$SURGE_DIR/$base.list"
+  plain_out="$TMP_DIR/$base.list"
   surge_tmp="$TMP_DIR/$base.surge.tmp"
   plain_tmp="$TMP_DIR/$base.plain.tmp"
 
@@ -57,6 +57,7 @@ build_plain_and_surge() {
     {
       type=$1
       value=$2
+      sub(/\r$/, "", value)
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", type)
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
       if (type == "DOMAIN") {
@@ -79,23 +80,38 @@ ensure_sing_box() {
     return 0
   fi
 
-  if [ ! -x "$BIN_DIR/sing-box" ]; then
-    local ver os arch archive package_dir
+  if [ ! -x "$BIN_DIR/sing-box" ] && [ ! -x "$BIN_DIR/sing-box.exe" ]; then
+    local ver raw_os os arch archive package_dir exe_name
     ver="1.13.2"
-    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    raw_os="$(uname -s)"
+    os="$(printf '%s' "$raw_os" | tr '[:upper:]' '[:lower:]')"
+    case "$raw_os" in
+      MINGW*|MSYS*|CYGWIN*) os="windows" ;;
+    esac
     arch="$(uname -m)"
     case "$arch" in
       x86_64) arch="amd64" ;;
       arm64|aarch64) arch="arm64" ;;
       *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
     esac
-    archive="$BIN_DIR/sing-box.tar.gz"
-    package_dir="sing-box-${ver}-${os}-${arch}"
-    curl -fL -o "$archive" "https://github.com/SagerNet/sing-box/releases/download/v${ver}/${package_dir}.tar.gz"
-    tar -xzf "$archive" -C "$BIN_DIR"
-    mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
-    chmod +x "$BIN_DIR/sing-box"
-    rm -rf "$BIN_DIR/$package_dir" "$archive"
+    if [ "$os" = "windows" ]; then
+      archive="$BIN_DIR/sing-box.zip"
+      package_dir="sing-box-${ver}-${os}-${arch}"
+      exe_name="sing-box.exe"
+      curl -fL -o "$archive" "https://github.com/SagerNet/sing-box/releases/download/v${ver}/${package_dir}.zip"
+      unzip -oq "$archive" -d "$BIN_DIR"
+      mv "$BIN_DIR/$package_dir/$exe_name" "$BIN_DIR/$exe_name"
+      chmod +x "$BIN_DIR/$exe_name"
+      rm -rf "$BIN_DIR/$package_dir" "$archive"
+    else
+      archive="$BIN_DIR/sing-box.tar.gz"
+      package_dir="sing-box-${ver}-${os}-${arch}"
+      curl -fL -o "$archive" "https://github.com/SagerNet/sing-box/releases/download/v${ver}/${package_dir}.tar.gz"
+      tar -xzf "$archive" -C "$BIN_DIR"
+      mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
+      chmod +x "$BIN_DIR/sing-box"
+      rm -rf "$BIN_DIR/$package_dir" "$archive"
+    fi
   fi
 
   export PATH="$BIN_DIR:$PATH"
@@ -106,33 +122,50 @@ ensure_mihomo() {
     return 0
   fi
 
-  if [ ! -x "$BIN_DIR/mihomo" ]; then
-    local os arch asset archive
-    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
-    arch="$(uname -m)"
-    case "$arch" in
-      x86_64) asset="mihomo-${os}-amd64-compatible-v1.19.21.gz" ;;
-      arm64|aarch64) asset="mihomo-${os}-arm64-v1.19.21.gz" ;;
-      *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+  if [ ! -x "$BIN_DIR/mihomo" ] && [ ! -x "$BIN_DIR/mihomo.exe" ]; then
+    local raw_os os arch asset archive
+    raw_os="$(uname -s)"
+    os="$(printf '%s' "$raw_os" | tr '[:upper:]' '[:lower:]')"
+    case "$raw_os" in
+      MINGW*|MSYS*|CYGWIN*) os="windows" ;;
     esac
-    archive="$BIN_DIR/mihomo.gz"
-    curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
-    gzip -df "$archive"
-    chmod +x "$BIN_DIR/mihomo"
+    arch="$(uname -m)"
+    if [ "$os" = "windows" ]; then
+      case "$arch" in
+        x86_64) asset="mihomo-windows-amd64-compatible-v1.19.21.zip" ;;
+        arm64|aarch64) asset="mihomo-windows-arm64-v1.19.21.zip" ;;
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+      esac
+      archive="$BIN_DIR/mihomo.zip"
+      curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
+      unzip -oq "$archive" -d "$BIN_DIR/mihomo-extract"
+      mv "$BIN_DIR/mihomo-extract/mihomo.exe" "$BIN_DIR/mihomo.exe"
+      chmod +x "$BIN_DIR/mihomo.exe"
+      rm -rf "$BIN_DIR/mihomo-extract" "$archive"
+    else
+      case "$arch" in
+        x86_64) asset="mihomo-${os}-amd64-compatible-v1.19.21.gz" ;;
+        arm64|aarch64) asset="mihomo-${os}-arm64-v1.19.21.gz" ;;
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+      esac
+      archive="$BIN_DIR/mihomo.gz"
+      curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
+      gzip -df "$archive"
+      chmod +x "$BIN_DIR/mihomo"
+    fi
   fi
 
   export PATH="$BIN_DIR:$PATH"
 }
 
 build_binaries() {
-  local plain_txt="$1"
-  local base json tmp_output srs_tmp mrs_tmp domains
-  base="$(basename "$plain_txt" .txt)"
+  local plain_list="$1"
+  local base json srs_tmp mrs_tmp domains
+  base="$(basename "$plain_list" .list)"
   json="$TMP_DIR/$base.json"
-  tmp_output="$TMP_DIR/$base.mrs"
   srs_tmp="$TMP_DIR/$base.srs.tmp"
   mrs_tmp="$TMP_DIR/$base.mrs.tmp"
-  domains="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_txt" | sed 's/,$//')"
+  domains="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_list" | sed 's/,$//')"
 
   cat > "$json" <<JSON
 {"version":3,"rules":[{"domain_suffix":[${domains}]}]}
@@ -141,7 +174,7 @@ JSON
   sing-box rule-set compile "$json" --output "$srs_tmp"
   write_if_changed "$srs_tmp" "$SINGBOX_DIR/$base.srs"
 
-  if mihomo convert-ruleset domain text "$plain_txt" "$mrs_tmp" >/dev/null 2>&1; then
+  if mihomo convert-ruleset domain text "$plain_list" "$mrs_tmp" >/dev/null 2>&1; then
     write_if_changed "$mrs_tmp" "$MIHOMO_DIR/$base.mrs"
   else
     echo "failed to build mihomo ruleset for $base" >&2
@@ -165,7 +198,7 @@ assert_no_name_conflict() {
   fi
 
   for tracked_path in \
-    "domain/surge/$base.txt" \
+    "domain/surge/$base.list" \
     "domain/sing-box/$base.srs" \
     "domain/mihomo/$base.mrs"; do
     if git ls-tree -r --name-only HEAD -- "$tracked_path" | grep -q .; then
@@ -177,7 +210,7 @@ assert_no_name_conflict() {
     echo "custom rule name conflict detected for base '$base'" >&2
     printf 'conflicting tracked files:\n' >&2
     printf '  - %s\n' "${conflicts[@]}" >&2
-    echo "rename sources/domain/custom/$base.list to a unique name and retry" >&2
+    echo "rename $CUSTOM_SRC_DIR/$base.list to a unique name and retry" >&2
     return 1
   fi
 }
@@ -191,9 +224,9 @@ done
 ensure_sing_box
 ensure_mihomo
 
-for plain_txt in "$TMP_DIR"/*.txt; do
-  [ -f "$plain_txt" ] || continue
-  build_binaries "$plain_txt"
+for plain_list in "$TMP_DIR"/*.list; do
+  [ -f "$plain_list" ] || continue
+  build_binaries "$plain_list"
 done
 
 echo "custom build done"

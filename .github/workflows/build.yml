@@ -12,7 +12,7 @@ on:
       - '.github/workflows/build.yml'
       - 'scripts/**'
       - 'sources/domain/custom/**'
-      - 'sources/ip/**'
+      - 'tools/geoip/**'
   schedule:
     - cron: '0 */6 * * *'
 
@@ -59,13 +59,13 @@ jobs:
         if: always()
         run: |
           echo "Domain surge files:"
-          ls -1 domain/surge/*.txt 2>/dev/null | wc -l
+          ls -1 domain/surge/*.list 2>/dev/null | wc -l
           echo "Domain sing-box files:"
           ls -1 domain/sing-box/*.srs 2>/dev/null | wc -l
           echo "Domain mihomo files:"
           ls -1 domain/mihomo/*.mrs 2>/dev/null | wc -l
           echo "IP surge files:"
-          ls -1 ip/surge/*.txt 2>/dev/null | wc -l
+          ls -1 ip/surge/*.list 2>/dev/null | wc -l
           echo "IP sing-box files:"
           ls -1 ip/sing-box/*.srs 2>/dev/null | wc -l
           echo "IP mihomo files:"

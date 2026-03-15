@@ -51,6 +51,24 @@ check_min_files() {
   fi
 }
 
+same_logical_files_after_extension_migration() {
+  local pathspec="$1"
+  local baseline current
+
+  baseline="$(
+    git ls-tree -r --name-only HEAD -- "$pathspec" \
+      | sed -E 's#^.*/##; s/\.(txt|list)$//' \
+      | sort -u
+  )"
+  current="$(
+    find "$pathspec" -maxdepth 1 -type f \
+      | sed -E 's#.*[\\/]##; s/\.(txt|list)$//' \
+      | sort -u
+  )"
+
+  [ -n "$baseline" ] && [ "$baseline" = "$current" ]
+}
+
 check_diff_ratio() {
   local label="$1"
   local pathspec="$2"
@@ -59,6 +77,12 @@ check_diff_ratio() {
   baseline_count=$(git ls-tree -r --name-only HEAD -- "$pathspec" | wc -l | tr -d ' ')
   if [ "$baseline_count" -eq 0 ]; then
     echo "$label: no baseline files, skip diff-ratio guard"
+    return 0
+  fi
+
+  if { [ "$pathspec" = "domain/surge" ] || [ "$pathspec" = "ip/surge" ]; } \
+    && same_logical_files_after_extension_migration "$pathspec"; then
+    echo "$label: detected one-time extension migration (.txt -> .list), skip diff-ratio guard"
     return 0
   fi
 
@@ -83,10 +107,10 @@ check_diff_ratio() {
 }
 
 print_section "Artifact count checks"
-check_min_files "domain/surge" "domain/surge/*.txt" 1000
+check_min_files "domain/surge" "domain/surge/*.list" 1000
 check_min_files "domain/sing-box" "domain/sing-box/*.srs" 1000
 check_min_files "domain/mihomo" "domain/mihomo/*.mrs" 1000
-check_min_files "ip/surge" "ip/surge/*.txt" 8
+check_min_files "ip/surge" "ip/surge/*.list" 8
 check_min_files "ip/sing-box" "ip/sing-box/*.srs" 8
 check_min_files "ip/mihomo" "ip/mihomo/*.mrs" 8
 

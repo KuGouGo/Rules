@@ -14,17 +14,21 @@ branch_readme() {
       cat <<'EOF'
 # Rules / Surge
 
-## 目录
+Generated artifacts for Surge.
+
+## Contents
 
 - [domain/](./domain/)
 - [ip/](./ip/)
 
-## 示例
+Surge plain-text rule files in this branch use the `.list` extension.
+
+## Example
 
 ```ini
 [Rule]
-DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.txt,DIRECT
-RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.txt,DIRECT
+DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.list,DIRECT
 ```
 EOF
       ;;
@@ -32,12 +36,14 @@ EOF
       cat <<'EOF'
 # Rules / sing-box
 
-## 目录
+Generated artifacts for sing-box.
+
+## Contents
 
 - [domain/](./domain/)
 - [ip/](./ip/)
 
-## 示例
+## Example
 
 ```json
 {
@@ -65,12 +71,14 @@ EOF
       cat <<'EOF'
 # Rules / mihomo
 
-## 目录
+Generated artifacts for mihomo.
+
+## Contents
 
 - [domain/](./domain/)
 - [ip/](./ip/)
 
-## 示例
+## Example
 
 ```yaml
 rule-providers:
