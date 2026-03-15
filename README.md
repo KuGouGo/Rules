@@ -19,9 +19,9 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 ## Branches
 
 - `main`: source files, scripts, workflows, and documentation
-- `surge`: generated Surge artifacts
-- `sing-box`: generated sing-box artifacts
-- `mihomo`: generated mihomo artifacts
+- `surge`: final Surge artifacts only
+- `sing-box`: final sing-box artifacts only
+- `mihomo`: final mihomo artifacts only
 
 ## Quick Links
 
@@ -72,6 +72,7 @@ GitHub Actions will:
 5. publish to client-specific branches
 
 The `main` branch does not keep synced upstream artifacts. Generated files are built in CI or locally and then published to the client branches.
+Each published client branch is trimmed to `README.md`, `domain/`, and `ip/` only.
 
 Triggers:
 
