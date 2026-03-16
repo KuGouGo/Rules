@@ -66,7 +66,7 @@ build_plain_and_surge() {
         print value >> plain
       } else if (type == "DOMAIN-SUFFIX") {
         print "." value >> surge
-        print value >> plain
+        print "." value >> plain
       }
     }
   ' surge="$surge_tmp" plain="$plain_tmp" "$list_file"
@@ -161,16 +161,27 @@ ensure_mihomo() {
 
 build_binaries() {
   local plain_list="$1"
-  local base json srs_tmp mrs_tmp domains
+  local base json srs_tmp mrs_tmp domains suffixes
   base="$(basename "$plain_list" .list)"
   json="$TMP_DIR/$base.json"
   srs_tmp="$TMP_DIR/$base.srs.tmp"
   mrs_tmp="$TMP_DIR/$base.mrs.tmp"
-  domains="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_list" | sed 's/,$//')"
+  domains="$(awk 'NF && $0 !~ /^\./ { printf "\"%s\",", $0 }' "$plain_list" | sed 's/,$//')"
+  suffixes="$(awk 'NF && $0 ~ /^\./ { value=$0; sub(/^\./, "", value); printf "\"%s\",", value }' "$plain_list" | sed 's/,$//')"
 
-  cat > "$json" <<JSON
-{"version":3,"rules":[{"domain_suffix":[${domains}]}]}
-JSON
+  {
+    printf '{"version":3,"rules":[{'
+    if [ -n "$domains" ]; then
+      printf '"domain":[%s]' "$domains"
+    fi
+    if [ -n "$suffixes" ]; then
+      if [ -n "$domains" ]; then
+        printf ','
+      fi
+      printf '"domain_suffix":[%s]' "$suffixes"
+    fi
+    printf '}]}'
+  } > "$json"
 
   sing-box rule-set compile "$json" --output "$srs_tmp"
   write_if_changed "$srs_tmp" "$SINGBOX_DIR/$base.srs"
