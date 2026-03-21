@@ -14,8 +14,7 @@ on:
       - 'sources/custom/**'
       - 'tools/geoip/**'
   schedule:
-    - cron: '0 */6 * * *'
-
+    - cron: '0 8 * * *'
 concurrency:
   group: sync-rules
   cancel-in-progress: false
