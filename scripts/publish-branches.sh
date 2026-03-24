@@ -152,7 +152,7 @@ publish_branch() {
   local domain_dir="$2"
   local ip_dir="$3"
   local extension="$4"
-  local tmpdir
+  local tmpdir local_tree remote_tree
 
   tmpdir="$(mktemp -d)"
   pushd "$tmpdir" >/dev/null
@@ -168,6 +168,16 @@ publish_branch() {
   assert_branch_layout "$extension"
 
   git add README.md domain ip
+  local_tree="$(git write-tree)"
+  remote_tree="$(git -C "$ROOT" rev-parse "origin/$branch^{tree}" 2>/dev/null || true)"
+
+  if [ -n "$remote_tree" ] && [ "$local_tree" = "$remote_tree" ]; then
+    echo "$branch artifacts unchanged, skip publish"
+    popd >/dev/null
+    rm -rf "$tmpdir"
+    return 0
+  fi
+
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
 
   if [ "$DRY_RUN" = "1" ]; then

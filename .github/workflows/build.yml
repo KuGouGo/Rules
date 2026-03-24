@@ -5,6 +5,16 @@ env:
 
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Build scope
+        type: choice
+        required: true
+        default: auto
+        options:
+          - auto
+          - custom
+          - full
   push:
     branches:
       - main
@@ -30,6 +40,64 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine build scope
+        id: scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SCOPE: ${{ github.event.inputs.scope || 'auto' }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          scope="full"
+          reason="scheduled sync refresh"
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$INPUT_SCOPE" in
+              custom)
+                scope="custom"
+                reason="manual custom-only publish"
+                ;;
+              full|auto)
+                scope="full"
+                reason="manual full sync"
+                ;;
+            esac
+          elif [ "$EVENT_NAME" = "push" ]; then
+            before="$BEFORE_SHA"
+            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+              before="$(git rev-parse "${CURRENT_SHA}^" 2>/dev/null || true)"
+            fi
+
+            changed_files=""
+            deleted_custom_files=""
+            if [ -n "$before" ]; then
+              changed_files="$(git diff --name-only "$before" "$CURRENT_SHA")"
+              deleted_custom_files="$(git diff --name-only --diff-filter=D "$before" "$CURRENT_SHA" -- 'sources/custom/**')"
+            else
+              changed_files="$(git diff-tree --no-commit-id --name-only -r "$CURRENT_SHA")"
+              deleted_custom_files="$(git diff-tree --no-commit-id --name-only --diff-filter=D -r "$CURRENT_SHA" -- 'sources/custom/**')"
+            fi
+
+            echo "Changed files:"
+            printf '%s\n' "$changed_files"
+
+            if [ -n "$deleted_custom_files" ]; then
+              scope="full"
+              reason="custom deletions require full sync"
+            elif [ -n "$changed_files" ] && printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
+              scope="full"
+              reason="push includes non-custom changes"
+            else
+              scope="custom"
+              reason="push only updates custom sources"
+            fi
+          fi
+
+          echo "scope=$scope" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+          echo "Build scope: $scope ($reason)"
+
       - name: Restore tool cache
         uses: actions/cache@v4
         with:
@@ -42,13 +110,22 @@ jobs:
       - name: Lint custom rules
         run: ./scripts/lint-custom-rules.sh
 
+      - name: Show selected build scope
+        run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
+
       - name: Sync all rules
+        if: steps.scope.outputs.scope == 'full'
         run: ./scripts/sync-all.sh
+
+      - name: Restore published artifacts
+        if: steps.scope.outputs.scope == 'custom'
+        run: ./scripts/restore-published-artifacts.sh
 
       - name: Build custom rules
         run: ./scripts/build-custom.sh
 
       - name: Fetch extra mihomo rules
+        if: steps.scope.outputs.scope == 'full'
         run: ./scripts/fetch-extra-mihomo.sh
 
       - name: Guard artifacts

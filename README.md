@@ -66,7 +66,7 @@ Generated outputs:
 GitHub Actions will:
 
 1. lint custom rule sources
-2. sync upstream rule artifacts
+2. choose between a full sync or a custom-only fast path
 3. build local custom artifacts
 4. verify artifact integrity
 5. publish to client-specific branches
@@ -76,9 +76,11 @@ Each published client branch is trimmed to `README.md`, `domain/`, and `ip/` onl
 
 Triggers:
 
-- manual `workflow_dispatch`
+- manual `workflow_dispatch` with `auto`, `custom`, or `full` scope
 - scheduled sync every 6 hours
 - pushes that modify workflows, scripts, custom sources, or vendored tooling
+
+Pushes that only add or edit `sources/custom/**` now reuse the currently published client branches as the artifact baseline, rebuild custom outputs, and skip the expensive upstream sync step. Scheduled runs, workflow/tooling changes, custom deletions, and manual full runs still refresh all upstream artifacts.
 
 ## Branch Usage
 
