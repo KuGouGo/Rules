@@ -24,6 +24,7 @@ on:
       - 'sources/custom/**'
       - 'tools/geoip/**'
   schedule:
+    # Run once per day at 08:00 UTC.
     - cron: '0 8 * * *'
 concurrency:
   group: sync-rules
@@ -98,14 +99,18 @@ jobs:
           echo "reason=$reason" >> "$GITHUB_OUTPUT"
           echo "Build scope: $scope ($reason)"
 
+      - name: Resolve core versions
+        id: core_versions
+        run: bash ./scripts/resolve-core-versions.sh
+
       - name: Restore tool cache
         uses: actions/cache@v4
         with:
           path: .bin
-          key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-1.13.2-mihomo-1.19.21
+          key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-${{ steps.core_versions.outputs.sing_box_version }}-mihomo-${{ steps.core_versions.outputs.mihomo_version }}
 
       - name: Prepare scripts
-        run: chmod +x scripts/*.sh
+        run: chmod +x scripts/*.sh scripts/lib/*.sh
 
       - name: Lint custom rules
         run: ./scripts/lint-custom-rules.sh
