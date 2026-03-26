@@ -11,6 +11,9 @@ IP_TMP_DIR="$TMP_BASE/ip-build"
 ARTIFACT_ROOT="$ROOT/.output"
 DOMAIN_ROOT="$ARTIFACT_ROOT/domain"
 IP_ROOT="$ARTIFACT_ROOT/ip"
+
+source "$ROOT/scripts/lib/common.sh"
+
 rm -rf "$TMP_BASE"
 mkdir -p "$TMP_BASE" "$BIN_DIR" "$IP_TMP_DIR"
 trap 'rm -rf "$TMP_BASE"' EXIT
@@ -33,90 +36,6 @@ require_files() {
     echo "$label is empty: $glob" >&2
     exit 1
   fi
-}
-
-ensure_sing_box() {
-  if command -v sing-box >/dev/null 2>&1; then
-    return 0
-  fi
-
-  if [ ! -x "$BIN_DIR/sing-box" ] && [ ! -x "$BIN_DIR/sing-box.exe" ]; then
-    local ver raw_os os arch archive package_dir exe_name
-    ver="1.13.2"
-    raw_os="$(uname -s)"
-    os="$(printf '%s' "$raw_os" | tr '[:upper:]' '[:lower:]')"
-    case "$raw_os" in
-      MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-    esac
-    arch="$(uname -m)"
-    case "$arch" in
-      x86_64) arch="amd64" ;;
-      arm64|aarch64) arch="arm64" ;;
-      *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
-    esac
-
-    if [ "$os" = "windows" ]; then
-      archive="$BIN_DIR/sing-box.zip"
-      package_dir="sing-box-${ver}-${os}-${arch}"
-      exe_name="sing-box.exe"
-      curl -fL -o "$archive" "https://github.com/SagerNet/sing-box/releases/download/v${ver}/${package_dir}.zip"
-      unzip -oq "$archive" -d "$BIN_DIR"
-      mv "$BIN_DIR/$package_dir/$exe_name" "$BIN_DIR/$exe_name"
-      chmod +x "$BIN_DIR/$exe_name"
-      rm -rf "$BIN_DIR/$package_dir" "$archive"
-    else
-      archive="$BIN_DIR/sing-box.tar.gz"
-      package_dir="sing-box-${ver}-${os}-${arch}"
-      curl -fL -o "$archive" "https://github.com/SagerNet/sing-box/releases/download/v${ver}/${package_dir}.tar.gz"
-      tar -xzf "$archive" -C "$BIN_DIR"
-      mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
-      chmod +x "$BIN_DIR/sing-box"
-      rm -rf "$BIN_DIR/$package_dir" "$archive"
-    fi
-  fi
-
-  export PATH="$BIN_DIR:$PATH"
-}
-
-ensure_mihomo() {
-  if command -v mihomo >/dev/null 2>&1; then
-    return 0
-  fi
-
-  if [ ! -x "$BIN_DIR/mihomo" ] && [ ! -x "$BIN_DIR/mihomo.exe" ]; then
-    local raw_os os arch asset archive
-    raw_os="$(uname -s)"
-    os="$(printf '%s' "$raw_os" | tr '[:upper:]' '[:lower:]')"
-    case "$raw_os" in
-      MINGW*|MSYS*|CYGWIN*) os="windows" ;;
-    esac
-    arch="$(uname -m)"
-    if [ "$os" = "windows" ]; then
-      case "$arch" in
-        x86_64) asset="mihomo-windows-amd64-compatible-v1.19.21.zip" ;;
-        arm64|aarch64) asset="mihomo-windows-arm64-v1.19.21.zip" ;;
-        *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
-      esac
-      archive="$BIN_DIR/mihomo.zip"
-      curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
-      unzip -oq "$archive" -d "$BIN_DIR/mihomo-extract"
-      mv "$BIN_DIR/mihomo-extract/mihomo.exe" "$BIN_DIR/mihomo.exe"
-      chmod +x "$BIN_DIR/mihomo.exe"
-      rm -rf "$BIN_DIR/mihomo-extract" "$archive"
-    else
-      case "$arch" in
-        x86_64) asset="mihomo-${os}-amd64-compatible-v1.19.21.gz" ;;
-        arm64|aarch64) asset="mihomo-${os}-arm64-v1.19.21.gz" ;;
-        *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
-      esac
-      archive="$BIN_DIR/mihomo.gz"
-      curl -fL -o "$archive" "https://github.com/MetaCubeX/mihomo/releases/latest/download/${asset}"
-      gzip -df "$archive"
-      chmod +x "$BIN_DIR/mihomo"
-    fi
-  fi
-
-  export PATH="$BIN_DIR:$PATH"
 }
 
 merge_cn_operator_lists() {

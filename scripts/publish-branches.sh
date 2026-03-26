@@ -180,6 +180,7 @@ publish_branch() {
 
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
 
+  local remote_url local_tree remote_tree
   if [ "$DRY_RUN" = "1" ]; then
     echo "=== ${branch} publish dry-run ==="
     echo "domain files: $(find domain -maxdepth 1 -type f | wc -l | tr -d ' ')"
@@ -189,13 +190,23 @@ publish_branch() {
     return 0
   fi
 
-  local remote_url
   remote_url="$(git -C "$ROOT" remote get-url origin)"
   if [[ "$remote_url" == https://github.com/* ]] && [ -n "${GITHUB_TOKEN:-}" ]; then
     remote_url="https://x-access-token:${GITHUB_TOKEN}@${remote_url#https://}"
   fi
-
   git remote add origin "$remote_url"
+
+  local_tree="$(git rev-parse HEAD^{tree})"
+  if git fetch --depth=1 origin "$branch" >/dev/null 2>&1; then
+    remote_tree="$(git rev-parse FETCH_HEAD^{tree})"
+    if [ "$local_tree" = "$remote_tree" ]; then
+      echo "${branch} artifacts unchanged, skip push"
+      popd >/dev/null
+      rm -rf "$tmpdir"
+      return 0
+    fi
+  fi
+
   git push -f origin HEAD:"$branch"
 
   popd >/dev/null

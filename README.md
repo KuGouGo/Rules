@@ -67,17 +67,20 @@ GitHub Actions will:
 
 1. lint custom rule sources
 2. choose between a full sync or a custom-only fast path
-3. build local custom artifacts
-4. verify artifact integrity
-5. publish to client-specific branches
+3. resolve the latest official `sing-box` and `mihomo` core versions
+4. sync upstream rule artifacts when a full refresh is needed
+5. build local custom artifacts
+6. verify artifact integrity
+7. publish to client-specific branches
 
 The `main` branch does not keep synced upstream artifacts. Generated files are built in CI or locally under `.output/` and then published to the client branches.
 Each published client branch is trimmed to `README.md`, `domain/`, and `ip/` only.
+The tool bootstrap layer resolves the latest official `sing-box` and `mihomo` releases at runtime instead of pinning them in the repo.
 
 Triggers:
 
 - manual `workflow_dispatch` with `auto`, `custom`, or `full` scope
-- scheduled sync every 6 hours
+- scheduled sync once per day at 08:00 UTC
 - pushes that modify workflows, scripts, custom sources, or vendored tooling
 
 Pushes that only add or edit `sources/custom/**` now reuse the currently published client branches as the artifact baseline, rebuild custom outputs, and skip the expensive upstream sync step. Scheduled runs, workflow/tooling changes, custom deletions, and manual full runs still refresh all upstream artifacts.
