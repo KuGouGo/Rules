@@ -7,15 +7,17 @@ cd "$ROOT"
 
 TMP_BASE="$ROOT/.tmp/sync"
 BIN_DIR="$ROOT/.bin"
+DOMAIN_TMP_DIR="$TMP_BASE/domain-build"
 IP_TMP_DIR="$TMP_BASE/ip-build"
 ARTIFACT_ROOT="$ROOT/.output"
 DOMAIN_ROOT="$ARTIFACT_ROOT/domain"
 IP_ROOT="$ARTIFACT_ROOT/ip"
 
 source "$ROOT/scripts/lib/common.sh"
+source "$ROOT/scripts/lib/rules.sh"
 
 rm -rf "$TMP_BASE"
-mkdir -p "$TMP_BASE" "$BIN_DIR" "$IP_TMP_DIR"
+mkdir -p "$TMP_BASE" "$BIN_DIR" "$DOMAIN_TMP_DIR" "$IP_TMP_DIR"
 trap 'rm -rf "$TMP_BASE"' EXIT
 
 mkdir -p "$DOMAIN_ROOT" "$IP_ROOT"
@@ -27,6 +29,21 @@ clone_branch() {
   local branch="$2"
   local dest="$3"
   git clone --depth=1 --single-branch --branch "$branch" "$repo" "$dest"
+}
+
+copy_txt_tree_as_list() {
+  local src_dir="$1"
+  local dest_dir="$2"
+  local file
+
+  mkdir -p "$dest_dir"
+  cp -R "$src_dir"/. "$dest_dir"
+  rm -rf "$dest_dir/.git"
+
+  for file in "$dest_dir"/*.txt; do
+    [ -f "$file" ] || continue
+    mv "$file" "${file%.txt}.list"
+  done
 }
 
 require_files() {
@@ -60,94 +77,33 @@ merge_cn_operator_lists() {
   rm -f "${operator_files[@]}"
 }
 
-build_ip_binaries_from_surge() {
-  ensure_sing_box
-  ensure_mihomo
-  rm -rf "$IP_ROOT/sing-box" "$IP_ROOT/mihomo"
-  mkdir -p "$IP_ROOT/sing-box" "$IP_ROOT/mihomo"
-
-  local list base plain_txt json srs_out mrs_out cidrs
-  for list in "$IP_ROOT"/surge/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    plain_txt="$IP_TMP_DIR/$base.txt"
-    json="$IP_TMP_DIR/$base.json"
-    srs_out="$IP_ROOT/sing-box/$base.srs"
-    mrs_out="$IP_ROOT/mihomo/$base.mrs"
-
-    awk -F, '
-      /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
-      $1 == "IP-CIDR" || $1 == "IP-CIDR6" {
-        value=$2
-        gsub(/\r$/, "", value)
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-        if (value != "") print value
-      }
-    ' "$list" > "$plain_txt"
-
-    cidrs="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_txt" | sed 's/,$//')"
-    cat > "$json" <<JSON
-{"version":3,"rules":[{"ip_cidr":[${cidrs}]}]}
-JSON
-
-    sing-box rule-set compile "$json" --output "$srs_out"
-    mihomo convert-ruleset ipcidr text "$plain_txt" "$mrs_out" >/dev/null 2>&1
-  done
-
-  require_files "$IP_ROOT/sing-box" "$IP_ROOT/sing-box/*.srs"
-  require_files "$IP_ROOT/mihomo" "$IP_ROOT/mihomo/*.mrs"
-}
-
-build_mihomo_from_surge() {
-  ensure_mihomo
-  rm -rf "$DOMAIN_ROOT/mihomo"
-  mkdir -p "$DOMAIN_ROOT/mihomo"
-
-  local list base out
-  for list in "$DOMAIN_ROOT"/surge/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    out="$DOMAIN_ROOT/mihomo/$base.mrs"
-    mihomo convert-ruleset domain text "$list" "$out" >/dev/null 2>&1
-  done
-
-  require_files "$DOMAIN_ROOT/mihomo" "$DOMAIN_ROOT/mihomo/*.mrs"
-}
-
 # Domain surge from sing-geosite/domain-set
 rm -rf "$DOMAIN_ROOT/surge"
 clone_branch https://github.com/nekolsd/sing-geosite.git domain-set "$TMP_BASE/domain-set"
-mkdir -p "$DOMAIN_ROOT/surge"
-cp -R "$TMP_BASE/domain-set"/. "$DOMAIN_ROOT/surge"
-rm -rf "$DOMAIN_ROOT/surge/.git" "$DOMAIN_ROOT/surge/.github"
-for file in "$DOMAIN_ROOT"/surge/*.txt; do
-  [ -f "$file" ] || continue
-  mv "$file" "${file%.txt}.list"
-done
+copy_txt_tree_as_list "$TMP_BASE/domain-set" "$DOMAIN_ROOT/surge"
 require_files "$DOMAIN_ROOT/surge" "$DOMAIN_ROOT/surge/*.list"
 
-# Domain sing-box from sing-geosite/rule-set
-rm -rf "$DOMAIN_ROOT/sing-box"
-clone_branch https://github.com/nekolsd/sing-geosite.git rule-set "$TMP_BASE/rule-set"
-mkdir -p "$DOMAIN_ROOT/sing-box"
-cp -R "$TMP_BASE/rule-set"/. "$DOMAIN_ROOT/sing-box"
-rm -rf "$DOMAIN_ROOT/sing-box/.git" "$DOMAIN_ROOT/sing-box/.github"
+# Domain sing-box and mihomo built locally from the same surge domain-set text
+build_domain_artifacts_from_surge_dir \
+  "$DOMAIN_ROOT/surge" \
+  "$DOMAIN_TMP_DIR" \
+  "$DOMAIN_ROOT/sing-box" \
+  "$DOMAIN_ROOT/mihomo"
 require_files "$DOMAIN_ROOT/sing-box" "$DOMAIN_ROOT/sing-box/*.srs"
-
-# Domain mihomo built locally from surge domain-set text
-build_mihomo_from_surge
+require_files "$DOMAIN_ROOT/mihomo" "$DOMAIN_ROOT/mihomo/*.mrs"
 
 # IP from geoip/release
 rm -rf "$IP_ROOT/surge" "$IP_ROOT/sing-box" "$IP_ROOT/mihomo"
 clone_branch https://github.com/nekolsd/geoip.git release "$TMP_BASE/geoip"
-cp -R "$TMP_BASE/geoip/surge" "$IP_ROOT/surge"
-rm -rf "$IP_ROOT/surge/.git"
-for file in "$IP_ROOT"/surge/*.txt; do
-  [ -f "$file" ] || continue
-  mv "$file" "${file%.txt}.list"
-done
+copy_txt_tree_as_list "$TMP_BASE/geoip/surge" "$IP_ROOT/surge"
 merge_cn_operator_lists
 require_files "$IP_ROOT/surge" "$IP_ROOT/surge/*.list"
-build_ip_binaries_from_surge
+build_ip_artifacts_from_surge_dir \
+  "$IP_ROOT/surge" \
+  "$IP_TMP_DIR" \
+  "$IP_ROOT/sing-box" \
+  "$IP_ROOT/mihomo"
+require_files "$IP_ROOT/sing-box" "$IP_ROOT/sing-box/*.srs"
+require_files "$IP_ROOT/mihomo" "$IP_ROOT/mihomo/*.mrs"
 
 echo "=== SYNC DONE ==="

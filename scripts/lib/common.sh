@@ -43,6 +43,18 @@ detect_arch() {
   esac
 }
 
+require_non_windows_shell() {
+  local os
+  os="$(detect_os)"
+
+  if [ "$os" = "windows" ]; then
+    echo "local Windows builds are not supported; use GitHub Actions or a non-Windows shell environment" >&2
+    return 1
+  fi
+
+  printf '%s' "$os"
+}
+
 download_file() {
   local url="$1"
   local out="$2"
@@ -134,41 +146,28 @@ write_tool_version() {
 }
 
 ensure_sing_box() {
-  local version os arch archive package_dir exe_name
+  local version os arch archive package_dir
   version="$(resolve_sing_box_version)"
 
-  if { [ -x "$BIN_DIR/sing-box" ] || [ -x "$BIN_DIR/sing-box.exe" ]; } && tool_is_current "sing-box" "$version"; then
+  if [ -x "$BIN_DIR/sing-box" ] && tool_is_current "sing-box" "$version"; then
     export PATH="$BIN_DIR:$PATH"
     return 0
   fi
 
-  rm -f "$BIN_DIR/sing-box" "$BIN_DIR/sing-box.exe" "$(tool_version_file "sing-box")"
+  rm -f "$BIN_DIR/sing-box" "$(tool_version_file "sing-box")"
 
-  os="$(detect_os)"
+  os="$(require_non_windows_shell)"
   arch="$(detect_arch)"
 
-  if [ "$os" = "windows" ]; then
-    archive="$BIN_DIR/sing-box.zip"
-    package_dir="sing-box-${version}-${os}-${arch}"
-    exe_name="sing-box.exe"
-    download_file \
-      "https://github.com/SagerNet/sing-box/releases/download/v${version}/${package_dir}.zip" \
-      "$archive"
-    unzip -oq "$archive" -d "$BIN_DIR"
-    mv "$BIN_DIR/$package_dir/$exe_name" "$BIN_DIR/$exe_name"
-    chmod +x "$BIN_DIR/$exe_name"
-    rm -rf "$BIN_DIR/$package_dir" "$archive"
-  else
-    archive="$BIN_DIR/sing-box.tar.gz"
-    package_dir="sing-box-${version}-${os}-${arch}"
-    download_file \
-      "https://github.com/SagerNet/sing-box/releases/download/v${version}/${package_dir}.tar.gz" \
-      "$archive"
-    tar -xzf "$archive" -C "$BIN_DIR"
-    mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
-    chmod +x "$BIN_DIR/sing-box"
-    rm -rf "$BIN_DIR/$package_dir" "$archive"
-  fi
+  archive="$BIN_DIR/sing-box.tar.gz"
+  package_dir="sing-box-${version}-${os}-${arch}"
+  download_file \
+    "https://github.com/SagerNet/sing-box/releases/download/v${version}/${package_dir}.tar.gz" \
+    "$archive"
+  tar -xzf "$archive" -C "$BIN_DIR"
+  mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
+  chmod +x "$BIN_DIR/sing-box"
+  rm -rf "$BIN_DIR/$package_dir" "$archive"
 
   write_tool_version "sing-box" "$version"
 
@@ -179,41 +178,26 @@ ensure_mihomo() {
   local version os arch asset archive
   version="$(resolve_mihomo_version)"
 
-  if { [ -x "$BIN_DIR/mihomo" ] || [ -x "$BIN_DIR/mihomo.exe" ]; } && tool_is_current "mihomo" "$version"; then
+  if [ -x "$BIN_DIR/mihomo" ] && tool_is_current "mihomo" "$version"; then
     export PATH="$BIN_DIR:$PATH"
     return 0
   fi
 
-  rm -f "$BIN_DIR/mihomo" "$BIN_DIR/mihomo.exe" "$(tool_version_file "mihomo")"
+  rm -f "$BIN_DIR/mihomo" "$(tool_version_file "mihomo")"
 
-  os="$(detect_os)"
+  os="$(require_non_windows_shell)"
   arch="$(detect_arch)"
 
-  if [ "$os" = "windows" ]; then
-    case "$arch" in
-      amd64) asset="mihomo-windows-amd64-compatible-v${version}.zip" ;;
-      arm64) asset="mihomo-windows-arm64-v${version}.zip" ;;
-    esac
-    archive="$BIN_DIR/mihomo.zip"
-    download_file \
-      "https://github.com/MetaCubeX/mihomo/releases/download/v${version}/${asset}" \
-      "$archive"
-    unzip -oq "$archive" -d "$BIN_DIR/mihomo-extract"
-    mv "$BIN_DIR/mihomo-extract/mihomo.exe" "$BIN_DIR/mihomo.exe"
-    chmod +x "$BIN_DIR/mihomo.exe"
-    rm -rf "$BIN_DIR/mihomo-extract" "$archive"
-  else
-    case "$arch" in
-      amd64) asset="mihomo-${os}-amd64-compatible-v${version}.gz" ;;
-      arm64) asset="mihomo-${os}-arm64-v${version}.gz" ;;
-    esac
-    archive="$BIN_DIR/mihomo.gz"
-    download_file \
-      "https://github.com/MetaCubeX/mihomo/releases/download/v${version}/${asset}" \
-      "$archive"
-    gzip -df "$archive"
-    chmod +x "$BIN_DIR/mihomo"
-  fi
+  case "$arch" in
+    amd64) asset="mihomo-${os}-amd64-compatible-v${version}.gz" ;;
+    arm64) asset="mihomo-${os}-arm64-v${version}.gz" ;;
+  esac
+  archive="$BIN_DIR/mihomo.gz"
+  download_file \
+    "https://github.com/MetaCubeX/mihomo/releases/download/v${version}/${asset}" \
+    "$archive"
+  gzip -df "$archive"
+  chmod +x "$BIN_DIR/mihomo"
 
   write_tool_version "mihomo" "$version"
 
