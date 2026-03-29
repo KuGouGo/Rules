@@ -13,7 +13,7 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 
 - syncs domain artifacts from `nekolsd/sing-geosite`
 - syncs IP artifacts from `nekolsd/geoip`
-- builds local custom domain rules into all supported client formats
+- builds local custom domain and IP rules into all supported client formats
 - publishes client-specific branches: `surge`, `sing-box`, and `mihomo`
 
 ## Branches
@@ -28,12 +28,14 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 - [Surge](https://github.com/KuGouGo/Rules/tree/surge)
 - [sing-box](https://github.com/KuGouGo/Rules/tree/sing-box)
 - [mihomo](https://github.com/KuGouGo/Rules/tree/mihomo)
+- [Intermediate Artifacts](./docs/intermediate-artifacts.md)
 
 ## Layout
 
 ```text
 .
 |-- .github/         # CI workflows
+|-- docs/            # conversion and maintenance notes
 |-- scripts/         # sync/build/publish scripts
 |-- sources/         # editable rule sources only
 |-- tools/           # vendored helper code and generators
@@ -48,18 +50,9 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 
 ## Custom Sources
 
-Custom domain lists live in `sources/custom/domain/`.
-
-Supported entries:
-
-- `DOMAIN,example.com`
-- `DOMAIN-SUFFIX,example.com`
-
-Generated outputs:
-
-- `.output/domain/surge/<name>.list`
-- `.output/domain/sing-box/<name>.srs`
-- `.output/domain/mihomo/<name>.mrs`
+- editable custom inputs live under `sources/custom/`
+- generated client artifacts are written to `.output/`
+- intermediate conversion formats are documented in [Intermediate Artifacts](./docs/intermediate-artifacts.md)
 
 ## Workflow
 
@@ -76,6 +69,7 @@ GitHub Actions will:
 The `main` branch does not keep synced upstream artifacts. Generated files are built in CI or locally under `.output/` and then published to the client branches.
 Each published client branch is trimmed to `README.md`, `domain/`, and `ip/` only.
 The tool bootstrap layer resolves the latest official `sing-box` and `mihomo` releases at runtime instead of pinning them in the repo.
+Build scripts are intended for GitHub Actions or non-Windows shell environments.
 
 Triggers:
 
