@@ -138,6 +138,8 @@ rule-providers:
 
 Domain rules are compiled to mihomo `mrs` after keeping `DOMAIN` and `DOMAIN-SUFFIX`.
 `DOMAIN-KEYWORD` and `DOMAIN-REGEX` are kept for sing-box output.
+Surge `RULE-SET` keeps `DOMAIN`, `DOMAIN-SUFFIX`, and `DOMAIN-KEYWORD`.
+`DOMAIN-REGEX` is filtered out for Surge because Surge does not parse it in remote rulesets.
 For mihomo `mrs`, only `DOMAIN` and `DOMAIN-SUFFIX` are used.
 Lists without any `DOMAIN` / `DOMAIN-SUFFIX` entries are treated as invalid for mihomo output.
 

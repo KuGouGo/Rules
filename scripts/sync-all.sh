@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 WORK_TMP_DIR="$ROOT_DIR/.tmp/sync"
 BIN_DIR="$ROOT_DIR/.bin"
 DOMAIN_BUILD_TMP_DIR="$WORK_TMP_DIR/domain-build"
+DOMAIN_RULE_TMP_DIR="$WORK_TMP_DIR/domain-rules"
 IP_BUILD_TMP_DIR="$WORK_TMP_DIR/ip-build"
 ARTIFACTS_DIR="$ROOT_DIR/.output"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
@@ -27,7 +28,7 @@ source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/scripts/lib/rules.sh"
 
 rm -rf "$WORK_TMP_DIR"
-mkdir -p "$WORK_TMP_DIR" "$BIN_DIR" "$DOMAIN_BUILD_TMP_DIR" "$IP_BUILD_TMP_DIR"
+mkdir -p "$WORK_TMP_DIR" "$BIN_DIR" "$DOMAIN_BUILD_TMP_DIR" "$DOMAIN_RULE_TMP_DIR" "$IP_BUILD_TMP_DIR"
 trap 'rm -rf "$WORK_TMP_DIR"' EXIT
 
 mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR"
@@ -60,12 +61,17 @@ rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_A
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/export-domain-list-community.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
-  "$DOMAIN_ARTIFACTS_DIR/surge"
+  "$DOMAIN_RULE_TMP_DIR"
+assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
+render_domain_rule_dir_to_surge_dir \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$DOMAIN_ARTIFACTS_DIR/surge" \
+  "$DOMAIN_BUILD_TMP_DIR/surge"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/*.list"
 
-# Domain sing-box and mihomo built locally from the same classical domain lists
+# Domain sing-box and mihomo built locally from the full classical domain lists
 build_domain_artifacts_from_rule_dir \
-  "$DOMAIN_ARTIFACTS_DIR/surge" \
+  "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_BUILD_TMP_DIR" \
   "$DOMAIN_ARTIFACTS_DIR/sing-box" \
   "$DOMAIN_ARTIFACTS_DIR/mihomo"
