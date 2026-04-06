@@ -7,8 +7,26 @@ cd "$ROOT"
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
 
-has_domain_files="$(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
-has_ip_files="$(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
+has_domain_files=""
+has_ip_files=""
+
+if [ -d "$CUSTOM_DOMAIN_DIR" ]; then
+  has_domain_files="$(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
+fi
+
+if [ -d "$CUSTOM_IP_DIR" ]; then
+  has_ip_files="$(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
+fi
+
+iter_rule_lists() {
+  local dir="$1"
+
+  if [ ! -d "$dir" ]; then
+    return 0
+  fi
+
+  find "$dir" -maxdepth 1 -type f -name '*.list' | sort
+}
 
 if [ -z "$has_domain_files" ] && [ -z "$has_ip_files" ]; then
   echo "no custom rule lists, skip"
@@ -199,12 +217,12 @@ while IFS= read -r file; do
   base="$(basename "$file" .list)"
   check_name "$base"
   check_domain_file "$file"
-done < <(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' | sort)
+done < <(iter_rule_lists "$CUSTOM_DOMAIN_DIR")
 
 while IFS= read -r file; do
   base="$(basename "$file" .list)"
   check_name "$base"
   check_ip_file "$file"
-done < <(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' | sort)
+done < <(iter_rule_lists "$CUSTOM_IP_DIR")
 
 echo "custom rule lint passed"
