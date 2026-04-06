@@ -11,8 +11,8 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 
 ## What This Repo Does
 
-- syncs domain artifacts from `nekolsd/sing-geosite`
-- syncs IP artifacts from `nekolsd/geoip`
+- syncs domain artifacts from `v2fly/domain-list-community`
+- syncs IP artifacts from curated CN, Google, Telegram, Apple, Cloudflare, CloudFront, and Fastly sources
 - builds local custom domain and IP rules into all supported client formats
 - publishes client-specific branches: `surge`, `sing-box`, and `mihomo`
 
@@ -38,14 +38,12 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 |-- docs/            # conversion and maintenance notes
 |-- scripts/         # sync/build/publish scripts
 |-- sources/         # editable rule sources only
-|-- tools/           # vendored helper code and generators
 `-- README.md
 ```
 
 ## Directory Roles
 
 - `sources/`: hand-maintained rule inputs. Custom sources live under `sources/custom/`.
-- `tools/`: vendored helper code or upstream tooling kept in-repo for maintenance. `tools/geoip/` contains the geoip generator source that was previously mixed into `sources/`.
 - `.output/`: local build output directory, ignored on `main`, and used as the publish source for client-specific branches.
 
 ## Custom Sources
@@ -75,7 +73,7 @@ Triggers:
 
 - manual `workflow_dispatch` with `auto`, `custom`, or `full` scope
 - scheduled sync once per day at 08:00 UTC
-- pushes that modify workflows, scripts, custom sources, or vendored tooling
+- pushes that modify workflows, scripts, or custom sources
 
 Pushes that only add or edit `sources/custom/**` now reuse the currently published client branches as the artifact baseline, rebuild custom outputs, and skip the expensive upstream sync step. Scheduled runs, workflow/tooling changes, custom deletions, and manual full runs still refresh all upstream artifacts.
 
@@ -85,7 +83,7 @@ Surge:
 
 ```ini
 [Rule]
-DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list,DIRECT
 RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.list,DIRECT
 ```
 
@@ -123,6 +121,13 @@ rule-providers:
     url: "https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/cn.mrs"
     interval: 86400
 
+  apple:
+    type: http
+    behavior: domain
+    format: mrs
+    url: "https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/apple.mrs"
+    interval: 86400
+
   cn-ip:
     type: http
     behavior: ipcidr
@@ -131,8 +136,19 @@ rule-providers:
     interval: 86400
 ```
 
+Domain rules are compiled to mihomo `mrs` after keeping `DOMAIN` and `DOMAIN-SUFFIX`.
+`DOMAIN-KEYWORD` and `DOMAIN-REGEX` are kept for sing-box output.
+For mihomo `mrs`, only `DOMAIN` and `DOMAIN-SUFFIX` are used.
+Lists without any `DOMAIN` / `DOMAIN-SUFFIX` entries are treated as invalid for mihomo output.
+
 ## Upstream
 
-- Domain Surge / sing-box: <https://github.com/nekolsd/sing-geosite>
-- IP Surge / sing-box / mihomo: <https://github.com/nekolsd/geoip>
+- Domain source: <https://github.com/v2fly/domain-list-community>
+- CN IP sources: <https://ispip.clang.cn/all_cn.txt> and <https://ispip.clang.cn/all_cn_ipv6.txt>
+- Google IP source: <https://www.gstatic.com/ipranges/goog.json>
+- Telegram IP source: <https://core.telegram.org/resources/cidr.txt>
+- Apple IP source: <https://support.apple.com/en-us/101555>
+- Cloudflare IP source: <https://www.cloudflare.com/ips/>
+- CloudFront IP source: <https://ip-ranges.amazonaws.com/ip-ranges.json>
+- Fastly IP source: <https://api.fastly.com/public-ip-list>
 - mihomo converter: <https://github.com/MetaCubeX/mihomo>

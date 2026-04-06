@@ -28,7 +28,7 @@ Surge plain-text rule files in this branch use the `.list` extension.
 
 ```ini
 [Rule]
-DOMAIN-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list,DIRECT
 RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.list,DIRECT
 ```
 EOF
@@ -81,6 +81,9 @@ This branch intentionally contains only the final mihomo rule files and this REA
 - [domain/](./domain/)
 - [ip/](./ip/)
 
+Domain rules use binary `.mrs` files.
+IP rules use binary `.mrs` files.
+
 ## Example
 
 ```yaml
@@ -107,25 +110,45 @@ EOF
 copy_artifacts() {
   local src_dir="$1"
   local dest_dir="$2"
-  local extension="$3"
-  local file copied=0
+  local extensions_csv="$3"
+  local -a extensions=()
+  local extension file copied=0
+
+  IFS=',' read -r -a extensions <<< "$extensions_csv"
 
   mkdir -p "$dest_dir"
   shopt -s nullglob
-  for file in "$ARTIFACT_ROOT/$src_dir"/*."$extension"; do
-    cp "$file" "$dest_dir/"
-    copied=1
+  for extension in "${extensions[@]}"; do
+    for file in "$ARTIFACT_ROOT/$src_dir"/*."$extension"; do
+      cp "$file" "$dest_dir/"
+      copied=1
+    done
   done
   shopt -u nullglob
 
   if [ "$copied" -eq 0 ]; then
-    echo "no .$extension artifacts found in $src_dir" >&2
+    echo "no supported artifacts found in $src_dir ($extensions_csv)" >&2
     exit 1
   fi
 }
 
+has_allowed_extension() {
+  local file="$1"
+  local extensions_csv="$2"
+  local -a extensions=()
+  local extension
+
+  IFS=',' read -r -a extensions <<< "$extensions_csv"
+  for extension in "${extensions[@]}"; do
+    [[ "$file" == *."$extension" ]] && return 0
+  done
+
+  return 1
+}
+
 assert_branch_layout() {
-  local expected_ext="$1"
+  local domain_extensions="$1"
+  local ip_extensions="$2"
   local file rel
 
   for rel in README.md; do
@@ -137,13 +160,22 @@ assert_branch_layout() {
 
   while IFS= read -r -d '' file; do
     rel="${file#./}"
-    case "$rel" in
-      domain/*."$expected_ext"|ip/*."$expected_ext") ;;
-      *)
+    if [[ "$rel" == domain/* ]]; then
+      has_allowed_extension "$rel" "$domain_extensions" || {
         echo "unexpected file in publish tree: $rel" >&2
         exit 1
-        ;;
-    esac
+      }
+      continue
+    fi
+    if [[ "$rel" == ip/* ]]; then
+      has_allowed_extension "$rel" "$ip_extensions" || {
+        echo "unexpected file in publish tree: $rel" >&2
+        exit 1
+      }
+      continue
+    fi
+    echo "unexpected file in publish tree: $rel" >&2
+    exit 1
   done < <(find domain ip -type f -print0)
 }
 
@@ -151,7 +183,8 @@ publish_branch() {
   local branch="$1"
   local domain_dir="$2"
   local ip_dir="$3"
-  local extension="$4"
+  local domain_extensions="$4"
+  local ip_extensions="$5"
   local tmpdir local_tree remote_tree
 
   tmpdir="$(mktemp -d)"
@@ -162,10 +195,10 @@ publish_branch() {
   git config user.name "github-actions[bot]"
   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-  copy_artifacts "$domain_dir" domain "$extension"
-  copy_artifacts "$ip_dir" ip "$extension"
+  copy_artifacts "$domain_dir" domain "$domain_extensions"
+  copy_artifacts "$ip_dir" ip "$ip_extensions"
   branch_readme "$branch" > README.md
-  assert_branch_layout "$extension"
+  assert_branch_layout "$domain_extensions" "$ip_extensions"
 
   git add README.md domain ip
   local_tree="$(git write-tree)"
@@ -213,6 +246,6 @@ publish_branch() {
   rm -rf "$tmpdir"
 }
 
-publish_branch surge domain/surge ip/surge list
-publish_branch sing-box domain/sing-box ip/sing-box srs
-publish_branch mihomo domain/mihomo ip/mihomo mrs
+publish_branch surge domain/surge ip/surge list list
+publish_branch sing-box domain/sing-box ip/sing-box srs srs
+publish_branch mihomo domain/mihomo ip/mihomo mrs mrs

@@ -22,7 +22,6 @@ on:
       - '.github/workflows/build.yml'
       - 'scripts/**'
       - 'sources/custom/**'
-      - 'tools/geoip/**'
   schedule:
     # Run once per day at 08:00 UTC.
     - cron: '0 8 * * *'
@@ -52,12 +51,14 @@ jobs:
         run: |
           scope="full"
           reason="scheduled sync refresh"
+          base_sha=""
 
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             case "$INPUT_SCOPE" in
               custom)
                 scope="custom"
                 reason="manual custom-only publish"
+                base_sha="$(git rev-parse HEAD^ 2>/dev/null || true)"
                 ;;
               full|auto)
                 scope="full"
@@ -69,6 +70,7 @@ jobs:
             if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
               before="$(git rev-parse "${CURRENT_SHA}^" 2>/dev/null || true)"
             fi
+            base_sha="$before"
 
             changed_files=""
             deleted_custom_files=""
@@ -97,6 +99,7 @@ jobs:
 
           echo "scope=$scope" >> "$GITHUB_OUTPUT"
           echo "reason=$reason" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
           echo "Build scope: $scope ($reason)"
 
       - name: Resolve core versions
@@ -127,6 +130,8 @@ jobs:
         run: ./scripts/restore-published-artifacts.sh
 
       - name: Build custom rules
+        env:
+          RULES_CONFLICT_BASE_SHA: ${{ steps.scope.outputs.base_sha }}
         run: ./scripts/build-custom.sh
 
       - name: Fetch extra mihomo rules

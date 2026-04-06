@@ -146,7 +146,7 @@ write_tool_version() {
 }
 
 ensure_sing_box() {
-  local version os arch archive package_dir
+  local version os arch archive package_dir temp_binary
   version="$(resolve_sing_box_version)"
 
   if [ -x "$BIN_DIR/sing-box" ] && tool_is_current "sing-box" "$version"; then
@@ -154,19 +154,21 @@ ensure_sing_box() {
     return 0
   fi
 
-  rm -f "$BIN_DIR/sing-box" "$(tool_version_file "sing-box")"
-
   os="$(require_non_windows_shell)"
   arch="$(detect_arch)"
 
-  archive="$BIN_DIR/sing-box.tar.gz"
+  archive="$BIN_DIR/sing-box.new.tar.gz"
   package_dir="sing-box-${version}-${os}-${arch}"
+  temp_binary="$BIN_DIR/sing-box.new"
+  rm -f "$archive" "$temp_binary"
+  rm -rf "$BIN_DIR/$package_dir"
   download_file \
     "https://github.com/SagerNet/sing-box/releases/download/v${version}/${package_dir}.tar.gz" \
     "$archive"
   tar -xzf "$archive" -C "$BIN_DIR"
-  mv "$BIN_DIR/$package_dir/sing-box" "$BIN_DIR/sing-box"
-  chmod +x "$BIN_DIR/sing-box"
+  mv "$BIN_DIR/$package_dir/sing-box" "$temp_binary"
+  chmod +x "$temp_binary"
+  mv "$temp_binary" "$BIN_DIR/sing-box"
   rm -rf "$BIN_DIR/$package_dir" "$archive"
 
   write_tool_version "sing-box" "$version"
@@ -175,15 +177,13 @@ ensure_sing_box() {
 }
 
 ensure_mihomo() {
-  local version os arch asset archive
+  local version os arch asset archive temp_binary
   version="$(resolve_mihomo_version)"
 
   if [ -x "$BIN_DIR/mihomo" ] && tool_is_current "mihomo" "$version"; then
     export PATH="$BIN_DIR:$PATH"
     return 0
   fi
-
-  rm -f "$BIN_DIR/mihomo" "$(tool_version_file "mihomo")"
 
   os="$(require_non_windows_shell)"
   arch="$(detect_arch)"
@@ -192,12 +192,15 @@ ensure_mihomo() {
     amd64) asset="mihomo-${os}-amd64-compatible-v${version}.gz" ;;
     arm64) asset="mihomo-${os}-arm64-v${version}.gz" ;;
   esac
-  archive="$BIN_DIR/mihomo.gz"
+  archive="$BIN_DIR/mihomo.new.gz"
+  temp_binary="$BIN_DIR/mihomo.new"
+  rm -f "$archive" "$temp_binary"
   download_file \
     "https://github.com/MetaCubeX/mihomo/releases/download/v${version}/${asset}" \
     "$archive"
   gzip -df "$archive"
-  chmod +x "$BIN_DIR/mihomo"
+  chmod +x "$temp_binary"
+  mv "$temp_binary" "$BIN_DIR/mihomo"
 
   write_tool_version "mihomo" "$version"
 
