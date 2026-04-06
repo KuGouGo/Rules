@@ -120,10 +120,10 @@ build_domain_plain_and_surge() {
   base="$(basename "$list_file" .list)"
   surge_out="$DOMAIN_SURGE_DIR/$base.list"
   plain_out="$TMP_DOMAIN_DIR/$base.list"
-  surge_tmp="$TMP_DOMAIN_DIR/$base.list.tmp"
+  surge_tmp="$TMP_DOMAIN_DIR/$base.surge.tmp"
 
-  normalize_custom_domain_source "$list_file" "$surge_tmp"
-  cp "$surge_tmp" "$plain_out"
+  normalize_custom_domain_source "$list_file" "$plain_out"
+  render_surge_domain_ruleset_from_rules "$plain_out" "$surge_tmp"
   write_if_changed "$surge_tmp" "$surge_out"
 }
 

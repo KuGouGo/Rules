@@ -87,6 +87,8 @@ Notes:
 
 - mihomo domain output keeps `DOMAIN` and `DOMAIN-SUFFIX` and compiles to `.mrs`
 - sing-box domain output keeps `DOMAIN-KEYWORD` and `DOMAIN-REGEX`
+- Surge domain ruleset output keeps `DOMAIN`, `DOMAIN-SUFFIX`, and `DOMAIN-KEYWORD`
+- Surge ruleset output drops `DOMAIN-REGEX`
 - mihomo `mrs` ignores `DOMAIN-KEYWORD` and `DOMAIN-REGEX`
 - lists without any `DOMAIN` / `DOMAIN-SUFFIX` entries fail the mihomo build
 

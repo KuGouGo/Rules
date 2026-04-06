@@ -57,6 +57,40 @@ build_domain_json_from_rules() {
   python3 "$ROOT/scripts/export-domain-list-community.py" singbox-json "$rule_list" "$json_out"
 }
 
+render_surge_domain_ruleset_from_rules() {
+  local rule_list="$1"
+  local surge_out="$2"
+
+  python3 - "$rule_list" "$surge_out" <<'PY'
+import sys
+
+rule_list, output_file = sys.argv[1], sys.argv[2]
+allowed = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"}
+rules = []
+seen = set()
+
+with open(rule_list, "r", encoding="utf-8") as fh:
+    for raw_line in fh:
+        line = raw_line.split("#", 1)[0].strip()
+        if not line or "," not in line:
+            continue
+        rule_type, value = line.split(",", 1)
+        rule_type = rule_type.strip().upper()
+        value = value.strip()
+        if rule_type not in allowed or not value:
+            continue
+        normalized = f"{rule_type},{value}"
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        rules.append(normalized)
+
+with open(output_file, "w", encoding="utf-8") as fh:
+    if rules:
+        fh.write("\n".join(rules) + "\n")
+PY
+}
+
 compile_domain_rule_list_to_artifacts() {
   local rule_list="$1"
   local json_out="$2"
@@ -64,6 +98,31 @@ compile_domain_rule_list_to_artifacts() {
 
   build_domain_json_from_rules "$rule_list" "$json_out"
   sing-box rule-set compile "$json_out" --output "$srs_out"
+}
+
+render_domain_rule_dir_to_surge_dir() {
+  local rule_dir="$1"
+  local surge_dir="$2"
+  local tmp_dir="$3"
+  local list base surge_tmp surge_out
+
+  rm -rf "$surge_dir"
+  mkdir -p "$surge_dir" "$tmp_dir"
+
+  for list in "$rule_dir"/*.list; do
+    [ -f "$list" ] || continue
+    base="$(basename "$list" .list)"
+    surge_tmp="$tmp_dir/$base.surge.tmp"
+    surge_out="$surge_dir/$base.list"
+    render_surge_domain_ruleset_from_rules "$list" "$surge_tmp"
+
+    if [ ! -s "$surge_tmp" ]; then
+      echo "domain list $base has no Surge-compatible DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD entries" >&2
+      return 1
+    fi
+
+    mv "$surge_tmp" "$surge_out"
+  done
 }
 
 build_mihomo_domain_text_from_rules() {
