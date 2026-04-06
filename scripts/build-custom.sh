@@ -35,10 +35,10 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 has_custom_domain=0
 has_custom_ip=0
-if find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
+if [ -d "$CUSTOM_DOMAIN_DIR" ] && find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
   has_custom_domain=1
 fi
-if find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
+if [ -d "$CUSTOM_IP_DIR" ] && find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
   has_custom_ip=1
 fi
 
@@ -46,6 +46,16 @@ if [ "$has_custom_domain" -eq 0 ] && [ "$has_custom_ip" -eq 0 ]; then
   echo "no custom rule lists found, skip"
   exit 0
 fi
+
+iter_rule_lists() {
+  local dir="$1"
+
+  if [ ! -d "$dir" ]; then
+    return 0
+  fi
+
+  find "$dir" -maxdepth 1 -type f -name '*.list' | sort
+}
 
 resolve_conflict_base_ref() {
   if [ -n "${RULES_CONFLICT_BASE_SHA:-}" ] \
@@ -190,7 +200,7 @@ while IFS= read -r list_file; do
     ".output/domain/sing-box/$base.srs" \
     ".output/domain/mihomo/$base.mrs"
   build_domain_plain_and_surge "$list_file"
-done < <(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' | sort)
+done < <(iter_rule_lists "$CUSTOM_DOMAIN_DIR")
 
 while IFS= read -r list_file; do
   base="$(basename "$list_file" .list)"
@@ -203,7 +213,7 @@ while IFS= read -r list_file; do
     ".output/ip/sing-box/$base.srs" \
     ".output/ip/mihomo/$base.mrs"
   build_ip_plain_and_surge "$list_file"
-done < <(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' | sort)
+done < <(iter_rule_lists "$CUSTOM_IP_DIR")
 
 if [ "$has_custom_domain" -gt 0 ] || [ "$has_custom_ip" -gt 0 ]; then
   ensure_rule_build_tools
