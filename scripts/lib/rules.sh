@@ -14,116 +14,132 @@ dedupe_file_in_place() {
   mv "$tmp_file" "$file"
 }
 
-normalize_domain_surge_list_to_plain() {
-  local input_file="$1"
-  local plain_out="$2"
-
-  awk '
-    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
-    {
-      value=$0
-      gsub(/\r$/, "", value)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-      if (value != "") print value
-    }
-  ' "$input_file" > "$plain_out"
-
-  dedupe_file_in_place "$plain_out"
-}
-
 normalize_custom_domain_source() {
   local input_file="$1"
-  local surge_out="$2"
-  local plain_out="$3"
+  local output_file="$2"
 
-  : > "$surge_out"
-  : > "$plain_out"
+  python3 - "$input_file" "$output_file" <<'PY'
+import sys
 
-  awk -F, '
-    BEGIN {
-      OFS="\n"
-    }
-    /^[[:space:]]*$/ || /^[[:space:]]*#/ {
-      next
-    }
-    NF < 2 {
-      next
-    }
-    {
-      type=$1
-      value=$2
-      sub(/\r$/, "", value)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", type)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-      if (type == "DOMAIN") {
-        print value >> surge
-        print value >> plain
-      } else if (type == "DOMAIN-SUFFIX") {
-        print "." value >> surge
-        print "." value >> plain
-      }
-    }
-  ' surge="$surge_out" plain="$plain_out" "$input_file"
+input_file, output_file = sys.argv[1], sys.argv[2]
+allowed = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
+rules = []
+seen = set()
 
-  dedupe_file_in_place "$surge_out"
-  dedupe_file_in_place "$plain_out"
+with open(input_file, "r", encoding="utf-8") as fh:
+    for raw_line in fh:
+        line = raw_line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        if "," not in line:
+            continue
+        rule_type, value = line.split(",", 1)
+        rule_type = rule_type.strip().upper()
+        value = value.strip()
+        if rule_type not in allowed or not value:
+            continue
+        normalized = f"{rule_type},{value}"
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        rules.append(normalized)
+
+with open(output_file, "w", encoding="utf-8") as fh:
+    if rules:
+        fh.write("\n".join(rules) + "\n")
+PY
 }
 
-build_domain_json_from_plain() {
-  local plain_list="$1"
+build_domain_json_from_rules() {
+  local rule_list="$1"
   local json_out="$2"
-  local domains suffixes
 
-  domains="$(awk 'NF && $0 !~ /^\./ { printf "\"%s\",", $0 }' "$plain_list" | sed 's/,$//')"
-  suffixes="$(awk 'NF && $0 ~ /^\./ { value=$0; sub(/^\./, "", value); printf "\"%s\",", value }' "$plain_list" | sed 's/,$//')"
-
-  {
-    printf '{"version":3,"rules":[{'
-    if [ -n "$domains" ]; then
-      printf '"domain":[%s]' "$domains"
-    fi
-    if [ -n "$suffixes" ]; then
-      if [ -n "$domains" ]; then
-        printf ','
-      fi
-      printf '"domain_suffix":[%s]' "$suffixes"
-    fi
-    printf '}]}'
-  } > "$json_out"
+  python3 "$ROOT/scripts/export-domain-list-community.py" singbox-json "$rule_list" "$json_out"
 }
 
-compile_domain_plain_to_binary_artifacts() {
-  local plain_list="$1"
+compile_domain_rule_list_to_artifacts() {
+  local rule_list="$1"
   local json_out="$2"
   local srs_out="$3"
-  local mrs_out="$4"
 
-  build_domain_json_from_plain "$plain_list" "$json_out"
+  build_domain_json_from_rules "$rule_list" "$json_out"
   sing-box rule-set compile "$json_out" --output "$srs_out"
+}
+
+build_mihomo_domain_text_from_rules() {
+  local rule_list="$1"
+  local plain_out="$2"
+
+  python3 - "$rule_list" "$plain_out" <<'PY'
+import sys
+
+rule_list, output_file = sys.argv[1], sys.argv[2]
+entries = []
+seen = set()
+
+with open(rule_list, "r", encoding="utf-8") as fh:
+    for raw_line in fh:
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        rule_type, separator, value = line.partition(",")
+        if not separator:
+            continue
+        rule_type = rule_type.strip()
+        value = value.strip()
+        if rule_type == "DOMAIN":
+            normalized = value
+        elif rule_type == "DOMAIN-SUFFIX":
+            normalized = f".{value}"
+        else:
+            continue
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        entries.append(normalized)
+
+with open(output_file, "w", encoding="utf-8") as fh:
+    if entries:
+        fh.write("\n".join(entries) + "\n")
+PY
+
+}
+
+compile_mihomo_domain_plain_to_binary_artifact() {
+  local plain_list="$1"
+  local mrs_out="$2"
+
   mihomo convert-ruleset domain text "$plain_list" "$mrs_out" >/dev/null 2>&1
 }
 
-build_domain_artifacts_from_surge_dir() {
-  local surge_dir="$1"
+build_domain_artifacts_from_rule_dir() {
+  local rule_dir="$1"
   local tmp_dir="$2"
   local singbox_dir="$3"
   local mihomo_dir="$4"
-  local list base plain_txt json srs_out mrs_out
+  local list base json srs_out mihomo_txt mrs_out
 
   ensure_rule_build_tools
   rm -rf "$singbox_dir" "$mihomo_dir"
   mkdir -p "$singbox_dir" "$mihomo_dir" "$tmp_dir"
 
-  for list in "$surge_dir"/*.list; do
+  for list in "$rule_dir"/*.list; do
     [ -f "$list" ] || continue
     base="$(basename "$list" .list)"
-    plain_txt="$tmp_dir/$base.list"
     json="$tmp_dir/$base.json"
     srs_out="$singbox_dir/$base.srs"
     mrs_out="$mihomo_dir/$base.mrs"
+    mihomo_txt="$tmp_dir/$base.mihomo.txt"
 
-    normalize_domain_surge_list_to_plain "$list" "$plain_txt"
-    compile_domain_plain_to_binary_artifacts "$plain_txt" "$json" "$srs_out" "$mrs_out"
+    compile_domain_rule_list_to_artifacts "$list" "$json" "$srs_out"
+    build_mihomo_domain_text_from_rules "$list" "$mihomo_txt"
+
+    if [ ! -s "$mihomo_txt" ]; then
+      echo "domain list $base has no DOMAIN/DOMAIN-SUFFIX entries; cannot build mihomo mrs" >&2
+      return 1
+    fi
+
+    compile_mihomo_domain_plain_to_binary_artifact "$mihomo_txt" "$mrs_out"
   done
 }
 
@@ -174,6 +190,27 @@ normalize_ip_surge_list_to_plain() {
   ' "$input_file" > "$plain_out"
 
   dedupe_file_in_place "$plain_out"
+}
+
+render_ip_plain_to_surge_list() {
+  local plain_list="$1"
+  local surge_out="$2"
+
+  awk '
+    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
+    {
+      value=$0
+      gsub(/\r$/, "", value)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      if (value == "") {
+        next
+      }
+      type = (value ~ /:/ ? "IP-CIDR6" : "IP-CIDR")
+      printf "%s,%s,no-resolve\n", type, value
+    }
+  ' "$plain_list" > "$surge_out"
+
+  dedupe_file_in_place "$surge_out"
 }
 
 build_ip_json_from_plain() {

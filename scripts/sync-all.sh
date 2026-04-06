@@ -1,52 +1,46 @@
 #!/usr/bin/env bash
-# Sync upstream pre-built files only
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR"
 
-TMP_BASE="$ROOT/.tmp/sync"
-BIN_DIR="$ROOT/.bin"
-DOMAIN_TMP_DIR="$TMP_BASE/domain-build"
-IP_TMP_DIR="$TMP_BASE/ip-build"
-ARTIFACT_ROOT="$ROOT/.output"
-DOMAIN_ROOT="$ARTIFACT_ROOT/domain"
-IP_ROOT="$ARTIFACT_ROOT/ip"
+WORK_TMP_DIR="$ROOT_DIR/.tmp/sync"
+BIN_DIR="$ROOT_DIR/.bin"
+DOMAIN_BUILD_TMP_DIR="$WORK_TMP_DIR/domain-build"
+IP_BUILD_TMP_DIR="$WORK_TMP_DIR/ip-build"
+ARTIFACTS_DIR="$ROOT_DIR/.output"
+DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
+IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 
-source "$ROOT/scripts/lib/common.sh"
-source "$ROOT/scripts/lib/rules.sh"
+DOMAIN_SOURCE_REPO_URL="https://github.com/v2fly/domain-list-community.git"
+CN_IPV4_SOURCE_URL="https://ispip.clang.cn/all_cn.txt"
+CN_IPV6_SOURCE_URL="https://ispip.clang.cn/all_cn_ipv6.txt"
+GOOGLE_IP_SOURCE_URL="https://www.gstatic.com/ipranges/goog.json"
+TELEGRAM_IP_SOURCE_URL="https://core.telegram.org/resources/cidr.txt"
+CLOUDFLARE_IPV4_SOURCE_URL="https://www.cloudflare.com/ips-v4"
+CLOUDFLARE_IPV6_SOURCE_URL="https://www.cloudflare.com/ips-v6"
+CLOUDFRONT_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
+FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
+APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
 
-rm -rf "$TMP_BASE"
-mkdir -p "$TMP_BASE" "$BIN_DIR" "$DOMAIN_TMP_DIR" "$IP_TMP_DIR"
-trap 'rm -rf "$TMP_BASE"' EXIT
+source "$ROOT_DIR/scripts/lib/common.sh"
+source "$ROOT_DIR/scripts/lib/rules.sh"
 
-mkdir -p "$DOMAIN_ROOT" "$IP_ROOT"
+rm -rf "$WORK_TMP_DIR"
+mkdir -p "$WORK_TMP_DIR" "$BIN_DIR" "$DOMAIN_BUILD_TMP_DIR" "$IP_BUILD_TMP_DIR"
+trap 'rm -rf "$WORK_TMP_DIR"' EXIT
+
+mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR"
 
 echo "=== SYNC START ==="
 
-clone_branch() {
-  local repo="$1"
-  local branch="$2"
-  local dest="$3"
-  git clone --depth=1 --single-branch --branch "$branch" "$repo" "$dest"
+clone_repository_shallow() {
+  local repo_url="$1"
+  local dest="$2"
+  git clone --depth=1 --single-branch "$repo_url" "$dest"
 }
 
-copy_txt_tree_as_list() {
-  local src_dir="$1"
-  local dest_dir="$2"
-  local file
-
-  mkdir -p "$dest_dir"
-  cp -R "$src_dir"/. "$dest_dir"
-  rm -rf "$dest_dir/.git"
-
-  for file in "$dest_dir"/*.txt; do
-    [ -f "$file" ] || continue
-    mv "$file" "${file%.txt}.list"
-  done
-}
-
-require_files() {
+assert_files_present() {
   local label="$1"
   local glob="$2"
   if ! compgen -G "$glob" >/dev/null; then
@@ -55,55 +49,95 @@ require_files() {
   fi
 }
 
-merge_cn_operator_lists() {
-  local cn_file="$IP_ROOT/surge/cn.list"
-  local merged_file="$IP_TMP_DIR/cn.list"
-  local operator_files=(
-    "$IP_ROOT/surge/cncm.list"
-    "$IP_ROOT/surge/cnct.list"
-    "$IP_ROOT/surge/cncu.list"
-  )
-  local existing_sources=("$cn_file")
-  local file
-
-  for file in "${operator_files[@]}"; do
-    if [ -f "$file" ]; then
-      existing_sources+=("$file")
-    fi
-  done
-
-  awk '!seen[$0]++' "${existing_sources[@]}" > "$merged_file"
-  mv "$merged_file" "$cn_file"
-  rm -f "${operator_files[@]}"
+merge_cidr_plain_files() {
+  local output_file="$1"
+  shift
+  awk 'NF && !seen[$0]++' "$@" > "$output_file"
 }
 
-# Domain surge from sing-geosite/domain-set
-rm -rf "$DOMAIN_ROOT/surge"
-clone_branch https://github.com/nekolsd/sing-geosite.git domain-set "$TMP_BASE/domain-set"
-copy_txt_tree_as_list "$TMP_BASE/domain-set" "$DOMAIN_ROOT/surge"
-require_files "$DOMAIN_ROOT/surge" "$DOMAIN_ROOT/surge/*.list"
+# Domain rules from domain-list-community/data
+rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
+clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
+python3 "$ROOT_DIR/scripts/export-domain-list-community.py" export \
+  "$WORK_TMP_DIR/domain-list-community/data" \
+  "$DOMAIN_ARTIFACTS_DIR/surge"
+assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/*.list"
 
-# Domain sing-box and mihomo built locally from the same surge domain-set text
-build_domain_artifacts_from_surge_dir \
-  "$DOMAIN_ROOT/surge" \
-  "$DOMAIN_TMP_DIR" \
-  "$DOMAIN_ROOT/sing-box" \
-  "$DOMAIN_ROOT/mihomo"
-require_files "$DOMAIN_ROOT/sing-box" "$DOMAIN_ROOT/sing-box/*.srs"
-require_files "$DOMAIN_ROOT/mihomo" "$DOMAIN_ROOT/mihomo/*.mrs"
+# Domain sing-box and mihomo built locally from the same classical domain lists
+build_domain_artifacts_from_rule_dir \
+  "$DOMAIN_ARTIFACTS_DIR/surge" \
+  "$DOMAIN_BUILD_TMP_DIR" \
+  "$DOMAIN_ARTIFACTS_DIR/sing-box" \
+  "$DOMAIN_ARTIFACTS_DIR/mihomo"
+assert_files_present "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/sing-box/*.srs"
+assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihomo/*.mrs"
 
-# IP from geoip/release
-rm -rf "$IP_ROOT/surge" "$IP_ROOT/sing-box" "$IP_ROOT/mihomo"
-clone_branch https://github.com/nekolsd/geoip.git release "$TMP_BASE/geoip"
-copy_txt_tree_as_list "$TMP_BASE/geoip/surge" "$IP_ROOT/surge"
-merge_cn_operator_lists
-require_files "$IP_ROOT/surge" "$IP_ROOT/surge/*.list"
+# IP rules from curated remote sources
+rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
+mkdir -p "$IP_ARTIFACTS_DIR/surge"
+
+download_file "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt"
+download_file "$CN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt"
+download_file "$GOOGLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/google.raw.json"
+download_file "$TELEGRAM_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/telegram.raw.txt"
+download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
+download_file "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt"
+download_file "$CLOUDFRONT_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudfront.raw.json"
+download_file "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json"
+download_file "$APPLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/apple.raw.html"
+
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt" \
+  "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt" \
+  "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
+merge_cidr_plain_files \
+  "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
+
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" google-json \
+  "$IP_BUILD_TMP_DIR/google.raw.json" \
+  "$IP_BUILD_TMP_DIR/google.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/telegram.raw.txt" \
+  "$IP_BUILD_TMP_DIR/telegram.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" \
+  "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" \
+  "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
+merge_cidr_plain_files \
+  "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" aws-cloudfront-json \
+  "$IP_BUILD_TMP_DIR/cloudfront.raw.json" \
+  "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" fastly-json \
+  "$IP_BUILD_TMP_DIR/fastly.raw.json" \
+  "$IP_BUILD_TMP_DIR/fastly.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" html \
+  "$IP_BUILD_TMP_DIR/apple.raw.html" \
+  "$IP_BUILD_TMP_DIR/apple.cidr.txt"
+
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cn.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cn.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/google.cidr.txt" "$IP_ARTIFACTS_DIR/surge/google.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/telegram.cidr.txt" "$IP_ARTIFACTS_DIR/surge/telegram.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cloudflare.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cloudfront.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt" "$IP_ARTIFACTS_DIR/surge/fastly.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$IP_ARTIFACTS_DIR/surge/apple.list"
+
+assert_files_present "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/surge/*.list"
 build_ip_artifacts_from_surge_dir \
-  "$IP_ROOT/surge" \
-  "$IP_TMP_DIR" \
-  "$IP_ROOT/sing-box" \
-  "$IP_ROOT/mihomo"
-require_files "$IP_ROOT/sing-box" "$IP_ROOT/sing-box/*.srs"
-require_files "$IP_ROOT/mihomo" "$IP_ROOT/mihomo/*.mrs"
+  "$IP_ARTIFACTS_DIR/surge" \
+  "$IP_BUILD_TMP_DIR" \
+  "$IP_ARTIFACTS_DIR/sing-box" \
+  "$IP_ARTIFACTS_DIR/mihomo"
+assert_files_present "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/sing-box/*.srs"
+assert_files_present "$IP_ARTIFACTS_DIR/mihomo" "$IP_ARTIFACTS_DIR/mihomo/*.mrs"
 
 echo "=== SYNC DONE ==="

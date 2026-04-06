@@ -7,14 +7,25 @@ cd "$ROOT"
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
 
-shopt -s nullglob
-domain_lists=("$CUSTOM_DOMAIN_DIR"/*.list)
-ip_lists=("$CUSTOM_IP_DIR"/*.list)
+has_domain_files="$(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
+has_ip_files="$(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
 
-if [ ${#domain_lists[@]} -eq 0 ] && [ ${#ip_lists[@]} -eq 0 ]; then
+if [ -z "$has_domain_files" ] && [ -z "$has_ip_files" ]; then
   echo "no custom rule lists, skip"
   exit 0
 fi
+
+trim_whitespace() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "$value"
+}
+
+strip_inline_comment() {
+  local value="$1"
+  printf '%s' "${value%%#*}"
+}
 
 check_name() {
   local base="$1"
@@ -58,7 +69,9 @@ check_domain_file() {
   local file="$1"
   local line_no=0
   local seen_non_comment=0
+  local has_mihomo_compatible_rule=0
   local has_error=0
+  local normalized kind value
 
   while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
@@ -68,23 +81,63 @@ check_domain_file() {
       continue
     fi
 
+    normalized="$(trim_whitespace "$(strip_inline_comment "$line")")"
+    if [ -z "$normalized" ]; then
+      continue
+    fi
+
     seen_non_comment=1
 
-    if [[ ! "$line" =~ ^(DOMAIN|DOMAIN-SUFFIX),[^[:space:],]+$ ]]; then
+    if [[ "$normalized" != *,* ]]; then
       echo "$file:$line_no invalid rule syntax: $line" >&2
-      echo "expected DOMAIN,example.com or DOMAIN-SUFFIX,example.com" >&2
+      echo "expected DOMAIN,example.com DOMAIN-SUFFIX,example.com DOMAIN-KEYWORD,keyword or DOMAIN-REGEX,pattern" >&2
       has_error=1
       continue
     fi
 
-    if [[ "$line" =~ ,\. ]]; then
+    kind="$(trim_whitespace "${normalized%%,*}")"
+    value="$(trim_whitespace "${normalized#*,}")"
+
+    if [[ ! "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|DOMAIN-REGEX)$ ]]; then
+      echo "$file:$line_no invalid rule type: $line" >&2
+      echo "expected DOMAIN DOMAIN-SUFFIX DOMAIN-KEYWORD or DOMAIN-REGEX" >&2
+      has_error=1
+      continue
+    fi
+
+    if [ -z "$value" ]; then
+      echo "$file:$line_no rule value must not be empty: $line" >&2
+      has_error=1
+      continue
+    fi
+
+    if [[ "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX)$ ]] && [[ "$value" == .* ]]; then
       echo "$file:$line_no domain should not start with dot: $line" >&2
       has_error=1
+    fi
+
+    if [[ "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX)$ ]] && [[ "$value" == *,* ]]; then
+      echo "$file:$line_no domain value must not contain commas: $line" >&2
+      has_error=1
+    fi
+
+    if [[ "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX)$ ]] && [[ "$value" =~ [[:space:]] ]]; then
+      echo "$file:$line_no domain value must not contain whitespace: $line" >&2
+      has_error=1
+    fi
+
+    if [[ "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX)$ ]]; then
+      has_mihomo_compatible_rule=1
     fi
   done < "$file"
 
   if [ "$seen_non_comment" -eq 0 ]; then
     echo "$file has no effective rules" >&2
+    has_error=1
+  fi
+
+  if [ "$has_mihomo_compatible_rule" -eq 0 ]; then
+    echo "$file requires at least one DOMAIN or DOMAIN-SUFFIX entry to build mihomo mrs" >&2
     has_error=1
   fi
 
@@ -142,16 +195,16 @@ check_ip_file() {
   return "$has_error"
 }
 
-for file in "${domain_lists[@]}"; do
+while IFS= read -r file; do
   base="$(basename "$file" .list)"
   check_name "$base"
   check_domain_file "$file"
-done
+done < <(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' | sort)
 
-for file in "${ip_lists[@]}"; do
+while IFS= read -r file; do
   base="$(basename "$file" .list)"
   check_name "$base"
   check_ip_file "$file"
-done
+done < <(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' | sort)
 
 echo "custom rule lint passed"

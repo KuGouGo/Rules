@@ -79,9 +79,16 @@ These are the only generated files intended to be preserved and published:
 | --- | --- |
 | custom source | `DOMAIN,api.example.com` |
 | custom source | `DOMAIN-SUFFIX,example.com` |
-| normalized text | `api.example.com` |
-| normalized text | `.example.com` |
+| normalized text | `DOMAIN,api.example.com` |
+| normalized text | `DOMAIN-SUFFIX,example.com` |
 | sing-box compile JSON | `{"version":3,"rules":[{"domain":["api.example.com"],"domain_suffix":["example.com"]}]}` |
+
+Notes:
+
+- mihomo domain output keeps `DOMAIN` and `DOMAIN-SUFFIX` and compiles to `.mrs`
+- sing-box domain output keeps `DOMAIN-KEYWORD` and `DOMAIN-REGEX`
+- mihomo `mrs` ignores `DOMAIN-KEYWORD` and `DOMAIN-REGEX`
+- lists without any `DOMAIN` / `DOMAIN-SUFFIX` entries fail the mihomo build
 
 ### IP Conversion
 

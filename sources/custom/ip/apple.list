@@ -1,6 +1,0 @@
-# Apple firewall IP ranges
-# Source: https://support.apple.com/en-us/101555
-IP-CIDR,17.0.0.0/8
-IP-CIDR6,2403:300::/32
-IP-CIDR6,2620:149::/32
-IP-CIDR6,2a01:b740::/32
