@@ -12,7 +12,7 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 ## What This Repo Does
 
 - syncs domain artifacts from `v2fly/domain-list-community`
-- syncs IP artifacts from curated CN, Google, Telegram, Apple, Cloudflare, CloudFront, and Fastly sources
+- syncs IP artifacts from CN, Google, Telegram, Cloudflare, CloudFront, AWS, Fastly, GitHub, Apple, Netflix, Spotify, and Disney+
 - builds local custom domain and IP rules into all supported client formats
 - publishes client-specific branches: `surge`, `sing-box`, and `mihomo`
 
@@ -143,14 +143,25 @@ Surge `RULE-SET` keeps `DOMAIN`, `DOMAIN-SUFFIX`, and `DOMAIN-KEYWORD`.
 For mihomo `mrs`, only `DOMAIN` and `DOMAIN-SUFFIX` are used.
 Lists without any `DOMAIN` / `DOMAIN-SUFFIX` entries are treated as invalid for mihomo output.
 
+## IP Rule Sets
+
+| Name | File | Source |
+|------|------|--------|
+| CN | `ip/cn` | [ispip.clang.cn](https://ispip.clang.cn/) (IPv4 + IPv6) |
+| Google | `ip/google` | [gstatic.com](https://www.gstatic.com/ipranges/goog.json) (official JSON) |
+| Telegram | `ip/telegram` | [core.telegram.org](https://core.telegram.org/resources/cidr.txt) (official) |
+| Cloudflare | `ip/cloudflare` | [cloudflare.com/ips](https://www.cloudflare.com/ips/) (official) |
+| CloudFront | `ip/cloudfront` | [ip-ranges.amazonaws.com](https://ip-ranges.amazonaws.com/ip-ranges.json) (official, CLOUDFRONT service) |
+| AWS | `ip/aws` | [ip-ranges.amazonaws.com](https://ip-ranges.amazonaws.com/ip-ranges.json) (official, all services) |
+| Fastly | `ip/fastly` | [api.fastly.com](https://api.fastly.com/public-ip-list) (official JSON) |
+| GitHub | `ip/github` | [api.github.com/meta](https://api.github.com/meta) (official JSON) |
+| Apple | `ip/apple` | [support.apple.com/en-us/101555](https://support.apple.com/en-us/101555) (official, HTML parsed) |
+| Netflix | `ip/netflix` | RIPE NCC Stat — AS2906, AS40027 |
+| Spotify | `ip/spotify` | RIPE NCC Stat — AS35228, AS7441 |
+| Disney+ | `ip/disney` | RIPE NCC Stat — AS133530, AS394297 |
+
 ## Upstream
 
 - Domain source: <https://github.com/v2fly/domain-list-community>
-- CN IP sources: <https://ispip.clang.cn/all_cn.txt> and <https://ispip.clang.cn/all_cn_ipv6.txt>
-- Google IP source: <https://www.gstatic.com/ipranges/goog.json>
-- Telegram IP source: <https://core.telegram.org/resources/cidr.txt>
-- Apple IP source: <https://support.apple.com/en-us/101555>
-- Cloudflare IP source: <https://www.cloudflare.com/ips/>
-- CloudFront IP source: <https://ip-ranges.amazonaws.com/ip-ranges.json>
-- Fastly IP source: <https://api.fastly.com/public-ip-list>
+- ASN data (Netflix, Spotify, Disney+): <https://stat.ripe.net/data/announced-prefixes/>
 - mihomo converter: <https://github.com/MetaCubeX/mihomo>
