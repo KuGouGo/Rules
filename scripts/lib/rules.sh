@@ -316,6 +316,10 @@ build_ip_artifacts_from_surge_dir() {
     mrs_out="$mihomo_dir/$base.mrs"
 
     normalize_ip_surge_list_to_plain "$list" "$plain_txt"
+    if [ ! -s "$plain_txt" ]; then
+      echo "skipping empty IP list: $base" >&2
+      continue
+    fi
     compile_ip_plain_to_binary_artifacts "$plain_txt" "$json" "$srs_out" "$mrs_out"
   done
 }
