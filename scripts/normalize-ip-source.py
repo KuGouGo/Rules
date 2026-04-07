@@ -110,6 +110,21 @@ def extract_aws_all_json_cidrs(input_file: Path, output_file: Path) -> None:
     write_deduplicated_cidrs(values, output_file)
 
 
+def extract_ripe_stat_json_cidrs(input_file: Path, output_file: Path) -> None:
+    """Parse a RIPE NCC Stat announced-prefixes response.
+
+    Source URL pattern:
+      https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS<asn>
+
+    The response contains the set of prefixes currently announced by that ASN
+    according to RIPE NCC's RPKI/routing data — authoritative registry data
+    suitable for proxy rule sets.
+    """
+    data = json.loads(input_file.read_text(encoding="utf-8"))
+    prefixes = data.get("data", {}).get("prefixes", [])
+    write_deduplicated_cidrs([item["prefix"] for item in prefixes], output_file)
+
+
 def extract_html_cidrs(input_file: Path, output_file: Path) -> None:
     values = CIDR_RE.findall(html.unescape(input_file.read_text(encoding="utf-8")))
     write_deduplicated_cidrs(values, output_file)
@@ -119,7 +134,8 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "source_type",
-        choices=("text", "google-json", "aws-cloudfront-json", "aws-json", "fastly-json", "github-json", "html"),
+        choices=("text", "google-json", "aws-cloudfront-json", "aws-json",
+                 "fastly-json", "github-json", "ripe-stat-json", "html"),
     )
     parser.add_argument("input_file")
     parser.add_argument("output_file")
@@ -133,6 +149,7 @@ def main() -> int:
             "aws-json": extract_aws_all_json_cidrs,
             "fastly-json": extract_fastly_json_cidrs,
             "github-json": extract_github_json_cidrs,
+            "ripe-stat-json": extract_ripe_stat_json_cidrs,
             "html": extract_html_cidrs,
         }
         source_to_handler[args.source_type](Path(args.input_file), Path(args.output_file))

@@ -86,9 +86,9 @@ print_section "Artifact count checks"
 check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
 check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
 check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
-check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 9
-check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
-check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
+check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 12
+check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 12
+check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 12
 
 print_section "Artifact diff-ratio checks"
 check_diff_ratio ".output/domain/surge" ".output/domain/surge"

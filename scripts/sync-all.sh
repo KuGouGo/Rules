@@ -25,6 +25,16 @@ AWS_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
 FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
 GITHUB_IP_SOURCE_URL="https://api.github.com/meta"
 APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
+# RIPE NCC Stat API: official RPKI/routing data for ASN prefix lookups.
+# Used for streaming services that publish no machine-readable CIDR lists.
+RIPE_STAT_BASE_URL="https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS"
+
+# Netflix: AS2906 (Netflix Streaming), AS40027 (Netflix CDN LLC)
+NETFLIX_ASNS=(2906 40027)
+# Spotify: AS35228, AS7441
+SPOTIFY_ASNS=(35228 7441)
+# Disney+ / BAMTech: AS133530, AS394297
+DISNEY_ASNS=(133530 394297)
 
 source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/scripts/lib/rules.sh"
@@ -55,7 +65,33 @@ assert_files_present() {
 merge_cidr_plain_files() {
   local output_file="$1"
   shift
-  awk 'NF && !seen[$0]++' "$@" > "$output_file"
+  # Filter blank/comment lines while deduplicating.
+  awk '!/^[[:space:]]*$/ && !/^[[:space:]]*#/ && !seen[$0]++' "$@" > "$output_file"
+}
+
+# sync_asn_ip_list <name> <asn> [<asn> ...]
+# Download RIPE NCC Stat prefix data for each ASN, normalise, merge, and render
+# to a Surge list at IP_ARTIFACTS_DIR/surge/<name>.list.
+sync_asn_ip_list() {
+  local name="$1"
+  shift
+  local -a asns=("$@")
+  local -a cidr_files=()
+  local asn raw_json cidr_txt
+
+  for asn in "${asns[@]}"; do
+    raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
+    cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
+    download_file "${RIPE_STAT_BASE_URL}${asn}" "$raw_json"
+    python3 "$ROOT_DIR/scripts/normalize-ip-source.py" ripe-stat-json \
+      "$raw_json" "$cidr_txt"
+    cidr_files+=("$cidr_txt")
+  done
+
+  merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
+  render_ip_plain_to_surge_list \
+    "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
+    "$IP_ARTIFACTS_DIR/surge/${name}.list"
 }
 
 # Domain rules from domain-list-community/data
@@ -148,6 +184,11 @@ render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/aws.cidr.txt"        "$IP_ARTIF
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/fastly.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/github.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/github.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/apple.cidr.txt"      "$IP_ARTIFACTS_DIR/surge/apple.list"
+
+# Streaming services: no official CIDR lists; use RIPE NCC Stat (RPKI data) by ASN.
+sync_asn_ip_list netflix  "${NETFLIX_ASNS[@]}"
+sync_asn_ip_list spotify  "${SPOTIFY_ASNS[@]}"
+sync_asn_ip_list disney   "${DISNEY_ASNS[@]}"
 
 assert_files_present "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/surge/*.list"
 build_ip_artifacts_from_surge_dir \
