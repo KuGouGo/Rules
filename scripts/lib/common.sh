@@ -86,7 +86,7 @@ github_latest_release_tag() {
   local repo="$1"
   local json tag
   json="$(github_api_get "https://api.github.com/repos/${repo}/releases/latest")"
-  tag="$(printf '%s\n' "$json" | sed -nE 's/.*"tag_name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' | head -n 1)"
+  tag="$(printf '%s\n' "$json" | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])" 2>/dev/null || true)"
 
   if [ -z "$tag" ]; then
     echo "failed to resolve latest release tag for ${repo}" >&2
@@ -191,6 +191,7 @@ ensure_mihomo() {
   case "$arch" in
     amd64) asset="mihomo-${os}-amd64-compatible-v${version}.gz" ;;
     arm64) asset="mihomo-${os}-arm64-v${version}.gz" ;;
+    *) echo "unsupported architecture for mihomo: $arch" >&2; return 1 ;;
   esac
   archive="$BIN_DIR/mihomo.new.gz"
   temp_binary="$BIN_DIR/mihomo.new"

@@ -19,8 +19,8 @@ summarize_diff() {
   local pathspec="$2"
   local changed_sample deleted_sample
 
-  changed_sample="$(git diff --name-only HEAD -- "$pathspec" | sed -n "1,${SUMMARY_LIMIT}p")"
-  deleted_sample="$(git diff --name-only --diff-filter=D HEAD -- "$pathspec" | sed -n "1,${SUMMARY_LIMIT}p")"
+  changed_sample="$(git diff --name-only HEAD -- "$pathspec" | head -n "$SUMMARY_LIMIT")"
+  deleted_sample="$(git diff --name-only --diff-filter=D HEAD -- "$pathspec" | head -n "$SUMMARY_LIMIT")"
 
   if [ -n "$changed_sample" ]; then
     echo "$label changed sample:"
@@ -51,24 +51,6 @@ check_min_files() {
   fi
 }
 
-same_logical_files_after_extension_migration() {
-  local pathspec="$1"
-  local baseline current
-
-  baseline="$(
-    git ls-tree -r --name-only HEAD -- "$pathspec" \
-      | sed -E 's#^.*/##; s/\.(txt|list)$//' \
-      | sort -u
-  )"
-  current="$(
-    find "$pathspec" -maxdepth 1 -type f \
-      | sed -E 's#.*[\\/]##; s/\.(txt|list)$//' \
-      | sort -u
-  )"
-
-  [ -n "$baseline" ] && [ "$baseline" = "$current" ]
-}
-
 check_diff_ratio() {
   local label="$1"
   local pathspec="$2"
@@ -77,12 +59,6 @@ check_diff_ratio() {
   baseline_count=$(git ls-tree -r --name-only HEAD -- "$pathspec" | wc -l | tr -d ' ')
   if [ "$baseline_count" -eq 0 ]; then
     echo "$label: no baseline files, skip diff-ratio guard"
-    return 0
-  fi
-
-  if { [ "$pathspec" = ".output/domain/surge" ] || [ "$pathspec" = ".output/ip/surge" ]; } \
-    && same_logical_files_after_extension_migration "$pathspec"; then
-    echo "$label: detected one-time extension migration (.txt -> .list), skip diff-ratio guard"
     return 0
   fi
 
@@ -110,9 +86,9 @@ print_section "Artifact count checks"
 check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
 check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
 check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
-check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 7
-check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 7
-check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 7
+check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 9
+check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
+check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
 
 print_section "Artifact diff-ratio checks"
 check_diff_ratio ".output/domain/surge" ".output/domain/surge"
