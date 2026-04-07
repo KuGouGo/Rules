@@ -89,6 +89,12 @@ sync_asn_ip_list() {
   done
 
   merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
+
+  if [ ! -s "$IP_BUILD_TMP_DIR/${name}.cidr.txt" ]; then
+    echo "warning: no prefixes found for $name (ASNs: ${asns[*]}), skipping" >&2
+    return 0
+  fi
+
   render_ip_plain_to_surge_list \
     "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
     "$IP_ARTIFACTS_DIR/surge/${name}.list"
