@@ -28,14 +28,12 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 - [Surge](https://github.com/KuGouGo/Rules/tree/surge)
 - [sing-box](https://github.com/KuGouGo/Rules/tree/sing-box)
 - [mihomo](https://github.com/KuGouGo/Rules/tree/mihomo)
-- [Intermediate Artifacts](./docs/intermediate-artifacts.md)
 
 ## Layout
 
 ```text
 .
 |-- .github/         # CI workflows
-|-- docs/            # conversion and maintenance notes
 |-- scripts/         # sync/build/publish scripts
 |-- sources/         # editable rule sources only
 `-- README.md
@@ -50,7 +48,6 @@ A rule repository that keeps source files on `main` and publishes ready-to-use a
 
 - editable custom inputs live under `sources/custom/`
 - generated client artifacts are written to `.output/`
-- intermediate conversion formats are documented in [Intermediate Artifacts](./docs/intermediate-artifacts.md)
 
 ## Workflow
 
