@@ -105,7 +105,7 @@ jobs:
 
       - name: Resolve core versions
         id: core_versions
-        run: bash ./scripts/resolve-core-versions.sh
+        run: bash ./scripts/resolve-versions.sh
 
       - name: Restore tool cache
         uses: actions/cache@v4
@@ -125,22 +125,22 @@ jobs:
       - name: Show selected build scope
         run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
 
-      - name: Sync all rules
+      - name: Sync upstream rules
         if: steps.scope.outputs.scope == 'full'
-        run: ./scripts/sync-all.sh
+        run: ./scripts/sync-upstream.sh
 
-      - name: Restore published artifacts
+      - name: Restore artifacts
         if: steps.scope.outputs.scope == 'custom'
-        run: ./scripts/restore-published-artifacts.sh
+        run: ./scripts/restore-artifacts.sh
 
       - name: Build custom rules
         env:
           RULES_CONFLICT_BASE_SHA: ${{ steps.scope.outputs.base_sha }}
         run: ./scripts/build-custom.sh
 
-      - name: Fetch extra mihomo rules
+      - name: Fetch fakeip-filter
         if: steps.scope.outputs.scope == 'full'
-        run: ./scripts/fetch-extra-mihomo.sh
+        run: ./scripts/fetch-fakeip-filter.sh
 
       - name: Guard artifacts
         run: ./scripts/guard-artifacts.sh
