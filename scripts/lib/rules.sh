@@ -54,7 +54,7 @@ build_domain_json_from_rules() {
   local rule_list="$1"
   local json_out="$2"
 
-  python3 "$ROOT/scripts/export-domain-list-community.py" singbox-json "$rule_list" "$json_out"
+  python3 "$ROOT/scripts/export-domain-rules.py" singbox-json "$rule_list" "$json_out"
 }
 
 render_surge_domain_ruleset_from_rules() {
