@@ -161,7 +161,7 @@ ensure_sing_box() {
   package_dir="sing-box-${version}-${os}-${arch}"
   temp_binary="$BIN_DIR/sing-box.new"
   rm -f "$archive" "$temp_binary"
-  rm -rf "$BIN_DIR/$package_dir"
+  rm -rf "${BIN_DIR:?}/$package_dir"
   download_file \
     "https://github.com/SagerNet/sing-box/releases/download/v${version}/${package_dir}.tar.gz" \
     "$archive"
@@ -169,7 +169,7 @@ ensure_sing_box() {
   mv "$BIN_DIR/$package_dir/sing-box" "$temp_binary"
   chmod +x "$temp_binary"
   mv "$temp_binary" "$BIN_DIR/sing-box"
-  rm -rf "$BIN_DIR/$package_dir" "$archive"
+  rm -rf "${BIN_DIR:?}/$package_dir" "$archive"
 
   write_tool_version "sing-box" "$version"
 

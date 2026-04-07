@@ -151,12 +151,10 @@ assert_branch_layout() {
   local ip_extensions="$2"
   local file rel
 
-  for rel in README.md; do
-    [ -f "$rel" ] || {
-      echo "missing publish file: $rel" >&2
-      exit 1
-    }
-  done
+  [ -f "README.md" ] || {
+    echo "missing publish file: README.md" >&2
+    exit 1
+  }
 
   while IFS= read -r -d '' file; do
     rel="${file#./}"
@@ -229,9 +227,9 @@ publish_branch() {
   fi
   git remote add origin "$remote_url"
 
-  local_tree="$(git rev-parse HEAD^{tree})"
+  local_tree="$(git rev-parse 'HEAD^{tree}')"
   if git fetch --depth=1 origin "$branch" >/dev/null 2>&1; then
-    remote_tree="$(git rev-parse FETCH_HEAD^{tree})"
+    remote_tree="$(git rev-parse 'FETCH_HEAD^{tree}')"
     if [ "$local_tree" = "$remote_tree" ]; then
       echo "${branch} artifacts unchanged, skip push"
       popd >/dev/null

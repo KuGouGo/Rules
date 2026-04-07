@@ -20,7 +20,7 @@ GOOGLE_IP_SOURCE_URL="https://www.gstatic.com/ipranges/goog.json"
 TELEGRAM_IP_SOURCE_URL="https://core.telegram.org/resources/cidr.txt"
 CLOUDFLARE_IPV4_SOURCE_URL="https://www.cloudflare.com/ips-v4"
 CLOUDFLARE_IPV6_SOURCE_URL="https://www.cloudflare.com/ips-v6"
-CLOUDFRONT_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
+# One download used for both CloudFront (service-filtered) and AWS (all services).
 AWS_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
 FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
 GITHUB_IP_SOURCE_URL="https://api.github.com/meta"
