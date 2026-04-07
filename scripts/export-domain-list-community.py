@@ -83,8 +83,11 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
         rules.append(rule)
 
         for token in tail:
-          if token.startswith("&"):
-              affiliations.append((token[1:], rule))
+            # &name is the v2fly affiliation extension: the rule is also added
+            # to the list named <name>, enabling cross-list rule sharing without
+            # explicit include: directives.
+            if token.startswith("&"):
+                affiliations.append((token[1:], rule))
 
     return rules, includes, affiliations
 
@@ -167,6 +170,7 @@ def build_singbox_json(input_file: Path, output_file: Path) -> None:
             raise ValueError(f"unsupported classical domain rule type: {kind}")
         payload.setdefault(SINGBOX_KIND_MAP[kind], []).append(value)
 
+    # version 3 is the current sing-box rule-set format (introduced in sing-box 1.8).
     data = {"version": 3, "rules": [payload]}
     output_file.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 

@@ -213,7 +213,7 @@ publish_branch() {
 
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
 
-  local remote_url local_tree remote_tree
+  local remote_url
   if [ "$DRY_RUN" = "1" ]; then
     echo "=== ${branch} publish dry-run ==="
     echo "domain files: $(find domain -maxdepth 1 -type f | wc -l | tr -d ' ')"

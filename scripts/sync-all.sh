@@ -21,7 +21,9 @@ TELEGRAM_IP_SOURCE_URL="https://core.telegram.org/resources/cidr.txt"
 CLOUDFLARE_IPV4_SOURCE_URL="https://www.cloudflare.com/ips-v4"
 CLOUDFLARE_IPV6_SOURCE_URL="https://www.cloudflare.com/ips-v6"
 CLOUDFRONT_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
+AWS_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
 FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
+GITHUB_IP_SOURCE_URL="https://api.github.com/meta"
 APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
 
 source "$ROOT_DIR/scripts/lib/common.sh"
@@ -88,8 +90,10 @@ download_file "$GOOGLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/google.raw.json"
 download_file "$TELEGRAM_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/telegram.raw.txt"
 download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
 download_file "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt"
-download_file "$CLOUDFRONT_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudfront.raw.json"
+# AWS JSON is shared between cloudfront (service-filtered) and aws (all services)
+download_file "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json"
 download_file "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json"
+download_file "$GITHUB_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/github.raw.json"
 download_file "$APPLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/apple.raw.html"
 
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
@@ -120,22 +124,30 @@ merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" aws-cloudfront-json \
-  "$IP_BUILD_TMP_DIR/cloudfront.raw.json" \
+  "$IP_BUILD_TMP_DIR/aws.raw.json" \
   "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" aws-json \
+  "$IP_BUILD_TMP_DIR/aws.raw.json" \
+  "$IP_BUILD_TMP_DIR/aws.cidr.txt"
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" fastly-json \
   "$IP_BUILD_TMP_DIR/fastly.raw.json" \
   "$IP_BUILD_TMP_DIR/fastly.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" github-json \
+  "$IP_BUILD_TMP_DIR/github.raw.json" \
+  "$IP_BUILD_TMP_DIR/github.cidr.txt"
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" html \
   "$IP_BUILD_TMP_DIR/apple.raw.html" \
   "$IP_BUILD_TMP_DIR/apple.cidr.txt"
 
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cn.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cn.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/google.cidr.txt" "$IP_ARTIFACTS_DIR/surge/google.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/telegram.cidr.txt" "$IP_ARTIFACTS_DIR/surge/telegram.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cn.cidr.txt"         "$IP_ARTIFACTS_DIR/surge/cn.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/google.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/google.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/telegram.cidr.txt"   "$IP_ARTIFACTS_DIR/surge/telegram.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cloudflare.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cloudfront.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt" "$IP_ARTIFACTS_DIR/surge/fastly.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$IP_ARTIFACTS_DIR/surge/apple.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/aws.cidr.txt"        "$IP_ARTIFACTS_DIR/surge/aws.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/fastly.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/github.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/github.list"
+render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/apple.cidr.txt"      "$IP_ARTIFACTS_DIR/surge/apple.list"
 
 assert_files_present "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/surge/*.list"
 build_ip_artifacts_from_surge_dir \

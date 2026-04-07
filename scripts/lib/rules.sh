@@ -168,7 +168,7 @@ compile_mihomo_domain_plain_to_binary_artifact() {
   local plain_list="$1"
   local mrs_out="$2"
 
-  mihomo convert-ruleset domain text "$plain_list" "$mrs_out" >/dev/null 2>&1
+  mihomo convert-ruleset domain text "$plain_list" "$mrs_out" >/dev/null
 }
 
 build_domain_artifacts_from_rule_dir() {
@@ -275,10 +275,14 @@ render_ip_plain_to_surge_list() {
 build_ip_json_from_plain() {
   local plain_list="$1"
   local json_out="$2"
-  local cidrs
 
-  cidrs="$(awk 'NF { printf "\"%s\",", $0 }' "$plain_list" | sed 's/,$//')"
-  printf '{"version":3,"rules":[{"ip_cidr":[%s]}]}\n' "$cidrs" > "$json_out"
+  python3 - "$plain_list" "$json_out" <<'PY'
+import json, sys
+plain_list, json_out = sys.argv[1], sys.argv[2]
+cidrs = [ln.strip() for ln in open(plain_list, encoding="utf-8") if ln.strip()]
+data = {"version": 3, "rules": [{"ip_cidr": cidrs}]}
+open(json_out, "w", encoding="utf-8").write(json.dumps(data, separators=(",", ":")))
+PY
 }
 
 compile_ip_plain_to_binary_artifacts() {
@@ -289,7 +293,7 @@ compile_ip_plain_to_binary_artifacts() {
 
   build_ip_json_from_plain "$plain_list" "$json_out"
   sing-box rule-set compile "$json_out" --output "$srs_out"
-  mihomo convert-ruleset ipcidr text "$plain_list" "$mrs_out" >/dev/null 2>&1
+  mihomo convert-ruleset ipcidr text "$plain_list" "$mrs_out" >/dev/null
 }
 
 build_ip_artifacts_from_surge_dir() {

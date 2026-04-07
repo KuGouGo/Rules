@@ -54,33 +54,39 @@ check_name() {
   fi
 }
 
-validate_ip_cidr() {
-  local type="$1"
-  local value="$2"
-
+# Validate a batch of CIDRs in a single Python call.
+# Reads tab-separated "type\tcidr\tfile:lineno" from stdin, one entry per line.
+# Prints validation errors to stderr; exits non-zero if any entry is invalid.
+_validate_ip_cidrs_bulk() {
   if ! command -v python3 >/dev/null 2>&1; then
     echo "python3 is required to lint custom IP rules" >&2
     return 1
   fi
 
-  python3 - "$type" "$value" <<'PY'
+  python3 - <<'PY'
 import ipaddress
 import sys
 
-rule_type, cidr = sys.argv[1], sys.argv[2]
-
-try:
-    network = ipaddress.ip_network(cidr, strict=False)
-except ValueError:
-    sys.exit(1)
-
-if rule_type == "IP-CIDR" and network.version != 4:
-    sys.exit(1)
-
-if rule_type == "IP-CIDR6" and network.version != 6:
-    sys.exit(1)
+ok = True
+for line in sys.stdin:
+    line = line.rstrip('\n')
+    if not line:
+        continue
+    rule_type, cidr, location = line.split('\t', 2)
+    try:
+        network = ipaddress.ip_network(cidr, strict=False)
+    except ValueError:
+        print(f"{location} invalid CIDR value: {rule_type},{cidr}", file=sys.stderr)
+        ok = False
+        continue
+    if rule_type == "IP-CIDR" and network.version != 4:
+        print(f"{location} IP-CIDR requires an IPv4 address: {rule_type},{cidr}", file=sys.stderr)
+        ok = False
+    elif rule_type == "IP-CIDR6" and network.version != 6:
+        print(f"{location} IP-CIDR6 requires an IPv6 address: {rule_type},{cidr}", file=sys.stderr)
+        ok = False
+sys.exit(0 if ok else 1)
 PY
-  return $?
 }
 
 check_domain_file() {
@@ -168,6 +174,8 @@ check_ip_file() {
   local seen_non_comment=0
   local has_error=0
   local type value
+  # Collect valid-syntax CIDRs for bulk validation: "type\tvalue\tfile:lineno"
+  local -a bulk_validate=()
 
   while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
@@ -199,10 +207,7 @@ check_ip_file() {
       has_error=1
     fi
 
-    if ! validate_ip_cidr "$type" "$value"; then
-      echo "$file:$line_no invalid CIDR value: $line" >&2
-      has_error=1
-    fi
+    bulk_validate+=("${type}	${value}	${file}:${line_no}")
   done < "$file"
 
   if [ "$seen_non_comment" -eq 0 ]; then
@@ -210,19 +215,33 @@ check_ip_file() {
     has_error=1
   fi
 
+  # Validate all collected CIDRs in a single Python call instead of one per line.
+  if [ "${#bulk_validate[@]}" -gt 0 ]; then
+    if ! printf '%s\n' "${bulk_validate[@]}" | _validate_ip_cidrs_bulk; then
+      has_error=1
+    fi
+  fi
+
   return "$has_error"
 }
 
+overall_error=0
+
 while IFS= read -r file; do
   base="$(basename "$file" .list)"
-  check_name "$base"
-  check_domain_file "$file"
+  check_name "$base" || overall_error=1
+  check_domain_file "$file" || overall_error=1
 done < <(iter_rule_lists "$CUSTOM_DOMAIN_DIR")
 
 while IFS= read -r file; do
   base="$(basename "$file" .list)"
-  check_name "$base"
-  check_ip_file "$file"
+  check_name "$base" || overall_error=1
+  check_ip_file "$file" || overall_error=1
 done < <(iter_rule_lists "$CUSTOM_IP_DIR")
+
+if [ "$overall_error" -ne 0 ]; then
+  echo "custom rule lint failed" >&2
+  exit 1
+fi
 
 echo "custom rule lint passed"
