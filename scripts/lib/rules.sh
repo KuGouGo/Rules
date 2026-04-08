@@ -91,6 +91,46 @@ with open(output_file, "w", encoding="utf-8") as fh:
 PY
 }
 
+render_quanx_domain_ruleset_from_rules() {
+  local rule_list="$1"
+  local quanx_out="$2"
+  local policy_tag="$3"
+
+  python3 - "$rule_list" "$quanx_out" "$policy_tag" <<'PY'
+import sys
+
+rule_list, output_file, policy_tag = sys.argv[1], sys.argv[2], sys.argv[3]
+mapping = {
+    "DOMAIN": "HOST",
+    "DOMAIN-SUFFIX": "HOST-SUFFIX",
+    "DOMAIN-KEYWORD": "HOST-KEYWORD",
+}
+rules = []
+seen = set()
+
+with open(rule_list, "r", encoding="utf-8") as fh:
+    for raw_line in fh:
+        line = raw_line.split("#", 1)[0].strip()
+        if not line or "," not in line:
+            continue
+        rule_type, value = line.split(",", 1)
+        rule_type = rule_type.strip().upper()
+        value = value.strip()
+        mapped = mapping.get(rule_type)
+        if not mapped or not value:
+            continue
+        normalized = f"{mapped},{value},{policy_tag}"
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        rules.append(normalized)
+
+with open(output_file, "w", encoding="utf-8") as fh:
+    if rules:
+        fh.write("\n".join(rules) + "\n")
+PY
+}
+
 compile_domain_rule_list_to_artifacts() {
   local rule_list="$1"
   local json_out="$2"
@@ -122,6 +162,31 @@ render_domain_rule_dir_to_surge_dir() {
     fi
 
     mv "$surge_tmp" "$surge_out"
+  done
+}
+
+render_domain_rule_dir_to_quanx_dir() {
+  local rule_dir="$1"
+  local quanx_dir="$2"
+  local tmp_dir="$3"
+  local list base quanx_tmp quanx_out
+
+  rm -rf "$quanx_dir"
+  mkdir -p "$quanx_dir" "$tmp_dir"
+
+  for list in "$rule_dir"/*.list; do
+    [ -f "$list" ] || continue
+    base="$(basename "$list" .list)"
+    quanx_tmp="$tmp_dir/$base.quanx.tmp"
+    quanx_out="$quanx_dir/$base.list"
+    render_quanx_domain_ruleset_from_rules "$list" "$quanx_tmp" "$base"
+
+    if [ ! -s "$quanx_tmp" ]; then
+      echo "domain list $base has no QuanX-compatible HOST/HOST-SUFFIX/HOST-KEYWORD entries" >&2
+      return 1
+    fi
+
+    mv "$quanx_tmp" "$quanx_out"
   done
 }
 
@@ -270,6 +335,28 @@ render_ip_plain_to_surge_list() {
   ' "$plain_list" > "$surge_out"
 
   dedupe_file_in_place "$surge_out"
+}
+
+render_ip_plain_to_quanx_list() {
+  local plain_list="$1"
+  local quanx_out="$2"
+  local policy_tag="$3"
+
+  awk -v policy="$policy_tag" '
+    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
+    {
+      value=$0
+      gsub(/\r$/, "", value)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      if (value == "") {
+        next
+      }
+      type = (value ~ /:/ ? "IP6-CIDR" : "IP-CIDR")
+      printf "%s,%s,%s\n", type, value, policy
+    }
+  ' "$plain_list" > "$quanx_out"
+
+  dedupe_file_in_place "$quanx_out"
 }
 
 build_ip_json_from_plain() {
