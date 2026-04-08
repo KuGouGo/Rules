@@ -16,6 +16,8 @@ IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 DOMAIN_SOURCE_REPO_URL="https://github.com/v2fly/domain-list-community.git"
 CN_IPV4_SOURCE_URL="https://ispip.clang.cn/all_cn.txt"
 CN_IPV6_SOURCE_URL="https://ispip.clang.cn/all_cn_ipv6.txt"
+CN_ASN_IPV4_SOURCE_URL="https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
+CN_ASN_IPV6_SOURCE_URL="https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt"
 GOOGLE_IP_SOURCE_URL="https://www.gstatic.com/ipranges/goog.json"
 TELEGRAM_IP_SOURCE_URL="https://core.telegram.org/resources/cidr.txt"
 CLOUDFLARE_IPV4_SOURCE_URL="https://www.cloudflare.com/ips-v4"
@@ -25,6 +27,10 @@ AWS_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
 FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
 GITHUB_IP_SOURCE_URL="https://api.github.com/meta"
 APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
+APPLE_IP_SOURCE_FALLBACK_URL="https://support.apple.com/zh-cn/101555"
+
+APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-3}"
+
 # RIPE NCC Stat API: official RPKI/routing data for ASN prefix lookups.
 # Used for streaming services that publish no machine-readable CIDR lists.
 RIPE_STAT_BASE_URL="https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS"
@@ -98,10 +104,49 @@ sync_asn_ip_list() {
   render_ip_plain_to_surge_list \
     "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
     "$IP_ARTIFACTS_DIR/surge/${name}.list"
+  render_ip_plain_to_quanx_list \
+    "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
+    "$IP_ARTIFACTS_DIR/quanx/${name}.list" \
+    "$name"
+}
+
+download_file_with_fallback() {
+  local out_file="$1"
+  shift
+  local url
+  local attempted=""
+
+  for url in "$@"; do
+    if download_file "$url" "$out_file"; then
+      echo "downloaded $(basename "$out_file") from $url"
+      return 0
+    fi
+
+    attempted="${attempted}${attempted:+, }$url"
+    echo "download failed from $url, trying next fallback..." >&2
+  done
+
+  echo "failed to download $(basename "$out_file") from all sources: $attempted" >&2
+  return 1
+}
+
+assert_min_cidrs() {
+  local label="$1"
+  local file="$2"
+  local min_expected="$3"
+  local count
+
+  count=$(wc -l < "$file" | tr -d ' ')
+  echo "$label cidr entries: $count (min expected: $min_expected)"
+
+  if [ "$count" -lt "$min_expected" ]; then
+    echo "$label cidr count too low: $count < $min_expected" >&2
+    return 1
+  fi
 }
 
 # Domain rules from domain-list-community/data
-rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
+rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
@@ -112,6 +157,11 @@ render_domain_rule_dir_to_surge_dir \
   "$DOMAIN_ARTIFACTS_DIR/surge" \
   "$DOMAIN_BUILD_TMP_DIR/surge"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/*.list"
+render_domain_rule_dir_to_quanx_dir \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$DOMAIN_ARTIFACTS_DIR/quanx" \
+  "$DOMAIN_BUILD_TMP_DIR/quanx"
+assert_files_present "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/quanx/*.list"
 
 # Domain sing-box and mihomo built locally from the full classical domain lists
 build_domain_artifacts_from_rule_dir \
@@ -123,11 +173,13 @@ assert_files_present "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/sin
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihomo/*.mrs"
 
 # IP rules from curated remote sources
-rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
-mkdir -p "$IP_ARTIFACTS_DIR/surge"
+rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
+mkdir -p "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx"
 
 download_file "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt"
 download_file "$CN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt"
+download_file "$CN_ASN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt"
+download_file "$CN_ASN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt"
 download_file "$GOOGLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/google.raw.json"
 download_file "$TELEGRAM_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/telegram.raw.txt"
 download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
@@ -136,7 +188,10 @@ download_file "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.r
 download_file "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json"
 download_file "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json"
 download_file "$GITHUB_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/github.raw.json"
-download_file "$APPLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/apple.raw.html"
+download_file_with_fallback \
+  "$IP_BUILD_TMP_DIR/apple.raw.html" \
+  "$APPLE_IP_SOURCE_URL" \
+  "$APPLE_IP_SOURCE_FALLBACK_URL"
 
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
   "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt" \
@@ -144,10 +199,18 @@ python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
   "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt" \
+  "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
+  "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt" \
+  "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
+  "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
 
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" google-json \
   "$IP_BUILD_TMP_DIR/google.raw.json" \
@@ -180,6 +243,7 @@ python3 "$ROOT_DIR/scripts/normalize-ip-source.py" github-json \
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" html \
   "$IP_BUILD_TMP_DIR/apple.raw.html" \
   "$IP_BUILD_TMP_DIR/apple.cidr.txt"
+assert_min_cidrs apple "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$APPLE_MIN_CIDR_COUNT"
 
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cn.cidr.txt"         "$IP_ARTIFACTS_DIR/surge/cn.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/google.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/google.list"
@@ -190,6 +254,15 @@ render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/aws.cidr.txt"        "$IP_ARTIF
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/fastly.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/github.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/github.list"
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/apple.cidr.txt"      "$IP_ARTIFACTS_DIR/surge/apple.list"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/cn.cidr.txt"         "$IP_ARTIFACTS_DIR/quanx/cn.list" "cn"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/google.cidr.txt"     "$IP_ARTIFACTS_DIR/quanx/google.list" "google"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/telegram.cidr.txt"   "$IP_ARTIFACTS_DIR/quanx/telegram.list" "telegram"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" "$IP_ARTIFACTS_DIR/quanx/cloudflare.list" "cloudflare"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt" "$IP_ARTIFACTS_DIR/quanx/cloudfront.list" "cloudfront"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/aws.cidr.txt"        "$IP_ARTIFACTS_DIR/quanx/aws.list" "aws"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt"     "$IP_ARTIFACTS_DIR/quanx/fastly.list" "fastly"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/github.cidr.txt"     "$IP_ARTIFACTS_DIR/quanx/github.list" "github"
+render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/apple.cidr.txt"      "$IP_ARTIFACTS_DIR/quanx/apple.list" "apple"
 
 # Streaming services: no official CIDR lists; use RIPE NCC Stat (RPKI data) by ASN.
 sync_asn_ip_list netflix  "${NETFLIX_ASNS[@]}"
@@ -197,6 +270,7 @@ sync_asn_ip_list spotify  "${SPOTIFY_ASNS[@]}"
 sync_asn_ip_list disney   "${DISNEY_ASNS[@]}"
 
 assert_files_present "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/surge/*.list"
+assert_files_present "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/quanx/*.list"
 build_ip_artifacts_from_surge_dir \
   "$IP_ARTIFACTS_DIR/surge" \
   "$IP_BUILD_TMP_DIR" \

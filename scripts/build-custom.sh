@@ -12,9 +12,11 @@ TMP_IP_DIR="$TMP_DIR/ip"
 BIN_DIR="$ROOT/.bin"
 ARTIFACT_ROOT="$ROOT/.output"
 DOMAIN_SURGE_DIR="$ARTIFACT_ROOT/domain/surge"
+DOMAIN_QUANX_DIR="$ARTIFACT_ROOT/domain/quanx"
 DOMAIN_SINGBOX_DIR="$ARTIFACT_ROOT/domain/sing-box"
 DOMAIN_MIHOMO_DIR="$ARTIFACT_ROOT/domain/mihomo"
 IP_SURGE_DIR="$ARTIFACT_ROOT/ip/surge"
+IP_QUANX_DIR="$ARTIFACT_ROOT/ip/quanx"
 IP_SINGBOX_DIR="$ARTIFACT_ROOT/ip/sing-box"
 IP_MIHOMO_DIR="$ARTIFACT_ROOT/ip/mihomo"
 
@@ -23,9 +25,11 @@ source "$ROOT/scripts/lib/rules.sh"
 
 mkdir -p \
   "$DOMAIN_SURGE_DIR" \
+  "$DOMAIN_QUANX_DIR" \
   "$DOMAIN_SINGBOX_DIR" \
   "$DOMAIN_MIHOMO_DIR" \
   "$IP_SURGE_DIR" \
+  "$IP_QUANX_DIR" \
   "$IP_SINGBOX_DIR" \
   "$IP_MIHOMO_DIR" \
   "$BIN_DIR"
@@ -116,15 +120,19 @@ assert_no_name_conflict() {
 
 build_domain_plain_and_surge() {
   local list_file="$1"
-  local base surge_out plain_out surge_tmp
+  local base surge_out quanx_out plain_out surge_tmp quanx_tmp
   base="$(basename "$list_file" .list)"
   surge_out="$DOMAIN_SURGE_DIR/$base.list"
+  quanx_out="$DOMAIN_QUANX_DIR/$base.list"
   plain_out="$TMP_DOMAIN_DIR/$base.list"
   surge_tmp="$TMP_DOMAIN_DIR/$base.surge.tmp"
+  quanx_tmp="$TMP_DOMAIN_DIR/$base.quanx.tmp"
 
   normalize_custom_domain_source "$list_file" "$plain_out"
   render_surge_domain_ruleset_from_rules "$plain_out" "$surge_tmp"
+  render_quanx_domain_ruleset_from_rules "$plain_out" "$quanx_tmp" "$base"
   write_if_changed "$surge_tmp" "$surge_out"
+  write_if_changed "$quanx_tmp" "$quanx_out"
 }
 
 build_domain_binaries() {
@@ -158,17 +166,21 @@ build_domain_binaries() {
 
 build_ip_plain_and_surge() {
   local list_file="$1"
-  local base surge_out plain_out surge_tmp plain_tmp
+  local base surge_out quanx_out plain_out surge_tmp quanx_tmp plain_tmp
   base="$(basename "$list_file" .list)"
   surge_out="$IP_SURGE_DIR/$base.list"
+  quanx_out="$IP_QUANX_DIR/$base.list"
   plain_out="$TMP_IP_DIR/$base.txt"
   surge_tmp="$TMP_IP_DIR/$base.surge.tmp"
+  quanx_tmp="$TMP_IP_DIR/$base.quanx.tmp"
   plain_tmp="$TMP_IP_DIR/$base.plain.tmp"
 
   normalize_ip_rule_source "$list_file" "$surge_tmp" "$plain_tmp"
+  render_ip_plain_to_quanx_list "$plain_tmp" "$quanx_tmp" "$base"
   write_if_changed "$surge_tmp" "$surge_out"
+  write_if_changed "$quanx_tmp" "$quanx_out"
   mv "$plain_tmp" "$plain_out"
-  rm -f "$surge_tmp"
+  rm -f "$surge_tmp" "$quanx_tmp"
 }
 
 build_ip_binaries() {
@@ -197,6 +209,7 @@ while IFS= read -r list_file; do
     "$CUSTOM_DOMAIN_DIR" \
     "$BASE_CUSTOM_SOURCES" \
     ".output/domain/surge/$base.list" \
+    ".output/domain/quanx/$base.list" \
     ".output/domain/sing-box/$base.srs" \
     ".output/domain/mihomo/$base.mrs"
   build_domain_plain_and_surge "$list_file"
@@ -210,6 +223,7 @@ while IFS= read -r list_file; do
     "$CUSTOM_IP_DIR" \
     "$BASE_CUSTOM_SOURCES" \
     ".output/ip/surge/$base.list" \
+    ".output/ip/quanx/$base.list" \
     ".output/ip/sing-box/$base.srs" \
     ".output/ip/mihomo/$base.mrs"
   build_ip_plain_and_surge "$list_file"
