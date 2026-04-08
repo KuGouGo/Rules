@@ -159,7 +159,7 @@ check_builtin_ip_min_entries() {
 }
 
 ensure_origin_surge_baseline() {
-  if git rev-parse --verify origin/surge^{commit} >/dev/null 2>&1; then
+  if git rev-parse --verify "origin/surge^{commit}" >/dev/null 2>&1; then
     return 0
   fi
 
