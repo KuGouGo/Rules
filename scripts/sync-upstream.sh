@@ -146,7 +146,7 @@ assert_min_cidrs() {
 }
 
 # Domain rules from domain-list-community/data
-rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
+rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
@@ -162,6 +162,11 @@ render_domain_rule_dir_to_quanx_dir \
   "$DOMAIN_ARTIFACTS_DIR/quanx" \
   "$DOMAIN_BUILD_TMP_DIR/quanx"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/quanx/*.list"
+render_domain_rule_dir_to_egern_dir \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$DOMAIN_ARTIFACTS_DIR/egern" \
+  "$DOMAIN_BUILD_TMP_DIR/egern"
+assert_files_present "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/egern/*.yaml"
 
 # Domain sing-box and mihomo built locally from the full classical domain lists
 build_domain_artifacts_from_rule_dir \
@@ -173,7 +178,7 @@ assert_files_present "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/sin
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihomo/*.mrs"
 
 # IP rules from curated remote sources
-rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
+rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
 mkdir -p "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx"
 
 download_file "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt"
@@ -276,7 +281,12 @@ build_ip_artifacts_from_surge_dir \
   "$IP_BUILD_TMP_DIR" \
   "$IP_ARTIFACTS_DIR/sing-box" \
   "$IP_ARTIFACTS_DIR/mihomo"
+build_ip_egern_artifacts_from_surge_dir \
+  "$IP_ARTIFACTS_DIR/surge" \
+  "$IP_BUILD_TMP_DIR" \
+  "$IP_ARTIFACTS_DIR/egern"
 assert_files_present "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/sing-box/*.srs"
 assert_files_present "$IP_ARTIFACTS_DIR/mihomo" "$IP_ARTIFACTS_DIR/mihomo/*.mrs"
+assert_files_present "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/egern/*.yaml"
 
 echo "=== SYNC DONE ==="

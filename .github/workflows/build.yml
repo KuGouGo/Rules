@@ -151,10 +151,12 @@ jobs:
           count_files() { find "$1" -maxdepth 1 -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
           echo "Domain surge files:   $(count_files .output/domain/surge '*.list')"
           echo "Domain quanx files:   $(count_files .output/domain/quanx '*.list')"
+          echo "Domain egern files:   $(count_files .output/domain/egern '*.yaml')"
           echo "Domain sing-box files: $(count_files .output/domain/sing-box '*.srs')"
           echo "Domain mihomo files:  $(count_files .output/domain/mihomo '*.mrs')"
           echo "IP surge files:       $(count_files .output/ip/surge '*.list')"
           echo "IP quanx files:       $(count_files .output/ip/quanx '*.list')"
+          echo "IP egern files:       $(count_files .output/ip/egern '*.yaml')"
           echo "IP sing-box files:    $(count_files .output/ip/sing-box '*.srs')"
           echo "IP mihomo files:      $(count_files .output/ip/mihomo '*.mrs')"
           echo "Changed files summary:"
