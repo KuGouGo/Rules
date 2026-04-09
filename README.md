@@ -7,8 +7,9 @@
 [![QuanX](https://img.shields.io/badge/client-QuanX-purple)](https://github.com/KuGouGo/Rules/tree/quanx)
 [![sing-box](https://img.shields.io/badge/client-sing--box-blue)](https://github.com/KuGouGo/Rules/tree/sing-box)
 [![mihomo](https://img.shields.io/badge/client-mihomo-green)](https://github.com/KuGouGo/Rules/tree/mihomo)
+[![Egern](https://img.shields.io/badge/client-Egern-yellowgreen)](https://github.com/KuGouGo/Rules/tree/egern)
 
-代理规则集，每日自动同步，支持 **Surge**、**QuanX**、**sing-box**、**mihomo** 四端直接订阅。
+代理规则集，每日自动同步，支持 **Surge**、**QuanX**、**Egern**、**sing-box**、**mihomo** 五端直接订阅。
 
 ---
 
@@ -21,6 +22,7 @@
 ```text
 Surge    https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/{name}.list
 QuanX    https://raw.githubusercontent.com/KuGouGo/Rules/quanx/domain/{name}.list
+Egern    https://raw.githubusercontent.com/KuGouGo/Rules/egern/domain/{name}.yaml
 sing-box https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/{name}.srs
 mihomo   https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/{name}.mrs
 ```
@@ -58,6 +60,7 @@ mihomo   https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/{name}.mr
 ```text
 Surge    https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/{name}.list
 QuanX    https://raw.githubusercontent.com/KuGouGo/Rules/quanx/ip/{name}.list
+Egern    https://raw.githubusercontent.com/KuGouGo/Rules/egern/ip/{name}.yaml
 sing-box https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/ip/{name}.srs
 mihomo   https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/{name}.mrs
 ```
@@ -143,6 +146,13 @@ rule-providers:
     interval: 86400
 ```
 
+### Egern
+
+```text
+Domain https://raw.githubusercontent.com/KuGouGo/Rules/egern/domain/cn.yaml
+IP     https://raw.githubusercontent.com/KuGouGo/Rules/egern/ip/cn.yaml
+```
+
 ---
 
 ## 自定义规则
@@ -162,7 +172,7 @@ IP-CIDR,1.2.3.0/24
 IP-CIDR6,2403:300::/32
 ```
 
-提交后 CI 自动编译并发布到四端分支。自定义规则名称不能与现有规则组重名。
+提交后 CI 自动编译并发布到五端分支。自定义规则名称不能与现有规则组重名。
 
 ---
 

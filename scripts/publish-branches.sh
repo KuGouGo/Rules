@@ -58,6 +58,28 @@ https://raw.githubusercontent.com/KuGouGo/Rules/quanx/ip/cn.list, tag=CN-IP, for
 ```
 EOF
       ;;
+    egern)
+      cat <<'EOF'
+# Rules / Egern
+
+Generated artifacts for Egern.
+This branch intentionally contains only the final Egern rule files and this README.
+
+## Contents
+
+- [domain/](./domain/)
+- [ip/](./ip/)
+
+Egern rule files in this branch use the `.yaml` extension.
+Domain files may contain `domain_set`, `domain_suffix_set`, `domain_keyword_set`, `domain_regex_set`.
+IP files use `ip_cidr_set`.
+
+## URLs
+
+- Domain example: `https://raw.githubusercontent.com/KuGouGo/Rules/egern/domain/cn.yaml`
+- IP example: `https://raw.githubusercontent.com/KuGouGo/Rules/egern/ip/cn.yaml`
+EOF
+      ;;
     sing-box)
       cat <<'EOF'
 # Rules / sing-box
@@ -271,5 +293,6 @@ publish_branch() {
 
 publish_branch surge domain/surge ip/surge list list
 publish_branch quanx domain/quanx ip/quanx list list
+publish_branch egern domain/egern ip/egern yaml yaml
 publish_branch sing-box domain/sing-box ip/sing-box srs srs
 publish_branch mihomo domain/mihomo ip/mihomo mrs mrs

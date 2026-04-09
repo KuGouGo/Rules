@@ -131,6 +131,57 @@ with open(output_file, "w", encoding="utf-8") as fh:
 PY
 }
 
+render_egern_domain_ruleset_from_rules() {
+  local rule_list="$1"
+  local egern_out="$2"
+
+  python3 - "$rule_list" "$egern_out" <<'PY'
+import sys
+
+rule_list, output_file = sys.argv[1], sys.argv[2]
+mapping = {
+    "DOMAIN": "domain_set",
+    "DOMAIN-SUFFIX": "domain_suffix_set",
+    "DOMAIN-KEYWORD": "domain_keyword_set",
+    "DOMAIN-REGEX": "domain_regex_set",
+}
+sections = {
+    "domain_set": [],
+    "domain_suffix_set": [],
+    "domain_keyword_set": [],
+    "domain_regex_set": [],
+}
+seen = {key: set() for key in sections}
+
+def yaml_quote(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+with open(rule_list, "r", encoding="utf-8") as fh:
+    for raw_line in fh:
+        line = raw_line.split("#", 1)[0].strip()
+        if not line or "," not in line:
+            continue
+        rule_type, value = line.split(",", 1)
+        rule_type = rule_type.strip().upper()
+        value = value.strip()
+        target = mapping.get(rule_type)
+        if not target or not value or value in seen[target]:
+            continue
+        seen[target].add(value)
+        sections[target].append(value)
+
+with open(output_file, "w", encoding="utf-8") as fh:
+    for key in ("domain_set", "domain_suffix_set", "domain_keyword_set", "domain_regex_set"):
+        values = sections[key]
+        if not values:
+            continue
+        fh.write(f"{key}:\n")
+        for value in values:
+            fh.write(f"  - {yaml_quote(value)}\n")
+        fh.write("\n")
+PY
+}
+
 compile_domain_rule_list_to_artifacts() {
   local rule_list="$1"
   local json_out="$2"
@@ -187,6 +238,31 @@ render_domain_rule_dir_to_quanx_dir() {
     fi
 
     mv "$quanx_tmp" "$quanx_out"
+  done
+}
+
+render_domain_rule_dir_to_egern_dir() {
+  local rule_dir="$1"
+  local egern_dir="$2"
+  local tmp_dir="$3"
+  local list base egern_tmp egern_out
+
+  rm -rf "$egern_dir"
+  mkdir -p "$egern_dir" "$tmp_dir"
+
+  for list in "$rule_dir"/*.list; do
+    [ -f "$list" ] || continue
+    base="$(basename "$list" .list)"
+    egern_tmp="$tmp_dir/$base.egern.tmp"
+    egern_out="$egern_dir/$base.yaml"
+    render_egern_domain_ruleset_from_rules "$list" "$egern_tmp"
+
+    if [ ! -s "$egern_tmp" ]; then
+      echo "domain list $base has no Egern-compatible entries" >&2
+      return 1
+    fi
+
+    mv "$egern_tmp" "$egern_out"
   done
 }
 
@@ -359,6 +435,38 @@ render_ip_plain_to_quanx_list() {
   dedupe_file_in_place "$quanx_out"
 }
 
+render_ip_plain_to_egern_yaml() {
+  local plain_list="$1"
+  local egern_out="$2"
+
+  python3 - "$plain_list" "$egern_out" <<'PY'
+import sys
+
+plain_list, output_file = sys.argv[1], sys.argv[2]
+entries = []
+seen = set()
+
+def yaml_quote(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+with open(plain_list, "r", encoding="utf-8") as fh:
+    for raw_line in fh:
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line in seen:
+            continue
+        seen.add(line)
+        entries.append(line)
+
+with open(output_file, "w", encoding="utf-8") as fh:
+    if entries:
+        fh.write("ip_cidr_set:\n")
+        for value in entries:
+            fh.write(f"  - {yaml_quote(value)}\n")
+PY
+}
+
 build_ip_json_from_plain() {
   local plain_list="$1"
   local json_out="$2"
@@ -408,5 +516,29 @@ build_ip_artifacts_from_surge_dir() {
       continue
     fi
     compile_ip_plain_to_binary_artifacts "$plain_txt" "$json" "$srs_out" "$mrs_out"
+  done
+}
+
+build_ip_egern_artifacts_from_surge_dir() {
+  local surge_dir="$1"
+  local tmp_dir="$2"
+  local egern_dir="$3"
+  local list base plain_txt yaml_out
+
+  rm -rf "$egern_dir"
+  mkdir -p "$egern_dir" "$tmp_dir"
+
+  for list in "$surge_dir"/*.list; do
+    [ -f "$list" ] || continue
+    base="$(basename "$list" .list)"
+    plain_txt="$tmp_dir/$base.egern.txt"
+    yaml_out="$egern_dir/$base.yaml"
+
+    normalize_ip_surge_list_to_plain "$list" "$plain_txt"
+    if [ ! -s "$plain_txt" ]; then
+      echo "skipping empty IP list for egern: $base" >&2
+      continue
+    fi
+    render_ip_plain_to_egern_yaml "$plain_txt" "$yaml_out"
   done
 }

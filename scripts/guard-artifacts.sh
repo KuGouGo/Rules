@@ -224,6 +224,7 @@ check_builtin_ip_entry_volatility() {
 print_section "Artifact count checks"
 check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
 check_min_files ".output/domain/quanx" ".output/domain/quanx/*.list" 1000
+check_min_files ".output/domain/egern" ".output/domain/egern/*.yaml" 1000
 check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
 check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
 # Minimum 9 covers the guaranteed official sources:
@@ -232,6 +233,7 @@ check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
 # Stat and are not counted here as they may return empty prefixes.
 check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 9
 check_min_files ".output/ip/quanx" ".output/ip/quanx/*.list" 9
+check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 9
 check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
 check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
 
@@ -242,10 +244,12 @@ check_builtin_ip_entry_volatility
 print_section "Artifact diff-ratio checks"
 check_diff_ratio ".output/domain/surge" ".output/domain/surge"
 check_diff_ratio ".output/domain/quanx" ".output/domain/quanx"
+check_diff_ratio ".output/domain/egern" ".output/domain/egern"
 check_diff_ratio ".output/domain/sing-box" ".output/domain/sing-box"
 check_diff_ratio ".output/domain/mihomo" ".output/domain/mihomo"
 check_diff_ratio ".output/ip/surge" ".output/ip/surge"
 check_diff_ratio ".output/ip/quanx" ".output/ip/quanx"
+check_diff_ratio ".output/ip/egern" ".output/ip/egern"
 check_diff_ratio ".output/ip/sing-box" ".output/ip/sing-box"
 check_diff_ratio ".output/ip/mihomo" ".output/ip/mihomo"
 
