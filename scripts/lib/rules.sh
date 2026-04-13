@@ -472,6 +472,7 @@ with open(plain_list, "r", encoding="utf-8") as fh:
 
 with open(output_file, "w", encoding="utf-8") as fh:
     if entries:
+        fh.write("no_resolve: true\n")
         fh.write("ip_cidr_set:\n")
         for value in entries:
             fh.write(f"  - {yaml_quote(value)}\n")
