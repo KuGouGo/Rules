@@ -372,7 +372,7 @@ normalize_ip_rule_source() {
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
       if (type == "IP-CIDR" || type == "IP-CIDR6") {
         print value >> plain
-        printf "%s,%s,no-resolve\n", type, value >> surge
+        printf "%s,%s\n", type, value >> surge
       }
     }
   ' surge="$surge_out" plain="$plain_out" "$input_file"
@@ -412,7 +412,7 @@ render_ip_plain_to_surge_list() {
         next
       }
       type = (value ~ /:/ ? "IP-CIDR6" : "IP-CIDR")
-      printf "%s,%s,no-resolve\n", type, value
+      printf "%s,%s\n", type, value
     }
   ' "$plain_list" > "$surge_out"
 
