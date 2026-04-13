@@ -34,9 +34,15 @@ with open(input_file, "r", encoding="utf-8") as fh:
         if "," not in line:
             continue
         rule_type, value = line.split(",", 1)
-        rule_type = rule_type.strip().upper()
+        rule_type = rule_type.strip().upper().replace("_", "-")
         value = value.strip()
         if rule_type not in allowed or not value:
+            continue
+        if rule_type in {"DOMAIN", "DOMAIN-SUFFIX"}:
+            value = value.lower().rstrip(".")
+        elif rule_type == "DOMAIN-KEYWORD":
+            value = value.lower()
+        if not value:
             continue
         normalized = f"{rule_type},{value}"
         if normalized in seen:
