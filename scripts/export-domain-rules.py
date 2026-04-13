@@ -14,6 +14,23 @@ RULE_KIND_MAP = {
     "regexp": "DOMAIN-REGEX",
 }
 
+RULE_KIND_ALIASES = {
+    "domain": "domain",
+    "domain-suffix": "domain",
+    "domain_suffix": "domain",
+    "suffix": "domain",
+    "full": "full",
+    "domain-full": "full",
+    "domain_full": "full",
+    "keyword": "keyword",
+    "domain-keyword": "keyword",
+    "domain_keyword": "keyword",
+    "regexp": "regexp",
+    "regex": "regexp",
+    "domain-regex": "regexp",
+    "domain_regex": "regexp",
+}
+
 SINGBOX_KIND_MAP = {
     "DOMAIN": "domain",
     "DOMAIN-SUFFIX": "domain_suffix",
@@ -42,9 +59,10 @@ def strip_comment(line: str) -> str:
 def parse_rule_token(token: str) -> tuple[str, str]:
     if ":" in token:
         prefix, value = token.split(":", 1)
-        prefix = prefix.lower()
-        if prefix in RULE_KIND_MAP:
-            return prefix, value
+        kind = RULE_KIND_ALIASES.get(prefix.lower())
+        if kind:
+            return kind, value
+        raise ValueError(f"unsupported rule prefix: {prefix}")
     return "domain", token
 
 
@@ -61,7 +79,7 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
     includes: list[Include] = []
     affiliations: list[tuple[str, Rule]] = []
 
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
+    for line_no, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         line = strip_comment(raw_line)
         if not line:
             continue
@@ -74,7 +92,10 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
             includes.append(Include(head.split(":", 1)[1], tuple(token[1:] for token in tail if token.startswith("@"))))
             continue
 
-        kind, value = parse_rule_token(head)
+        try:
+            kind, value = parse_rule_token(head)
+        except ValueError as exc:
+            raise ValueError(f"{path}:{line_no} {exc}") from exc
         attrs = tuple(token[1:] for token in tail if token.startswith("@"))
         value = normalize_rule_value(kind, value)
         if not value:

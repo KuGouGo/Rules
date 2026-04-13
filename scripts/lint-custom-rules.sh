@@ -95,7 +95,7 @@ check_domain_file() {
   local seen_non_comment=0
   local has_mihomo_compatible_rule=0
   local has_error=0
-  local normalized kind value
+  local normalized kind kind_raw value
 
   while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
@@ -119,7 +119,9 @@ check_domain_file() {
       continue
     fi
 
-    kind="$(trim_whitespace "${normalized%%,*}")"
+    kind_raw="$(trim_whitespace "${normalized%%,*}")"
+    kind="$(printf '%s' "$kind_raw" | tr '[:lower:]' '[:upper:]')"
+    kind="${kind//_/-}"
     value="$(trim_whitespace "${normalized#*,}")"
 
     if [[ ! "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|DOMAIN-REGEX)$ ]]; then
