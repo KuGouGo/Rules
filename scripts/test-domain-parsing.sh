@@ -94,8 +94,37 @@ EOF
     "custom domain normalization is stable"
 }
 
+test_include_filter_semantics() {
+  mkdir -p "$TMP_DIR/include_filter/data" "$TMP_DIR/include_filter/out"
+  cat > "$TMP_DIR/include_filter/data/base" <<'EOF'
+domain:example.com @cn
+domain:ads.example.com @cn @ads
+full:exact.example.com @cn
+domain:global.example
+EOF
+
+  cat > "$TMP_DIR/include_filter/data/filtered" <<'EOF'
+include:base @cn @-ads
+EOF
+
+  python3 "$ROOT/scripts/export-domain-rules.py" export \
+    "$TMP_DIR/include_filter/data" \
+    "$TMP_DIR/include_filter/out"
+
+  cat > "$TMP_DIR/include_filter/expected.list" <<'EOF'
+DOMAIN,exact.example.com
+DOMAIN-SUFFIX,example.com
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/include_filter/expected.list" \
+    "$TMP_DIR/include_filter/out/filtered.list" \
+    "include filters match required attrs and exclude blocked attrs"
+}
+
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
 test_custom_domain_normalization
+test_include_filter_semantics
 
 echo "domain parsing tests passed"
