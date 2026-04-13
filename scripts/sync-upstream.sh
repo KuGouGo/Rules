@@ -14,6 +14,8 @@ DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 
 DOMAIN_SOURCE_REPO_URL="https://github.com/v2fly/domain-list-community.git"
+AWAVENUE_DOMAIN_SOURCE_URL="https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list"
+AWAVENUE_DOMAIN_SOURCE_FALLBACK_URL="https://gcore.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list"
 CN_IPV4_SOURCE_URL="https://ispip.clang.cn/all_cn.txt"
 CN_IPV6_SOURCE_URL="https://ispip.clang.cn/all_cn_ipv6.txt"
 CN_ASN_IPV4_SOURCE_URL="https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
@@ -30,6 +32,7 @@ APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
 APPLE_IP_SOURCE_FALLBACK_URL="https://support.apple.com/zh-cn/101555"
 
 APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-3}"
+AWAVENUE_MIN_RULE_COUNT="${AWAVENUE_MIN_RULE_COUNT:-500}"
 
 # RIPE NCC Stat API: official RPKI/routing data for ASN prefix lookups.
 # Used for streaming services that publish no machine-readable CIDR lists.
@@ -145,12 +148,52 @@ assert_min_cidrs() {
   fi
 }
 
-# Domain rules from domain-list-community/data
+assert_min_rules() {
+  local label="$1"
+  local file="$2"
+  local min_expected="$3"
+  local count
+
+  count=$(wc -l < "$file" | tr -d ' ')
+  echo "$label rule entries: $count (min expected: $min_expected)"
+
+  if [ "$count" -lt "$min_expected" ]; then
+    echo "$label rule count too low: $count < $min_expected" >&2
+    return 1
+  fi
+}
+
+sync_remote_domain_ruleset() {
+  local name="$1"
+  local min_expected="$2"
+  shift 2
+  local raw_file normalized_file
+
+  raw_file="$DOMAIN_BUILD_TMP_DIR/${name}.raw.list"
+  normalized_file="$DOMAIN_RULE_TMP_DIR/${name}.list"
+
+  download_file_with_fallback "$raw_file" "$@"
+  normalize_custom_domain_source "$raw_file" "$normalized_file"
+
+  if [ ! -s "$normalized_file" ]; then
+    echo "normalized remote domain ruleset is empty: $name" >&2
+    return 1
+  fi
+
+  assert_min_rules "$name" "$normalized_file" "$min_expected"
+}
+
+# Domain rules from domain-list-community/data plus curated remote lists
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
   "$DOMAIN_RULE_TMP_DIR"
+sync_remote_domain_ruleset \
+  awavenue-ads \
+  "$AWAVENUE_MIN_RULE_COUNT" \
+  "$AWAVENUE_DOMAIN_SOURCE_URL" \
+  "$AWAVENUE_DOMAIN_SOURCE_FALLBACK_URL"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
 render_domain_rule_dir_to_surge_dir \
   "$DOMAIN_RULE_TMP_DIR" \

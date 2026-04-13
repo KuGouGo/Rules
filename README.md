@@ -27,6 +27,7 @@ mihomo IP        https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/{name
 ## 常用规则组
 
 - Domain: `cn` `google` `youtube` `apple` `telegram` `netflix` `spotify` `disney` `github` `openai` `cloudflare`
+- Ads: `awavenue-ads`
 - IP: `cn` `google` `telegram` `cloudflare` `cloudfront` `aws` `fastly` `github` `apple` `netflix` `spotify` `disney`
 
 ## 快速示例
@@ -123,5 +124,6 @@ IP-CIDR6,2403:300::/32
 ## 上游来源
 
 - Domain: <https://github.com/v2fly/domain-list-community>
+- Ads Domain: <https://github.com/TG-Twilight/AWAvenue-Ads-Rule> (`awavenue-ads`)
 - IP: ispip clang、china-operator-ip、Google、Telegram、Cloudflare、AWS/CloudFront、Fastly、GitHub、Apple、RIPE Stat
 - 详细来源见 [scripts/sync-upstream.sh](scripts/sync-upstream.sh)
