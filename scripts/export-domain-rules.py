@@ -79,36 +79,41 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
     includes: list[Include] = []
     affiliations: list[tuple[str, Rule]] = []
 
-    for line_no, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        line = strip_comment(raw_line)
-        if not line:
-            continue
+    with path.open("r", encoding="utf-8") as fh:
+        for line_no, raw_line in enumerate(fh, start=1):
+            line = strip_comment(raw_line)
+            if not line:
+                continue
 
-        tokens = line.split()
-        head = tokens[0]
-        tail = tokens[1:]
+            head, _, tail_text = line.partition(" ")
+            tail_tokens = tail_text.split() if tail_text else []
+            attrs: list[str] = []
+            affiliate_targets: list[str] = []
+            for token in tail_tokens:
+                if token.startswith("@"):
+                    attrs.append(token[1:])
+                elif token.startswith("&"):
+                    affiliate_targets.append(token[1:])
 
-        if head.startswith("include:"):
-            includes.append(Include(head.split(":", 1)[1], tuple(token[1:] for token in tail if token.startswith("@"))))
-            continue
+            if head.startswith("include:"):
+                includes.append(Include(head.split(":", 1)[1], tuple(attrs)))
+                continue
 
-        try:
-            kind, value = parse_rule_token(head)
-        except ValueError as exc:
-            raise ValueError(f"{path}:{line_no} {exc}") from exc
-        attrs = tuple(token[1:] for token in tail if token.startswith("@"))
-        value = normalize_rule_value(kind, value)
-        if not value:
-            continue
-        rule = Rule(kind=RULE_KIND_MAP[kind], value=value, attrs=attrs)
-        rules.append(rule)
+            try:
+                kind, value = parse_rule_token(head)
+            except ValueError as exc:
+                raise ValueError(f"{path}:{line_no} {exc}") from exc
+            value = normalize_rule_value(kind, value)
+            if not value:
+                continue
+            rule = Rule(kind=RULE_KIND_MAP[kind], value=value, attrs=tuple(attrs))
+            rules.append(rule)
 
-        for token in tail:
-            # &name is the v2fly affiliation extension: the rule is also added
-            # to the list named <name>, enabling cross-list rule sharing without
-            # explicit include: directives.
-            if token.startswith("&"):
-                affiliations.append((token[1:], rule))
+            for target in affiliate_targets:
+                # &name is the v2fly affiliation extension: the rule is also added
+                # to the list named <name>, enabling cross-list rule sharing without
+                # explicit include: directives.
+                affiliations.append((target, rule))
 
     return rules, includes, affiliations
 
