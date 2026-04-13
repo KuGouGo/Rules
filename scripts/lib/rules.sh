@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 : "${ROOT:=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+# Keep Surge IP rule behavior stable by default.
+# Set SURGE_IP_APPEND_NO_RESOLVE=0 to omit no-resolve for A/B verification.
+: "${SURGE_IP_APPEND_NO_RESOLVE:=1}"
 
 ensure_rule_build_tools() {
   ensure_sing_box
@@ -357,7 +360,7 @@ normalize_ip_rule_source() {
   : > "$surge_out"
   : > "$plain_out"
 
-  awk -F, '
+  awk -F, -v append_no_resolve="$SURGE_IP_APPEND_NO_RESOLVE" '
     /^[[:space:]]*$/ || /^[[:space:]]*#/ {
       next
     }
@@ -371,8 +374,9 @@ normalize_ip_rule_source() {
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", type)
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
       if (type == "IP-CIDR" || type == "IP-CIDR6") {
+        suffix = (append_no_resolve == "1" ? ",no-resolve" : "")
         print value >> plain
-        printf "%s,%s\n", type, value >> surge
+        printf "%s,%s%s\n", type, value, suffix >> surge
       }
     }
   ' surge="$surge_out" plain="$plain_out" "$input_file"
@@ -402,7 +406,7 @@ render_ip_plain_to_surge_list() {
   local plain_list="$1"
   local surge_out="$2"
 
-  awk '
+  awk -v append_no_resolve="$SURGE_IP_APPEND_NO_RESOLVE" '
     /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
     {
       value=$0
@@ -412,7 +416,8 @@ render_ip_plain_to_surge_list() {
         next
       }
       type = (value ~ /:/ ? "IP-CIDR6" : "IP-CIDR")
-      printf "%s,%s\n", type, value
+      suffix = (append_no_resolve == "1" ? ",no-resolve" : "")
+      printf "%s,%s%s\n", type, value, suffix
     }
   ' "$plain_list" > "$surge_out"
 
