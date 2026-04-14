@@ -122,9 +122,43 @@ EOF
     "include filters match required attrs and exclude blocked attrs"
 }
 
+test_mihomo_domain_text_generation() {
+  cat > "$TMP_DIR/mihomo_domain_in.list" <<'EOF'
+DOMAIN,exact.example.com
+DOMAIN-SUFFIX,example.org
+DOMAIN-SUFFIX,example.org
+DOMAIN-KEYWORD,ignored-keyword
+DOMAIN-REGEX,^ignored$
+EOF
+
+  build_mihomo_domain_text_from_rules "$TMP_DIR/mihomo_domain_in.list" "$TMP_DIR/mihomo_domain_out.txt"
+
+  cat > "$TMP_DIR/mihomo_domain_expected.txt" <<'EOF'
+exact.example.com
+.example.org
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/mihomo_domain_expected.txt" \
+    "$TMP_DIR/mihomo_domain_out.txt" \
+    "mihomo domain text keeps only DOMAIN/DOMAIN-SUFFIX entries"
+
+  cat > "$TMP_DIR/mihomo_keyword_only.list" <<'EOF'
+DOMAIN-KEYWORD,only-keyword
+DOMAIN-REGEX,^only-regex$
+EOF
+
+  build_mihomo_domain_text_from_rules "$TMP_DIR/mihomo_keyword_only.list" "$TMP_DIR/mihomo_keyword_only_out.txt"
+  if [ -s "$TMP_DIR/mihomo_keyword_only_out.txt" ]; then
+    echo "test failed: keyword/regex-only input should produce empty mihomo domain text" >&2
+    exit 1
+  fi
+}
+
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
 test_custom_domain_normalization
 test_include_filter_semantics
+test_mihomo_domain_text_generation
 
 echo "domain parsing tests passed"

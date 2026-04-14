@@ -101,24 +101,71 @@ normalize_version() {
   printf '%s' "${version#v}"
 }
 
+read_cached_tool_version() {
+  local executable="$1"
+  local version_file="$BIN_DIR/${executable}.version"
+  local version
+
+  if [ ! -x "$BIN_DIR/$executable" ] || [ ! -s "$version_file" ]; then
+    return 1
+  fi
+
+  version="$(head -n 1 "$version_file" | tr -d '\r\n')"
+  if [ -z "$version" ]; then
+    return 1
+  fi
+
+  printf '%s' "$version"
+}
+
 resolve_sing_box_version() {
+  local latest_tag cached_version
+
   if [ -n "$SING_BOX_VERSION" ]; then
     printf '%s' "$SING_BOX_VERSION"
     return 0
   fi
 
-  SING_BOX_VERSION="$(normalize_version "$(github_latest_release_tag 'SagerNet/sing-box')")"
-  printf '%s' "$SING_BOX_VERSION"
+  if latest_tag="$(github_latest_release_tag 'SagerNet/sing-box' 2>/dev/null)"; then
+    SING_BOX_VERSION="$(normalize_version "$latest_tag")"
+    printf '%s' "$SING_BOX_VERSION"
+    return 0
+  fi
+
+  if cached_version="$(read_cached_tool_version 'sing-box' 2>/dev/null)"; then
+    SING_BOX_VERSION="$cached_version"
+    echo "warning: failed to resolve latest sing-box release; fallback to cached version $SING_BOX_VERSION" >&2
+    printf '%s' "$SING_BOX_VERSION"
+    return 0
+  fi
+
+  echo "failed to resolve sing-box version and no cached local binary is available" >&2
+  return 1
 }
 
 resolve_mihomo_version() {
+  local latest_tag cached_version
+
   if [ -n "$MIHOMO_VERSION" ]; then
     printf '%s' "$MIHOMO_VERSION"
     return 0
   fi
 
-  MIHOMO_VERSION="$(normalize_version "$(github_latest_release_tag 'MetaCubeX/mihomo')")"
-  printf '%s' "$MIHOMO_VERSION"
+  if latest_tag="$(github_latest_release_tag 'MetaCubeX/mihomo' 2>/dev/null)"; then
+    MIHOMO_VERSION="$(normalize_version "$latest_tag")"
+    printf '%s' "$MIHOMO_VERSION"
+    return 0
+  fi
+
+  if cached_version="$(read_cached_tool_version 'mihomo' 2>/dev/null)"; then
+    MIHOMO_VERSION="$cached_version"
+    echo "warning: failed to resolve latest mihomo release; fallback to cached version $MIHOMO_VERSION" >&2
+    printf '%s' "$MIHOMO_VERSION"
+    return 0
+  fi
+
+  echo "failed to resolve mihomo version and no cached local binary is available" >&2
+  return 1
 }
 
 tool_version_file() {
