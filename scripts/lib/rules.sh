@@ -327,8 +327,11 @@ build_domain_artifacts_from_rule_dir() {
   local singbox_dir="$3"
   local mihomo_dir="$4"
   local list base json srs_out mihomo_txt mrs_out
+  local mihomo_ready=0
+  local mihomo_built=0
+  local mihomo_skipped=0
 
-  ensure_rule_build_tools
+  ensure_sing_box
   rm -rf "$singbox_dir" "$mihomo_dir"
   mkdir -p "$singbox_dir" "$mihomo_dir" "$tmp_dir"
 
@@ -344,12 +347,27 @@ build_domain_artifacts_from_rule_dir() {
     build_mihomo_domain_text_from_rules "$list" "$mihomo_txt"
 
     if [ ! -s "$mihomo_txt" ]; then
-      echo "domain list $base has no DOMAIN/DOMAIN-SUFFIX entries; cannot build mihomo mrs" >&2
-      return 1
+      mihomo_skipped=$((mihomo_skipped + 1))
+      rm -f "$mrs_out"
+      continue
+    fi
+
+    if [ "$mihomo_ready" -eq 0 ]; then
+      ensure_mihomo
+      mihomo_ready=1
     fi
 
     compile_mihomo_domain_plain_to_binary_artifact "$mihomo_txt" "$mrs_out"
+    mihomo_built=$((mihomo_built + 1))
   done
+
+  if [ "$mihomo_skipped" -gt 0 ]; then
+    echo "skipped mihomo domain artifacts for $mihomo_skipped list(s) without DOMAIN/DOMAIN-SUFFIX entries" >&2
+  fi
+
+  if [ "$mihomo_built" -eq 0 ]; then
+    echo "warning: no mihomo domain artifacts were generated" >&2
+  fi
 }
 
 normalize_ip_rule_source() {

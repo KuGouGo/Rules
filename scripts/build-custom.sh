@@ -43,6 +43,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 has_custom_domain=0
 has_custom_ip=0
+MIHOMO_READY=0
 if [ -d "$CUSTOM_DOMAIN_DIR" ] && find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
   has_custom_domain=1
 fi
@@ -54,6 +55,13 @@ if [ "$has_custom_domain" -eq 0 ] && [ "$has_custom_ip" -eq 0 ]; then
   echo "no custom rule lists found, skip"
   exit 0
 fi
+
+ensure_mihomo_once() {
+  if [ "$MIHOMO_READY" -eq 0 ]; then
+    ensure_mihomo
+    MIHOMO_READY=1
+  fi
+}
 
 iter_rule_lists() {
   local dir="$1"
@@ -159,10 +167,12 @@ build_domain_binaries() {
   build_mihomo_domain_text_from_rules "$plain_list" "$mihomo_text_tmp"
 
   if [ ! -s "$mihomo_text_tmp" ]; then
-    echo "custom domain list $base has no DOMAIN/DOMAIN-SUFFIX entries; cannot build mihomo mrs" >&2
-    return 1
+    echo "custom domain list $base has no DOMAIN/DOMAIN-SUFFIX entries; skip mihomo mrs" >&2
+    rm -f "$DOMAIN_MIHOMO_DIR/$base.list" "$DOMAIN_MIHOMO_DIR/$base.mrs"
+    return 0
   fi
 
+  ensure_mihomo_once
   mihomo_mrs_tmp="$TMP_DOMAIN_DIR/$base.mrs.tmp"
   compile_mihomo_domain_plain_to_binary_artifact "$mihomo_text_tmp" "$mihomo_mrs_tmp" || {
     echo "failed to build custom mihomo domain rules for $base" >&2
@@ -244,7 +254,11 @@ while IFS= read -r list_file; do
 done < <(iter_rule_lists "$CUSTOM_IP_DIR")
 
 if [ "$has_custom_domain" -gt 0 ] || [ "$has_custom_ip" -gt 0 ]; then
-  ensure_rule_build_tools
+  ensure_sing_box
+fi
+
+if [ "$has_custom_ip" -gt 0 ]; then
+  ensure_mihomo_once
 fi
 
 for plain_list in "$TMP_DOMAIN_DIR"/*.list; do

@@ -93,7 +93,7 @@ check_domain_file() {
   local file="$1"
   local line_no=0
   local seen_non_comment=0
-  local has_mihomo_compatible_rule=0
+  local has_plain_domain_rule=0
   local has_error=0
   local normalized kind kind_raw value
 
@@ -153,7 +153,7 @@ check_domain_file() {
     fi
 
     if [[ "$kind" =~ ^(DOMAIN|DOMAIN-SUFFIX)$ ]]; then
-      has_mihomo_compatible_rule=1
+      has_plain_domain_rule=1
     fi
   done < "$file"
 
@@ -162,9 +162,8 @@ check_domain_file() {
     has_error=1
   fi
 
-  if [ "$has_mihomo_compatible_rule" -eq 0 ]; then
-    echo "$file requires at least one DOMAIN or DOMAIN-SUFFIX entry to build mihomo mrs" >&2
-    has_error=1
+  if [ "$has_plain_domain_rule" -eq 0 ]; then
+    echo "$file has no DOMAIN/DOMAIN-SUFFIX entries; sing-box artifacts will still be built, but mihomo .mrs will be skipped" >&2
   fi
 
   return "$has_error"
