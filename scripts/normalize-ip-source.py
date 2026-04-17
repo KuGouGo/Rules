@@ -130,29 +130,62 @@ def extract_html_cidrs(input_file: Path, output_file: Path) -> None:
     write_deduplicated_cidrs(values, output_file)
 
 
+def run_single_task(source_type: str, input_file: Path, output_file: Path) -> None:
+    source_to_handler = {
+        "text": extract_text_cidrs,
+        "google-json": extract_google_json_cidrs,
+        "aws-cloudfront-json": extract_aws_cloudfront_json_cidrs,
+        "aws-json": extract_aws_all_json_cidrs,
+        "fastly-json": extract_fastly_json_cidrs,
+        "github-json": extract_github_json_cidrs,
+        "ripe-stat-json": extract_ripe_stat_json_cidrs,
+        "html": extract_html_cidrs,
+    }
+    source_to_handler[source_type](input_file, output_file)
+
+
+def run_batch_tasks(manifest_file: Path) -> None:
+    tasks = json.loads(manifest_file.read_text(encoding="utf-8"))
+    if not isinstance(tasks, list):
+        raise ValueError("batch manifest must be a JSON array")
+
+    for index, task in enumerate(tasks, start=1):
+        if not isinstance(task, dict):
+            raise ValueError(f"batch task #{index} must be an object")
+
+        try:
+            source_type = str(task["source_type"])
+            input_file = Path(task["input_file"])
+            output_file = Path(task["output_file"])
+        except KeyError as exc:
+            raise ValueError(f"batch task #{index} missing field: {exc.args[0]}") from exc
+
+        run_single_task(source_type, input_file, output_file)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    single_parser = subparsers.add_parser("single")
+    single_parser.add_argument(
         "source_type",
         choices=("text", "google-json", "aws-cloudfront-json", "aws-json",
                  "fastly-json", "github-json", "ripe-stat-json", "html"),
     )
-    parser.add_argument("input_file")
-    parser.add_argument("output_file")
+    single_parser.add_argument("input_file")
+    single_parser.add_argument("output_file")
+
+    batch_parser = subparsers.add_parser("batch")
+    batch_parser.add_argument("manifest_file")
+
     args = parser.parse_args()
 
     try:
-        source_to_handler = {
-            "text": extract_text_cidrs,
-            "google-json": extract_google_json_cidrs,
-            "aws-cloudfront-json": extract_aws_cloudfront_json_cidrs,
-            "aws-json": extract_aws_all_json_cidrs,
-            "fastly-json": extract_fastly_json_cidrs,
-            "github-json": extract_github_json_cidrs,
-            "ripe-stat-json": extract_ripe_stat_json_cidrs,
-            "html": extract_html_cidrs,
-        }
-        source_to_handler[args.source_type](Path(args.input_file), Path(args.output_file))
+        if args.command == "single":
+            run_single_task(args.source_type, Path(args.input_file), Path(args.output_file))
+        else:
+            run_batch_tasks(Path(args.manifest_file))
         return 0
     except Exception as exc:  # pragma: no cover - surfaced to shell
         print(str(exc), file=sys.stderr)
