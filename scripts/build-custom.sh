@@ -22,6 +22,24 @@ IP_EGERN_DIR="$ARTIFACT_ROOT/ip/egern"
 IP_SINGBOX_DIR="$ARTIFACT_ROOT/ip/sing-box"
 IP_MIHOMO_DIR="$ARTIFACT_ROOT/ip/mihomo"
 
+list_rule_files() {
+  local dir="$1"
+  python3 - <<'PY' "$dir"
+import sys
+from pathlib import Path
+
+dir_path = Path(sys.argv[1])
+if not dir_path.is_dir():
+    raise SystemExit(0)
+for path in sorted(dir_path.glob('*.list')):
+    if path.is_file():
+        print(path)
+PY
+}
+
+DOMAIN_RULE_FILES="$(list_rule_files "$CUSTOM_DOMAIN_DIR")"
+IP_RULE_FILES="$(list_rule_files "$CUSTOM_IP_DIR")"
+
 source "$ROOT/scripts/lib/common.sh"
 source "$ROOT/scripts/lib/rules.sh"
 
@@ -44,10 +62,10 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 has_custom_domain=0
 has_custom_ip=0
 MIHOMO_READY=0
-if [ -d "$CUSTOM_DOMAIN_DIR" ] && find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
+if [ -n "$DOMAIN_RULE_FILES" ]; then
   has_custom_domain=1
 fi
-if [ -d "$CUSTOM_IP_DIR" ] && find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit | grep -q .; then
+if [ -n "$IP_RULE_FILES" ]; then
   has_custom_ip=1
 fi
 
@@ -224,6 +242,7 @@ CONFLICT_BASE_REF="$(resolve_conflict_base_ref)"
 BASE_CUSTOM_SOURCES="$(collect_base_custom_sources "$CONFLICT_BASE_REF")"
 
 while IFS= read -r list_file; do
+  [ -n "$list_file" ] || continue
   base="$(basename "$list_file" .list)"
   assert_no_name_conflict \
     "$base" \
@@ -236,9 +255,10 @@ while IFS= read -r list_file; do
     ".output/domain/sing-box/$base.srs" \
     ".output/domain/mihomo/$base.mrs"
   build_domain_plain_and_surge "$list_file"
-done < <(iter_rule_lists "$CUSTOM_DOMAIN_DIR")
+done <<< "$DOMAIN_RULE_FILES"
 
 while IFS= read -r list_file; do
+  [ -n "$list_file" ] || continue
   base="$(basename "$list_file" .list)"
   assert_no_name_conflict \
     "$base" \
@@ -251,7 +271,7 @@ while IFS= read -r list_file; do
     ".output/ip/sing-box/$base.srs" \
     ".output/ip/mihomo/$base.mrs"
   build_ip_plain_and_surge "$list_file"
-done < <(iter_rule_lists "$CUSTOM_IP_DIR")
+done <<< "$IP_RULE_FILES"
 
 if [ "$has_custom_domain" -gt 0 ] || [ "$has_custom_ip" -gt 0 ]; then
   ensure_sing_box
