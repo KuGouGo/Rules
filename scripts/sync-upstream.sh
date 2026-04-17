@@ -79,23 +79,31 @@ merge_cidr_plain_files() {
 }
 
 # sync_asn_ip_list <name> <asn> [<asn> ...]
-# Download RIPE NCC Stat prefix data for each ASN, normalise, merge, and render
-# to a Surge list at IP_ARTIFACTS_DIR/surge/<name>.list.
+# Download RIPE NCC Stat prefix data for each ASN, normalise in one batch,
+# merge, and render to a Surge list at IP_ARTIFACTS_DIR/surge/<name>.list.
 sync_asn_ip_list() {
   local name="$1"
   shift
   local -a asns=("$@")
   local -a cidr_files=()
-  local asn raw_json cidr_txt
+  local -a task_args=()
+  local asn raw_json cidr_txt manifest_file
 
   for asn in "${asns[@]}"; do
     raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
     cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
     download_file "${RIPE_STAT_BASE_URL}${asn}" "$raw_json"
-    python3 "$ROOT_DIR/scripts/normalize-ip-source.py" ripe-stat-json \
-      "$raw_json" "$cidr_txt"
     cidr_files+=("$cidr_txt")
+    task_args+=(
+      "ripe-stat-json"
+      "$raw_json"
+      "$cidr_txt"
+    )
   done
+
+  manifest_file="$IP_BUILD_TMP_DIR/${name}.asn-normalize-tasks.json"
+  generate_normalize_manifest_from_triplets "$manifest_file" "${task_args[@]}"
+  python3 "$ROOT_DIR/scripts/normalize-ip-source.py" batch "$manifest_file"
 
   merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
 
@@ -111,6 +119,33 @@ sync_asn_ip_list() {
     "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
     "$IP_ARTIFACTS_DIR/quanx/${name}.list" \
     "$name"
+}
+
+generate_normalize_manifest_from_triplets() {
+  local manifest_file="$1"
+  shift
+
+  python3 - <<'PY' "$manifest_file" "$@"
+import json
+import sys
+from pathlib import Path
+
+manifest_path = Path(sys.argv[1])
+args = sys.argv[2:]
+
+if len(args) % 3 != 0:
+    raise SystemExit("normalize manifest generator expects triplets: source_type input_file output_file")
+
+tasks = []
+for i in range(0, len(args), 3):
+    tasks.append({
+        "source_type": args[i],
+        "input_file": args[i + 1],
+        "output_file": args[i + 2],
+    })
+
+manifest_path.write_text(json.dumps(tasks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+PY
 }
 
 generate_ip_normalize_manifest() {
