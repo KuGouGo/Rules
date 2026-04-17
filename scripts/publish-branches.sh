@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 DRY_RUN="${PUBLISH_DRY_RUN:-0}"
+ALLOW_REMOTE_FALLBACK="${PUBLISH_ALLOW_REMOTE_FALLBACK:-0}"
 ARTIFACT_ROOT="$ROOT/.output"
 
 branch_readme() {
@@ -214,7 +215,7 @@ restore_remote_publish_side() {
 
   while IFS= read -r file_path; do
     [ -n "$file_path" ] || continue
-    rel_name="${file_path#${tree_path}/}"
+    rel_name="${file_path#"${tree_path}"/}"
     mkdir -p "$dest_dir/$(dirname "$rel_name")"
     git -C "$ROOT" show "origin/$branch:$file_path" > "$dest_dir/$rel_name"
     restored=1
