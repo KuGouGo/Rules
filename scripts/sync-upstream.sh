@@ -113,6 +113,37 @@ sync_asn_ip_list() {
     "$name"
 }
 
+generate_ip_normalize_manifest() {
+  local manifest_file="$1"
+
+  python3 - <<'PY' "$manifest_file" "$IP_BUILD_TMP_DIR"
+import json
+import sys
+from pathlib import Path
+
+manifest_path = Path(sys.argv[1])
+tmp_dir = Path(sys.argv[2])
+
+tasks = [
+    {"source_type": "text", "input_file": str(tmp_dir / "cn_ipv4.raw.txt"), "output_file": str(tmp_dir / "cn_ipv4.cidr.txt")},
+    {"source_type": "text", "input_file": str(tmp_dir / "cn_ipv6.raw.txt"), "output_file": str(tmp_dir / "cn_ipv6.cidr.txt")},
+    {"source_type": "text", "input_file": str(tmp_dir / "cn_asn_ipv4.raw.txt"), "output_file": str(tmp_dir / "cn_asn_ipv4.cidr.txt")},
+    {"source_type": "text", "input_file": str(tmp_dir / "cn_asn_ipv6.raw.txt"), "output_file": str(tmp_dir / "cn_asn_ipv6.cidr.txt")},
+    {"source_type": "google-json", "input_file": str(tmp_dir / "google.raw.json"), "output_file": str(tmp_dir / "google.cidr.txt")},
+    {"source_type": "text", "input_file": str(tmp_dir / "telegram.raw.txt"), "output_file": str(tmp_dir / "telegram.cidr.txt")},
+    {"source_type": "text", "input_file": str(tmp_dir / "cloudflare_ipv4.raw.txt"), "output_file": str(tmp_dir / "cloudflare_ipv4.cidr.txt")},
+    {"source_type": "text", "input_file": str(tmp_dir / "cloudflare_ipv6.raw.txt"), "output_file": str(tmp_dir / "cloudflare_ipv6.cidr.txt")},
+    {"source_type": "aws-cloudfront-json", "input_file": str(tmp_dir / "aws.raw.json"), "output_file": str(tmp_dir / "cloudfront.cidr.txt")},
+    {"source_type": "aws-json", "input_file": str(tmp_dir / "aws.raw.json"), "output_file": str(tmp_dir / "aws.cidr.txt")},
+    {"source_type": "fastly-json", "input_file": str(tmp_dir / "fastly.raw.json"), "output_file": str(tmp_dir / "fastly.cidr.txt")},
+    {"source_type": "github-json", "input_file": str(tmp_dir / "github.raw.json"), "output_file": str(tmp_dir / "github.cidr.txt")},
+    {"source_type": "html", "input_file": str(tmp_dir / "apple.raw.html"), "output_file": str(tmp_dir / "apple.cidr.txt")},
+]
+
+manifest_path.write_text(json.dumps(tasks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+PY
+}
+
 download_file_with_fallback() {
   local out_file="$1"
   shift
@@ -241,56 +272,20 @@ download_file_with_fallback \
   "$APPLE_IP_SOURCE_URL" \
   "$APPLE_IP_SOURCE_FALLBACK_URL"
 
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt" \
-  "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt" \
-  "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
+IP_NORMALIZE_MANIFEST="$IP_BUILD_TMP_DIR/normalize-tasks.json"
+
+generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
+python3 "$ROOT_DIR/scripts/normalize-ip-source.py" batch "$IP_NORMALIZE_MANIFEST"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
-
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" google-json \
-  "$IP_BUILD_TMP_DIR/google.raw.json" \
-  "$IP_BUILD_TMP_DIR/google.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/telegram.raw.txt" \
-  "$IP_BUILD_TMP_DIR/telegram.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" \
-  "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" text \
-  "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" \
-  "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" aws-cloudfront-json \
-  "$IP_BUILD_TMP_DIR/aws.raw.json" \
-  "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" aws-json \
-  "$IP_BUILD_TMP_DIR/aws.raw.json" \
-  "$IP_BUILD_TMP_DIR/aws.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" fastly-json \
-  "$IP_BUILD_TMP_DIR/fastly.raw.json" \
-  "$IP_BUILD_TMP_DIR/fastly.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" github-json \
-  "$IP_BUILD_TMP_DIR/github.raw.json" \
-  "$IP_BUILD_TMP_DIR/github.cidr.txt"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" html \
-  "$IP_BUILD_TMP_DIR/apple.raw.html" \
-  "$IP_BUILD_TMP_DIR/apple.cidr.txt"
 assert_min_cidrs apple "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$APPLE_MIN_CIDR_COUNT"
 
 render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cn.cidr.txt"         "$IP_ARTIFACTS_DIR/surge/cn.list"
