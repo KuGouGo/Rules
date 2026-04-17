@@ -154,6 +154,22 @@ EOF
   esac
 }
 
+has_publish_source_artifacts() {
+  local src_dir="$1"
+  local extensions_csv="$2"
+  local -a extensions=()
+  local extension
+
+  IFS=',' read -r -a extensions <<< "$extensions_csv"
+  for extension in "${extensions[@]}"; do
+    if find "$ARTIFACT_ROOT/$src_dir" -maxdepth 1 -type f -name "*.${extension}" -print -quit 2>/dev/null | grep -q .; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 copy_artifacts() {
   local src_dir="$1"
   local dest_dir="$2"
@@ -177,6 +193,62 @@ copy_artifacts() {
     echo "no supported artifacts found in $src_dir ($extensions_csv)" >&2
     exit 1
   fi
+}
+
+restore_remote_publish_side() {
+  local branch="$1"
+  local side="$2"
+  local extensions_csv="$3"
+  local dest_dir="$4"
+  local tree_path="$side"
+  local -a extensions=()
+  local extension restored=0
+  local file_path rel_name
+
+  IFS=',' read -r -a extensions <<< "$extensions_csv"
+  mkdir -p "$dest_dir"
+
+  if ! git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  while IFS= read -r file_path; do
+    [ -n "$file_path" ] || continue
+    rel_name="${file_path#${tree_path}/}"
+    mkdir -p "$dest_dir/$(dirname "$rel_name")"
+    git -C "$ROOT" show "origin/$branch:$file_path" > "$dest_dir/$rel_name"
+    restored=1
+  done < <(
+    for extension in "${extensions[@]}"; do
+      git -C "$ROOT" ls-tree -r --name-only "origin/$branch" -- "$tree_path" 2>/dev/null | grep -E "\\.${extension}$" || true
+    done
+  )
+
+  [ "$restored" -eq 1 ]
+}
+
+prepare_publish_side() {
+  local branch="$1"
+  local src_dir="$2"
+  local side="$3"
+  local extensions_csv="$4"
+  local dest_dir="$5"
+
+  if has_publish_source_artifacts "$src_dir" "$extensions_csv"; then
+    copy_artifacts "$src_dir" "$dest_dir" "$extensions_csv"
+    return 0
+  fi
+
+  echo "publish source missing local artifacts for $src_dir; attempting fallback from origin/$branch:$side" >&2
+  if restore_remote_publish_side "$branch" "$side" "$extensions_csv" "$dest_dir"; then
+    echo "restored $side artifacts from origin/$branch baseline" >&2
+    return 0
+  fi
+
+  echo "publish source missing artifacts: $ARTIFACT_ROOT/$src_dir (expected: $extensions_csv)" >&2
+  echo "hint: run the build pipeline first to populate .output before publishing" >&2
+  echo "hint: or ensure origin/$branch contains baseline $side artifacts for fallback restore" >&2
+  exit 1
 }
 
 has_allowed_extension() {
@@ -224,6 +296,12 @@ assert_branch_layout() {
   done < <(find domain ip -type f -print0)
 }
 
+cleanup_tempdir() {
+  local tempdir="$1"
+  popd >/dev/null || true
+  rm -rf "$tempdir"
+}
+
 publish_branch() {
   local branch="$1"
   local domain_dir="$2"
@@ -234,14 +312,15 @@ publish_branch() {
 
   tmpdir="$(mktemp -d)"
   pushd "$tmpdir" >/dev/null
+  trap 'cleanup_tempdir "$tmpdir"' RETURN
 
   git init -q
   git checkout --orphan "$branch" >/dev/null 2>&1
   git config user.name "github-actions[bot]"
   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-  copy_artifacts "$domain_dir" domain "$domain_extensions"
-  copy_artifacts "$ip_dir" ip "$ip_extensions"
+  prepare_publish_side "$branch" "$domain_dir" domain "$domain_extensions" domain
+  prepare_publish_side "$branch" "$ip_dir" ip "$ip_extensions" ip
   branch_readme "$branch" > README.md
   assert_branch_layout "$domain_extensions" "$ip_extensions"
 
@@ -251,8 +330,6 @@ publish_branch() {
 
   if [ -n "$remote_tree" ] && [ "$local_tree" = "$remote_tree" ]; then
     echo "$branch artifacts unchanged, skip publish"
-    popd >/dev/null
-    rm -rf "$tmpdir"
     return 0
   fi
 
@@ -263,8 +340,6 @@ publish_branch() {
     echo "=== ${branch} publish dry-run ==="
     echo "domain files: $(find domain -maxdepth 1 -type f | wc -l | tr -d ' ')"
     echo "ip files: $(find ip -maxdepth 1 -type f | wc -l | tr -d ' ')"
-    popd >/dev/null
-    rm -rf "$tmpdir"
     return 0
   fi
 
@@ -279,16 +354,11 @@ publish_branch() {
     remote_tree="$(git rev-parse 'FETCH_HEAD^{tree}')"
     if [ "$local_tree" = "$remote_tree" ]; then
       echo "${branch} artifacts unchanged, skip push"
-      popd >/dev/null
-      rm -rf "$tmpdir"
       return 0
     fi
   fi
 
   git push -f origin HEAD:"$branch"
-
-  popd >/dev/null
-  rm -rf "$tmpdir"
 }
 
 publish_branch surge domain/surge ip/surge list list
