@@ -217,8 +217,12 @@ restore_remote_publish_side() {
     [ -n "$file_path" ] || continue
     rel_name="${file_path#"${tree_path}"/}"
     mkdir -p "$dest_dir/$(dirname "$rel_name")"
-    git -C "$ROOT" show "origin/$branch:$file_path" > "$dest_dir/$rel_name"
-    restored=1
+    if git -C "$ROOT" show "origin/$branch:$file_path" > "$dest_dir/$rel_name"; then
+      restored=1
+    else
+      rm -f "$dest_dir/$rel_name"
+      return 1
+    fi
   done < <(
     for extension in "${extensions[@]}"; do
       git -C "$ROOT" ls-tree -r --name-only "origin/$branch" -- "$tree_path" 2>/dev/null | grep -E "\\.${extension}$" || true
@@ -238,6 +242,13 @@ prepare_publish_side() {
   if has_publish_source_artifacts "$src_dir" "$extensions_csv"; then
     copy_artifacts "$src_dir" "$dest_dir" "$extensions_csv"
     return 0
+  fi
+
+  if [ "$ALLOW_REMOTE_FALLBACK" != "1" ]; then
+    echo "publish source missing artifacts: $ARTIFACT_ROOT/$src_dir (expected: $extensions_csv)" >&2
+    echo "hint: run the build pipeline first to populate .output before publishing" >&2
+    echo "hint: set PUBLISH_ALLOW_REMOTE_FALLBACK=1 to explicitly allow origin/$branch:$side fallback" >&2
+    exit 1
   fi
 
   echo "publish source missing local artifacts for $src_dir; attempting fallback from origin/$branch:$side" >&2
