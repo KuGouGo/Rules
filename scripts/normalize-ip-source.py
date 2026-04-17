@@ -164,14 +164,32 @@ def run_batch_tasks(manifest_file: Path) -> None:
 
 
 def main() -> int:
+    legacy_source_types = {
+        "text",
+        "google-json",
+        "aws-cloudfront-json",
+        "aws-json",
+        "fastly-json",
+        "github-json",
+        "ripe-stat-json",
+        "html",
+    }
+
+    if len(sys.argv) == 4 and sys.argv[1] in legacy_source_types:
+        try:
+            run_single_task(sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3]))
+            return 0
+        except Exception as exc:  # pragma: no cover - surfaced to shell
+            print(str(exc), file=sys.stderr)
+            return 1
+
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     single_parser = subparsers.add_parser("single")
     single_parser.add_argument(
         "source_type",
-        choices=("text", "google-json", "aws-cloudfront-json", "aws-json",
-                 "fastly-json", "github-json", "ripe-stat-json", "html"),
+        choices=tuple(sorted(legacy_source_types)),
     )
     single_parser.add_argument("input_file")
     single_parser.add_argument("output_file")
