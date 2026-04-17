@@ -44,6 +44,31 @@ summarize_diff() {
   fi
 }
 
+count_matching_files() {
+  local dir="$1"
+  local pattern="$2"
+  python3 - <<'PY' "$dir" "$pattern"
+import sys
+from pathlib import Path
+
+dir_path = Path(sys.argv[1])
+pattern = sys.argv[2]
+if not dir_path.exists():
+    print(0)
+else:
+    print(sum(1 for path in dir_path.iterdir() if path.is_file() and path.match(pattern)))
+PY
+}
+
+count_paths_from_text() {
+  local text="$1"
+  python3 - <<'PY' "$text"
+import sys
+text = sys.argv[1]
+print(sum(1 for line in text.splitlines() if line.strip()))
+PY
+}
+
 check_min_files() {
   local label="$1"
   local glob="$2"
@@ -52,7 +77,7 @@ check_min_files() {
 
   dir="${glob%/*}"
   pattern="${glob##*/}"
-  count=$(find "$dir" -maxdepth 1 -type f -name "$pattern" | wc -l | tr -d ' ')
+  count=$(count_matching_files "$dir" "$pattern")
   echo "$label: $count files (min expected: $min_expected)"
 
   if [ "$count" -lt "$min_expected" ]; then
@@ -65,16 +90,19 @@ check_min_files() {
 check_diff_ratio() {
   local label="$1"
   local pathspec="$2"
-  local baseline_count deleted changed delete_percent change_percent
+  local baseline_paths deleted_paths changed_paths baseline_count deleted changed delete_percent change_percent
 
-  baseline_count=$(git ls-tree -r --name-only HEAD -- "$pathspec" | wc -l | tr -d ' ')
+  baseline_paths=$(git ls-tree -r --name-only HEAD -- "$pathspec")
+  baseline_count=$(count_paths_from_text "$baseline_paths")
   if [ "$baseline_count" -eq 0 ]; then
     echo "$label: no baseline files, skip diff-ratio guard"
     return 0
   fi
 
-  deleted=$(git diff --name-only --diff-filter=D HEAD -- "$pathspec" | wc -l | tr -d ' ')
-  changed=$(git diff --name-only HEAD -- "$pathspec" | wc -l | tr -d ' ')
+  deleted_paths=$(git diff --name-only --diff-filter=D HEAD -- "$pathspec")
+  changed_paths=$(git diff --name-only HEAD -- "$pathspec")
+  deleted=$(count_paths_from_text "$deleted_paths")
+  changed=$(count_paths_from_text "$changed_paths")
   delete_percent=$(( deleted * 100 / baseline_count ))
   change_percent=$(( changed * 100 / baseline_count ))
 
