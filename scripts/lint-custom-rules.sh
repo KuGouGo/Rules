@@ -7,28 +7,25 @@ cd "$ROOT"
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
 
-has_domain_files=""
-has_ip_files=""
-
-if [ -d "$CUSTOM_DOMAIN_DIR" ]; then
-  has_domain_files="$(find "$CUSTOM_DOMAIN_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
-fi
-
-if [ -d "$CUSTOM_IP_DIR" ]; then
-  has_ip_files="$(find "$CUSTOM_IP_DIR" -maxdepth 1 -type f -name '*.list' -print -quit)"
-fi
-
-iter_rule_lists() {
+list_rule_files() {
   local dir="$1"
+  python3 - <<'PY' "$dir"
+import sys
+from pathlib import Path
 
-  if [ ! -d "$dir" ]; then
-    return 0
-  fi
-
-  find "$dir" -maxdepth 1 -type f -name '*.list' | sort
+dir_path = Path(sys.argv[1])
+if not dir_path.is_dir():
+    raise SystemExit(0)
+for path in sorted(dir_path.glob('*.list')):
+    if path.is_file():
+        print(path)
+PY
 }
 
-if [ -z "$has_domain_files" ] && [ -z "$has_ip_files" ]; then
+DOMAIN_RULE_FILES="$(list_rule_files "$CUSTOM_DOMAIN_DIR")"
+IP_RULE_FILES="$(list_rule_files "$CUSTOM_IP_DIR")"
+
+if [ -z "$DOMAIN_RULE_FILES" ] && [ -z "$IP_RULE_FILES" ]; then
   echo "no custom rule lists, skip"
   exit 0
 fi
@@ -229,16 +226,18 @@ check_ip_file() {
 overall_error=0
 
 while IFS= read -r file; do
+  [ -n "$file" ] || continue
   base="$(basename "$file" .list)"
   check_name "$base" || overall_error=1
   check_domain_file "$file" || overall_error=1
-done < <(iter_rule_lists "$CUSTOM_DOMAIN_DIR")
+done <<< "$DOMAIN_RULE_FILES"
 
 while IFS= read -r file; do
+  [ -n "$file" ] || continue
   base="$(basename "$file" .list)"
   check_name "$base" || overall_error=1
   check_ip_file "$file" || overall_error=1
-done < <(iter_rule_lists "$CUSTOM_IP_DIR")
+done <<< "$IP_RULE_FILES"
 
 if [ "$overall_error" -ne 0 ]; then
   echo "custom rule lint failed" >&2
