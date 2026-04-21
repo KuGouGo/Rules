@@ -184,7 +184,7 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
             continue
         (output_dir / f"{name}.list").write_text("\n".join(rendered) + "\n", encoding="utf-8")
 
-        # Check if any rules have @cn attribute
+        # Check if any rules have @cn attribute (exact match only, not !cn or -!cn)
         cn_rules = [rule for rule in all_rules if "cn" in rule.attrs]
         if cn_rules:
             cn_attr_sets[name] = cn_rules
