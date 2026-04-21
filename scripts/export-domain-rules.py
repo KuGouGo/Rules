@@ -173,11 +173,29 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     names = sorted(set(direct_rules) | set(affiliated_rules))
+
+    # Track which rule sets have @cn attributes
+    cn_attr_sets: dict[str, list[Rule]] = {}
+
     for name in names:
-        rendered = sorted({render_rule(rule) for rule in resolve(name)})
+        all_rules = resolve(name)
+        rendered = sorted({render_rule(rule) for rule in all_rules})
         if not rendered:
             continue
         (output_dir / f"{name}.list").write_text("\n".join(rendered) + "\n", encoding="utf-8")
+
+        # Check if any rules have @cn attribute
+        cn_rules = [rule for rule in all_rules if "cn" in rule.attrs]
+        if cn_rules:
+            cn_attr_sets[name] = cn_rules
+
+    # Generate @cn filtered versions
+    for name, cn_rules in cn_attr_sets.items():
+        rendered = sorted({render_rule(rule) for rule in cn_rules})
+        if rendered:
+            output_file = output_dir / f"{name}@cn.list"
+            output_file.write_text("\n".join(rendered) + "\n", encoding="utf-8")
+            print(f"Generated {name}@cn.list with {len(rendered)} rules")
 
 
 def build_singbox_json(input_file: Path, output_file: Path) -> None:
@@ -201,6 +219,19 @@ def build_singbox_json(input_file: Path, output_file: Path) -> None:
     output_file.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
+def export_filtered_list(input_file: Path, output_file: Path, filter_attr: str) -> None:
+    rules, includes, affiliations = parse_data_file(input_file)
+
+    # Filter rules that have the specified attribute
+    filtered_rules = [rule for rule in rules if filter_attr in rule.attrs]
+
+    # Render and write
+    rendered = sorted({render_rule(rule) for rule in filtered_rules})
+    if rendered:
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        output_file.write_text("\n".join(rendered) + "\n", encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -208,6 +239,11 @@ def main() -> int:
     export_parser = subparsers.add_parser("export")
     export_parser.add_argument("data_dir")
     export_parser.add_argument("output_dir")
+
+    filtered_parser = subparsers.add_parser("export-filtered")
+    filtered_parser.add_argument("input_file")
+    filtered_parser.add_argument("output_file")
+    filtered_parser.add_argument("filter_attr")
 
     singbox_parser = subparsers.add_parser("singbox-json")
     singbox_parser.add_argument("input_file")
@@ -218,6 +254,9 @@ def main() -> int:
     try:
         if args.command == "export":
             export_lists(Path(args.data_dir), Path(args.output_dir))
+            return 0
+        if args.command == "export-filtered":
+            export_filtered_list(Path(args.input_file), Path(args.output_file), args.filter_attr)
             return 0
         if args.command == "singbox-json":
             build_singbox_json(Path(args.input_file), Path(args.output_file))
