@@ -176,6 +176,7 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
 
     # Track which rule sets have @cn attributes
     cn_attr_sets: dict[str, list[Rule]] = {}
+    not_cn_attr_sets: dict[str, list[Rule]] = {}
 
     for name in names:
         all_rules = resolve(name)
@@ -189,6 +190,11 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
         if cn_rules:
             cn_attr_sets[name] = cn_rules
 
+        # Check if any rules have @!cn attribute (non-CN rules)
+        not_cn_rules = [rule for rule in all_rules if "!cn" in rule.attrs]
+        if not_cn_rules:
+            not_cn_attr_sets[name] = not_cn_rules
+
     # Generate @cn filtered versions
     # Only generate if there are Surge-compatible rules (DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD)
     for name, cn_rules in cn_attr_sets.items():
@@ -199,6 +205,16 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
             output_file = output_dir / f"{name}@cn.list"
             output_file.write_text("\n".join(surge_compatible) + "\n", encoding="utf-8")
             print(f"Generated {name}@cn.list with {len(surge_compatible)} Surge-compatible rules")
+
+    # Generate @!cn filtered versions
+    for name, not_cn_rules in not_cn_attr_sets.items():
+        rendered = sorted({render_rule(rule) for rule in not_cn_rules})
+        # Filter to only Surge-compatible rule types
+        surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
+        if surge_compatible:
+            output_file = output_dir / f"{name}@!cn.list"
+            output_file.write_text("\n".join(surge_compatible) + "\n", encoding="utf-8")
+            print(f"Generated {name}@!cn.list with {len(surge_compatible)} Surge-compatible rules")
 
 
 def build_singbox_json(input_file: Path, output_file: Path) -> None:
