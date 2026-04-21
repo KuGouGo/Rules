@@ -190,12 +190,15 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
             cn_attr_sets[name] = cn_rules
 
     # Generate @cn filtered versions
+    # Only generate if there are Surge-compatible rules (DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD)
     for name, cn_rules in cn_attr_sets.items():
         rendered = sorted({render_rule(rule) for rule in cn_rules})
-        if rendered:
+        # Filter to only Surge-compatible rule types
+        surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
+        if surge_compatible:
             output_file = output_dir / f"{name}@cn.list"
             output_file.write_text("\n".join(rendered) + "\n", encoding="utf-8")
-            print(f"Generated {name}@cn.list with {len(rendered)} rules")
+            print(f"Generated {name}@cn.list with {len(rendered)} rules ({len(surge_compatible)} Surge-compatible)")
 
 
 def build_singbox_json(input_file: Path, output_file: Path) -> None:
