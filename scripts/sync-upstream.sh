@@ -239,6 +239,7 @@ sync_remote_domain_ruleset() {
 }
 
 # Domain rules from domain-list-community/data plus curated remote lists
+# The export script now automatically generates @cn filtered versions for all rule sets
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/export-domain-rules.py" export \
