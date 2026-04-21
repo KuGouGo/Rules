@@ -197,8 +197,8 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
         surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
         if surge_compatible:
             output_file = output_dir / f"{name}@cn.list"
-            output_file.write_text("\n".join(rendered) + "\n", encoding="utf-8")
-            print(f"Generated {name}@cn.list with {len(rendered)} rules ({len(surge_compatible)} Surge-compatible)")
+            output_file.write_text("\n".join(surge_compatible) + "\n", encoding="utf-8")
+            print(f"Generated {name}@cn.list with {len(surge_compatible)} Surge-compatible rules")
 
 
 def build_singbox_json(input_file: Path, output_file: Path) -> None:
