@@ -42,6 +42,27 @@ def normalize_cidrs(values: list[str]) -> list[ipaddress._BaseNetwork]:
     return normalized
 
 
+def github_cidr_sections(data: dict) -> list[list[str]]:
+    sections: list[list[str]] = []
+
+    for field_value in data.values():
+        if not isinstance(field_value, list) or not field_value:
+            continue
+
+        section_values = [item.strip() for item in field_value if isinstance(item, str) and item.strip()]
+        if not section_values:
+            continue
+
+        try:
+            normalize_cidrs(section_values)
+        except ValueError:
+            continue
+
+        sections.append(section_values)
+
+    return sections
+
+
 def classify_google(raw_file: Path, baseline: dict) -> dict:
     if not raw_file.exists() or raw_file.stat().st_size == 0:
         return result("google-json", STATUS_TRANSPORT, "raw payload missing or empty")
@@ -112,16 +133,9 @@ def classify_github(raw_file: Path, baseline: dict) -> dict:
     if not isinstance(data, dict):
         return result("github-json", STATUS_SEMANTIC, "payload is not a top-level json object")
 
-    values: list[str] = []
-    nonempty_sections = 0
-    for field_value in data.values():
-        if not isinstance(field_value, list) or not field_value:
-            continue
-        section_values = [str(item) for item in field_value if isinstance(item, str) and "/" in item]
-        if not section_values:
-            continue
-        nonempty_sections += 1
-        values.extend(section_values)
+    sections = github_cidr_sections(data)
+    values = [cidr for section in sections for cidr in section]
+    nonempty_sections = len(sections)
 
     minimum_sections = int(baseline["minimum_nonempty_list_sections"])
     if nonempty_sections < minimum_sections:
@@ -132,10 +146,7 @@ def classify_github(raw_file: Path, baseline: dict) -> dict:
             {"nonempty_sections": nonempty_sections},
         )
 
-    try:
-        normalized = normalize_cidrs(values)
-    except ValueError as exc:
-        return result("github-json", STATUS_SEMANTIC, f"payload lists contain invalid cidrs: {exc}")
+    normalized = normalize_cidrs(values)
 
     minimum_total = int(baseline["secondary_min_total"])
     if len(normalized) < minimum_total:
