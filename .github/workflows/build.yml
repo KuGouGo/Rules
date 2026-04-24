@@ -61,10 +61,10 @@ jobs:
           key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-${{ steps.core_versions.outputs.sing_box_version }}-mihomo-${{ steps.core_versions.outputs.mihomo_version }}
 
       - name: Prepare scripts
-        run: chmod +x scripts/*.sh scripts/commands/*.sh scripts/tests/*.sh scripts/lib/*.sh scripts/tools/*.py
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
 
       - name: Shellcheck
-        run: shellcheck scripts/*.sh scripts/commands/*.sh scripts/tests/*.sh scripts/lib/*.sh
+        run: find scripts -type f -name '*.sh' -exec shellcheck {} +
 
       - name: Lint custom rules
         run: ./scripts/commands/lint-custom-rules.sh

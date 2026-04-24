@@ -4,7 +4,7 @@ SHELL := /usr/bin/env bash
 
 lint:
 	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck scripts/*.sh scripts/commands/*.sh scripts/tests/*.sh scripts/lib/*.sh; \
+		find scripts -type f -name '*.sh' -exec shellcheck {} +; \
 	else \
 		echo "shellcheck not found, skipping local shell lint"; \
 	fi
