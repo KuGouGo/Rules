@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 source "$ROOT/scripts/lib/common.sh"
+setup_tool_cache
 
 sing_box_version="$(resolve_sing_box_version)"
 mihomo_version="$(resolve_mihomo_version)"

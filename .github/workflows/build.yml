@@ -122,6 +122,9 @@ jobs:
       - name: Test domain parsing
         run: ./scripts/test-domain-parsing.sh
 
+      - name: Test shell utilities
+        run: ./scripts/test-shell-utils.sh
+
       - name: Show selected build scope
         run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
 

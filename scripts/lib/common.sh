@@ -6,8 +6,13 @@
 SING_BOX_VERSION="${SING_BOX_VERSION:-}"
 MIHOMO_VERSION="${MIHOMO_VERSION:-}"
 
-mkdir -p "$BIN_DIR"
-export PATH="$BIN_DIR:$PATH"
+setup_tool_cache() {
+  mkdir -p "$BIN_DIR"
+  case ":$PATH:" in
+    *":$BIN_DIR:"*) ;;
+    *) export PATH="$BIN_DIR:$PATH" ;;
+  esac
+}
 
 write_if_changed() {
   local src="$1"
@@ -19,6 +24,21 @@ write_if_changed() {
   fi
 
   mv "$src" "$dst"
+}
+
+list_files_by_extension() {
+  local dir="$1"
+  local extension="$2"
+
+  if [ ! -d "$dir" ]; then
+    return 0
+  fi
+
+  find "$dir" -maxdepth 1 -type f -name "*.${extension}" | sort
+}
+
+list_rule_files() {
+  list_files_by_extension "$1" list
 }
 
 detect_os() {
@@ -194,10 +214,10 @@ write_tool_version() {
 
 ensure_sing_box() {
   local version os arch archive package_dir temp_binary
+  setup_tool_cache
   version="$(resolve_sing_box_version)"
 
   if [ -x "$BIN_DIR/sing-box" ] && tool_is_current "sing-box" "$version"; then
-    export PATH="$BIN_DIR:$PATH"
     return 0
   fi
 
@@ -220,15 +240,14 @@ ensure_sing_box() {
 
   write_tool_version "sing-box" "$version"
 
-  export PATH="$BIN_DIR:$PATH"
 }
 
 ensure_mihomo() {
   local version os arch asset archive temp_binary
+  setup_tool_cache
   version="$(resolve_mihomo_version)"
 
   if [ -x "$BIN_DIR/mihomo" ] && tool_is_current "mihomo" "$version"; then
-    export PATH="$BIN_DIR:$PATH"
     return 0
   fi
 
@@ -252,5 +271,4 @@ ensure_mihomo() {
 
   write_tool_version "mihomo" "$version"
 
-  export PATH="$BIN_DIR:$PATH"
 }

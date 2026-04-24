@@ -22,26 +22,12 @@ IP_EGERN_DIR="$ARTIFACT_ROOT/ip/egern"
 IP_SINGBOX_DIR="$ARTIFACT_ROOT/ip/sing-box"
 IP_MIHOMO_DIR="$ARTIFACT_ROOT/ip/mihomo"
 
-list_rule_files() {
-  local dir="$1"
-  python3 - <<'PY' "$dir"
-import sys
-from pathlib import Path
-
-dir_path = Path(sys.argv[1])
-if not dir_path.is_dir():
-    raise SystemExit(0)
-for path in sorted(dir_path.glob('*.list')):
-    if path.is_file():
-        print(path)
-PY
-}
+source "$ROOT/scripts/lib/common.sh"
+source "$ROOT/scripts/lib/rules.sh"
+setup_tool_cache
 
 DOMAIN_RULE_FILES="$(list_rule_files "$CUSTOM_DOMAIN_DIR")"
 IP_RULE_FILES="$(list_rule_files "$CUSTOM_IP_DIR")"
-
-source "$ROOT/scripts/lib/common.sh"
-source "$ROOT/scripts/lib/rules.sh"
 
 mkdir -p \
   "$DOMAIN_SURGE_DIR" \
@@ -79,16 +65,6 @@ ensure_mihomo_once() {
     ensure_mihomo
     MIHOMO_READY=1
   fi
-}
-
-iter_rule_lists() {
-  local dir="$1"
-
-  if [ ! -d "$dir" ]; then
-    return 0
-  fi
-
-  find "$dir" -maxdepth 1 -type f -name '*.list' | sort
 }
 
 resolve_conflict_base_ref() {
