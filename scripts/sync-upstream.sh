@@ -30,6 +30,7 @@ FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
 GITHUB_IP_SOURCE_URL="https://api.github.com/meta"
 APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
 APPLE_IP_SOURCE_FALLBACK_URL="https://support.apple.com/zh-cn/101555"
+FIRST_BATCH_BASELINES_FILE="$ROOT_DIR/config/upstream-first-batch-baselines.json"
 
 APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-3}"
 AWAVENUE_MIN_RULE_COUNT="${AWAVENUE_MIN_RULE_COUNT:-500}"
@@ -158,14 +159,11 @@ generate_ip_normalize_manifest() {
     text "$tmp_dir/cn_ipv6.raw.txt" "$tmp_dir/cn_ipv6.cidr.txt" \
     text "$tmp_dir/cn_asn_ipv4.raw.txt" "$tmp_dir/cn_asn_ipv4.cidr.txt" \
     text "$tmp_dir/cn_asn_ipv6.raw.txt" "$tmp_dir/cn_asn_ipv6.cidr.txt" \
-    google-json "$tmp_dir/google.raw.json" "$tmp_dir/google.cidr.txt" \
-    text "$tmp_dir/telegram.raw.txt" "$tmp_dir/telegram.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv4.raw.txt" "$tmp_dir/cloudflare_ipv4.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv6.raw.txt" "$tmp_dir/cloudflare_ipv6.cidr.txt" \
     aws-cloudfront-json "$tmp_dir/aws.raw.json" "$tmp_dir/cloudfront.cidr.txt" \
     aws-json "$tmp_dir/aws.raw.json" "$tmp_dir/aws.cidr.txt" \
     fastly-json "$tmp_dir/fastly.raw.json" "$tmp_dir/fastly.cidr.txt" \
-    github-json "$tmp_dir/github.raw.json" "$tmp_dir/github.cidr.txt" \
     html "$tmp_dir/apple.raw.html" "$tmp_dir/apple.cidr.txt"
 }
 
@@ -187,6 +185,108 @@ download_file_with_fallback() {
 
   echo "failed to download $(basename "$out_file") from all sources: $attempted" >&2
   return 1
+}
+
+declare -A FIRST_BATCH_STATUS=()
+declare -A FIRST_BATCH_REASON=()
+
+first_batch_raw_file() {
+  case "$1" in
+    google-json) printf '%s' "$IP_BUILD_TMP_DIR/google.raw.json" ;;
+    github-json) printf '%s' "$IP_BUILD_TMP_DIR/github.raw.json" ;;
+    telegram) printf '%s' "$IP_BUILD_TMP_DIR/telegram.raw.txt" ;;
+    *)
+      echo "unsupported first-batch source: $1" >&2
+      return 1
+      ;;
+  esac
+}
+
+first_batch_source_type() {
+  case "$1" in
+    google-json) printf '%s' "google-json" ;;
+    github-json) printf '%s' "github-json" ;;
+    telegram) printf '%s' "text" ;;
+    *)
+      echo "unsupported first-batch source: $1" >&2
+      return 1
+      ;;
+  esac
+}
+
+classify_first_batch_source() {
+  local source="$1"
+  local raw_file result_json status reason
+
+  raw_file="$(first_batch_raw_file "$source")"
+  result_json="$(
+    python3 "$ROOT_DIR/scripts/check-first-batch-upstreams.py" \
+      classify \
+      "$source" \
+      "$raw_file" \
+      "$FIRST_BATCH_BASELINES_FILE"
+  )"
+  status="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
+  reason="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["reason"])')"
+
+  FIRST_BATCH_STATUS["$source"]="$status"
+  FIRST_BATCH_REASON["$source"]="$reason"
+}
+
+download_and_classify_first_batch_source() {
+  local source="$1"
+  local url="$2"
+  local raw_file
+
+  raw_file="$(first_batch_raw_file "$source")"
+  if ! download_file "$url" "$raw_file"; then
+    rm -f "$raw_file"
+  fi
+
+  classify_first_batch_source "$source"
+}
+
+normalize_first_batch_source() {
+  local source="$1"
+  local raw_file output_file source_type
+
+  if [ "${FIRST_BATCH_STATUS[$source]:-}" != "ok" ]; then
+    return 0
+  fi
+
+  raw_file="$(first_batch_raw_file "$source")"
+  source_type="$(first_batch_source_type "$source")"
+
+  case "$source" in
+    google-json) output_file="$IP_BUILD_TMP_DIR/google.cidr.txt" ;;
+    github-json) output_file="$IP_BUILD_TMP_DIR/github.cidr.txt" ;;
+    telegram) output_file="$IP_BUILD_TMP_DIR/telegram.cidr.txt" ;;
+    *)
+      echo "unsupported first-batch source: $source" >&2
+      return 1
+      ;;
+  esac
+
+  python3 "$ROOT_DIR/scripts/normalize-ip-source.py" single "$source_type" "$raw_file" "$output_file"
+}
+
+summarize_first_batch_checks() {
+  local source status reason failed=0
+
+  echo "=== FIRST-BATCH SOURCE CHECKS ==="
+  for source in google-json github-json telegram; do
+    status="${FIRST_BATCH_STATUS[$source]:-transport_incident}"
+    reason="${FIRST_BATCH_REASON[$source]:-not checked}"
+    echo "$source: $status - $reason"
+    if [ "$status" != "ok" ]; then
+      failed=1
+    fi
+  done
+
+  if [ "$failed" -ne 0 ]; then
+    echo "first-batch source checks failed" >&2
+    return 1
+  fi
 }
 
 assert_min_cidrs() {
@@ -285,14 +385,14 @@ download_file "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt"
 download_file "$CN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt"
 download_file "$CN_ASN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt"
 download_file "$CN_ASN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt"
-download_file "$GOOGLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/google.raw.json"
-download_file "$TELEGRAM_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/telegram.raw.txt"
+download_and_classify_first_batch_source "google-json" "$GOOGLE_IP_SOURCE_URL"
+download_and_classify_first_batch_source "telegram" "$TELEGRAM_IP_SOURCE_URL"
 download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
 download_file "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt"
 # AWS JSON is shared between cloudfront (service-filtered) and aws (all services)
 download_file "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json"
 download_file "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json"
-download_file "$GITHUB_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/github.raw.json"
+download_and_classify_first_batch_source "github-json" "$GITHUB_IP_SOURCE_URL"
 download_file_with_fallback \
   "$IP_BUILD_TMP_DIR/apple.raw.html" \
   "$APPLE_IP_SOURCE_URL" \
@@ -302,6 +402,10 @@ IP_NORMALIZE_MANIFEST="$IP_BUILD_TMP_DIR/normalize-tasks.json"
 
 generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
 python3 "$ROOT_DIR/scripts/normalize-ip-source.py" batch "$IP_NORMALIZE_MANIFEST"
+summarize_first_batch_checks
+normalize_first_batch_source "google-json"
+normalize_first_batch_source "github-json"
+normalize_first_batch_source "telegram"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt" \

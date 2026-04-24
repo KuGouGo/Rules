@@ -122,8 +122,17 @@ jobs:
       - name: Test domain parsing
         run: ./scripts/test-domain-parsing.sh
 
+      - name: Test domain entrypoint guard
+        run: ./scripts/test-domain-entrypoint-guard.sh
+
       - name: Test shell utilities
         run: ./scripts/test-shell-utils.sh
+
+      - name: Test first-batch upstream invariants
+        run: ./scripts/test-first-batch-upstreams.sh
+
+      - name: Test sync-upstream classification
+        run: ./scripts/test-sync-upstream-classification.sh
 
       - name: Show selected build scope
         run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
