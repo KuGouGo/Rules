@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,6 +37,21 @@ SINGBOX_KIND_MAP = {
     "DOMAIN-SUFFIX": "domain_suffix",
     "DOMAIN-KEYWORD": "domain_keyword",
     "DOMAIN-REGEX": "domain_regex",
+}
+
+SURGE_KIND_SET = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"}
+
+QUANX_KIND_MAP = {
+    "DOMAIN": "HOST",
+    "DOMAIN-SUFFIX": "HOST-SUFFIX",
+    "DOMAIN-KEYWORD": "HOST-KEYWORD",
+}
+
+EGERN_KIND_MAP = {
+    "DOMAIN": "domain_set",
+    "DOMAIN-SUFFIX": "domain_suffix_set",
+    "DOMAIN-KEYWORD": "domain_keyword_set",
+    "DOMAIN-REGEX": "domain_regex_set",
 }
 
 
@@ -134,6 +150,118 @@ def render_rule(rule: Rule) -> str:
     return f"{rule.kind},{rule.value}"
 
 
+def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
+    rules: list[Rule] = []
+    seen: set[tuple[str, str]] = set()
+    allowed = set(SINGBOX_KIND_MAP)
+
+    for raw_line in input_file.read_text(encoding="utf-8").splitlines():
+        line = strip_comment(raw_line)
+        if not line or "," not in line:
+            continue
+
+        kind, value = line.split(",", 1)
+        kind = kind.strip().upper().replace("_", "-")
+        value = value.strip()
+        if kind not in allowed or not value:
+            continue
+
+        if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
+            value = value.lower().rstrip(".")
+        elif kind == "DOMAIN-KEYWORD":
+            value = value.lower()
+
+        if not value:
+            continue
+
+        key = (kind, value)
+        if key in seen:
+            continue
+        seen.add(key)
+        rules.append(Rule(kind=kind, value=value, attrs=tuple()))
+
+    return rules
+
+
+def write_text_lines(lines: list[str], output_file: Path) -> None:
+    if lines:
+        output_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        return
+    output_file.write_text("", encoding="utf-8")
+
+
+def write_normalized_classical_rules(input_file: Path, output_file: Path) -> None:
+    write_text_lines([render_rule(rule) for rule in parse_classical_domain_rules(input_file)], output_file)
+
+
+def build_surge_list(input_file: Path, output_file: Path) -> None:
+    rules = [
+        render_rule(rule)
+        for rule in parse_classical_domain_rules(input_file)
+        if rule.kind in SURGE_KIND_SET
+    ]
+    write_text_lines(rules, output_file)
+
+
+def build_quanx_list(input_file: Path, output_file: Path, policy_tag: str) -> None:
+    rules = [
+        f"{QUANX_KIND_MAP[rule.kind]},{rule.value},{policy_tag}"
+        for rule in parse_classical_domain_rules(input_file)
+        if rule.kind in QUANX_KIND_MAP
+    ]
+    write_text_lines(rules, output_file)
+
+
+def yaml_quote(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+def build_egern_yaml(input_file: Path, output_file: Path) -> None:
+    sections: dict[str, list[str]] = {key: [] for key in EGERN_KIND_MAP.values()}
+    seen: dict[str, set[str]] = {key: set() for key in EGERN_KIND_MAP.values()}
+
+    for rule in parse_classical_domain_rules(input_file):
+        target = EGERN_KIND_MAP.get(rule.kind)
+        if not target or rule.value in seen[target]:
+            continue
+        seen[target].add(rule.value)
+        sections[target].append(rule.value)
+
+    chunks: list[str] = []
+    for key in ("domain_set", "domain_suffix_set", "domain_keyword_set", "domain_regex_set"):
+        values = sections[key]
+        if not values:
+            continue
+        lines = [f"{key}:"]
+        lines.extend(f"  - {yaml_quote(value)}" for value in values)
+        chunks.append("\n".join(lines))
+
+    if chunks:
+        output_file.write_text("\n\n".join(chunks) + "\n", encoding="utf-8")
+        return
+    output_file.write_text("", encoding="utf-8")
+
+
+def build_mihomo_text(input_file: Path, output_file: Path) -> None:
+    entries: list[str] = []
+    seen: set[str] = set()
+
+    for rule in parse_classical_domain_rules(input_file):
+        if rule.kind == "DOMAIN":
+            normalized = rule.value
+        elif rule.kind == "DOMAIN-SUFFIX":
+            normalized = f".{rule.value}"
+        else:
+            continue
+
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        entries.append(normalized)
+
+    write_text_lines(entries, output_file)
+
+
 def export_lists(data_dir: Path, output_dir: Path) -> None:
     direct_rules: dict[str, list[Rule]] = {}
     include_rules: dict[str, list[Include]] = {}
@@ -220,17 +348,9 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
 def build_singbox_json(input_file: Path, output_file: Path) -> None:
     payload: dict[str, list[str]] = {}
 
-    for raw_line in input_file.read_text(encoding="utf-8").splitlines():
-        line = strip_comment(raw_line)
-        if not line:
-            continue
-        if "," not in line:
-            raise ValueError(f"invalid classical domain rule: {line}")
-        kind, value = line.split(",", 1)
-        kind = kind.strip().upper()
-        value = value.strip()
-        if kind not in SINGBOX_KIND_MAP:
-            raise ValueError(f"unsupported classical domain rule type: {kind}")
+    for rule in parse_classical_domain_rules(input_file):
+        kind = rule.kind
+        value = rule.value
         payload.setdefault(SINGBOX_KIND_MAP[kind], []).append(value)
 
     # version 3 is the current sing-box rule-set format (introduced in sing-box 1.8).
@@ -251,6 +371,15 @@ def export_filtered_list(input_file: Path, output_file: Path, filter_attr: str) 
         output_file.write_text("\n".join(rendered) + "\n", encoding="utf-8")
 
 
+def trace_cli_invocation(command: str) -> None:
+    trace_file = os.environ.get("RULES_TRACE_DOMAIN_CLI_FILE")
+    if not trace_file:
+        return
+    Path(trace_file).parent.mkdir(parents=True, exist_ok=True)
+    with Path(trace_file).open("a", encoding="utf-8") as fh:
+        fh.write(f"{command}\n")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -264,11 +393,33 @@ def main() -> int:
     filtered_parser.add_argument("output_file")
     filtered_parser.add_argument("filter_attr")
 
+    normalize_parser = subparsers.add_parser("normalize-classical")
+    normalize_parser.add_argument("input_file")
+    normalize_parser.add_argument("output_file")
+
+    surge_parser = subparsers.add_parser("surge-list")
+    surge_parser.add_argument("input_file")
+    surge_parser.add_argument("output_file")
+
+    quanx_parser = subparsers.add_parser("quanx-list")
+    quanx_parser.add_argument("input_file")
+    quanx_parser.add_argument("output_file")
+    quanx_parser.add_argument("policy_tag")
+
+    egern_parser = subparsers.add_parser("egern-yaml")
+    egern_parser.add_argument("input_file")
+    egern_parser.add_argument("output_file")
+
+    mihomo_parser = subparsers.add_parser("mihomo-text")
+    mihomo_parser.add_argument("input_file")
+    mihomo_parser.add_argument("output_file")
+
     singbox_parser = subparsers.add_parser("singbox-json")
     singbox_parser.add_argument("input_file")
     singbox_parser.add_argument("output_file")
 
     args = parser.parse_args()
+    trace_cli_invocation(args.command)
 
     try:
         if args.command == "export":
@@ -276,6 +427,21 @@ def main() -> int:
             return 0
         if args.command == "export-filtered":
             export_filtered_list(Path(args.input_file), Path(args.output_file), args.filter_attr)
+            return 0
+        if args.command == "normalize-classical":
+            write_normalized_classical_rules(Path(args.input_file), Path(args.output_file))
+            return 0
+        if args.command == "surge-list":
+            build_surge_list(Path(args.input_file), Path(args.output_file))
+            return 0
+        if args.command == "quanx-list":
+            build_quanx_list(Path(args.input_file), Path(args.output_file), args.policy_tag)
+            return 0
+        if args.command == "egern-yaml":
+            build_egern_yaml(Path(args.input_file), Path(args.output_file))
+            return 0
+        if args.command == "mihomo-text":
+            build_mihomo_text(Path(args.input_file), Path(args.output_file))
             return 0
         if args.command == "singbox-json":
             build_singbox_json(Path(args.input_file), Path(args.output_file))

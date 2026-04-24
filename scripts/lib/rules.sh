@@ -21,42 +21,7 @@ normalize_custom_domain_source() {
   local input_file="$1"
   local output_file="$2"
 
-  python3 - "$input_file" "$output_file" <<'PY'
-import sys
-
-input_file, output_file = sys.argv[1], sys.argv[2]
-allowed = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
-rules = []
-seen = set()
-
-with open(input_file, "r", encoding="utf-8") as fh:
-    for raw_line in fh:
-        line = raw_line.split("#", 1)[0].strip()
-        if not line:
-            continue
-        if "," not in line:
-            continue
-        rule_type, value = line.split(",", 1)
-        rule_type = rule_type.strip().upper().replace("_", "-")
-        value = value.strip()
-        if rule_type not in allowed or not value:
-            continue
-        if rule_type in {"DOMAIN", "DOMAIN-SUFFIX"}:
-            value = value.lower().rstrip(".")
-        elif rule_type == "DOMAIN-KEYWORD":
-            value = value.lower()
-        if not value:
-            continue
-        normalized = f"{rule_type},{value}"
-        if normalized in seen:
-            continue
-        seen.add(normalized)
-        rules.append(normalized)
-
-with open(output_file, "w", encoding="utf-8") as fh:
-    if rules:
-        fh.write("\n".join(rules) + "\n")
-PY
+  python3 "$ROOT/scripts/export-domain-rules.py" normalize-classical "$input_file" "$output_file"
 }
 
 build_domain_json_from_rules() {
@@ -70,34 +35,7 @@ render_surge_domain_ruleset_from_rules() {
   local rule_list="$1"
   local surge_out="$2"
 
-  python3 - "$rule_list" "$surge_out" <<'PY'
-import sys
-
-rule_list, output_file = sys.argv[1], sys.argv[2]
-allowed = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"}
-rules = []
-seen = set()
-
-with open(rule_list, "r", encoding="utf-8") as fh:
-    for raw_line in fh:
-        line = raw_line.split("#", 1)[0].strip()
-        if not line or "," not in line:
-            continue
-        rule_type, value = line.split(",", 1)
-        rule_type = rule_type.strip().upper()
-        value = value.strip()
-        if rule_type not in allowed or not value:
-            continue
-        normalized = f"{rule_type},{value}"
-        if normalized in seen:
-            continue
-        seen.add(normalized)
-        rules.append(normalized)
-
-with open(output_file, "w", encoding="utf-8") as fh:
-    if rules:
-        fh.write("\n".join(rules) + "\n")
-PY
+  python3 "$ROOT/scripts/export-domain-rules.py" surge-list "$rule_list" "$surge_out"
 }
 
 render_quanx_domain_ruleset_from_rules() {
@@ -105,90 +43,14 @@ render_quanx_domain_ruleset_from_rules() {
   local quanx_out="$2"
   local policy_tag="$3"
 
-  python3 - "$rule_list" "$quanx_out" "$policy_tag" <<'PY'
-import sys
-
-rule_list, output_file, policy_tag = sys.argv[1], sys.argv[2], sys.argv[3]
-mapping = {
-    "DOMAIN": "HOST",
-    "DOMAIN-SUFFIX": "HOST-SUFFIX",
-    "DOMAIN-KEYWORD": "HOST-KEYWORD",
-}
-rules = []
-seen = set()
-
-with open(rule_list, "r", encoding="utf-8") as fh:
-    for raw_line in fh:
-        line = raw_line.split("#", 1)[0].strip()
-        if not line or "," not in line:
-            continue
-        rule_type, value = line.split(",", 1)
-        rule_type = rule_type.strip().upper()
-        value = value.strip()
-        mapped = mapping.get(rule_type)
-        if not mapped or not value:
-            continue
-        normalized = f"{mapped},{value},{policy_tag}"
-        if normalized in seen:
-            continue
-        seen.add(normalized)
-        rules.append(normalized)
-
-with open(output_file, "w", encoding="utf-8") as fh:
-    if rules:
-        fh.write("\n".join(rules) + "\n")
-PY
+  python3 "$ROOT/scripts/export-domain-rules.py" quanx-list "$rule_list" "$quanx_out" "$policy_tag"
 }
 
 render_egern_domain_ruleset_from_rules() {
   local rule_list="$1"
   local egern_out="$2"
 
-  python3 - "$rule_list" "$egern_out" <<'PY'
-import sys
-
-rule_list, output_file = sys.argv[1], sys.argv[2]
-mapping = {
-    "DOMAIN": "domain_set",
-    "DOMAIN-SUFFIX": "domain_suffix_set",
-    "DOMAIN-KEYWORD": "domain_keyword_set",
-    "DOMAIN-REGEX": "domain_regex_set",
-}
-sections = {
-    "domain_set": [],
-    "domain_suffix_set": [],
-    "domain_keyword_set": [],
-    "domain_regex_set": [],
-}
-seen = {key: set() for key in sections}
-
-def yaml_quote(value: str) -> str:
-    return "'" + value.replace("'", "''") + "'"
-
-with open(rule_list, "r", encoding="utf-8") as fh:
-    for raw_line in fh:
-        line = raw_line.split("#", 1)[0].strip()
-        if not line or "," not in line:
-            continue
-        rule_type, value = line.split(",", 1)
-        rule_type = rule_type.strip().upper()
-        value = value.strip()
-        target = mapping.get(rule_type)
-        if not target or not value or value in seen[target]:
-            continue
-        seen[target].add(value)
-        sections[target].append(value)
-
-with open(output_file, "w", encoding="utf-8") as fh:
-    for key in ("domain_set", "domain_suffix_set", "domain_keyword_set", "domain_regex_set"):
-        values = sections[key]
-        if not values:
-            continue
-        fh.write(f"{key}:\n")
-        for value in values:
-            fh.write(f"  - {yaml_quote(value)}\n")
-        fh.write("\n")
-PY
+  python3 "$ROOT/scripts/export-domain-rules.py" egern-yaml "$rule_list" "$egern_out"
 }
 
 compile_domain_rule_list_to_artifacts() {
@@ -279,38 +141,7 @@ build_mihomo_domain_text_from_rules() {
   local rule_list="$1"
   local plain_out="$2"
 
-  python3 - "$rule_list" "$plain_out" <<'PY'
-import sys
-
-rule_list, output_file = sys.argv[1], sys.argv[2]
-entries = []
-seen = set()
-
-with open(rule_list, "r", encoding="utf-8") as fh:
-    for raw_line in fh:
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        rule_type, separator, value = line.partition(",")
-        if not separator:
-            continue
-        rule_type = rule_type.strip()
-        value = value.strip()
-        if rule_type == "DOMAIN":
-            normalized = value
-        elif rule_type == "DOMAIN-SUFFIX":
-            normalized = f".{value}"
-        else:
-            continue
-        if not normalized or normalized in seen:
-            continue
-        seen.add(normalized)
-        entries.append(normalized)
-
-with open(output_file, "w", encoding="utf-8") as fh:
-    if entries:
-        fh.write("\n".join(entries) + "\n")
-PY
+  python3 "$ROOT/scripts/export-domain-rules.py" mihomo-text "$rule_list" "$plain_out"
 
 }
 

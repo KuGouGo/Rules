@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
+
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
 TMP_DIR="$ROOT/.tmp/custom"
@@ -249,22 +251,28 @@ while IFS= read -r list_file; do
   build_ip_plain_and_surge "$list_file"
 done <<< "$IP_RULE_FILES"
 
-if [ "$has_custom_domain" -gt 0 ] || [ "$has_custom_ip" -gt 0 ]; then
+if [ "$TEXT_ONLY_MODE" -ne 1 ] && { [ "$has_custom_domain" -gt 0 ] || [ "$has_custom_ip" -gt 0 ]; }; then
   ensure_sing_box
 fi
 
-if [ "$has_custom_ip" -gt 0 ]; then
+if [ "$TEXT_ONLY_MODE" -ne 1 ] && [ "$has_custom_ip" -gt 0 ]; then
   ensure_mihomo_once
 fi
 
-for plain_list in "$TMP_DOMAIN_DIR"/*.list; do
-  [ -f "$plain_list" ] || continue
-  build_domain_binaries "$plain_list"
-done
+if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
+  for plain_list in "$TMP_DOMAIN_DIR"/*.list; do
+    [ -f "$plain_list" ] || continue
+    build_domain_binaries "$plain_list"
+  done
 
-for plain_list in "$TMP_IP_DIR"/*.txt; do
-  [ -f "$plain_list" ] || continue
-  build_ip_binaries "$plain_list"
-done
+  for plain_list in "$TMP_IP_DIR"/*.txt; do
+    [ -f "$plain_list" ] || continue
+    build_ip_binaries "$plain_list"
+  done
+fi
 
-echo "custom build done"
+if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
+  echo "custom build done (text only)"
+else
+  echo "custom build done"
+fi
