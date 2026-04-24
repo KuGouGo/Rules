@@ -83,14 +83,26 @@ def extract_fastly_json_cidrs(input_file: Path, output_file: Path) -> None:
 def extract_github_json_cidrs(input_file: Path, output_file: Path) -> None:
     """Parse GitHub's official IP meta endpoint (https://api.github.com/meta).
 
-    The response is a JSON object whose top-level values are either scalars or
-    lists of CIDR strings.  Collect every CIDR from every list field.
+    The response also contains non-CIDR list fields such as SSH public keys.
+    Collect only top-level lists whose string values are all valid CIDRs.
     """
     data = json.loads(input_file.read_text(encoding="utf-8"))
     values = []
     for field_value in data.values():
-        if isinstance(field_value, list):
-            values.extend(str(item) for item in field_value)
+        if not isinstance(field_value, list):
+            continue
+
+        section_values = [item.strip() for item in field_value if isinstance(item, str) and item.strip()]
+        if not section_values:
+            continue
+
+        try:
+            for item in section_values:
+                ipaddress.ip_network(item, strict=False)
+        except ValueError:
+            continue
+
+        values.extend(section_values)
     write_deduplicated_cidrs(values, output_file)
 
 
