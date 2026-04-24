@@ -37,72 +37,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Determine build scope
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Select build scope
         id: scope
-        shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_SCOPE: ${{ github.event.inputs.scope || 'auto' }}
           BEFORE_SHA: ${{ github.event.before || '' }}
           CURRENT_SHA: ${{ github.sha }}
-        run: |
-          scope="full"
-          reason="scheduled sync refresh"
-          base_sha=""
-
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            case "$INPUT_SCOPE" in
-              custom)
-                scope="custom"
-                reason="manual custom-only publish"
-                base_sha="$(git rev-parse HEAD^ 2>/dev/null || true)"
-                ;;
-              full|auto)
-                # 'auto' behaves as 'full' when triggered manually — no push diff to inspect.
-                scope="full"
-                reason="manual full sync"
-                ;;
-            esac
-          elif [ "$EVENT_NAME" = "push" ]; then
-            before="$BEFORE_SHA"
-            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
-              before="$(git rev-parse "${CURRENT_SHA}^" 2>/dev/null || true)"
-            fi
-            base_sha="$before"
-
-            changed_files=""
-            deleted_custom_files=""
-            if [ -n "$before" ]; then
-              changed_files="$(git diff --name-only "$before" "$CURRENT_SHA")"
-              deleted_custom_files="$(git diff --name-only --diff-filter=D "$before" "$CURRENT_SHA" -- 'sources/custom/**')"
-            else
-              changed_files="$(git diff-tree --no-commit-id --name-only -r "$CURRENT_SHA")"
-              deleted_custom_files="$(git diff-tree --no-commit-id --name-only --diff-filter=D -r "$CURRENT_SHA" -- 'sources/custom/**')"
-            fi
-
-            echo "Changed files:"
-            printf '%s\n' "$changed_files"
-
-            if [ -n "$deleted_custom_files" ]; then
-              scope="full"
-              reason="custom deletions require full sync"
-            elif [ -n "$changed_files" ] && printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
-              scope="full"
-              reason="push includes non-custom changes"
-            else
-              scope="custom"
-              reason="push only updates custom sources"
-            fi
-          fi
-
-          echo "scope=$scope" >> "$GITHUB_OUTPUT"
-          echo "reason=$reason" >> "$GITHUB_OUTPUT"
-          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
-          echo "Build scope: $scope ($reason)"
-
-      - name: Resolve core versions
+        run: ./scripts/commands/select-build-scope.sh
+      - name: Resolve tool versions
         id: core_versions
-        run: bash ./scripts/resolve-versions.sh
+        run: bash ./scripts/commands/resolve-tool-versions.sh
 
       - name: Restore tool cache
         uses: actions/cache@v4
@@ -111,66 +61,71 @@ jobs:
           key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-${{ steps.core_versions.outputs.sing_box_version }}-mihomo-${{ steps.core_versions.outputs.mihomo_version }}
 
       - name: Prepare scripts
-        run: chmod +x scripts/*.sh scripts/lib/*.sh
+        run: chmod +x scripts/*.sh scripts/commands/*.sh scripts/tests/*.sh scripts/lib/*.sh scripts/tools/*.py
 
       - name: Shellcheck
-        run: shellcheck scripts/*.sh scripts/lib/*.sh
+        run: shellcheck scripts/*.sh scripts/commands/*.sh scripts/tests/*.sh scripts/lib/*.sh
 
       - name: Lint custom rules
-        run: ./scripts/lint-custom-rules.sh
+        run: ./scripts/commands/lint-custom-rules.sh
+
+      - name: Test artifact summary
+        run: ./scripts/tests/test-artifact-summary.sh
 
       - name: Test domain parsing
-        run: ./scripts/test-domain-parsing.sh
+        run: ./scripts/tests/test-domain-parsing.sh
 
       - name: Test domain entrypoint guard
-        run: ./scripts/test-domain-entrypoint-guard.sh
+        run: ./scripts/tests/test-domain-entrypoint-guard.sh
+
+      - name: Test build scope
+        run: ./scripts/tests/test-build-scope.sh
 
       - name: Test shell utilities
-        run: ./scripts/test-shell-utils.sh
+        run: ./scripts/tests/test-shell-utils.sh
 
       - name: Test first-batch upstream invariants
-        run: ./scripts/test-first-batch-upstreams.sh
+        run: ./scripts/tests/test-first-batch-upstreams.sh
 
       - name: Test sync-upstream classification
-        run: ./scripts/test-sync-upstream-classification.sh
+        run: ./scripts/tests/test-sync-upstream-classification.sh
+
+      - name: Test upstream config
+        run: ./scripts/tests/test-upstream-config.sh
 
       - name: Show selected build scope
         run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
 
       - name: Sync upstream rules
         if: steps.scope.outputs.scope == 'full'
-        run: ./scripts/sync-upstream.sh
+        run: ./scripts/commands/sync-upstream.sh
 
       - name: Restore artifacts
         if: steps.scope.outputs.scope == 'custom'
-        run: ./scripts/restore-artifacts.sh
+        run: ./scripts/commands/restore-artifacts.sh
 
       - name: Build custom rules
         env:
           RULES_CONFLICT_BASE_SHA: ${{ steps.scope.outputs.base_sha }}
-        run: ./scripts/build-custom.sh
+        run: ./scripts/commands/build-custom.sh
 
-      - name: Fetch fakeip-filter
+      - name: Sync fakeip-filter
         if: steps.scope.outputs.scope == 'full'
-        run: ./scripts/fetch-fakeip-filter.sh
+        run: ./scripts/commands/sync-fakeip-filter.sh
 
       - name: Guard artifacts
-        run: ./scripts/guard-artifacts.sh
+        run: ./scripts/commands/guard-artifacts.sh
 
       - name: Show summary
         if: always()
         run: |
-          count_files() { find "$1" -maxdepth 1 -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
-          echo "Domain surge files:   $(count_files .output/domain/surge '*.list')"
-          echo "Domain quanx files:   $(count_files .output/domain/quanx '*.list')"
-          echo "Domain egern files:   $(count_files .output/domain/egern '*.yaml')"
-          echo "Domain sing-box files: $(count_files .output/domain/sing-box '*.srs')"
-          echo "Domain mihomo files:  $(count_files .output/domain/mihomo '*.mrs')"
-          echo "IP surge files:       $(count_files .output/ip/surge '*.list')"
-          echo "IP quanx files:       $(count_files .output/ip/quanx '*.list')"
-          echo "IP egern files:       $(count_files .output/ip/egern '*.yaml')"
-          echo "IP sing-box files:    $(count_files .output/ip/sing-box '*.srs')"
-          echo "IP mihomo files:      $(count_files .output/ip/mihomo '*.mrs')"
+          if [ -d .output ]; then
+            python3 scripts/tools/summarize-artifacts.py .output --output .output/build-summary.json >/dev/null
+            cat .output/build-summary.json
+            if [ -f .output/upstream-summary.json ]; then
+              cat .output/upstream-summary.json
+            fi
+          fi
           echo "Changed files summary:"
           git status --short
 
@@ -178,4 +133,4 @@ jobs:
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./scripts/publish-branches.sh
+        run: ./scripts/commands/publish-branches.sh

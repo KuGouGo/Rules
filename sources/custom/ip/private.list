@@ -1,48 +1,19 @@
-# RFC 1918 - Private IPv4 addresses
 IP-CIDR,10.0.0.0/8
 IP-CIDR,172.16.0.0/12
 IP-CIDR,192.168.0.0/16
-
-# RFC 6598 - Carrier-grade NAT
 IP-CIDR,100.64.0.0/10
-
-# RFC 3927 - Link-local addresses
 IP-CIDR,169.254.0.0/16
-
-# RFC 5735 - Loopback
 IP-CIDR,127.0.0.0/8
-
-# RFC 5736 - IETF Protocol Assignments
 IP-CIDR,192.0.0.0/24
-
-# RFC 5737 - Documentation addresses
 IP-CIDR,192.0.2.0/24
 IP-CIDR,198.51.100.0/24
 IP-CIDR,203.0.113.0/24
-
-# RFC 1122 - Broadcast
 IP-CIDR,255.255.255.255/32
-
-# RFC 919 - Limited broadcast
 IP-CIDR,0.0.0.0/8
-
-# RFC 6890 - Multicast
 IP-CIDR,224.0.0.0/4
-
-# RFC 4193 - Unique local IPv6 addresses
 IP-CIDR6,fc00::/7
-
-# RFC 4291 - IPv6 link-local addresses
 IP-CIDR6,fe80::/10
-
-# RFC 4291 - IPv6 loopback address
 IP-CIDR6,::1/128
-
-# RFC 3849 - IPv6 documentation prefix
 IP-CIDR6,2001:db8::/32
-
-# RFC 4291 - IPv6 unspecified address
 IP-CIDR6,::/128
-
-# RFC 4291 - IPv6 multicast
 IP-CIDR6,ff00::/8

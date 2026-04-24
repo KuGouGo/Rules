@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 DRY_RUN="${PUBLISH_DRY_RUN:-0}"
@@ -370,7 +370,7 @@ publish_branch() {
     fi
   fi
 
-  git push -f origin HEAD:"$branch"
+  git push --force-with-lease "origin" "HEAD:$branch"
 }
 
 publish_branch surge domain/surge ip/surge list list

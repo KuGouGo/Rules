@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 TMP_DIR="$(mktemp -d)"
@@ -69,8 +69,8 @@ assert_wrapper_calls_cli() {
   fi
 }
 
-RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_TEST" ./scripts/test-domain-parsing.sh >/dev/null
-RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_BUILD" RULES_BUILD_CUSTOM_TEXT_ONLY=1 ./scripts/build-custom.sh >/dev/null
+RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_TEST" ./scripts/tests/test-domain-parsing.sh >/dev/null
+RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_BUILD" RULES_BUILD_CUSTOM_TEXT_ONLY=1 ./scripts/commands/build-custom.sh >/dev/null
 
 for command in "${required_text_commands[@]}"; do
   assert_trace_contains "$TRACE_TEST" "$command" "test-domain-parsing"

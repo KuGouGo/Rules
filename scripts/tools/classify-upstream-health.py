@@ -5,6 +5,7 @@ import ipaddress
 import json
 import sys
 from pathlib import Path
+from typing import Optional
 
 
 STATUS_OK = "ok"
@@ -12,7 +13,7 @@ STATUS_TRANSPORT = "transport_incident"
 STATUS_SEMANTIC = "semantic_regression"
 
 
-def result(source: str, status: str, reason: str, details: dict | None = None) -> dict:
+def result(source: str, status: str, reason: str, details: Optional[dict] = None) -> dict:
     payload = {"source": source, "status": status, "reason": reason}
     if details:
         payload["details"] = details
