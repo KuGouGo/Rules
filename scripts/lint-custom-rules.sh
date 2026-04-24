@@ -7,20 +7,7 @@ cd "$ROOT"
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
 
-list_rule_files() {
-  local dir="$1"
-  python3 - <<'PY' "$dir"
-import sys
-from pathlib import Path
-
-dir_path = Path(sys.argv[1])
-if not dir_path.is_dir():
-    raise SystemExit(0)
-for path in sorted(dir_path.glob('*.list')):
-    if path.is_file():
-        print(path)
-PY
-}
+source "$ROOT/scripts/lib/common.sh"
 
 DOMAIN_RULE_FILES="$(list_rule_files "$CUSTOM_DOMAIN_DIR")"
 IP_RULE_FILES="$(list_rule_files "$CUSTOM_IP_DIR")"

@@ -47,6 +47,7 @@ DISNEY_ASNS=(133530 394297)
 
 source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/scripts/lib/rules.sh"
+setup_tool_cache
 
 rm -rf "$WORK_TMP_DIR"
 mkdir -p "$WORK_TMP_DIR" "$BIN_DIR" "$DOMAIN_BUILD_TMP_DIR" "$DOMAIN_RULE_TMP_DIR" "$IP_BUILD_TMP_DIR"

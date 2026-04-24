@@ -115,6 +115,12 @@ IP-CIDR6,2001:db8::/32
 
 构建时会自动合并并生成多平台格式。
 
+更完整的维护文档：
+
+- [自定义规则格式](docs/rule-source-format.md)
+- [生成产物说明](docs/generated-artifacts.md)
+- [维护与发布手册](docs/maintenance-runbook.md)
+
 ## 数据来源
 
 **域名：**
@@ -130,6 +136,8 @@ IP-CIDR6,2001:db8::/32
 ## 更新
 
 每日 08:00 UTC 自动构建，或手动触发 [Actions](https://github.com/KuGouGo/Rules/actions)。
+
+维护者可参考 [维护与发布手册](docs/maintenance-runbook.md) 了解本地校验、手动构建范围与发布分支行为。
 
 ## License
 
