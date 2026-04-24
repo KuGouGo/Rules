@@ -7,6 +7,7 @@ cd "$ROOT"
 source "$ROOT/scripts/lib/rules.sh"
 
 TMP_DIR="$(mktemp -d)"
+FIXTURE_ROOT="$ROOT/tests/fixtures/domain"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 assert_file_equals() {
@@ -15,6 +16,21 @@ assert_file_equals() {
   local label="$3"
   if ! diff -u "$expected" "$actual"; then
     echo "test failed: $label" >&2
+    exit 1
+  fi
+}
+
+assert_file_text_equals() {
+  local expected="$1"
+  local actual="$2"
+  local label="$3"
+  local expected_text actual_text
+
+  expected_text="$(cat "$expected")"
+  actual_text="$(cat "$actual")"
+  if [ "$expected_text" != "$actual_text" ]; then
+    echo "test failed: $label" >&2
+    diff -u "$expected" "$actual" || true
     exit 1
   fi
 }
@@ -73,25 +89,47 @@ EOF
   fi
 }
 
-test_custom_domain_normalization() {
-  cat > "$TMP_DIR/custom_in.list" <<'EOF'
-domain_suffix,Example.COM.
-domain,API.Example.COM
-DOMAIN-KEYWORD,YouTube
-EOF
+test_classical_domain_fixture_outputs() {
+  local fixture_name="mixed"
+  local input_file="$FIXTURE_ROOT/input/$fixture_name.list"
+  local normalized_out="$TMP_DIR/$fixture_name.normalized.list"
+  local surge_out="$TMP_DIR/$fixture_name.surge.list"
+  local quanx_out="$TMP_DIR/$fixture_name.quanx.list"
+  local egern_out="$TMP_DIR/$fixture_name.egern.yaml"
+  local mihomo_out="$TMP_DIR/$fixture_name.mihomo.txt"
+  local singbox_out="$TMP_DIR/$fixture_name.singbox.json"
 
-  normalize_custom_domain_source "$TMP_DIR/custom_in.list" "$TMP_DIR/custom_out.list"
-
-  cat > "$TMP_DIR/custom_expected.list" <<'EOF'
-DOMAIN-SUFFIX,example.com
-DOMAIN,api.example.com
-DOMAIN-KEYWORD,youtube
-EOF
+  normalize_custom_domain_source "$input_file" "$normalized_out"
+  render_surge_domain_ruleset_from_rules "$normalized_out" "$surge_out"
+  render_quanx_domain_ruleset_from_rules "$normalized_out" "$quanx_out" "$fixture_name"
+  render_egern_domain_ruleset_from_rules "$normalized_out" "$egern_out"
+  build_mihomo_domain_text_from_rules "$normalized_out" "$mihomo_out"
+  build_domain_json_from_rules "$normalized_out" "$singbox_out"
 
   assert_file_equals \
-    "$TMP_DIR/custom_expected.list" \
-    "$TMP_DIR/custom_out.list" \
-    "custom domain normalization is stable"
+    "$FIXTURE_ROOT/expected/$fixture_name.normalized.list" \
+    "$normalized_out" \
+    "normalized domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.surge.list" \
+    "$surge_out" \
+    "surge domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.quanx.list" \
+    "$quanx_out" \
+    "quanx domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.egern.yaml" \
+    "$egern_out" \
+    "egern domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.mihomo.txt" \
+    "$mihomo_out" \
+    "mihomo domain text fixture output is stable"
+  assert_file_text_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.singbox.json" \
+    "$singbox_out" \
+    "sing-box domain json fixture output is stable"
 }
 
 test_include_filter_semantics() {
@@ -157,7 +195,7 @@ EOF
 
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
-test_custom_domain_normalization
+test_classical_domain_fixture_outputs
 test_include_filter_semantics
 test_mihomo_domain_text_generation
 
