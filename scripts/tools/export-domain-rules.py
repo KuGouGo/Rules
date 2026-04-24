@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+CAPABILITIES_FILE = ROOT / "config" / "domain-platform-capabilities.json"
 
 
 RULE_KIND_MAP = {
@@ -39,8 +45,6 @@ SINGBOX_KIND_MAP = {
     "DOMAIN-REGEX": "domain_regex",
 }
 
-SURGE_KIND_SET = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"}
-
 QUANX_KIND_MAP = {
     "DOMAIN": "HOST",
     "DOMAIN-SUFFIX": "HOST-SUFFIX",
@@ -53,6 +57,53 @@ EGERN_KIND_MAP = {
     "DOMAIN-KEYWORD": "domain_keyword_set",
     "DOMAIN-REGEX": "domain_regex_set",
 }
+
+
+def load_platform_capabilities(path: Path = CAPABILITIES_FILE) -> dict[str, set[str]]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {platform: set(kinds) for platform, kinds in data.items()}
+
+
+PLATFORM_CAPABILITIES = load_platform_capabilities()
+SURGE_KIND_SET = PLATFORM_CAPABILITIES["surge"]
+MIHOMO_MRS_KIND_SET = PLATFORM_CAPABILITIES["mihomo-mrs"]
+MIHOMO_MRS_SKIP_WARN_PERCENT = int(os.environ.get("MIHOMO_MRS_SKIP_WARN_PERCENT", "30"))
+
+
+def count_rule_kinds(rules: list[Rule]) -> dict[str, int]:
+    counts = {kind: 0 for kind in SINGBOX_KIND_MAP}
+    for rule in rules:
+        counts[rule.kind] = counts.get(rule.kind, 0) + 1
+    return counts
+
+
+def print_platform_skip_summary(name: str, rules: list[Rule]) -> None:
+    counts = count_rule_kinds(rules)
+    for platform, supported in PLATFORM_CAPABILITIES.items():
+        skipped = {kind: count for kind, count in counts.items() if count and kind not in supported}
+        if skipped:
+            details = ", ".join(f"{kind}={count}" for kind, count in sorted(skipped.items()))
+            print(f"domain summary: {name} skips unsupported rules for {platform}: {details}", file=sys.stderr)
+
+
+def print_mihomo_mrs_skip_summary(input_file: Path, rules: list[Rule]) -> None:
+    skipped = {
+        kind: count
+        for kind, count in count_rule_kinds(rules).items()
+        if count and kind not in MIHOMO_MRS_KIND_SET
+    }
+    if skipped:
+        details = ", ".join(f"{kind}={count}" for kind, count in sorted(skipped.items()))
+        skipped_total = sum(skipped.values())
+        total = len(rules)
+        skipped_percent = skipped_total * 100 // total if total else 0
+        print(f"mihomo mrs summary: {input_file.name} skips unsupported rules: {details}", file=sys.stderr)
+        if skipped_percent > MIHOMO_MRS_SKIP_WARN_PERCENT:
+            print(
+                f"mihomo mrs warning: {input_file.name} skips {skipped_percent}% unsupported rules "
+                f"(threshold {MIHOMO_MRS_SKIP_WARN_PERCENT}%)",
+                file=sys.stderr,
+            )
 
 
 @dataclass(frozen=True)
@@ -245,8 +296,10 @@ def build_egern_yaml(input_file: Path, output_file: Path) -> None:
 def build_mihomo_text(input_file: Path, output_file: Path) -> None:
     entries: list[str] = []
     seen: set[str] = set()
+    rules = parse_classical_domain_rules(input_file)
+    print_mihomo_mrs_skip_summary(input_file, rules)
 
-    for rule in parse_classical_domain_rules(input_file):
+    for rule in rules:
         if rule.kind == "DOMAIN":
             normalized = rule.value
         elif rule.kind == "DOMAIN-SUFFIX":
@@ -308,7 +361,8 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
 
     for name in names:
         all_rules = resolve(name)
-        rendered = sorted({render_rule(rule) for rule in all_rules})
+        print_platform_skip_summary(name, all_rules)
+        rendered = [render_rule(rule) for rule in all_rules]
         if not rendered:
             continue
         (output_dir / f"{name}.list").write_text("\n".join(rendered) + "\n", encoding="utf-8")
@@ -326,8 +380,9 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
     # Generate @cn filtered versions
     # Only generate if there are Surge-compatible rules (DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD)
     for name, cn_rules in cn_attr_sets.items():
-        rendered = sorted({render_rule(rule) for rule in cn_rules})
-        # Filter to only Surge-compatible rule types
+        rendered = [render_rule(rule) for rule in cn_rules]
+        # Design note: @cn derivatives are classical text lists shared by Surge/QuanX restore paths,
+        # so regex entries are intentionally filtered even though Egern and sing-box can use them.
         surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
         if surge_compatible:
             output_file = output_dir / f"{name}@cn.list"
@@ -336,8 +391,9 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
 
     # Generate @!cn filtered versions
     for name, not_cn_rules in not_cn_attr_sets.items():
-        rendered = sorted({render_rule(rule) for rule in not_cn_rules})
-        # Filter to only Surge-compatible rule types
+        rendered = [render_rule(rule) for rule in not_cn_rules]
+        # Design note: @!cn derivatives are classical text lists shared by Surge/QuanX restore paths,
+        # so regex entries are intentionally filtered even though Egern and sing-box can use them.
         surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
         if surge_compatible:
             output_file = output_dir / f"{name}@!cn.list"
@@ -364,8 +420,8 @@ def export_filtered_list(input_file: Path, output_file: Path, filter_attr: str) 
     # Filter rules that have the specified attribute
     filtered_rules = [rule for rule in rules if filter_attr in rule.attrs]
 
-    # Render and write
-    rendered = sorted({render_rule(rule) for rule in filtered_rules})
+    # Render and write while preserving upstream order.
+    rendered = [render_rule(rule) for rule in filtered_rules]
     if rendered:
         output_file.parent.mkdir(parents=True, exist_ok=True)
         output_file.write_text("\n".join(rendered) + "\n", encoding="utf-8")

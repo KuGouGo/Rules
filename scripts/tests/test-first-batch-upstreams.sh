@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 BASELINES="$ROOT/config/upstream-first-batch-baselines.json"
@@ -14,7 +14,7 @@ assert_status() {
   local label="$4"
   local output actual_status
 
-  output="$(python3 "$ROOT/scripts/check-first-batch-upstreams.py" classify "$source" "$raw_file" "$BASELINES")"
+  output="$(python3 "$ROOT/scripts/tools/classify-upstream-health.py" classify "$source" "$raw_file" "$BASELINES")"
   actual_status="$(printf '%s' "$output" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
   if [ "$actual_status" != "$expected_status" ]; then
     echo "test failed: $label" >&2

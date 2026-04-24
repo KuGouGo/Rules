@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 WORK_TMP_DIR="$ROOT_DIR/.tmp/sync"
@@ -13,38 +13,57 @@ ARTIFACTS_DIR="$ROOT_DIR/.output"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 
-DOMAIN_SOURCE_REPO_URL="https://github.com/v2fly/domain-list-community.git"
-AWAVENUE_DOMAIN_SOURCE_URL="https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list"
-AWAVENUE_DOMAIN_SOURCE_FALLBACK_URL="https://gcore.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list"
-CN_IPV4_SOURCE_URL="https://ispip.clang.cn/all_cn.txt"
-CN_IPV6_SOURCE_URL="https://ispip.clang.cn/all_cn_ipv6.txt"
-CN_ASN_IPV4_SOURCE_URL="https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
-CN_ASN_IPV6_SOURCE_URL="https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt"
-GOOGLE_IP_SOURCE_URL="https://www.gstatic.com/ipranges/goog.json"
-TELEGRAM_IP_SOURCE_URL="https://core.telegram.org/resources/cidr.txt"
-CLOUDFLARE_IPV4_SOURCE_URL="https://www.cloudflare.com/ips-v4"
-CLOUDFLARE_IPV6_SOURCE_URL="https://www.cloudflare.com/ips-v6"
-# One download used for both CloudFront (service-filtered) and AWS (all services).
-AWS_IP_SOURCE_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
-FASTLY_IP_SOURCE_URL="https://api.fastly.com/public-ip-list"
-GITHUB_IP_SOURCE_URL="https://api.github.com/meta"
-APPLE_IP_SOURCE_URL="https://support.apple.com/en-us/101555"
-APPLE_IP_SOURCE_FALLBACK_URL="https://support.apple.com/zh-cn/101555"
+UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
+UPSTREAM_SUMMARY_FILE="$ARTIFACTS_DIR/upstream-summary.jsonl"
 FIRST_BATCH_BASELINES_FILE="$ROOT_DIR/config/upstream-first-batch-baselines.json"
 
-APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-3}"
-AWAVENUE_MIN_RULE_COUNT="${AWAVENUE_MIN_RULE_COUNT:-500}"
+upstream_value() {
+  local section="$1"
+  local name="$2"
+  local key="$3"
+  python3 - <<'PY' "$UPSTREAMS_CONFIG_FILE" "$section" "$name" "$key"
+import json, sys
+config, section, name, key = sys.argv[1:]
+data = json.load(open(config, encoding="utf-8"))[section][name]
+value = data.get(key, "")
+if isinstance(value, list):
+    print(" ".join(str(item) for item in value))
+else:
+    print(value)
+PY
+}
 
-# RIPE NCC Stat API: official RPKI/routing data for ASN prefix lookups.
-# Used for streaming services that publish no machine-readable CIDR lists.
-RIPE_STAT_BASE_URL="https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS"
+upstream_asn_group() {
+  local name="$1"
+  python3 - <<'PY' "$UPSTREAMS_CONFIG_FILE" "$name"
+import json, sys
+config, name = sys.argv[1:]
+print(" ".join(str(item) for item in json.load(open(config, encoding="utf-8"))["asn_groups"][name]))
+PY
+}
 
-# Netflix: AS2906 (Netflix Streaming), AS40027 (Netflix CDN LLC)
-NETFLIX_ASNS=(2906 40027)
-# Spotify: AS35228, AS7441
-SPOTIFY_ASNS=(35228 7441)
-# Disney+ / BAMTech: AS133530, AS394297
-DISNEY_ASNS=(133530 394297)
+DOMAIN_SOURCE_REPO_URL="$(upstream_value domain dlc url)"
+AWAVENUE_DOMAIN_SOURCE_URL="$(upstream_value domain awavenue-ads url)"
+AWAVENUE_DOMAIN_SOURCE_FALLBACK_URL="$(upstream_value domain awavenue-ads fallback_url)"
+CN_IPV4_SOURCE_URL="$(upstream_value ip cn-ipv4 url)"
+CN_IPV6_SOURCE_URL="$(upstream_value ip cn-ipv6 url)"
+CN_ASN_IPV4_SOURCE_URL="$(upstream_value ip cn-asn-ipv4 url)"
+CN_ASN_IPV6_SOURCE_URL="$(upstream_value ip cn-asn-ipv6 url)"
+GOOGLE_IP_SOURCE_URL="$(upstream_value ip google url)"
+TELEGRAM_IP_SOURCE_URL="$(upstream_value ip telegram url)"
+CLOUDFLARE_IPV4_SOURCE_URL="$(upstream_value ip cloudflare-ipv4 url)"
+CLOUDFLARE_IPV6_SOURCE_URL="$(upstream_value ip cloudflare-ipv6 url)"
+AWS_IP_SOURCE_URL="$(upstream_value ip aws url)"
+FASTLY_IP_SOURCE_URL="$(upstream_value ip fastly url)"
+GITHUB_IP_SOURCE_URL="$(upstream_value ip github url)"
+APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
+APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
+RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
+APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-$(upstream_value ip apple min_cidrs)}"
+AWAVENUE_MIN_RULE_COUNT="${AWAVENUE_MIN_RULE_COUNT:-$(upstream_value domain awavenue-ads min_rules)}"
+read -r -a NETFLIX_ASNS <<< "$(upstream_asn_group netflix)"
+read -r -a SPOTIFY_ASNS <<< "$(upstream_asn_group spotify)"
+read -r -a DISNEY_ASNS <<< "$(upstream_asn_group disney)"
 
 source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/scripts/lib/rules.sh"
@@ -55,8 +74,73 @@ mkdir -p "$WORK_TMP_DIR" "$BIN_DIR" "$DOMAIN_BUILD_TMP_DIR" "$DOMAIN_RULE_TMP_DI
 trap 'rm -rf "$WORK_TMP_DIR"' EXIT
 
 mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR"
+: > "$UPSTREAM_SUMMARY_FILE"
 
 echo "=== SYNC START ==="
+
+record_upstream_summary() {
+  local category="$1"
+  local name="$2"
+  local status="$3"
+  local url="$4"
+  local raw_file="${5:-}"
+  local normalized_file="${6:-}"
+  local fallback_used="${7:-0}"
+  local detail="${8:-}"
+
+  python3 - <<'PY' "$UPSTREAMS_CONFIG_FILE" "$UPSTREAM_SUMMARY_FILE" "$category" "$name" "$status" "$url" "$raw_file" "$normalized_file" "$fallback_used" "$detail"
+import json, sys
+from pathlib import Path
+config_file, summary_file, category, name, status, url, raw_file, normalized_file, fallback_used, detail = sys.argv[1:]
+config = json.load(open(config_file, encoding="utf-8"))
+source = config.get(category, {}).get(name, {})
+payload = {
+    "category": category,
+    "name": name,
+    "status": status,
+    "kind": source.get("kind", ""),
+    "trust": source.get("trust", ""),
+    "url": url,
+    "fallback_used": fallback_used == "1",
+}
+if detail:
+    payload["detail"] = detail
+for key, file_name in (("raw", raw_file), ("normalized", normalized_file)):
+    if not file_name:
+        continue
+    path = Path(file_name)
+    info = {"path": str(path)}
+    if path.exists():
+        info["bytes"] = path.stat().st_size
+        if path.is_file():
+            lines = [line for line in path.read_text(encoding="utf-8", errors="ignore").splitlines() if line.strip() and not line.lstrip().startswith("#")]
+            info["entries"] = len(lines)
+    payload[key] = info
+Path(summary_file).parent.mkdir(parents=True, exist_ok=True)
+with open(summary_file, "a", encoding="utf-8") as fh:
+    fh.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
+PY
+}
+
+record_dlc_summary() {
+  local repo_dir="$1"
+  local commit=""
+  commit="$(git -C "$repo_dir" rev-parse HEAD 2>/dev/null || true)"
+  record_upstream_summary domain dlc ok "$DOMAIN_SOURCE_REPO_URL" "" "" 0 "commit=$commit"
+}
+
+write_upstream_summary_json() {
+  local json_file="$ARTIFACTS_DIR/upstream-summary.json"
+  python3 - <<'PY' "$UPSTREAM_SUMMARY_FILE" "$json_file"
+import json, sys
+from pathlib import Path
+jsonl_file, json_file = map(Path, sys.argv[1:])
+items = []
+if jsonl_file.exists():
+    items = [json.loads(line) for line in jsonl_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+json_file.write_text(json.dumps(items, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+}
 
 clone_repository_shallow() {
   local repo_url="$1"
@@ -105,7 +189,7 @@ sync_asn_ip_list() {
 
   manifest_file="$IP_BUILD_TMP_DIR/${name}.asn-normalize-tasks.json"
   generate_normalize_manifest "$manifest_file" "${task_args[@]}"
-  python3 "$ROOT_DIR/scripts/normalize-ip-source.py" batch "$manifest_file"
+  python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$manifest_file"
 
   merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
 
@@ -121,6 +205,7 @@ sync_asn_ip_list() {
     "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
     "$IP_ARTIFACTS_DIR/quanx/${name}.list" \
     "$name"
+  record_upstream_summary ip "${name}-asn" ok "$RIPE_STAT_BASE_URL" "" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "asns=${asns[*]}"
 }
 
 generate_normalize_manifest() {
@@ -172,9 +257,17 @@ download_file_with_fallback() {
   shift
   local url
   local attempted=""
+  local attempt_index=0
 
+  UPSTREAM_LAST_URL=""
+  UPSTREAM_LAST_FALLBACK_USED=0
   for url in "$@"; do
+    attempt_index=$((attempt_index + 1))
     if download_file "$url" "$out_file"; then
+      UPSTREAM_LAST_URL="$url"
+      if [ "$attempt_index" -gt 1 ]; then
+        UPSTREAM_LAST_FALLBACK_USED=1
+      fi
       echo "downloaded $(basename "$out_file") from $url"
       return 0
     fi
@@ -220,7 +313,7 @@ classify_first_batch_source() {
 
   raw_file="$(first_batch_raw_file "$source")"
   result_json="$(
-    python3 "$ROOT_DIR/scripts/check-first-batch-upstreams.py" \
+    python3 "$ROOT_DIR/scripts/tools/classify-upstream-health.py" \
       classify \
       "$source" \
       "$raw_file" \
@@ -231,6 +324,7 @@ classify_first_batch_source() {
 
   FIRST_BATCH_STATUS["$source"]="$status"
   FIRST_BATCH_REASON["$source"]="$reason"
+  record_upstream_summary ip "$source" "$status" "" "$raw_file" "" 0 "$reason"
 }
 
 download_and_classify_first_batch_source() {
@@ -267,7 +361,7 @@ normalize_first_batch_source() {
       ;;
   esac
 
-  python3 "$ROOT_DIR/scripts/normalize-ip-source.py" single "$source_type" "$raw_file" "$output_file"
+  python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" single "$source_type" "$raw_file" "$output_file"
 }
 
 summarize_first_batch_checks() {
@@ -337,13 +431,15 @@ sync_remote_domain_ruleset() {
   fi
 
   assert_min_rules "$name" "$normalized_file" "$min_expected"
+  record_upstream_summary domain "$name" ok "${UPSTREAM_LAST_URL:-}" "$raw_file" "$normalized_file" "${UPSTREAM_LAST_FALLBACK_USED:-0}"
 }
 
 # Domain rules from domain-list-community/data plus curated remote lists
 # The export script now automatically generates @cn filtered versions for all rule sets
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
-python3 "$ROOT_DIR/scripts/export-domain-rules.py" export \
+record_dlc_summary "$WORK_TMP_DIR/domain-list-community"
+python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
   "$DOMAIN_RULE_TMP_DIR"
 sync_remote_domain_ruleset \
@@ -401,7 +497,17 @@ download_file_with_fallback \
 IP_NORMALIZE_MANIFEST="$IP_BUILD_TMP_DIR/normalize-tasks.json"
 
 generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
-python3 "$ROOT_DIR/scripts/normalize-ip-source.py" batch "$IP_NORMALIZE_MANIFEST"
+python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$IP_NORMALIZE_MANIFEST"
+record_upstream_summary ip cn-ipv4 ok "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt"
+record_upstream_summary ip cn-ipv6 ok "$CN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
+record_upstream_summary ip cn-asn-ipv4 ok "$CN_ASN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt"
+record_upstream_summary ip cn-asn-ipv6 ok "$CN_ASN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
+record_upstream_summary ip cloudflare-ipv4 ok "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt"
+record_upstream_summary ip cloudflare-ipv6 ok "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
+record_upstream_summary ip aws ok "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" "$IP_BUILD_TMP_DIR/aws.cidr.txt"
+record_upstream_summary ip cloudfront ok "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt"
+record_upstream_summary ip fastly ok "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json" "$IP_BUILD_TMP_DIR/fastly.cidr.txt"
+record_upstream_summary ip apple ok "${UPSTREAM_LAST_URL:-$APPLE_IP_SOURCE_URL}" "$IP_BUILD_TMP_DIR/apple.raw.html" "$IP_BUILD_TMP_DIR/apple.cidr.txt" "${UPSTREAM_LAST_FALLBACK_USED:-0}"
 summarize_first_batch_checks
 normalize_first_batch_source "google-json"
 normalize_first_batch_source "github-json"
@@ -456,5 +562,6 @@ build_ip_egern_artifacts_from_surge_dir \
 assert_files_present "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/sing-box/*.srs"
 assert_files_present "$IP_ARTIFACTS_DIR/mihomo" "$IP_ARTIFACTS_DIR/mihomo/*.mrs"
 assert_files_present "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/egern/*.yaml"
+write_upstream_summary_json
 
 echo "=== SYNC DONE ==="

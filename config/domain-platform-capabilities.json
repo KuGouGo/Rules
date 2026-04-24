@@ -1,0 +1,7 @@
+{
+  "surge": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"],
+  "quanx": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"],
+  "egern": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"],
+  "sing-box": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"],
+  "mihomo-mrs": ["DOMAIN", "DOMAIN-SUFFIX"]
+}

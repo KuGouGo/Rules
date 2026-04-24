@@ -1,0 +1,97 @@
+{
+  "domain": {
+    "dlc": {
+      "kind": "git",
+      "trust": "community",
+      "url": "https://github.com/v2fly/domain-list-community.git"
+    },
+    "awavenue-ads": {
+      "kind": "text",
+      "trust": "community",
+      "min_rules": 500,
+      "url": "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list",
+      "fallback_url": "https://gcore.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list"
+    }
+  },
+  "ip": {
+    "cn-ipv4": {
+      "kind": "text",
+      "trust": "registry",
+      "url": "https://ispip.clang.cn/all_cn.txt"
+    },
+    "cn-ipv6": {
+      "kind": "text",
+      "trust": "registry",
+      "url": "https://ispip.clang.cn/all_cn_ipv6.txt"
+    },
+    "cn-asn-ipv4": {
+      "kind": "text",
+      "trust": "registry",
+      "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
+    },
+    "cn-asn-ipv6": {
+      "kind": "text",
+      "trust": "registry",
+      "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt"
+    },
+    "google": {
+      "kind": "json",
+      "trust": "official",
+      "parser": "google-json",
+      "min_cidrs": 80,
+      "url": "https://www.gstatic.com/ipranges/goog.json"
+    },
+    "telegram": {
+      "kind": "text",
+      "trust": "official",
+      "parser": "telegram",
+      "min_cidrs": 8,
+      "url": "https://core.telegram.org/resources/cidr.txt"
+    },
+    "cloudflare-ipv4": {
+      "kind": "text",
+      "trust": "official",
+      "min_cidrs": 15,
+      "url": "https://www.cloudflare.com/ips-v4"
+    },
+    "cloudflare-ipv6": {
+      "kind": "text",
+      "trust": "official",
+      "url": "https://www.cloudflare.com/ips-v6"
+    },
+    "aws": {
+      "kind": "json",
+      "trust": "official",
+      "url": "https://ip-ranges.amazonaws.com/ip-ranges.json"
+    },
+    "fastly": {
+      "kind": "json",
+      "trust": "official",
+      "min_cidrs": 12,
+      "url": "https://api.fastly.com/public-ip-list"
+    },
+    "github": {
+      "kind": "json",
+      "trust": "official",
+      "parser": "github-json",
+      "url": "https://api.github.com/meta"
+    },
+    "apple": {
+      "kind": "html",
+      "trust": "official",
+      "min_cidrs": 3,
+      "url": "https://support.apple.com/en-us/101555",
+      "fallback_url": "https://support.apple.com/zh-cn/101555"
+    },
+    "ripe-stat": {
+      "kind": "json-api",
+      "trust": "registry",
+      "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS"
+    }
+  },
+  "asn_groups": {
+    "netflix": [2906, 40027],
+    "spotify": [35228, 7441],
+    "disney": [133530, 394297]
+  }
+}

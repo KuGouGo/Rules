@@ -78,7 +78,18 @@ require_non_windows_shell() {
 download_file() {
   local url="$1"
   local out="$2"
-  curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 300 -fL "$url" -o "$out"
+  local out_dir tmp
+
+  out_dir="$(dirname "$out")"
+  mkdir -p "$out_dir"
+  tmp="$(mktemp "${out_dir}/.download.$(basename "$out").XXXXXX")"
+
+  if curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 300 -fL "$url" -o "$tmp"; then
+    mv "$tmp" "$out"
+  else
+    rm -f "$tmp"
+    return 1
+  fi
 }
 
 github_api_get() {

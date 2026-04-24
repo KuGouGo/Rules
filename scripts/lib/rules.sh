@@ -21,21 +21,21 @@ normalize_custom_domain_source() {
   local input_file="$1"
   local output_file="$2"
 
-  python3 "$ROOT/scripts/export-domain-rules.py" normalize-classical "$input_file" "$output_file"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" normalize-classical "$input_file" "$output_file"
 }
 
 build_domain_json_from_rules() {
   local rule_list="$1"
   local json_out="$2"
 
-  python3 "$ROOT/scripts/export-domain-rules.py" singbox-json "$rule_list" "$json_out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" singbox-json "$rule_list" "$json_out"
 }
 
 render_surge_domain_ruleset_from_rules() {
   local rule_list="$1"
   local surge_out="$2"
 
-  python3 "$ROOT/scripts/export-domain-rules.py" surge-list "$rule_list" "$surge_out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" surge-list "$rule_list" "$surge_out"
 }
 
 render_quanx_domain_ruleset_from_rules() {
@@ -43,14 +43,14 @@ render_quanx_domain_ruleset_from_rules() {
   local quanx_out="$2"
   local policy_tag="$3"
 
-  python3 "$ROOT/scripts/export-domain-rules.py" quanx-list "$rule_list" "$quanx_out" "$policy_tag"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" quanx-list "$rule_list" "$quanx_out" "$policy_tag"
 }
 
 render_egern_domain_ruleset_from_rules() {
   local rule_list="$1"
   local egern_out="$2"
 
-  python3 "$ROOT/scripts/export-domain-rules.py" egern-yaml "$rule_list" "$egern_out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" egern-yaml "$rule_list" "$egern_out"
 }
 
 compile_domain_rule_list_to_artifacts() {
@@ -141,7 +141,7 @@ build_mihomo_domain_text_from_rules() {
   local rule_list="$1"
   local plain_out="$2"
 
-  python3 "$ROOT/scripts/export-domain-rules.py" mihomo-text "$rule_list" "$plain_out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" mihomo-text "$rule_list" "$plain_out"
 
 }
 

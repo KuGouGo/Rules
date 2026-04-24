@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 MAX_DELETE_PERCENT="${MAX_DELETE_PERCENT:-30}"
@@ -10,9 +10,14 @@ SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
 
 MAX_IP_ENTRY_CHANGE_PERCENT="${MAX_IP_ENTRY_CHANGE_PERCENT:-40}"
 MAX_IP_ENTRY_DELETE_PERCENT="${MAX_IP_ENTRY_DELETE_PERCENT:-25}"
+MAX_DOMAIN_RULE_DELETE_PERCENT="${MAX_DOMAIN_RULE_DELETE_PERCENT:-35}"
 
 MIN_IP_CIDR_CN="${MIN_IP_CIDR_CN:-4000}"
+MIN_IP_CIDR_CN_V4="${MIN_IP_CIDR_CN_V4:-3000}"
+MIN_IP_CIDR_CN_V6="${MIN_IP_CIDR_CN_V6:-300}"
 MIN_IP_CIDR_GOOGLE="${MIN_IP_CIDR_GOOGLE:-80}"
+MIN_IP_CIDR_GOOGLE_V4="${MIN_IP_CIDR_GOOGLE_V4:-40}"
+MIN_IP_CIDR_GOOGLE_V6="${MIN_IP_CIDR_GOOGLE_V6:-20}"
 MIN_IP_CIDR_TELEGRAM="${MIN_IP_CIDR_TELEGRAM:-8}"
 MIN_IP_CIDR_CLOUDFLARE="${MIN_IP_CIDR_CLOUDFLARE:-15}"
 MIN_IP_CIDR_CLOUDFRONT="${MIN_IP_CIDR_CLOUDFRONT:-150}"
@@ -121,6 +126,87 @@ check_diff_ratio() {
   fi
 }
 
+count_domain_rules_from_file() {
+  local file="$1"
+  case "$file" in
+    *.list)
+      awk -F, '
+        $1 == "DOMAIN" || $1 == "DOMAIN-SUFFIX" || $1 == "DOMAIN-KEYWORD" || $1 == "DOMAIN-REGEX" {
+          count++
+        }
+        END { print count + 0 }
+      ' "$file"
+      ;;
+    *.yaml|*.yml)
+      awk '
+        /^[[:space:]]*-[[:space:]]/ { count++ }
+        END { print count + 0 }
+      ' "$file"
+      ;;
+    *) printf '0' ;;
+  esac
+}
+
+count_domain_rules_in_dir() {
+  local dir="$1"
+  local total=0 count file
+  [ -d "$dir" ] || { printf '0'; return 0; }
+  for file in "$dir"/*; do
+    [ -f "$file" ] || continue
+    count="$(count_domain_rules_from_file "$file")"
+    total=$((total + count))
+  done
+  printf '%s' "$total"
+}
+
+count_domain_rules_from_git_ref_dir() {
+  local ref="$1"
+  local dir="$2"
+  local total=0 count path
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    case "$path" in
+      *.list)
+        count="$(git show "${ref}:${path}" 2>/dev/null | awk -F, '
+          $1 == "DOMAIN" || $1 == "DOMAIN-SUFFIX" || $1 == "DOMAIN-KEYWORD" || $1 == "DOMAIN-REGEX" { count++ }
+          END { print count + 0 }
+        ')"
+        ;;
+      *.yaml|*.yml)
+        count="$(git show "${ref}:${path}" 2>/dev/null | awk '
+          /^[[:space:]]*-[[:space:]]/ { count++ }
+          END { print count + 0 }
+        ')"
+        ;;
+      *) count=0 ;;
+    esac
+    total=$((total + count))
+  done < <(git ls-tree -r --name-only "$ref" -- "$dir" 2>/dev/null)
+  printf '%s' "$total"
+}
+
+check_domain_rule_entry_volatility() {
+  local label="$1"
+  local dir="$2"
+  local baseline current deleted_percent
+
+  baseline="$(count_domain_rules_from_git_ref_dir HEAD "$dir")"
+  current="$(count_domain_rules_in_dir "$dir")"
+  if [ "$baseline" -eq 0 ]; then
+    echo "$label: no baseline domain rules, skip entry guard"
+    return 0
+  fi
+
+  echo "$label: baseline_rules=$baseline current_rules=$current"
+  if [ "$current" -lt "$baseline" ]; then
+    deleted_percent=$(( (baseline - current) * 100 / baseline ))
+    if [ "$deleted_percent" -gt "$MAX_DOMAIN_RULE_DELETE_PERCENT" ]; then
+      echo "$label domain rule drop too high: ${deleted_percent}% > ${MAX_DOMAIN_RULE_DELETE_PERCENT}%" >&2
+      exit 1
+    fi
+  fi
+}
+
 count_ip_cidrs_from_file() {
   local file="$1"
   awk -F, '
@@ -144,6 +230,54 @@ count_ip_cidrs_from_git_ref() {
       print count + 0
     }
   '
+}
+
+count_ip_cidrs_by_family_from_file() {
+  local file="$1"
+  local family="$2"
+  awk -F, -v family="$family" '
+    family == "v4" && $1 == "IP-CIDR" { count++ }
+    family == "v6" && ($1 == "IP-CIDR6" || $1 == "IP6-CIDR") { count++ }
+    END { print count + 0 }
+  ' "$file"
+}
+
+builtin_ip_min_family_entries() {
+  local name="$1"
+  local family="$2"
+  case "$name:$family" in
+    cn:v4) printf '%s' "$MIN_IP_CIDR_CN_V4" ;;
+    cn:v6) printf '%s' "$MIN_IP_CIDR_CN_V6" ;;
+    google:v4) printf '%s' "$MIN_IP_CIDR_GOOGLE_V4" ;;
+    google:v6) printf '%s' "$MIN_IP_CIDR_GOOGLE_V6" ;;
+    *) printf '' ;;
+  esac
+}
+
+check_builtin_ip_family_min_entries_in_dir() {
+  local dir="$1"
+  local label="$2"
+  local file base family min_expected count
+
+  for file in "$dir"/*.list; do
+    [ -f "$file" ] || continue
+    base="$(basename "$file" .list)"
+    for family in v4 v6; do
+      min_expected="$(builtin_ip_min_family_entries "$base" "$family")"
+      [ -n "$min_expected" ] || continue
+      count="$(count_ip_cidrs_by_family_from_file "$file" "$family")"
+      echo "$label/$base $family entries: $count (min expected: $min_expected)"
+      if [ "$count" -lt "$min_expected" ]; then
+        echo "$label/$base $family entries too low: $count < $min_expected" >&2
+        exit 1
+      fi
+    done
+  done
+}
+
+check_builtin_ip_family_min_entries() {
+  check_builtin_ip_family_min_entries_in_dir ".output/ip/surge" "ip-surge"
+  check_builtin_ip_family_min_entries_in_dir ".output/ip/quanx" "ip-quanx"
 }
 
 builtin_ip_min_entries() {
@@ -267,6 +401,7 @@ check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
 
 print_section "IP CIDR entry checks"
 check_builtin_ip_min_entries
+check_builtin_ip_family_min_entries
 check_builtin_ip_entry_volatility
 
 print_section "Artifact diff-ratio checks"
