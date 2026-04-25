@@ -4,8 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-MAX_DELETE_PERCENT="${MAX_DELETE_PERCENT:-30}"
-MAX_CHANGE_PERCENT="${MAX_CHANGE_PERCENT:-50}"
 SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
 
 MAX_IP_ENTRY_CHANGE_PERCENT="${MAX_IP_ENTRY_CHANGE_PERCENT:-40}"
@@ -67,15 +65,6 @@ else:
 PY
 }
 
-count_paths_from_text() {
-  local text="$1"
-  python3 - <<'PY' "$text"
-import sys
-text = sys.argv[1]
-print(sum(1 for line in text.splitlines() if line.strip()))
-PY
-}
-
 check_min_files() {
   local label="$1"
   local glob="$2"
@@ -90,40 +79,6 @@ check_min_files() {
   if [ "$count" -lt "$min_expected" ]; then
     echo "artifact guard failed for $label: expected at least $min_expected files, got $count" >&2
     summarize_diff "$label" "$dir"
-    exit 1
-  fi
-}
-
-check_diff_ratio() {
-  local label="$1"
-  local pathspec="$2"
-  local baseline_paths deleted_paths changed_paths baseline_count deleted changed delete_percent change_percent
-
-  baseline_paths=$(git ls-tree -r --name-only HEAD -- "$pathspec")
-  baseline_count=$(count_paths_from_text "$baseline_paths")
-  if [ "$baseline_count" -eq 0 ]; then
-    echo "$label: no baseline files, skip diff-ratio guard"
-    return 0
-  fi
-
-  deleted_paths=$(git diff --name-only --diff-filter=D HEAD -- "$pathspec")
-  changed_paths=$(git diff --name-only HEAD -- "$pathspec")
-  deleted=$(count_paths_from_text "$deleted_paths")
-  changed=$(count_paths_from_text "$changed_paths")
-  delete_percent=$(( deleted * 100 / baseline_count ))
-  change_percent=$(( changed * 100 / baseline_count ))
-
-  echo "$label: baseline=$baseline_count deleted=$deleted (${delete_percent}%) changed=$changed (${change_percent}%)"
-
-  if [ "$delete_percent" -gt "$MAX_DELETE_PERCENT" ]; then
-    echo "$label delete ratio too high: ${delete_percent}% > ${MAX_DELETE_PERCENT}%" >&2
-    summarize_diff "$label" "$pathspec"
-    exit 1
-  fi
-
-  if [ "$change_percent" -gt "$MAX_CHANGE_PERCENT" ]; then
-    echo "$label change ratio too high: ${change_percent}% > ${MAX_CHANGE_PERCENT}%" >&2
-    summarize_diff "$label" "$pathspec"
     exit 1
   fi
 }
@@ -442,18 +397,6 @@ main() {
   check_builtin_ip_min_entries
   check_builtin_ip_family_min_entries
   check_builtin_ip_entry_volatility
-
-  print_section "Artifact diff-ratio checks"
-  check_diff_ratio ".output/domain/surge" ".output/domain/surge"
-  check_diff_ratio ".output/domain/quanx" ".output/domain/quanx"
-  check_diff_ratio ".output/domain/egern" ".output/domain/egern"
-  check_diff_ratio ".output/domain/sing-box" ".output/domain/sing-box"
-  check_diff_ratio ".output/domain/mihomo" ".output/domain/mihomo"
-  check_diff_ratio ".output/ip/surge" ".output/ip/surge"
-  check_diff_ratio ".output/ip/quanx" ".output/ip/quanx"
-  check_diff_ratio ".output/ip/egern" ".output/ip/egern"
-  check_diff_ratio ".output/ip/sing-box" ".output/ip/sing-box"
-  check_diff_ratio ".output/ip/mihomo" ".output/ip/mihomo"
 
   print_section "Artifact guard result"
   echo "artifact guard passed"

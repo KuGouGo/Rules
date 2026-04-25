@@ -26,9 +26,6 @@ concurrency:
   group: sync-rules
   cancel-in-progress: false
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -58,7 +55,7 @@ jobs:
         run: bash ./scripts/commands/resolve-tool-versions.sh
 
       - name: Restore tool cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .bin
           key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-${{ steps.core_versions.outputs.sing_box_version }}-mihomo-${{ steps.core_versions.outputs.mihomo_version }}
