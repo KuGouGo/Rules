@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 MAX_DELETE_PERCENT="${MAX_DELETE_PERCENT:-30}"
@@ -17,7 +17,9 @@ MIN_IP_CIDR_CN_V4="${MIN_IP_CIDR_CN_V4:-3000}"
 MIN_IP_CIDR_CN_V6="${MIN_IP_CIDR_CN_V6:-300}"
 MIN_IP_CIDR_GOOGLE="${MIN_IP_CIDR_GOOGLE:-80}"
 MIN_IP_CIDR_GOOGLE_V4="${MIN_IP_CIDR_GOOGLE_V4:-40}"
-MIN_IP_CIDR_GOOGLE_V6="${MIN_IP_CIDR_GOOGLE_V6:-20}"
+# Google's published IPv6 prefix count is small and can legitimately sit in
+# the mid-teens; keep the guard focused on empty/truncated payloads.
+MIN_IP_CIDR_GOOGLE_V6="${MIN_IP_CIDR_GOOGLE_V6:-10}"
 MIN_IP_CIDR_TELEGRAM="${MIN_IP_CIDR_TELEGRAM:-8}"
 MIN_IP_CIDR_CLOUDFLARE="${MIN_IP_CIDR_CLOUDFLARE:-15}"
 MIN_IP_CIDR_CLOUDFRONT="${MIN_IP_CIDR_CLOUDFRONT:-150}"
@@ -131,7 +133,8 @@ count_domain_rules_from_file() {
   case "$file" in
     *.list)
       awk -F, '
-        $1 == "DOMAIN" || $1 == "DOMAIN-SUFFIX" || $1 == "DOMAIN-KEYWORD" || $1 == "DOMAIN-REGEX" {
+        $1 == "DOMAIN" || $1 == "DOMAIN-SUFFIX" || $1 == "DOMAIN-KEYWORD" || $1 == "DOMAIN-REGEX" ||
+        $1 == "HOST" || $1 == "HOST-SUFFIX" || $1 == "HOST-KEYWORD" || $1 == "HOST-REGEX" {
           count++
         }
         END { print count + 0 }
@@ -159,38 +162,44 @@ count_domain_rules_in_dir() {
   printf '%s' "$total"
 }
 
+count_git_grep_matches() {
+  local pattern="$1"
+  local ref="$2"
+  shift 2
+
+  { git grep -h -E "$pattern" "$ref" -- "$@" 2>/dev/null || true; } | wc -l | tr -d ' '
+}
+
 count_domain_rules_from_git_ref_dir() {
   local ref="$1"
-  local dir="$2"
-  local total=0 count path
-  while IFS= read -r path; do
-    [ -n "$path" ] || continue
-    case "$path" in
-      *.list)
-        count="$(git show "${ref}:${path}" 2>/dev/null | awk -F, '
-          $1 == "DOMAIN" || $1 == "DOMAIN-SUFFIX" || $1 == "DOMAIN-KEYWORD" || $1 == "DOMAIN-REGEX" { count++ }
-          END { print count + 0 }
-        ')"
-        ;;
-      *.yaml|*.yml)
-        count="$(git show "${ref}:${path}" 2>/dev/null | awk '
-          /^[[:space:]]*-[[:space:]]/ { count++ }
-          END { print count + 0 }
-        ')"
-        ;;
-      *) count=0 ;;
-    esac
-    total=$((total + count))
-  done < <(git ls-tree -r --name-only "$ref" -- "$dir" 2>/dev/null)
-  printf '%s' "$total"
+  local dir="${2%/}"
+  local list_count yaml_count
+
+  list_count="$(
+    count_git_grep_matches \
+      '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|DOMAIN-REGEX|HOST|HOST-SUFFIX|HOST-KEYWORD|HOST-REGEX),' \
+      "$ref" \
+      "$dir/*.list"
+  )"
+  yaml_count="$(
+    count_git_grep_matches \
+      '^[[:space:]]*-[[:space:]]' \
+      "$ref" \
+      "$dir/*.yaml" \
+      "$dir/*.yml"
+  )"
+
+  printf '%s' "$((list_count + yaml_count))"
 }
 
 check_domain_rule_entry_volatility() {
   local label="$1"
   local dir="$2"
+  local baseline_ref="${3:-HEAD}"
+  local baseline_dir="${4:-$dir}"
   local baseline current deleted_percent
 
-  baseline="$(count_domain_rules_from_git_ref_dir HEAD "$dir")"
+  baseline="$(count_domain_rules_from_git_ref_dir "$baseline_ref" "$baseline_dir")"
   current="$(count_domain_rules_in_dir "$dir")"
   if [ "$baseline" -eq 0 ]; then
     echo "$label: no baseline domain rules, skip entry guard"
@@ -205,6 +214,30 @@ check_domain_rule_entry_volatility() {
       exit 1
     fi
   fi
+}
+
+ensure_origin_branch_baseline() {
+  local branch="$1"
+
+  if git rev-parse --verify "origin/$branch^{commit}" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if git fetch --depth=1 origin "+${branch}:refs/remotes/origin/${branch}" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "origin/$branch baseline unavailable, skip related volatility checks"
+  return 1
+}
+
+check_domain_rule_entry_volatility_against_branch() {
+  local branch="$1"
+  local dir="$2"
+  local label="$3"
+
+  ensure_origin_branch_baseline "$branch" || return 0
+  check_domain_rule_entry_volatility "$label" "$dir" "origin/$branch" "domain"
 }
 
 count_ip_cidrs_from_file() {
@@ -383,38 +416,49 @@ check_builtin_ip_entry_volatility() {
   done
 }
 
-print_section "Artifact count checks"
-check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
-check_min_files ".output/domain/quanx" ".output/domain/quanx/*.list" 1000
-check_min_files ".output/domain/egern" ".output/domain/egern/*.yaml" 1000
-check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
-check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
-# Minimum 9 covers the guaranteed official sources:
-# cn, google, telegram, cloudflare, cloudfront, aws, fastly, github, apple.
-# Streaming services (netflix, spotify, disney) are best-effort via RIPE NCC
-# Stat and are not counted here as they may return empty prefixes.
-check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 9
-check_min_files ".output/ip/quanx" ".output/ip/quanx/*.list" 9
-check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 9
-check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
-check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
+main() {
+  print_section "Artifact count checks"
+  check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
+  check_min_files ".output/domain/quanx" ".output/domain/quanx/*.list" 1000
+  check_min_files ".output/domain/egern" ".output/domain/egern/*.yaml" 1000
+  check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
+  check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
+  # Minimum 9 covers the guaranteed official sources:
+  # cn, google, telegram, cloudflare, cloudfront, aws, fastly, github, apple.
+  # Streaming services (netflix, spotify, disney) are best-effort via RIPE NCC
+  # Stat and are not counted here as they may return empty prefixes.
+  check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 9
+  check_min_files ".output/ip/quanx" ".output/ip/quanx/*.list" 9
+  check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 9
+  check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
+  check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
 
-print_section "IP CIDR entry checks"
-check_builtin_ip_min_entries
-check_builtin_ip_family_min_entries
-check_builtin_ip_entry_volatility
+  print_section "Domain rule entry checks"
+  check_domain_rule_entry_volatility_against_branch surge ".output/domain/surge" "domain/surge"
+  check_domain_rule_entry_volatility_against_branch quanx ".output/domain/quanx" "domain/quanx"
+  check_domain_rule_entry_volatility_against_branch egern ".output/domain/egern" "domain/egern"
 
-print_section "Artifact diff-ratio checks"
-check_diff_ratio ".output/domain/surge" ".output/domain/surge"
-check_diff_ratio ".output/domain/quanx" ".output/domain/quanx"
-check_diff_ratio ".output/domain/egern" ".output/domain/egern"
-check_diff_ratio ".output/domain/sing-box" ".output/domain/sing-box"
-check_diff_ratio ".output/domain/mihomo" ".output/domain/mihomo"
-check_diff_ratio ".output/ip/surge" ".output/ip/surge"
-check_diff_ratio ".output/ip/quanx" ".output/ip/quanx"
-check_diff_ratio ".output/ip/egern" ".output/ip/egern"
-check_diff_ratio ".output/ip/sing-box" ".output/ip/sing-box"
-check_diff_ratio ".output/ip/mihomo" ".output/ip/mihomo"
+  print_section "IP CIDR entry checks"
+  check_builtin_ip_min_entries
+  check_builtin_ip_family_min_entries
+  check_builtin_ip_entry_volatility
 
-print_section "Artifact guard result"
-echo "artifact guard passed"
+  print_section "Artifact diff-ratio checks"
+  check_diff_ratio ".output/domain/surge" ".output/domain/surge"
+  check_diff_ratio ".output/domain/quanx" ".output/domain/quanx"
+  check_diff_ratio ".output/domain/egern" ".output/domain/egern"
+  check_diff_ratio ".output/domain/sing-box" ".output/domain/sing-box"
+  check_diff_ratio ".output/domain/mihomo" ".output/domain/mihomo"
+  check_diff_ratio ".output/ip/surge" ".output/ip/surge"
+  check_diff_ratio ".output/ip/quanx" ".output/ip/quanx"
+  check_diff_ratio ".output/ip/egern" ".output/ip/egern"
+  check_diff_ratio ".output/ip/sing-box" ".output/ip/sing-box"
+  check_diff_ratio ".output/ip/mihomo" ".output/ip/mihomo"
+
+  print_section "Artifact guard result"
+  echo "artifact guard passed"
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  main "$@"
+fi

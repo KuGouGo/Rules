@@ -8,7 +8,9 @@ TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
 
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
-TMP_DIR="$ROOT/.tmp/custom"
+TMP_PARENT_DIR="$ROOT/.tmp"
+mkdir -p "$TMP_PARENT_DIR"
+TMP_DIR="$(mktemp -d "$TMP_PARENT_DIR/custom.XXXXXX")"
 TMP_DOMAIN_DIR="$TMP_DIR/domain"
 TMP_IP_DIR="$TMP_DIR/ip"
 BIN_DIR="$ROOT/.bin"
@@ -43,7 +45,6 @@ mkdir -p \
   "$IP_SINGBOX_DIR" \
   "$IP_MIHOMO_DIR" \
   "$BIN_DIR"
-rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DOMAIN_DIR" "$TMP_IP_DIR"
 trap 'rm -rf "$TMP_DIR"' EXIT
 

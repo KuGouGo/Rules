@@ -12,6 +12,7 @@ lint:
 
 test:
 	./scripts/tests/test-artifact-summary.sh
+	./scripts/tests/test-guard-artifacts.sh
 	./scripts/tests/test-domain-entrypoint-guard.sh
 	./scripts/tests/test-domain-parsing.sh
 	./scripts/tests/test-build-scope.sh
