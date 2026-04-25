@@ -7,6 +7,7 @@ cd "$ROOT"
 SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
 
 MAX_IP_ENTRY_CHANGE_PERCENT="${MAX_IP_ENTRY_CHANGE_PERCENT:-40}"
+MAX_IP_ENTRY_GROWTH_ABSOLUTE_DELTA="${MAX_IP_ENTRY_GROWTH_ABSOLUTE_DELTA:-50}"
 MAX_IP_ENTRY_DELETE_PERCENT="${MAX_IP_ENTRY_DELETE_PERCENT:-25}"
 MAX_DOMAIN_RULE_DELETE_PERCENT="${MAX_DOMAIN_RULE_DELETE_PERCENT:-35}"
 
@@ -30,23 +31,32 @@ print_section() {
   echo "=== $title ==="
 }
 
-summarize_diff() {
+summarize_artifact_dir() {
   local label="$1"
-  local pathspec="$2"
-  local changed_sample deleted_sample
+  local dir="$2"
+  local pattern="$3"
+  local matching_sample file_sample
 
-  changed_sample="$(git diff --name-only HEAD -- "$pathspec" | head -n "$SUMMARY_LIMIT")"
-  deleted_sample="$(git diff --name-only --diff-filter=D HEAD -- "$pathspec" | head -n "$SUMMARY_LIMIT")"
-
-  if [ -n "$changed_sample" ]; then
-    echo "$label changed sample:"
-    printf '%s\n' "$changed_sample"
+  if [ ! -d "$dir" ]; then
+    echo "$label directory is missing: $dir"
+    return 0
   fi
 
-  if [ -n "$deleted_sample" ]; then
-    echo "$label deleted sample:"
-    printf '%s\n' "$deleted_sample"
+  matching_sample="$(find "$dir" -maxdepth 1 -type f -name "$pattern" | sort | head -n "$SUMMARY_LIMIT")"
+  if [ -n "$matching_sample" ]; then
+    echo "$label matching file sample:"
+    printf '%s\n' "$matching_sample"
+    return 0
   fi
+
+  file_sample="$(find "$dir" -maxdepth 1 -type f | sort | head -n "$SUMMARY_LIMIT")"
+  if [ -n "$file_sample" ]; then
+    echo "$label non-matching file sample:"
+    printf '%s\n' "$file_sample"
+    return 0
+  fi
+
+  echo "$label directory has no files: $dir"
 }
 
 count_matching_files() {
@@ -78,7 +88,7 @@ check_min_files() {
 
   if [ "$count" -lt "$min_expected" ]; then
     echo "artifact guard failed for $label: expected at least $min_expected files, got $count" >&2
-    summarize_diff "$label" "$dir"
+    summarize_artifact_dir "$label" "$dir" "$pattern"
     exit 1
   fi
 }
@@ -308,23 +318,17 @@ check_builtin_ip_min_entries() {
   check_builtin_ip_min_entries_in_dir ".output/ip/quanx" "ip-quanx"
 }
 
-ensure_origin_surge_baseline() {
-  if git rev-parse --verify "origin/surge^{commit}" >/dev/null 2>&1; then
-    return 0
-  fi
+ip_entry_growth_exceeds_limit() {
+  local delta="$1"
+  local change_percent="$2"
 
-  if git fetch --depth=1 origin "+surge:refs/remotes/origin/surge" >/dev/null 2>&1; then
-    return 0
-  fi
-
-  echo "origin/surge baseline unavailable, skip ip entry volatility checks"
-  return 1
+  [ "$delta" -gt "$MAX_IP_ENTRY_GROWTH_ABSOLUTE_DELTA" ] && [ "$change_percent" -gt "$MAX_IP_ENTRY_CHANGE_PERCENT" ]
 }
 
 check_builtin_ip_entry_volatility() {
   local base path current baseline delta abs_delta change_percent delete_percent
 
-  ensure_origin_surge_baseline || return 0
+  ensure_origin_branch_baseline surge || return 0
 
   for base in cn google telegram cloudflare cloudfront fastly apple; do
     path=".output/ip/surge/${base}.list"
@@ -359,8 +363,8 @@ check_builtin_ip_entry_volatility() {
 
     echo "ip/$base entries: baseline=$baseline current=$current delta=$delta (${change_percent}%)"
 
-    if [ "$change_percent" -gt "$MAX_IP_ENTRY_CHANGE_PERCENT" ]; then
-      echo "ip/$base entry change ratio too high: ${change_percent}% > ${MAX_IP_ENTRY_CHANGE_PERCENT}%" >&2
+    if [ "$delta" -gt 0 ] && ip_entry_growth_exceeds_limit "$delta" "$change_percent"; then
+      echo "ip/$base entry growth too high: +${delta} (${change_percent}% > ${MAX_IP_ENTRY_CHANGE_PERCENT}%, absolute limit ${MAX_IP_ENTRY_GROWTH_ABSOLUTE_DELTA})" >&2
       exit 1
     fi
 

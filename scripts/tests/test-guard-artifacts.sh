@@ -40,9 +40,23 @@ domain_set:
 domain_suffix_set:
   - 'example.com'
 RULES
+mkdir -p "$TMP_DIR/files"
+touch "$TMP_DIR/files/a.list" "$TMP_DIR/files/b.yaml" "$TMP_DIR/files/c.txt"
 
 assert_equals "7" "$(count_domain_rules_from_file "$TMP_DIR/domain.list")" "domain list counts Surge and QuanX domain entries"
 assert_equals "2" "$(count_domain_rules_from_file "$TMP_DIR/domain.yaml")" "domain yaml counts Egern entries"
+assert_equals "1" "$(count_matching_files "$TMP_DIR/files" "*.list")" "count_matching_files filters by extension"
+assert_equals "0" "$(count_matching_files "$TMP_DIR/missing" "*.list")" "count_matching_files handles missing directories"
 assert_equals "10" "$MIN_IP_CIDR_GOOGLE_V6" "google IPv6 guard default allows normal mid-teen payloads"
+
+if ip_entry_growth_exceeds_limit 31 221; then
+  echo "test failed: small absolute IP growth should not trip percentage guard" >&2
+  exit 1
+fi
+
+if ! ip_entry_growth_exceeds_limit 51 221; then
+  echo "test failed: large IP growth should trip percentage guard" >&2
+  exit 1
+fi
 
 echo "guard artifact tests passed"

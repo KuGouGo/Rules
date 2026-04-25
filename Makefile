@@ -17,6 +17,7 @@ test:
 	./scripts/tests/test-domain-parsing.sh
 	./scripts/tests/test-build-scope.sh
 	./scripts/tests/test-first-batch-upstreams.sh
+	./scripts/tests/test-ip-normalization.sh
 	./scripts/tests/test-shell-utils.sh
 	./scripts/tests/test-sync-upstream-classification.sh
 	./scripts/tests/test-upstream-config.sh
