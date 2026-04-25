@@ -34,7 +34,10 @@ def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
         seen.add(text)
         normalized.append(text)
 
-    output_file.write_text("\n".join(normalized) + "\n", encoding="utf-8")
+    output_text = "\n".join(normalized)
+    if output_text:
+        output_text += "\n"
+    output_file.write_text(output_text, encoding="utf-8")
 
 
 def extract_text_cidrs(input_file: Path, output_file: Path) -> None:
