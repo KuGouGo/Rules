@@ -143,9 +143,9 @@ build_domain_plain_and_surge() {
   render_surge_domain_ruleset_from_rules "$plain_out" "$surge_tmp"
   render_quanx_domain_ruleset_from_rules "$plain_out" "$quanx_tmp" "$base"
   render_egern_domain_ruleset_from_rules "$plain_out" "$egern_tmp"
-  write_if_changed "$surge_tmp" "$surge_out"
-  write_if_changed "$quanx_tmp" "$quanx_out"
-  write_if_changed "$egern_tmp" "$egern_out"
+  write_if_nonempty_or_remove "$surge_tmp" "$surge_out"
+  write_if_nonempty_or_remove "$quanx_tmp" "$quanx_out"
+  write_if_nonempty_or_remove "$egern_tmp" "$egern_out"
 }
 
 build_domain_binaries() {
@@ -195,9 +195,9 @@ build_ip_plain_and_surge() {
   normalize_ip_rule_source "$list_file" "$surge_tmp" "$plain_tmp"
   render_ip_plain_to_quanx_list "$plain_tmp" "$quanx_tmp" "$base"
   render_ip_plain_to_egern_yaml "$plain_tmp" "$egern_tmp"
-  write_if_changed "$surge_tmp" "$surge_out"
-  write_if_changed "$quanx_tmp" "$quanx_out"
-  write_if_changed "$egern_tmp" "$egern_out"
+  write_if_nonempty_or_remove "$surge_tmp" "$surge_out"
+  write_if_nonempty_or_remove "$quanx_tmp" "$quanx_out"
+  write_if_nonempty_or_remove "$egern_tmp" "$egern_out"
   mv "$plain_tmp" "$plain_out"
   rm -f "$surge_tmp" "$quanx_tmp" "$egern_tmp"
 }

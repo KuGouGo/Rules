@@ -13,9 +13,10 @@ from pathlib import Path
 # avoid false-positive matches on non-CIDR hex strings; validated by
 # ipaddress.ip_network() afterwards.
 CIDR_RE = re.compile(r"(?:\d{1,3}\.){3}\d{1,3}/\d{1,2}|[0-9a-fA-F]*:[0-9a-fA-F:]+/[0-9]{1,3}")
+SINGBOX_RULE_SET_VERSION = 3
 
 
-def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
+def deduplicated_cidrs(values: list[str]) -> list[str]:
     seen: set[str] = set()
     normalized: list[str] = []
 
@@ -34,6 +35,11 @@ def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
         seen.add(text)
         normalized.append(text)
 
+    return normalized
+
+
+def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
+    normalized = deduplicated_cidrs(values)
     output_text = "\n".join(normalized)
     if output_text:
         output_text += "\n"
@@ -145,6 +151,12 @@ def extract_html_cidrs(input_file: Path, output_file: Path) -> None:
     write_deduplicated_cidrs(values, output_file)
 
 
+def build_singbox_json_from_plain(input_file: Path, output_file: Path) -> None:
+    cidrs = deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines())
+    data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [{"ip_cidr": cidrs}]}
+    output_file.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
+
+
 def run_single_task(source_type: str, input_file: Path, output_file: Path) -> None:
     source_to_handler = {
         "text": extract_text_cidrs,
@@ -212,13 +224,19 @@ def main() -> int:
     batch_parser = subparsers.add_parser("batch")
     batch_parser.add_argument("manifest_file")
 
+    singbox_parser = subparsers.add_parser("singbox-json")
+    singbox_parser.add_argument("input_file")
+    singbox_parser.add_argument("output_file")
+
     args = parser.parse_args()
 
     try:
         if args.command == "single":
             run_single_task(args.source_type, Path(args.input_file), Path(args.output_file))
-        else:
+        elif args.command == "batch":
             run_batch_tasks(Path(args.manifest_file))
+        else:
+            build_singbox_json_from_plain(Path(args.input_file), Path(args.output_file))
         return 0
     except Exception as exc:  # pragma: no cover - surfaced to shell
         print(str(exc), file=sys.stderr)

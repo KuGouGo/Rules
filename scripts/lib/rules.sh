@@ -333,13 +333,7 @@ build_ip_json_from_plain() {
   local plain_list="$1"
   local json_out="$2"
 
-  python3 - "$plain_list" "$json_out" <<'PY'
-import json, sys
-plain_list, json_out = sys.argv[1], sys.argv[2]
-cidrs = [ln.strip() for ln in open(plain_list, encoding="utf-8") if ln.strip()]
-data = {"version": 3, "rules": [{"ip_cidr": cidrs}]}
-open(json_out, "w", encoding="utf-8").write(json.dumps(data, separators=(",", ":")))
-PY
+  python3 "$ROOT/scripts/tools/normalize-ip-rules.py" singbox-json "$plain_list" "$json_out"
 }
 
 compile_ip_plain_to_binary_artifacts() {

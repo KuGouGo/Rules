@@ -17,8 +17,11 @@ on:
       - main
     paths:
       - '.github/workflows/build.yml'
+      - 'Makefile'
+      - 'config/**'
       - 'scripts/**'
       - 'sources/custom/**'
+      - 'tests/**'
   schedule:
     # Run once per day at 08:00 UTC.
     - cron: '0 8 * * *'
@@ -29,6 +32,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
     steps:
@@ -50,6 +54,13 @@ jobs:
           BEFORE_SHA: ${{ github.event.before || '' }}
           CURRENT_SHA: ${{ github.sha }}
         run: ./scripts/commands/select-build-scope.sh
+
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+
+      - name: Validate scripts and fixtures
+        run: REQUIRE_SHELLCHECK=1 make validate
+
       - name: Resolve tool versions
         id: core_versions
         run: bash ./scripts/commands/resolve-tool-versions.sh
@@ -59,39 +70,6 @@ jobs:
         with:
           path: .bin
           key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-${{ steps.core_versions.outputs.sing_box_version }}-mihomo-${{ steps.core_versions.outputs.mihomo_version }}
-
-      - name: Prepare scripts
-        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
-
-      - name: Shellcheck
-        run: find scripts -type f -name '*.sh' -exec shellcheck {} +
-
-      - name: Lint custom rules
-        run: ./scripts/commands/lint-custom-rules.sh
-
-      - name: Test artifact summary
-        run: ./scripts/tests/test-artifact-summary.sh
-
-      - name: Test domain parsing
-        run: ./scripts/tests/test-domain-parsing.sh
-
-      - name: Test domain entrypoint guard
-        run: ./scripts/tests/test-domain-entrypoint-guard.sh
-
-      - name: Test build scope
-        run: ./scripts/tests/test-build-scope.sh
-
-      - name: Test shell utilities
-        run: ./scripts/tests/test-shell-utils.sh
-
-      - name: Test first-batch upstream invariants
-        run: ./scripts/tests/test-first-batch-upstreams.sh
-
-      - name: Test sync-upstream classification
-        run: ./scripts/tests/test-sync-upstream-classification.sh
-
-      - name: Test upstream config
-        run: ./scripts/tests/test-upstream-config.sh
 
       - name: Show selected build scope
         run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
@@ -107,7 +85,7 @@ jobs:
       - name: Build custom rules
         env:
           RULES_CONFLICT_BASE_SHA: ${{ steps.scope.outputs.base_sha }}
-        run: ./scripts/commands/build-custom.sh
+        run: make build-custom
 
       - name: Sync fakeip-filter
         if: steps.scope.outputs.scope == 'full'

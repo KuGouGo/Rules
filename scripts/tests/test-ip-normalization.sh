@@ -77,4 +77,18 @@ assert_file_content \
   "$TMP_DIR/surge-source.plain" \
   $'10.0.0.0/8\n2001:db8::/32'
 
+cat > "$TMP_DIR/singbox-source.txt" <<'CIDRS'
+192.168.1.1/24
+192.168.1.0/24
+2001:db8::1/32
+CIDRS
+
+python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
+  singbox-json \
+  "$TMP_DIR/singbox-source.txt" \
+  "$TMP_DIR/singbox.json"
+assert_file_content \
+  "$TMP_DIR/singbox.json" \
+  '{"version":3,"rules":[{"ip_cidr":["192.168.1.0/24","2001:db8::/32"]}]}'
+
 echo "ip normalization tests passed"

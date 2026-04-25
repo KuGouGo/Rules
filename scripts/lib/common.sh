@@ -26,6 +26,18 @@ write_if_changed() {
   mv "$src" "$dst"
 }
 
+write_if_nonempty_or_remove() {
+  local src="$1"
+  local dst="$2"
+
+  if [ ! -s "$src" ]; then
+    rm -f "$src" "$dst"
+    return 0
+  fi
+
+  write_if_changed "$src" "$dst"
+}
+
 list_files_by_extension() {
   local dir="$1"
   local extension="$2"

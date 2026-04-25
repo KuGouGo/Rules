@@ -1,10 +1,14 @@
 SHELL := /usr/bin/env bash
+REQUIRE_SHELLCHECK ?= 0
 
 .PHONY: lint test validate build-custom clean
 
 lint:
 	@if command -v shellcheck >/dev/null 2>&1; then \
 		find scripts -type f -name '*.sh' -exec shellcheck {} +; \
+	elif [ "$(REQUIRE_SHELLCHECK)" = "1" ]; then \
+		echo "shellcheck not found"; \
+		exit 1; \
 	else \
 		echo "shellcheck not found, skipping local shell lint"; \
 	fi
