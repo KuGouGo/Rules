@@ -66,8 +66,11 @@ def load_platform_capabilities(path: Path = CAPABILITIES_FILE) -> dict[str, set[
 
 PLATFORM_CAPABILITIES = load_platform_capabilities()
 SURGE_KIND_SET = PLATFORM_CAPABILITIES["surge"]
+QUANX_KIND_SET = PLATFORM_CAPABILITIES["quanx"]
 MIHOMO_MRS_KIND_SET = PLATFORM_CAPABILITIES["mihomo-mrs"]
 MIHOMO_MRS_SKIP_WARN_PERCENT = int(os.environ.get("MIHOMO_MRS_SKIP_WARN_PERCENT", "30"))
+SINGBOX_RULE_SET_VERSION = 3
+SHARED_TEXT_DERIVATIVE_KIND_SET = SURGE_KIND_SET & QUANX_KIND_SET & set(QUANX_KIND_MAP)
 
 
 def count_rule_kinds(rules: list[Rule]) -> dict[str, int]:
@@ -199,6 +202,14 @@ def include_matches(rule: Rule, filters: tuple[str, ...]) -> bool:
 
 def render_rule(rule: Rule) -> str:
     return f"{rule.kind},{rule.value}"
+
+
+def render_shared_text_derivative_rules(rules: list[Rule]) -> list[str]:
+    return [
+        render_rule(rule)
+        for rule in rules
+        if rule.kind in SHARED_TEXT_DERIVATIVE_KIND_SET
+    ]
 
 
 def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
@@ -378,27 +389,32 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
             not_cn_attr_sets[name] = not_cn_rules
 
     # Generate @cn filtered versions
-    # Only generate if there are Surge-compatible rules (DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD)
     for name, cn_rules in cn_attr_sets.items():
-        rendered = [render_rule(rule) for rule in cn_rules]
-        # Design note: @cn derivatives are classical text lists shared by Surge/QuanX restore paths,
-        # so regex entries are intentionally filtered even though Egern and sing-box can use them.
-        surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
-        if surge_compatible:
+        # Design note: @cn derivatives are classical text lists shared by
+        # Surge/QuanX restore paths. Keep them to the shared text-rule
+        # capability set; richer platforms still use the full list.
+        shared_text_rules = render_shared_text_derivative_rules(cn_rules)
+        if shared_text_rules:
             output_file = output_dir / f"{name}@cn.list"
-            output_file.write_text("\n".join(surge_compatible) + "\n", encoding="utf-8")
-            print(f"Generated {name}@cn.list with {len(surge_compatible)} Surge-compatible rules")
+            output_file.write_text("\n".join(shared_text_rules) + "\n", encoding="utf-8")
+            print(
+                f"Generated {name}@cn.list with "
+                f"{len(shared_text_rules)} shared text-compatible rules"
+            )
 
     # Generate @!cn filtered versions
     for name, not_cn_rules in not_cn_attr_sets.items():
-        rendered = [render_rule(rule) for rule in not_cn_rules]
-        # Design note: @!cn derivatives are classical text lists shared by Surge/QuanX restore paths,
-        # so regex entries are intentionally filtered even though Egern and sing-box can use them.
-        surge_compatible = [r for r in rendered if any(r.startswith(prefix) for prefix in ["DOMAIN,", "DOMAIN-SUFFIX,", "DOMAIN-KEYWORD,"])]
-        if surge_compatible:
+        # Design note: @!cn derivatives are classical text lists shared by
+        # Surge/QuanX restore paths. Keep them to the shared text-rule
+        # capability set; richer platforms still use the full list.
+        shared_text_rules = render_shared_text_derivative_rules(not_cn_rules)
+        if shared_text_rules:
             output_file = output_dir / f"{name}@!cn.list"
-            output_file.write_text("\n".join(surge_compatible) + "\n", encoding="utf-8")
-            print(f"Generated {name}@!cn.list with {len(surge_compatible)} Surge-compatible rules")
+            output_file.write_text("\n".join(shared_text_rules) + "\n", encoding="utf-8")
+            print(
+                f"Generated {name}@!cn.list with "
+                f"{len(shared_text_rules)} shared text-compatible rules"
+            )
 
 
 def build_singbox_json(input_file: Path, output_file: Path) -> None:
@@ -409,8 +425,9 @@ def build_singbox_json(input_file: Path, output_file: Path) -> None:
         value = rule.value
         payload.setdefault(SINGBOX_KIND_MAP[kind], []).append(value)
 
-    # version 3 is the current sing-box rule-set format (introduced in sing-box 1.8).
-    data = {"version": 3, "rules": [payload]}
+    # Keep the source format at v3 for broad client/tool compatibility; current
+    # sing-box compilers accept it and emit the target binary format.
+    data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [payload]}
     output_file.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
