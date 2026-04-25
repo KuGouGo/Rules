@@ -280,8 +280,71 @@ download_file_with_fallback() {
   return 1
 }
 
-declare -A FIRST_BATCH_STATUS=()
-declare -A FIRST_BATCH_REASON=()
+FIRST_BATCH_GOOGLE_JSON_STATUS=""
+FIRST_BATCH_GOOGLE_JSON_REASON=""
+FIRST_BATCH_GITHUB_JSON_STATUS=""
+FIRST_BATCH_GITHUB_JSON_REASON=""
+FIRST_BATCH_TELEGRAM_STATUS=""
+FIRST_BATCH_TELEGRAM_REASON=""
+
+set_first_batch_result() {
+  local source="$1"
+  local status="$2"
+  local reason="$3"
+
+  case "$source" in
+    google-json)
+      FIRST_BATCH_GOOGLE_JSON_STATUS="$status"
+      FIRST_BATCH_GOOGLE_JSON_REASON="$reason"
+      ;;
+    github-json)
+      FIRST_BATCH_GITHUB_JSON_STATUS="$status"
+      FIRST_BATCH_GITHUB_JSON_REASON="$reason"
+      ;;
+    telegram)
+      FIRST_BATCH_TELEGRAM_STATUS="$status"
+      FIRST_BATCH_TELEGRAM_REASON="$reason"
+      ;;
+    *)
+      echo "unsupported first-batch source: $source" >&2
+      return 1
+      ;;
+  esac
+}
+
+first_batch_status() {
+  local source="$1"
+  local status=""
+
+  case "$source" in
+    google-json) status="$FIRST_BATCH_GOOGLE_JSON_STATUS" ;;
+    github-json) status="$FIRST_BATCH_GITHUB_JSON_STATUS" ;;
+    telegram) status="$FIRST_BATCH_TELEGRAM_STATUS" ;;
+    *)
+      echo "unsupported first-batch source: $source" >&2
+      return 1
+      ;;
+  esac
+
+  printf '%s' "${status:-transport_incident}"
+}
+
+first_batch_reason() {
+  local source="$1"
+  local reason=""
+
+  case "$source" in
+    google-json) reason="$FIRST_BATCH_GOOGLE_JSON_REASON" ;;
+    github-json) reason="$FIRST_BATCH_GITHUB_JSON_REASON" ;;
+    telegram) reason="$FIRST_BATCH_TELEGRAM_REASON" ;;
+    *)
+      echo "unsupported first-batch source: $source" >&2
+      return 1
+      ;;
+  esac
+
+  printf '%s' "${reason:-not checked}"
+}
 
 first_batch_raw_file() {
   case "$1" in
@@ -322,8 +385,7 @@ classify_first_batch_source() {
   status="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
   reason="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["reason"])')"
 
-  FIRST_BATCH_STATUS["$source"]="$status"
-  FIRST_BATCH_REASON["$source"]="$reason"
+  set_first_batch_result "$source" "$status" "$reason"
   record_upstream_summary ip "$source" "$status" "" "$raw_file" "" 0 "$reason"
 }
 
@@ -344,7 +406,7 @@ normalize_first_batch_source() {
   local source="$1"
   local raw_file output_file source_type
 
-  if [ "${FIRST_BATCH_STATUS[$source]:-}" != "ok" ]; then
+  if [ "$(first_batch_status "$source")" != "ok" ]; then
     return 0
   fi
 
@@ -369,8 +431,8 @@ summarize_first_batch_checks() {
 
   echo "=== FIRST-BATCH SOURCE CHECKS ==="
   for source in google-json github-json telegram; do
-    status="${FIRST_BATCH_STATUS[$source]:-transport_incident}"
-    reason="${FIRST_BATCH_REASON[$source]:-not checked}"
+    status="$(first_batch_status "$source")"
+    reason="$(first_batch_reason "$source")"
     echo "$source: $status - $reason"
     if [ "$status" != "ok" ]; then
       failed=1
