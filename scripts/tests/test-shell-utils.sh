@@ -75,6 +75,31 @@ test_write_if_changed_removes_identical_source() {
   fi
 }
 
+test_write_if_nonempty_or_remove_moves_nonempty_source() {
+  printf 'old\n' > "$TMP_DIR/nonempty-dst"
+  printf 'new\n' > "$TMP_DIR/nonempty-src"
+
+  write_if_nonempty_or_remove "$TMP_DIR/nonempty-src" "$TMP_DIR/nonempty-dst"
+
+  assert_file_content "$TMP_DIR/nonempty-dst" "new"
+  if [ -e "$TMP_DIR/nonempty-src" ]; then
+    echo "test failed: nonempty source should be moved" >&2
+    exit 1
+  fi
+}
+
+test_write_if_nonempty_or_remove_deletes_empty_output_and_stale_target() {
+  printf 'stale\n' > "$TMP_DIR/empty-dst"
+  : > "$TMP_DIR/empty-src"
+
+  write_if_nonempty_or_remove "$TMP_DIR/empty-src" "$TMP_DIR/empty-dst"
+
+  if [ -e "$TMP_DIR/empty-src" ] || [ -e "$TMP_DIR/empty-dst" ]; then
+    echo "test failed: empty source and stale target should be removed" >&2
+    exit 1
+  fi
+}
+
 test_normalize_version_strips_leading_v() {
   assert_equals "1.2.3" "$(normalize_version v1.2.3)" "normalize_version strips v"
   assert_equals "1.2.3" "$(normalize_version 1.2.3)" "normalize_version keeps bare version"
@@ -115,6 +140,8 @@ test_list_rule_files_sorts_lists_only
 test_list_rule_files_missing_dir_is_empty
 test_write_if_changed_replaces_different_file
 test_write_if_changed_removes_identical_source
+test_write_if_nonempty_or_remove_moves_nonempty_source
+test_write_if_nonempty_or_remove_deletes_empty_output_and_stale_target
 test_normalize_version_strips_leading_v
 test_common_source_has_no_tool_cache_side_effects
 test_setup_tool_cache_creates_bin_and_updates_path_once
