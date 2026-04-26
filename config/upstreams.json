@@ -5,12 +5,18 @@
       "trust": "community",
       "url": "https://github.com/v2fly/domain-list-community.git"
     },
-    "awavenue-ads": {
+    "anti-ad": {
       "kind": "text",
       "trust": "community",
-      "min_rules": 500,
-      "url": "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list",
-      "fallback_url": "https://gcore.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Surge-RULE-SET.list"
+      "min_rules": 50000,
+      "url": "https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-surge.txt",
+      "fallback_url": "https://anti-ad.net/surge.txt",
+      "sing_box_srs_min_bytes": 500000,
+      "sing_box_srs_url": "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/anti-ad-sing-box.srs",
+      "sing_box_srs_fallback_url": "https://anti-ad.net/anti-ad-sing-box.srs",
+      "mihomo_mrs_min_bytes": 500000,
+      "mihomo_mrs_url": "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs",
+      "mihomo_mrs_fallback_url": "https://anti-ad.net/mihomo.mrs"
     }
   },
   "ip": {

@@ -162,6 +162,49 @@ test_classical_domain_fixture_outputs() {
     "sing-box domain json fixture output is stable"
 }
 
+test_batch_domain_dir_outputs() {
+  mkdir -p \
+    "$TMP_DIR/batch/input" \
+    "$TMP_DIR/batch/surge" \
+    "$TMP_DIR/batch/quanx" \
+    "$TMP_DIR/batch/egern" \
+    "$TMP_DIR/batch/binary"
+  cp "$FIXTURE_ROOT/input/mixed.list" "$TMP_DIR/batch/input/mixed.list"
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \
+    "$TMP_DIR/batch/input" \
+    "$TMP_DIR/batch/surge" \
+    "$TMP_DIR/batch/quanx" \
+    "$TMP_DIR/batch/egern"
+
+  SINGBOX_RULE_SET_VERSION=4 \
+    python3 "$ROOT/scripts/tools/export-domain-rules.py" binary-input-dir \
+      "$TMP_DIR/batch/input" \
+      "$TMP_DIR/batch/binary" \
+      2>"$TMP_DIR/batch/binary.stderr"
+
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.surge.list" \
+    "$TMP_DIR/batch/surge/mixed.list" \
+    "batch surge domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.quanx.list" \
+    "$TMP_DIR/batch/quanx/mixed.list" \
+    "batch quanx domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.egern.yaml" \
+    "$TMP_DIR/batch/egern/mixed.yaml" \
+    "batch egern domain fixture output is stable"
+  assert_file_text_equals \
+    "$FIXTURE_ROOT/expected/mixed.singbox.json" \
+    "$TMP_DIR/batch/binary/mixed.json" \
+    "batch sing-box domain json fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.mihomo.txt" \
+    "$TMP_DIR/batch/binary/mixed.mihomo.txt" \
+    "batch mihomo domain text fixture output is stable"
+}
+
 test_include_filter_semantics() {
   mkdir -p "$TMP_DIR/include_filter/data" "$TMP_DIR/include_filter/out"
   cat > "$TMP_DIR/include_filter/data/base" <<'EOF'
@@ -337,6 +380,7 @@ EOF
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
 test_classical_domain_fixture_outputs
+test_batch_domain_dir_outputs
 test_include_filter_semantics
 test_export_preserves_upstream_order_and_cn_regex_policy
 test_domain_capability_summary

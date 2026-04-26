@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 WORK_TMP_DIR="$ROOT_DIR/.tmp/sync"
 BIN_DIR="$ROOT_DIR/.bin"
 DOMAIN_BUILD_TMP_DIR="$WORK_TMP_DIR/domain-build"
+DOMAIN_BINARY_RULE_TMP_DIR="$WORK_TMP_DIR/domain-binary-rules"
 DOMAIN_RULE_TMP_DIR="$WORK_TMP_DIR/domain-rules"
 IP_BUILD_TMP_DIR="$WORK_TMP_DIR/ip-build"
 ARTIFACTS_DIR="$ROOT_DIR/.output"
@@ -43,8 +44,12 @@ PY
 }
 
 DOMAIN_SOURCE_REPO_URL="$(upstream_value domain dlc url)"
-AWAVENUE_DOMAIN_SOURCE_URL="$(upstream_value domain awavenue-ads url)"
-AWAVENUE_DOMAIN_SOURCE_FALLBACK_URL="$(upstream_value domain awavenue-ads fallback_url)"
+ANTI_AD_DOMAIN_SOURCE_URL="$(upstream_value domain anti-ad url)"
+ANTI_AD_DOMAIN_SOURCE_FALLBACK_URL="$(upstream_value domain anti-ad fallback_url)"
+ANTI_AD_SING_BOX_SRS_SOURCE_URL="$(upstream_value domain anti-ad sing_box_srs_url)"
+ANTI_AD_SING_BOX_SRS_SOURCE_FALLBACK_URL="$(upstream_value domain anti-ad sing_box_srs_fallback_url)"
+ANTI_AD_MIHOMO_MRS_SOURCE_URL="$(upstream_value domain anti-ad mihomo_mrs_url)"
+ANTI_AD_MIHOMO_MRS_SOURCE_FALLBACK_URL="$(upstream_value domain anti-ad mihomo_mrs_fallback_url)"
 CN_IPV4_SOURCE_URL="$(upstream_value ip cn-ipv4 url)"
 CN_IPV6_SOURCE_URL="$(upstream_value ip cn-ipv6 url)"
 CN_ASN_IPV4_SOURCE_URL="$(upstream_value ip cn-asn-ipv4 url)"
@@ -60,7 +65,9 @@ APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
 APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
 RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
 APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-$(upstream_value ip apple min_cidrs)}"
-AWAVENUE_MIN_RULE_COUNT="${AWAVENUE_MIN_RULE_COUNT:-$(upstream_value domain awavenue-ads min_rules)}"
+ANTI_AD_MIN_RULE_COUNT="${ANTI_AD_MIN_RULE_COUNT:-$(upstream_value domain anti-ad min_rules)}"
+ANTI_AD_SING_BOX_SRS_MIN_BYTES="${ANTI_AD_SING_BOX_SRS_MIN_BYTES:-$(upstream_value domain anti-ad sing_box_srs_min_bytes)}"
+ANTI_AD_MIHOMO_MRS_MIN_BYTES="${ANTI_AD_MIHOMO_MRS_MIN_BYTES:-$(upstream_value domain anti-ad mihomo_mrs_min_bytes)}"
 read -r -a NETFLIX_ASNS <<< "$(upstream_asn_group netflix)"
 read -r -a SPOTIFY_ASNS <<< "$(upstream_asn_group spotify)"
 read -r -a DISNEY_ASNS <<< "$(upstream_asn_group disney)"
@@ -475,6 +482,21 @@ assert_min_rules() {
   fi
 }
 
+assert_min_bytes() {
+  local label="$1"
+  local file="$2"
+  local min_expected="$3"
+  local count
+
+  count=$(wc -c < "$file" | tr -d ' ')
+  echo "$label bytes: $count (min expected: $min_expected)"
+
+  if [ "$count" -lt "$min_expected" ]; then
+    echo "$label bytes too low: $count < $min_expected" >&2
+    return 1
+  fi
+}
+
 sync_remote_domain_ruleset() {
   local name="$1"
   local min_expected="$2"
@@ -496,6 +518,41 @@ sync_remote_domain_ruleset() {
   record_upstream_summary domain "$name" ok "${UPSTREAM_LAST_URL:-}" "$raw_file" "$normalized_file" "${UPSTREAM_LAST_FALLBACK_USED:-0}"
 }
 
+sync_remote_domain_binary_artifact() {
+  local name="$1"
+  local platform="$2"
+  local out_file="$3"
+  local min_expected="$4"
+  shift 4
+
+  download_file_with_fallback "$out_file" "$@"
+
+  if [ ! -s "$out_file" ]; then
+    echo "remote domain artifact is empty: $name $platform" >&2
+    return 1
+  fi
+
+  assert_min_bytes "$name $platform" "$out_file" "$min_expected"
+}
+
+prepare_domain_binary_rule_dir() {
+  local source_dir="$1"
+  local target_dir="$2"
+  local list base
+
+  rm -rf "$target_dir"
+  mkdir -p "$target_dir"
+
+  for list in "$source_dir"/*.list; do
+    [ -f "$list" ] || continue
+    base="$(basename "$list" .list)"
+    case "$base" in
+      anti-ad) continue ;;
+    esac
+    cp "$list" "$target_dir/$base.list"
+  done
+}
+
 # Domain rules from domain-list-community/data plus curated remote lists
 # The export script now automatically generates @cn filtered versions for all rule sets
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
@@ -505,33 +562,42 @@ python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
   "$DOMAIN_RULE_TMP_DIR"
 sync_remote_domain_ruleset \
-  awavenue-ads \
-  "$AWAVENUE_MIN_RULE_COUNT" \
-  "$AWAVENUE_DOMAIN_SOURCE_URL" \
-  "$AWAVENUE_DOMAIN_SOURCE_FALLBACK_URL"
+  anti-ad \
+  "$ANTI_AD_MIN_RULE_COUNT" \
+  "$ANTI_AD_DOMAIN_SOURCE_URL" \
+  "$ANTI_AD_DOMAIN_SOURCE_FALLBACK_URL"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
-render_domain_rule_dir_to_surge_dir \
+render_domain_rule_dir_to_text_platform_dirs \
   "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_ARTIFACTS_DIR/surge" \
-  "$DOMAIN_BUILD_TMP_DIR/surge"
-assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/*.list"
-render_domain_rule_dir_to_quanx_dir \
-  "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_ARTIFACTS_DIR/quanx" \
-  "$DOMAIN_BUILD_TMP_DIR/quanx"
+  "$DOMAIN_ARTIFACTS_DIR/egern"
+assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/*.list"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/quanx/*.list"
-render_domain_rule_dir_to_egern_dir \
-  "$DOMAIN_RULE_TMP_DIR" \
-  "$DOMAIN_ARTIFACTS_DIR/egern" \
-  "$DOMAIN_BUILD_TMP_DIR/egern"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/egern/*.yaml"
 
-# Domain sing-box and mihomo built locally from the full classical domain lists
+# Domain sing-box and mihomo are built locally unless a source publishes native binaries.
+# anti-AD provides official SRS/MRS artifacts, so exclude it from local binary compile.
+prepare_domain_binary_rule_dir "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_BINARY_RULE_TMP_DIR"
 build_domain_artifacts_from_rule_dir \
-  "$DOMAIN_RULE_TMP_DIR" \
-  "$DOMAIN_BUILD_TMP_DIR" \
+  "$DOMAIN_BINARY_RULE_TMP_DIR" \
+  "$DOMAIN_BUILD_TMP_DIR/domain-compile" \
   "$DOMAIN_ARTIFACTS_DIR/sing-box" \
   "$DOMAIN_ARTIFACTS_DIR/mihomo"
+sync_remote_domain_binary_artifact \
+  anti-ad \
+  sing-box \
+  "$DOMAIN_ARTIFACTS_DIR/sing-box/anti-ad.srs" \
+  "$ANTI_AD_SING_BOX_SRS_MIN_BYTES" \
+  "$ANTI_AD_SING_BOX_SRS_SOURCE_URL" \
+  "$ANTI_AD_SING_BOX_SRS_SOURCE_FALLBACK_URL"
+sync_remote_domain_binary_artifact \
+  anti-ad \
+  mihomo \
+  "$DOMAIN_ARTIFACTS_DIR/mihomo/anti-ad.mrs" \
+  "$ANTI_AD_MIHOMO_MRS_MIN_BYTES" \
+  "$ANTI_AD_MIHOMO_MRS_SOURCE_URL" \
+  "$ANTI_AD_MIHOMO_MRS_SOURCE_FALLBACK_URL"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/sing-box/*.srs"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihomo/*.mrs"
 

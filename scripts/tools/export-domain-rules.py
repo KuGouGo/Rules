@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -257,33 +258,39 @@ def write_normalized_classical_rules(input_file: Path, output_file: Path) -> Non
     write_text_lines([render_rule(rule) for rule in parse_classical_domain_rules(input_file)], output_file)
 
 
-def build_surge_list(input_file: Path, output_file: Path) -> None:
-    rules = [
+def build_surge_lines(rules: list[Rule]) -> list[str]:
+    return [
         render_rule(rule)
-        for rule in parse_classical_domain_rules(input_file)
+        for rule in rules
         if rule.kind in SURGE_KIND_SET
     ]
-    write_text_lines(rules, output_file)
+
+
+def build_surge_list(input_file: Path, output_file: Path) -> None:
+    write_text_lines(build_surge_lines(parse_classical_domain_rules(input_file)), output_file)
+
+
+def build_quanx_lines(rules: list[Rule], policy_tag: str) -> list[str]:
+    return [
+        f"{QUANX_KIND_MAP[rule.kind]},{rule.value},{policy_tag}"
+        for rule in rules
+        if rule.kind in QUANX_KIND_MAP
+    ]
 
 
 def build_quanx_list(input_file: Path, output_file: Path, policy_tag: str) -> None:
-    rules = [
-        f"{QUANX_KIND_MAP[rule.kind]},{rule.value},{policy_tag}"
-        for rule in parse_classical_domain_rules(input_file)
-        if rule.kind in QUANX_KIND_MAP
-    ]
-    write_text_lines(rules, output_file)
+    write_text_lines(build_quanx_lines(parse_classical_domain_rules(input_file), policy_tag), output_file)
 
 
 def yaml_quote(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
-def build_egern_yaml(input_file: Path, output_file: Path) -> None:
+def build_egern_yaml_text(rules: list[Rule]) -> str:
     sections: dict[str, list[str]] = {key: [] for key in EGERN_KIND_MAP.values()}
     seen: dict[str, set[str]] = {key: set() for key in EGERN_KIND_MAP.values()}
 
-    for rule in parse_classical_domain_rules(input_file):
+    for rule in rules:
         target = EGERN_KIND_MAP.get(rule.kind)
         if not target or rule.value in seen[target]:
             continue
@@ -300,15 +307,17 @@ def build_egern_yaml(input_file: Path, output_file: Path) -> None:
         chunks.append("\n".join(lines))
 
     if chunks:
-        output_file.write_text("\n\n".join(chunks) + "\n", encoding="utf-8")
-        return
-    output_file.write_text("", encoding="utf-8")
+        return "\n\n".join(chunks) + "\n"
+    return ""
 
 
-def build_mihomo_text(input_file: Path, output_file: Path) -> None:
+def build_egern_yaml(input_file: Path, output_file: Path) -> None:
+    output_file.write_text(build_egern_yaml_text(parse_classical_domain_rules(input_file)), encoding="utf-8")
+
+
+def build_mihomo_lines(input_file: Path, rules: list[Rule]) -> list[str]:
     entries: list[str] = []
     seen: set[str] = set()
-    rules = parse_classical_domain_rules(input_file)
     print_mihomo_mrs_skip_summary(input_file, rules)
 
     for rule in rules:
@@ -324,7 +333,12 @@ def build_mihomo_text(input_file: Path, output_file: Path) -> None:
         seen.add(normalized)
         entries.append(normalized)
 
-    write_text_lines(entries, output_file)
+    return entries
+
+
+def build_mihomo_text(input_file: Path, output_file: Path) -> None:
+    rules = parse_classical_domain_rules(input_file)
+    write_text_lines(build_mihomo_lines(input_file, rules), output_file)
 
 
 def export_lists(data_dir: Path, output_dir: Path) -> None:
@@ -418,16 +432,77 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
             )
 
 
-def build_singbox_json(input_file: Path, output_file: Path) -> None:
+def build_singbox_payload(rules: list[Rule]) -> dict[str, list[str]]:
     payload: dict[str, list[str]] = {}
 
-    for rule in parse_classical_domain_rules(input_file):
+    for rule in rules:
         kind = rule.kind
         value = rule.value
         payload.setdefault(SINGBOX_KIND_MAP[kind], []).append(value)
 
-    data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [payload]}
-    output_file.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload
+
+
+def build_singbox_json_text(rules: list[Rule]) -> str:
+    data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [build_singbox_payload(rules)]}
+    return json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+
+
+def build_singbox_json(input_file: Path, output_file: Path) -> None:
+    output_file.write_text(
+        build_singbox_json_text(parse_classical_domain_rules(input_file)),
+        encoding="utf-8",
+    )
+
+
+def sorted_classical_rule_files(rule_dir: Path) -> list[Path]:
+    return sorted(rule_dir.glob("*.list"), key=lambda item: item.name)
+
+
+def reset_output_dirs(*dirs: Path) -> None:
+    for directory in dirs:
+        shutil.rmtree(directory, ignore_errors=True)
+        directory.mkdir(parents=True, exist_ok=True)
+
+
+def render_text_platform_dirs(rule_dir: Path, surge_dir: Path, quanx_dir: Path, egern_dir: Path) -> None:
+    reset_output_dirs(surge_dir, quanx_dir, egern_dir)
+
+    for input_file in sorted_classical_rule_files(rule_dir):
+        base = input_file.stem
+        rules = parse_classical_domain_rules(input_file)
+
+        surge_lines = build_surge_lines(rules)
+        if not surge_lines:
+            raise ValueError(
+                f"domain list {base} has no Surge-compatible DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD entries"
+            )
+        write_text_lines(surge_lines, surge_dir / f"{base}.list")
+
+        quanx_lines = build_quanx_lines(rules, base)
+        if not quanx_lines:
+            raise ValueError(
+                f"domain list {base} has no QuanX-compatible HOST/HOST-SUFFIX/HOST-KEYWORD entries"
+            )
+        write_text_lines(quanx_lines, quanx_dir / f"{base}.list")
+
+        egern_text = build_egern_yaml_text(rules)
+        if not egern_text:
+            raise ValueError(f"domain list {base} has no Egern-compatible entries")
+        (egern_dir / f"{base}.yaml").write_text(egern_text, encoding="utf-8")
+
+
+def build_binary_input_dir(rule_dir: Path, output_dir: Path) -> None:
+    reset_output_dirs(output_dir)
+
+    for input_file in sorted_classical_rule_files(rule_dir):
+        base = input_file.stem
+        rules = parse_classical_domain_rules(input_file)
+        (output_dir / f"{base}.json").write_text(
+            build_singbox_json_text(rules),
+            encoding="utf-8",
+        )
+        write_text_lines(build_mihomo_lines(input_file, rules), output_dir / f"{base}.mihomo.txt")
 
 
 def export_filtered_list(input_file: Path, output_file: Path, filter_attr: str) -> None:
@@ -490,6 +565,16 @@ def main() -> int:
     singbox_parser.add_argument("input_file")
     singbox_parser.add_argument("output_file")
 
+    text_dirs_parser = subparsers.add_parser("text-platform-dirs")
+    text_dirs_parser.add_argument("rule_dir")
+    text_dirs_parser.add_argument("surge_dir")
+    text_dirs_parser.add_argument("quanx_dir")
+    text_dirs_parser.add_argument("egern_dir")
+
+    binary_input_parser = subparsers.add_parser("binary-input-dir")
+    binary_input_parser.add_argument("rule_dir")
+    binary_input_parser.add_argument("output_dir")
+
     args = parser.parse_args()
     trace_cli_invocation(args.command)
 
@@ -517,6 +602,17 @@ def main() -> int:
             return 0
         if args.command == "singbox-json":
             build_singbox_json(Path(args.input_file), Path(args.output_file))
+            return 0
+        if args.command == "text-platform-dirs":
+            render_text_platform_dirs(
+                Path(args.rule_dir),
+                Path(args.surge_dir),
+                Path(args.quanx_dir),
+                Path(args.egern_dir),
+            )
+            return 0
+        if args.command == "binary-input-dir":
+            build_binary_input_dir(Path(args.rule_dir), Path(args.output_dir))
             return 0
     except Exception as exc:  # pragma: no cover - surfaced to shell
         print(str(exc), file=sys.stderr)
