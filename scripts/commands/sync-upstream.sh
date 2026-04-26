@@ -524,15 +524,18 @@ sync_remote_domain_binary_artifact() {
   local out_file="$3"
   local min_expected="$4"
   shift 4
+  local tmp_file
 
-  download_file_with_fallback "$out_file" "$@"
+  tmp_file="$DOMAIN_BUILD_TMP_DIR/$(basename "$out_file").download"
+  download_file_with_fallback "$tmp_file" "$@"
 
-  if [ ! -s "$out_file" ]; then
+  if [ ! -s "$tmp_file" ]; then
     echo "remote domain artifact is empty: $name $platform" >&2
     return 1
   fi
 
-  assert_min_bytes "$name $platform" "$out_file" "$min_expected"
+  assert_min_bytes "$name $platform" "$tmp_file" "$min_expected"
+  mv "$tmp_file" "$out_file"
 }
 
 prepare_domain_binary_rule_dir() {
