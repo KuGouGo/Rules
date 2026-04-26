@@ -5,6 +5,65 @@
 # Set SURGE_IP_APPEND_NO_RESOLVE=0 to omit no-resolve for A/B verification.
 : "${SURGE_IP_APPEND_NO_RESOLVE:=1}"
 
+SINGBOX_RULE_SET_SOURCE_VERSION_CACHE="${SINGBOX_RULE_SET_SOURCE_VERSION_CACHE:-}"
+
+singbox_rule_set_source_version_for_release() {
+  local version="$1"
+  local major minor rest
+
+  version="${version#v}"
+  major="${version%%.*}"
+  rest="${version#*.}"
+  if [ "$rest" = "$version" ]; then
+    minor=0
+  else
+    minor="${rest%%.*}"
+  fi
+  major="${major//[^0-9]/}"
+  minor="${minor//[^0-9]/}"
+  major="${major:-0}"
+  minor="${minor:-0}"
+
+  if [ "$major" -gt 1 ]; then
+    printf '5'
+  elif [ "$major" -lt 1 ]; then
+    printf '1'
+  elif [ "$minor" -ge 14 ]; then
+    printf '5'
+  elif [ "$minor" -ge 13 ]; then
+    printf '4'
+  elif [ "$minor" -ge 11 ]; then
+    printf '3'
+  elif [ "$minor" -ge 10 ]; then
+    printf '2'
+  else
+    printf '1'
+  fi
+}
+
+detect_singbox_rule_set_source_version() {
+  local version_line version
+
+  if [ -n "${SINGBOX_RULE_SET_VERSION:-}" ]; then
+    printf '%s' "$SINGBOX_RULE_SET_VERSION"
+    return 0
+  fi
+
+  if [ -n "$SINGBOX_RULE_SET_SOURCE_VERSION_CACHE" ]; then
+    printf '%s' "$SINGBOX_RULE_SET_SOURCE_VERSION_CACHE"
+    return 0
+  fi
+
+  if version_line="$(sing-box version 2>/dev/null | head -n 1)" && [ -n "$version_line" ]; then
+    version="${version_line##* }"
+    SINGBOX_RULE_SET_SOURCE_VERSION_CACHE="$(singbox_rule_set_source_version_for_release "$version")"
+  else
+    SINGBOX_RULE_SET_SOURCE_VERSION_CACHE="4"
+  fi
+
+  printf '%s' "$SINGBOX_RULE_SET_SOURCE_VERSION_CACHE"
+}
+
 ensure_rule_build_tools() {
   ensure_sing_box
   ensure_mihomo
@@ -27,8 +86,12 @@ normalize_custom_domain_source() {
 build_domain_json_from_rules() {
   local rule_list="$1"
   local json_out="$2"
+  local source_version
 
-  python3 "$ROOT/scripts/tools/export-domain-rules.py" singbox-json "$rule_list" "$json_out"
+  source_version="${SINGBOX_RULE_SET_VERSION:-4}"
+
+  SINGBOX_RULE_SET_VERSION="$source_version" \
+    python3 "$ROOT/scripts/tools/export-domain-rules.py" singbox-json "$rule_list" "$json_out"
 }
 
 render_surge_domain_ruleset_from_rules() {
@@ -57,8 +120,12 @@ compile_domain_rule_list_to_artifacts() {
   local rule_list="$1"
   local json_out="$2"
   local srs_out="$3"
+  local source_version
 
-  build_domain_json_from_rules "$rule_list" "$json_out"
+  source_version="$(detect_singbox_rule_set_source_version)"
+
+  SINGBOX_RULE_SET_VERSION="$source_version" \
+    build_domain_json_from_rules "$rule_list" "$json_out"
   sing-box rule-set compile "$json_out" --output "$srs_out"
 }
 
@@ -304,7 +371,8 @@ render_ip_plain_to_egern_yaml() {
 import sys
 
 plain_list, output_file = sys.argv[1], sys.argv[2]
-entries = []
+ipv4_entries = []
+ipv6_entries = []
 seen = set()
 
 def yaml_quote(value: str) -> str:
@@ -318,22 +386,34 @@ with open(plain_list, "r", encoding="utf-8") as fh:
         if line in seen:
             continue
         seen.add(line)
-        entries.append(line)
+        if ":" in line:
+            ipv6_entries.append(line)
+        else:
+            ipv4_entries.append(line)
 
 with open(output_file, "w", encoding="utf-8") as fh:
-    if entries:
+    chunks = []
+    if ipv4_entries:
+        chunks.append("ip_cidr_set:\n" + "\n".join(f"  - {yaml_quote(value)}" for value in ipv4_entries))
+    if ipv6_entries:
+        chunks.append("ip_cidr6_set:\n" + "\n".join(f"  - {yaml_quote(value)}" for value in ipv6_entries))
+    if chunks:
         fh.write("no_resolve: true\n")
-        fh.write("ip_cidr_set:\n")
-        for value in entries:
-            fh.write(f"  - {yaml_quote(value)}\n")
+        fh.write("\n")
+        fh.write("\n\n".join(chunks))
+        fh.write("\n")
 PY
 }
 
 build_ip_json_from_plain() {
   local plain_list="$1"
   local json_out="$2"
+  local source_version
 
-  python3 "$ROOT/scripts/tools/normalize-ip-rules.py" singbox-json "$plain_list" "$json_out"
+  source_version="${SINGBOX_RULE_SET_VERSION:-4}"
+
+  SINGBOX_RULE_SET_VERSION="$source_version" \
+    python3 "$ROOT/scripts/tools/normalize-ip-rules.py" singbox-json "$plain_list" "$json_out"
 }
 
 compile_ip_plain_to_binary_artifacts() {
@@ -341,8 +421,12 @@ compile_ip_plain_to_binary_artifacts() {
   local json_out="$2"
   local srs_out="$3"
   local mrs_out="$4"
+  local source_version
 
-  build_ip_json_from_plain "$plain_list" "$json_out"
+  source_version="$(detect_singbox_rule_set_source_version)"
+
+  SINGBOX_RULE_SET_VERSION="$source_version" \
+    build_ip_json_from_plain "$plain_list" "$json_out"
   sing-box rule-set compile "$json_out" --output "$srs_out"
   mihomo convert-ruleset ipcidr text "$plain_list" "$mrs_out" >/dev/null
 }

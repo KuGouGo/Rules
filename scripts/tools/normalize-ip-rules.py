@@ -4,6 +4,7 @@ import argparse
 import html
 import ipaddress
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -13,7 +14,8 @@ from pathlib import Path
 # avoid false-positive matches on non-CIDR hex strings; validated by
 # ipaddress.ip_network() afterwards.
 CIDR_RE = re.compile(r"(?:\d{1,3}\.){3}\d{1,3}/\d{1,2}|[0-9a-fA-F]*:[0-9a-fA-F:]+/[0-9]{1,3}")
-SINGBOX_RULE_SET_VERSION = 3
+DEFAULT_SINGBOX_RULE_SET_VERSION = 4
+SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
 
 
 def deduplicated_cidrs(values: list[str]) -> list[str]:
