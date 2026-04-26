@@ -25,6 +25,23 @@ assert_file_content() {
   fi
 }
 
+assert_equals() {
+  local expected="$1"
+  local actual="$2"
+  local label="$3"
+
+  if [ "$actual" != "$expected" ]; then
+    echo "test failed: $label" >&2
+    echo "expected: $expected" >&2
+    echo "actual: $actual" >&2
+    exit 1
+  fi
+}
+
+assert_equals "4" "$(singbox_rule_set_source_version_for_release 1.13.11)" "sing-box 1.13 uses source format v4"
+assert_equals "5" "$(singbox_rule_set_source_version_for_release 1.14.0)" "sing-box 1.14 uses source format v5"
+assert_equals "3" "$(singbox_rule_set_source_version_for_release 1.12.0)" "sing-box 1.12 uses source format v3"
+
 cat > "$TMP_DIR/mixed.txt" <<'CIDRS'
 192.168.1.1/24
 192.168.1.0/24
@@ -66,6 +83,11 @@ assert_file_content \
   "$TMP_DIR/custom-source.surge" \
   $'IP-CIDR,192.168.1.0/24,no-resolve\nIP-CIDR6,2001:db8::/32,no-resolve'
 
+render_ip_plain_to_egern_yaml "$TMP_DIR/custom-source.plain" "$TMP_DIR/custom-source.egern.yaml"
+assert_file_content \
+  "$TMP_DIR/custom-source.egern.yaml" \
+  $'no_resolve: true\n\nip_cidr_set:\n  - \'192.168.1.0/24\'\n\nip_cidr6_set:\n  - \'2001:db8::/32\''
+
 cat > "$TMP_DIR/surge-source.list" <<'CIDRS'
 IP-CIDR,10.1.2.3/8,no-resolve
 IP-CIDR,10.0.0.0/8,no-resolve
@@ -89,6 +111,6 @@ python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
   "$TMP_DIR/singbox.json"
 assert_file_content \
   "$TMP_DIR/singbox.json" \
-  '{"version":3,"rules":[{"ip_cidr":["192.168.1.0/24","2001:db8::/32"]}]}'
+  '{"version":4,"rules":[{"ip_cidr":["192.168.1.0/24","2001:db8::/32"]}]}'
 
 echo "ip normalization tests passed"

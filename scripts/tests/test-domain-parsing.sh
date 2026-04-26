@@ -16,7 +16,7 @@ assert_egern_yaml_parses() {
 import sys
 from pathlib import Path
 
-allowed = {"domain_set", "domain_suffix_set", "domain_keyword_set", "domain_regex_set", "ip_cidr_set"}
+allowed = {"domain_set", "domain_suffix_set", "domain_keyword_set", "domain_regex_set", "ip_cidr_set", "ip_cidr6_set"}
 current = None
 for line_no, raw_line in enumerate(Path(sys.argv[1]).read_text(encoding="utf-8").splitlines(), start=1):
     if not raw_line.strip():

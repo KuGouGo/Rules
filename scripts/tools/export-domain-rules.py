@@ -69,7 +69,8 @@ SURGE_KIND_SET = PLATFORM_CAPABILITIES["surge"]
 QUANX_KIND_SET = PLATFORM_CAPABILITIES["quanx"]
 MIHOMO_MRS_KIND_SET = PLATFORM_CAPABILITIES["mihomo-mrs"]
 MIHOMO_MRS_SKIP_WARN_PERCENT = int(os.environ.get("MIHOMO_MRS_SKIP_WARN_PERCENT", "30"))
-SINGBOX_RULE_SET_VERSION = 3
+DEFAULT_SINGBOX_RULE_SET_VERSION = 4
+SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
 SHARED_TEXT_DERIVATIVE_KIND_SET = SURGE_KIND_SET & QUANX_KIND_SET & set(QUANX_KIND_MAP)
 
 
@@ -425,8 +426,6 @@ def build_singbox_json(input_file: Path, output_file: Path) -> None:
         value = rule.value
         payload.setdefault(SINGBOX_KIND_MAP[kind], []).append(value)
 
-    # Keep the source format at v3 for broad client/tool compatibility; current
-    # sing-box compilers accept it and emit the target binary format.
     data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [payload]}
     output_file.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
