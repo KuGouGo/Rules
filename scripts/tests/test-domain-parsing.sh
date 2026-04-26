@@ -62,6 +62,17 @@ assert_file_text_equals() {
   fi
 }
 
+assert_file_absent() {
+  local file="$1"
+  local label="$2"
+
+  if [ -e "$file" ]; then
+    echo "test failed: $label" >&2
+    echo "unexpected file exists: $file" >&2
+    exit 1
+  fi
+}
+
 assert_text_equals() {
   local expected="$1"
   local actual="$2"
@@ -200,6 +211,9 @@ test_batch_domain_dir_outputs() {
     "$TMP_DIR/batch/egern" \
     "$TMP_DIR/batch/binary"
   cp "$FIXTURE_ROOT/input/mixed.list" "$TMP_DIR/batch/input/mixed.list"
+  cat > "$TMP_DIR/batch/input/regex-only.list" <<'EOF'
+DOMAIN-REGEX,^regex-only\.example$
+EOF
 
   python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \
     "$TMP_DIR/batch/input" \
@@ -225,6 +239,17 @@ test_batch_domain_dir_outputs() {
     "$FIXTURE_ROOT/expected/mixed.egern.yaml" \
     "$TMP_DIR/batch/egern/mixed.yaml" \
     "batch egern domain fixture output is stable"
+  assert_file_absent \
+    "$TMP_DIR/batch/surge/regex-only.list" \
+    "Surge skips regex-only domain lists"
+  assert_file_absent \
+    "$TMP_DIR/batch/quanx/regex-only.list" \
+    "QuanX skips regex-only domain lists"
+  grep -Fx "domain_regex_set:" "$TMP_DIR/batch/egern/regex-only.yaml" >/dev/null || {
+    echo "test failed: Egern should keep regex-only domain lists" >&2
+    cat "$TMP_DIR/batch/egern/regex-only.yaml" >&2
+    exit 1
+  }
   assert_file_text_equals \
     "$FIXTURE_ROOT/expected/mixed.singbox.json" \
     "$TMP_DIR/batch/binary/mixed.json" \
@@ -241,6 +266,8 @@ test_include_filter_semantics() {
 domain:example.com @cn
 domain:ads.example.com @cn @ads
 full:exact.example.com @cn
+keyword:cn-keyword @cn
+regexp:^cn-regex\.example$ @cn
 domain:global.example
 EOF
 
@@ -250,17 +277,67 @@ EOF
 
   python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
     "$TMP_DIR/include_filter/data" \
-    "$TMP_DIR/include_filter/out"
+    "$TMP_DIR/include_filter/out" \
+    2>"$TMP_DIR/include_filter/export.stderr"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \
+    "$TMP_DIR/include_filter/out" \
+    "$TMP_DIR/include_filter/surge" \
+    "$TMP_DIR/include_filter/quanx" \
+    "$TMP_DIR/include_filter/egern" \
+    2>"$TMP_DIR/include_filter/text-platform.stderr"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" binary-input-dir \
+    "$TMP_DIR/include_filter/out" \
+    "$TMP_DIR/include_filter/binary" \
+    2>"$TMP_DIR/include_filter/binary.stderr"
 
   cat > "$TMP_DIR/include_filter/expected.list" <<'EOF'
 DOMAIN-SUFFIX,example.com
 DOMAIN,exact.example.com
+DOMAIN-KEYWORD,cn-keyword
+DOMAIN-REGEX,^cn-regex\.example$
+EOF
+
+  cat > "$TMP_DIR/include_filter/expected.surge.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN,exact.example.com
+DOMAIN-KEYWORD,cn-keyword
+EOF
+
+  cat > "$TMP_DIR/include_filter/expected.mihomo.txt" <<'EOF'
+.example.com
+exact.example.com
 EOF
 
   assert_file_equals \
     "$TMP_DIR/include_filter/expected.list" \
     "$TMP_DIR/include_filter/out/filtered.list" \
-    "include filters match required attrs and exclude blocked attrs"
+    "include filters match required attrs, exclude blocked attrs, and preserve rule kinds"
+  assert_file_equals \
+    "$TMP_DIR/include_filter/expected.surge.list" \
+    "$TMP_DIR/include_filter/surge/filtered.list" \
+    "Surge renders supported include-filtered rule kinds"
+  assert_file_equals \
+    "$TMP_DIR/include_filter/expected.mihomo.txt" \
+    "$TMP_DIR/include_filter/binary/filtered.mihomo.txt" \
+    "mihomo keeps only supported include-filtered domain kinds"
+
+  grep -Fx "domain_regex_set:" "$TMP_DIR/include_filter/egern/filtered.yaml" >/dev/null || {
+    echo "test failed: Egern should render include-filtered regex rules" >&2
+    cat "$TMP_DIR/include_filter/egern/filtered.yaml" >&2
+    exit 1
+  }
+
+  python3 - "$TMP_DIR/include_filter/binary/filtered.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))["rules"][0]
+assert payload["domain_suffix"] == ["example.com"]
+assert payload["domain"] == ["exact.example.com"]
+assert payload["domain_keyword"] == ["cn-keyword"]
+assert payload["domain_regex"] == [r"^cn-regex\.example$"]
+PY
 }
 
 
@@ -288,11 +365,13 @@ DOMAIN,not-cn.example
 EOF
 
   cat > "$TMP_DIR/cn_regex/base_cn_expected.list" <<'EOF'
+DOMAIN-REGEX,^cn-regex\.example$
 DOMAIN-KEYWORD,cn-keyword
 DOMAIN-SUFFIX,cn.example
 EOF
 
   cat > "$TMP_DIR/cn_regex/base_not_cn_expected.list" <<'EOF'
+DOMAIN-REGEX,^not-cn-regex\.example$
 DOMAIN,not-cn.example
 EOF
 
@@ -303,11 +382,174 @@ EOF
   assert_file_equals \
     "$TMP_DIR/cn_regex/base_cn_expected.list" \
     "$TMP_DIR/cn_regex/out/base@cn.list" \
-    "@cn derivative intentionally filters regex entries"
+    "@cn derivatives preserve all rule kinds"
   assert_file_equals \
     "$TMP_DIR/cn_regex/base_not_cn_expected.list" \
     "$TMP_DIR/cn_regex/out/base@!cn.list" \
-    "@!cn derivative intentionally filters regex entries"
+    "@!cn derivatives preserve all rule kinds"
+}
+
+
+test_attr_derivatives_merge_duplicate_rule_attrs() {
+  mkdir -p "$TMP_DIR/duplicate_attrs/data" "$TMP_DIR/duplicate_attrs/out"
+  cat > "$TMP_DIR/duplicate_attrs/data/base" <<'EOF'
+domain:shared.example @cn
+domain:shared.example @ads
+domain:shared.example @cn
+domain:unique.example @cn
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/duplicate_attrs/data" \
+    "$TMP_DIR/duplicate_attrs/out"
+
+  cat > "$TMP_DIR/duplicate_attrs/base_expected.list" <<'EOF'
+DOMAIN-SUFFIX,shared.example
+DOMAIN-SUFFIX,unique.example
+EOF
+  cat > "$TMP_DIR/duplicate_attrs/base_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,shared.example
+DOMAIN-SUFFIX,unique.example
+EOF
+  cat > "$TMP_DIR/duplicate_attrs/base_ads_expected.list" <<'EOF'
+DOMAIN-SUFFIX,shared.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/duplicate_attrs/base_expected.list" \
+    "$TMP_DIR/duplicate_attrs/out/base.list" \
+    "base output deduplicates repeated rules"
+  assert_file_equals \
+    "$TMP_DIR/duplicate_attrs/base_cn_expected.list" \
+    "$TMP_DIR/duplicate_attrs/out/base@cn.list" \
+    "@cn output keeps unique matching rules"
+  assert_file_equals \
+    "$TMP_DIR/duplicate_attrs/base_ads_expected.list" \
+    "$TMP_DIR/duplicate_attrs/out/base@ads.list" \
+    "@ads output keeps duplicate rule attributes"
+}
+
+
+test_export_materializes_attr_derivatives_with_sing_geosite_filter() {
+  mkdir -p "$TMP_DIR/region_derivatives/data" "$TMP_DIR/region_derivatives/out"
+  cat > "$TMP_DIR/region_derivatives/data/vendor" <<'EOF'
+domain:vendor-cn.example @cn
+domain:vendor-ads.example @ads
+domain:vendor-global.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/cn" <<'EOF'
+include:vendor
+domain:mainland.example @cn
+full:not-mainland.example @!cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/vendor-cn" <<'EOF'
+domain:vendor-region.example @cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/vendor-!cn" <<'EOF'
+domain:vendor-overseas.example @!cn
+domain:vendor-overseas-cn.example @cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/geolocation-cn" <<'EOF'
+include:cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/geolocation-!cn" <<'EOF'
+include:vendor-!cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/category-ai-!cn" <<'EOF'
+domain:ai-overseas.example @!cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/category-games-!cn" <<'EOF'
+domain:games-mainland.example @cn
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/region_derivatives/data" \
+    "$TMP_DIR/region_derivatives/out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" domain-rule-manifest \
+    "$TMP_DIR/region_derivatives/out" \
+    "$TMP_DIR/region_derivatives/manifest.json"
+
+  cat > "$TMP_DIR/region_derivatives/vendor_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-cn.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/vendor_ads_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-ads.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/vendor_not_cn_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-overseas-cn.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/geolocation_not_cn_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-overseas-cn.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/cn_not_cn_expected.list" <<'EOF'
+DOMAIN,not-mainland.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/category_games_not_cn_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,games-mainland.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/vendor_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/vendor@cn.list" \
+    "neutral lists materialize @cn derivatives"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/vendor_ads_expected.list" \
+    "$TMP_DIR/region_derivatives/out/vendor@ads.list" \
+    "all upstream attrs materialize, not only @cn"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/vendor_not_cn_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/vendor-!cn@cn.list" \
+    "list ending !cn still materializes @cn"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/geolocation_not_cn_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/geolocation-!cn@cn.list" \
+    "geolocation-!cn keeps non-redundant @cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/cn_not_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/cn@!cn.list" \
+    "cn keeps non-redundant @!cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/category_games_not_cn_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/category-games-!cn@cn.list" \
+    "category-games-!cn keeps non-redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/cn@cn.list" \
+    "cn should not generate redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/geolocation-cn@cn.list" \
+    "geolocation-cn should not generate redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/vendor-cn@cn.list" \
+    "region-suffixed cn list should not generate redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/vendor-!cn@!cn.list" \
+    "region-suffixed !cn list should not generate redundant @!cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/geolocation-!cn@!cn.list" \
+    "geolocation-!cn should not generate redundant @!cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/category-ai-!cn@!cn.list" \
+    "category-ai-!cn should not generate redundant @!cn derivative"
+
+  python3 - "$TMP_DIR/region_derivatives/manifest.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+by_name = {entry["name"]: entry for entry in manifest["lists"]}
+assert by_name["geolocation-cn"]["kind"] == "regional"
+assert by_name["vendor-!cn"]["kind"] == "regional"
+assert by_name["vendor@cn"]["kind"] == "attr"
+assert by_name["vendor@cn"]["base"] == "vendor"
+assert by_name["vendor@cn"]["attr"] == "cn"
+assert by_name["vendor@cn"]["base_kind"] == "base"
+assert by_name["geolocation-!cn@cn"]["base_kind"] == "regional"
+assert "cn@cn" not in by_name
+assert "geolocation-cn@cn" not in by_name
+assert "category-ai-!cn@!cn" not in by_name
+assert manifest["by_attr"] == {"!cn": 2, "ads": 3, "cn": 4}
+PY
 }
 
 
@@ -414,6 +656,8 @@ test_classical_domain_fixture_outputs
 test_batch_domain_dir_outputs
 test_include_filter_semantics
 test_export_preserves_upstream_order_and_cn_regex_policy
+test_attr_derivatives_merge_duplicate_rule_attrs
+test_export_materializes_attr_derivatives_with_sing_geosite_filter
 test_domain_capability_summary
 test_mihomo_mrs_skip_summary
 test_mihomo_domain_text_generation

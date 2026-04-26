@@ -13,6 +13,7 @@ IP_BUILD_TMP_DIR="$WORK_TMP_DIR/ip-build"
 ARTIFACTS_DIR="$ROOT_DIR/.output"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
+DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 UPSTREAM_SUMMARY_FILE="$ARTIFACTS_DIR/upstream-summary.jsonl"
@@ -557,7 +558,7 @@ prepare_domain_binary_rule_dir() {
 }
 
 # Domain rules from domain-list-community/data plus curated remote lists
-# The export script now automatically generates @cn filtered versions for all rule sets
+# The export script materializes upstream @attribute filters and drops only redundant tag names.
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 record_dlc_summary "$WORK_TMP_DIR/domain-list-community"
@@ -569,6 +570,9 @@ sync_remote_domain_ruleset \
   "$ANTI_AD_MIN_RULE_COUNT" \
   "$ANTI_AD_DOMAIN_SOURCE_URL" \
   "$ANTI_AD_DOMAIN_SOURCE_FALLBACK_URL"
+python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$DOMAIN_RULE_MANIFEST_FILE"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
 render_domain_rule_dir_to_text_platform_dirs \
   "$DOMAIN_RULE_TMP_DIR" \

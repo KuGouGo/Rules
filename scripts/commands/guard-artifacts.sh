@@ -93,6 +93,56 @@ check_min_files() {
   fi
 }
 
+is_redundant_attr_filter_artifact_name() {
+  local name="$1"
+  local base attr last_segment
+
+  case "$name" in
+    *@*@*) return 1 ;;
+    *@*) ;;
+    *) return 1 ;;
+  esac
+
+  base="${name%@*}"
+  attr="${name##*@}"
+  [ -n "$base" ] || return 1
+  [ -n "$attr" ] || return 1
+
+  last_segment="${base##*-}"
+  [ "$last_segment" = "$attr" ]
+}
+
+check_no_redundant_attr_filter_artifacts_in_dir() {
+  local dir="$1"
+  local label="$2"
+  local file filename stem violations=0
+
+  [ -d "$dir" ] || return 0
+
+  for file in "$dir"/*; do
+    [ -f "$file" ] || continue
+    filename="$(basename "$file")"
+    stem="${filename%.*}"
+    if is_redundant_attr_filter_artifact_name "$stem"; then
+      echo "$label redundant attr filter artifact should not be published: $filename" >&2
+      violations=$((violations + 1))
+    fi
+  done
+
+  if [ "$violations" -gt 0 ]; then
+    exit 1
+  fi
+  echo "$label: no redundant attr filter artifacts"
+}
+
+check_no_redundant_attr_filter_artifacts() {
+  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/surge" "domain/surge"
+  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/quanx" "domain/quanx"
+  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/egern" "domain/egern"
+  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/sing-box" "domain/sing-box"
+  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/mihomo" "domain/mihomo"
+}
+
 count_domain_rules_from_file() {
   local file="$1"
   case "$file" in
@@ -391,6 +441,9 @@ main() {
   check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 9
   check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
   check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
+
+  print_section "Domain artifact shape checks"
+  check_no_redundant_attr_filter_artifacts
 
   print_section "Domain rule entry checks"
   check_domain_rule_entry_volatility_against_branch surge ".output/domain/surge" "domain/surge"
