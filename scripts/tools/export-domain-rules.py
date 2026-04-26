@@ -67,12 +67,10 @@ def load_platform_capabilities(path: Path = CAPABILITIES_FILE) -> dict[str, set[
 
 PLATFORM_CAPABILITIES = load_platform_capabilities()
 SURGE_KIND_SET = PLATFORM_CAPABILITIES["surge"]
-QUANX_KIND_SET = PLATFORM_CAPABILITIES["quanx"]
 MIHOMO_MRS_KIND_SET = PLATFORM_CAPABILITIES["mihomo-mrs"]
 MIHOMO_MRS_SKIP_WARN_PERCENT = int(os.environ.get("MIHOMO_MRS_SKIP_WARN_PERCENT", "30"))
 DEFAULT_SINGBOX_RULE_SET_VERSION = 4
 SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
-SHARED_TEXT_DERIVATIVE_KIND_SET = SURGE_KIND_SET & QUANX_KIND_SET & set(QUANX_KIND_MAP)
 
 
 def count_rule_kinds(rules: list[Rule]) -> dict[str, int]:
@@ -206,12 +204,71 @@ def render_rule(rule: Rule) -> str:
     return f"{rule.kind},{rule.value}"
 
 
-def render_shared_text_derivative_rules(rules: list[Rule]) -> list[str]:
-    return [
-        render_rule(rule)
-        for rule in rules
-        if rule.kind in SHARED_TEXT_DERIVATIVE_KIND_SET
-    ]
+@dataclass(frozen=True)
+class RuleSetOutput:
+    rules: list[Rule]
+    rules_by_attr: dict[str, list[Rule]]
+
+
+def collect_rule_set_output(rules: list[Rule]) -> RuleSetOutput:
+    unique_rules: list[Rule] = []
+    rules_by_attr: dict[str, list[Rule]] = {}
+    seen_rules: set[tuple[str, str]] = set()
+    seen_by_attr: dict[str, set[tuple[str, str]]] = {}
+
+    for rule in rules:
+        key = (rule.kind, rule.value)
+        if key not in seen_rules:
+            seen_rules.add(key)
+            unique_rules.append(rule)
+
+        for attr in rule.attrs:
+            attr_seen = seen_by_attr.setdefault(attr, set())
+            if key in attr_seen:
+                continue
+            attr_seen.add(key)
+            rules_by_attr.setdefault(attr, []).append(rule)
+
+    return RuleSetOutput(unique_rules, rules_by_attr)
+
+
+def is_region_named_list(name: str) -> bool:
+    return name == "cn" or name.endswith("-cn") or name.endswith("-!cn")
+
+
+def split_attr_rule_set_name(name: str) -> tuple[str, str] | None:
+    if name.count("@") != 1:
+        return None
+    base, separator, attr = name.partition("@")
+    if not separator or not base or not attr:
+        return None
+    return base, attr
+
+
+def last_rule_set_name_segment(name: str) -> str:
+    parts = name.split("-")
+    if len(parts) > 1:
+        return parts[-1]
+    return name
+
+
+def is_redundant_attr_rule_set_name(base: str, attr: str) -> bool:
+    return last_rule_set_name_segment(base) == attr
+
+
+def classify_rule_set_name(name: str) -> dict[str, object]:
+    attr_parts = split_attr_rule_set_name(name)
+    if attr_parts:
+        base, attr = attr_parts
+        return {
+            "kind": "attr",
+            "base": base,
+            "attr": attr,
+            "base_kind": "regional" if is_region_named_list(base) else "base",
+        }
+    if is_region_named_list(name):
+        return {"kind": "regional"}
+    return {"kind": "base"}
 
 
 def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
@@ -252,6 +309,13 @@ def write_text_lines(lines: list[str], output_file: Path) -> None:
         output_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
         return
     output_file.write_text("", encoding="utf-8")
+
+
+def write_text_lines_if_nonempty(lines: list[str], output_file: Path) -> bool:
+    if not lines:
+        return False
+    write_text_lines(lines, output_file)
+    return True
 
 
 def write_normalized_classical_rules(input_file: Path, output_file: Path) -> None:
@@ -381,55 +445,21 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     names = sorted(set(direct_rules) | set(affiliated_rules))
 
-    # Track which rule sets have @cn attributes
-    cn_attr_sets: dict[str, list[Rule]] = {}
-    not_cn_attr_sets: dict[str, list[Rule]] = {}
-
-    for name in names:
-        all_rules = resolve(name)
-        print_platform_skip_summary(name, all_rules)
-        rendered = [render_rule(rule) for rule in all_rules]
-        if not rendered:
-            continue
+    def write_rule_set(name: str, rules: list[Rule]) -> None:
+        if not rules:
+            return
+        print_platform_skip_summary(name, rules)
+        rendered = [render_rule(rule) for rule in rules]
         (output_dir / f"{name}.list").write_text("\n".join(rendered) + "\n", encoding="utf-8")
 
-        # Check if any rules have @cn attribute (exact match only, not !cn or -!cn)
-        cn_rules = [rule for rule in all_rules if "cn" in rule.attrs]
-        if cn_rules:
-            cn_attr_sets[name] = cn_rules
+    for name in names:
+        rule_set_output = collect_rule_set_output(resolve(name))
+        write_rule_set(name, rule_set_output.rules)
 
-        # Check if any rules have @!cn attribute (non-CN rules)
-        not_cn_rules = [rule for rule in all_rules if "!cn" in rule.attrs]
-        if not_cn_rules:
-            not_cn_attr_sets[name] = not_cn_rules
-
-    # Generate @cn filtered versions
-    for name, cn_rules in cn_attr_sets.items():
-        # Design note: @cn derivatives are classical text lists shared by
-        # Surge/QuanX restore paths. Keep them to the shared text-rule
-        # capability set; richer platforms still use the full list.
-        shared_text_rules = render_shared_text_derivative_rules(cn_rules)
-        if shared_text_rules:
-            output_file = output_dir / f"{name}@cn.list"
-            output_file.write_text("\n".join(shared_text_rules) + "\n", encoding="utf-8")
-            print(
-                f"Generated {name}@cn.list with "
-                f"{len(shared_text_rules)} shared text-compatible rules"
-            )
-
-    # Generate @!cn filtered versions
-    for name, not_cn_rules in not_cn_attr_sets.items():
-        # Design note: @!cn derivatives are classical text lists shared by
-        # Surge/QuanX restore paths. Keep them to the shared text-rule
-        # capability set; richer platforms still use the full list.
-        shared_text_rules = render_shared_text_derivative_rules(not_cn_rules)
-        if shared_text_rules:
-            output_file = output_dir / f"{name}@!cn.list"
-            output_file.write_text("\n".join(shared_text_rules) + "\n", encoding="utf-8")
-            print(
-                f"Generated {name}@!cn.list with "
-                f"{len(shared_text_rules)} shared text-compatible rules"
-            )
+        for attr, rules in sorted(rule_set_output.rules_by_attr.items()):
+            if is_redundant_attr_rule_set_name(name, attr):
+                continue
+            write_rule_set(f"{name}@{attr}", rules)
 
 
 def build_singbox_payload(rules: list[Rule]) -> dict[str, list[str]]:
@@ -459,6 +489,45 @@ def sorted_classical_rule_files(rule_dir: Path) -> list[Path]:
     return sorted(rule_dir.glob("*.list"), key=lambda item: item.name)
 
 
+def domain_rule_manifest(rule_dir: Path) -> dict[str, object]:
+    lists: list[dict[str, object]] = []
+    by_kind: dict[str, int] = {}
+    by_attr: dict[str, int] = {}
+
+    for input_file in sorted_classical_rule_files(rule_dir):
+        name = input_file.stem
+        rules = parse_classical_domain_rules(input_file)
+        entry = {
+            "name": name,
+            "file": input_file.name,
+            "rules": len(rules),
+        }
+        classification = classify_rule_set_name(name)
+        entry.update(classification)
+        lists.append(entry)
+
+        kind = str(classification["kind"])
+        by_kind[kind] = by_kind.get(kind, 0) + 1
+        attr = classification.get("attr")
+        if isinstance(attr, str):
+            by_attr[attr] = by_attr.get(attr, 0) + 1
+
+    return {
+        "total": len(lists),
+        "by_kind": dict(sorted(by_kind.items())),
+        "by_attr": dict(sorted(by_attr.items())),
+        "lists": lists,
+    }
+
+
+def write_domain_rule_manifest(rule_dir: Path, output_file: Path) -> None:
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(
+        json.dumps(domain_rule_manifest(rule_dir), ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
 def reset_output_dirs(*dirs: Path) -> None:
     for directory in dirs:
         shutil.rmtree(directory, ignore_errors=True)
@@ -473,23 +542,14 @@ def render_text_platform_dirs(rule_dir: Path, surge_dir: Path, quanx_dir: Path, 
         rules = parse_classical_domain_rules(input_file)
 
         surge_lines = build_surge_lines(rules)
-        if not surge_lines:
-            raise ValueError(
-                f"domain list {base} has no Surge-compatible DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD entries"
-            )
-        write_text_lines(surge_lines, surge_dir / f"{base}.list")
+        write_text_lines_if_nonempty(surge_lines, surge_dir / f"{base}.list")
 
         quanx_lines = build_quanx_lines(rules, base)
-        if not quanx_lines:
-            raise ValueError(
-                f"domain list {base} has no QuanX-compatible HOST/HOST-SUFFIX/HOST-KEYWORD entries"
-            )
-        write_text_lines(quanx_lines, quanx_dir / f"{base}.list")
+        write_text_lines_if_nonempty(quanx_lines, quanx_dir / f"{base}.list")
 
         egern_text = build_egern_yaml_text(rules)
-        if not egern_text:
-            raise ValueError(f"domain list {base} has no Egern-compatible entries")
-        (egern_dir / f"{base}.yaml").write_text(egern_text, encoding="utf-8")
+        if egern_text:
+            (egern_dir / f"{base}.yaml").write_text(egern_text, encoding="utf-8")
 
 
 def build_binary_input_dir(rule_dir: Path, output_dir: Path) -> None:
@@ -575,6 +635,10 @@ def main() -> int:
     binary_input_parser.add_argument("rule_dir")
     binary_input_parser.add_argument("output_dir")
 
+    manifest_parser = subparsers.add_parser("domain-rule-manifest")
+    manifest_parser.add_argument("rule_dir")
+    manifest_parser.add_argument("output_file")
+
     args = parser.parse_args()
     trace_cli_invocation(args.command)
 
@@ -613,6 +677,9 @@ def main() -> int:
             return 0
         if args.command == "binary-input-dir":
             build_binary_input_dir(Path(args.rule_dir), Path(args.output_dir))
+            return 0
+        if args.command == "domain-rule-manifest":
+            write_domain_rule_manifest(Path(args.rule_dir), Path(args.output_file))
             return 0
     except Exception as exc:  # pragma: no cover - surfaced to shell
         print(str(exc), file=sys.stderr)

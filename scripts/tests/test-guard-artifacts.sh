@@ -42,12 +42,70 @@ domain_suffix_set:
 RULES
 mkdir -p "$TMP_DIR/files"
 touch "$TMP_DIR/files/a.list" "$TMP_DIR/files/b.yaml" "$TMP_DIR/files/c.txt"
+mkdir -p "$TMP_DIR/shape-ok" "$TMP_DIR/shape-bad"
+touch \
+  "$TMP_DIR/shape-ok/geolocation-cn.list" \
+  "$TMP_DIR/shape-ok/category-games-!cn.list" \
+  "$TMP_DIR/shape-ok/google@cn.list" \
+  "$TMP_DIR/shape-ok/geolocation-!cn@cn.list"
+touch \
+  "$TMP_DIR/shape-bad/cn@cn.list" \
+  "$TMP_DIR/shape-bad/geolocation-cn@cn.list" \
+  "$TMP_DIR/shape-bad/category-ai-!cn@!cn.list"
 
 assert_equals "7" "$(count_domain_rules_from_file "$TMP_DIR/domain.list")" "domain list counts Surge and QuanX domain entries"
 assert_equals "2" "$(count_domain_rules_from_file "$TMP_DIR/domain.yaml")" "domain yaml counts Egern entries"
 assert_equals "1" "$(count_matching_files "$TMP_DIR/files" "*.list")" "count_matching_files filters by extension"
 assert_equals "0" "$(count_matching_files "$TMP_DIR/missing" "*.list")" "count_matching_files handles missing directories"
 assert_equals "10" "$MIN_IP_CIDR_GOOGLE_V6" "google IPv6 guard default allows normal mid-teen payloads"
+
+if is_redundant_attr_filter_artifact_name "google@cn"; then
+  echo "test failed: google@cn should remain an allowed attr artifact" >&2
+  exit 1
+fi
+
+if is_redundant_attr_filter_artifact_name "geolocation-!cn@cn"; then
+  echo "test failed: geolocation-!cn@cn should remain an allowed attr artifact" >&2
+  exit 1
+fi
+
+if is_redundant_attr_filter_artifact_name "geolocation-cn"; then
+  echo "test failed: geolocation-cn should remain an allowed upstream list name" >&2
+  exit 1
+fi
+
+if is_redundant_attr_filter_artifact_name "foo@bar@bar"; then
+  echo "test failed: names with multiple @ separators should not match attr artifact shape" >&2
+  exit 1
+fi
+
+if ! is_redundant_attr_filter_artifact_name "cn@cn"; then
+  echo "test failed: cn@cn should be classified as a redundant attr artifact" >&2
+  exit 1
+fi
+
+if ! is_redundant_attr_filter_artifact_name "geolocation-cn@cn"; then
+  echo "test failed: geolocation-cn@cn should be classified as a redundant attr artifact" >&2
+  exit 1
+fi
+
+if ! is_redundant_attr_filter_artifact_name "category-ai-!cn@!cn"; then
+  echo "test failed: category-ai-!cn@!cn should be classified as a redundant attr artifact" >&2
+  exit 1
+fi
+
+check_no_redundant_attr_filter_artifacts_in_dir "$TMP_DIR/shape-ok" "shape-ok" >/dev/null
+
+if ( check_no_redundant_attr_filter_artifacts_in_dir "$TMP_DIR/shape-bad" "shape-bad" ) >"$TMP_DIR/shape-bad.stdout" 2>"$TMP_DIR/shape-bad.stderr"; then
+  echo "test failed: redundant attr filter artifacts should fail guard" >&2
+  exit 1
+fi
+
+if ! grep -Fq "shape-bad redundant attr filter artifact should not be published: geolocation-cn@cn.list" "$TMP_DIR/shape-bad.stderr"; then
+  echo "test failed: missing redundant attr artifact guard message" >&2
+  cat "$TMP_DIR/shape-bad.stderr" >&2
+  exit 1
+fi
 
 if ip_entry_growth_exceeds_limit 31 221; then
   echo "test failed: small absolute IP growth should not trip percentage guard" >&2
