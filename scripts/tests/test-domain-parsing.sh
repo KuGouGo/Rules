@@ -62,6 +62,36 @@ assert_file_text_equals() {
   fi
 }
 
+assert_text_equals() {
+  local expected="$1"
+  local actual="$2"
+  local label="$3"
+
+  if [ "$expected" != "$actual" ]; then
+    echo "test failed: $label" >&2
+    echo "expected: $expected" >&2
+    echo "actual:   $actual" >&2
+    exit 1
+  fi
+}
+
+test_compile_jobs_override_validation() {
+  local actual
+
+  actual="$(RULES_COMPILE_JOBS=2 detect_compile_jobs)"
+  assert_text_equals "2" "$actual" "RULES_COMPILE_JOBS override is honored"
+
+  if RULES_COMPILE_JOBS=0 detect_compile_jobs >"$TMP_DIR/compile_jobs.stdout" 2>"$TMP_DIR/compile_jobs.stderr"; then
+    echo "test failed: RULES_COMPILE_JOBS=0 should fail" >&2
+    exit 1
+  fi
+  if ! grep -Fxq "RULES_COMPILE_JOBS must be a positive integer" "$TMP_DIR/compile_jobs.stderr"; then
+    echo "test failed: missing RULES_COMPILE_JOBS validation message" >&2
+    cat "$TMP_DIR/compile_jobs.stderr" >&2
+    exit 1
+  fi
+}
+
 test_export_alias_prefixes() {
   mkdir -p "$TMP_DIR/export_alias/data" "$TMP_DIR/export_alias/out"
   cat > "$TMP_DIR/export_alias/data/a" <<'EOF'
@@ -377,6 +407,7 @@ EOF
   fi
 }
 
+test_compile_jobs_override_validation
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
 test_classical_domain_fixture_outputs

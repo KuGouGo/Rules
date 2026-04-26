@@ -4,8 +4,51 @@
 # Keep Surge IP rule behavior stable by default.
 # Set SURGE_IP_APPEND_NO_RESOLVE=0 to omit no-resolve for A/B verification.
 : "${SURGE_IP_APPEND_NO_RESOLVE:=1}"
+# Set RULES_COMPILE_JOBS to override local binary compile parallelism.
+: "${RULES_COMPILE_JOBS:=}"
 
 SINGBOX_RULE_SET_SOURCE_VERSION_CACHE="${SINGBOX_RULE_SET_SOURCE_VERSION_CACHE:-}"
+
+is_positive_integer() {
+  case "$1" in
+    ''|*[!0-9]*) return 1 ;;
+  esac
+
+  [ "$1" -gt 0 ]
+}
+
+detect_compile_jobs() {
+  local jobs cpus
+
+  jobs="$RULES_COMPILE_JOBS"
+  if [ -n "$jobs" ]; then
+    if ! is_positive_integer "$jobs"; then
+      echo "RULES_COMPILE_JOBS must be a positive integer" >&2
+      return 1
+    fi
+    printf '%s' "$jobs"
+    return 0
+  fi
+
+  cpus=""
+  if command -v getconf >/dev/null 2>&1; then
+    cpus="$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)"
+  fi
+  if ! is_positive_integer "$cpus" && command -v sysctl >/dev/null 2>&1; then
+    cpus="$(sysctl -n hw.ncpu 2>/dev/null || true)"
+  fi
+  if ! is_positive_integer "$cpus" && command -v nproc >/dev/null 2>&1; then
+    cpus="$(nproc 2>/dev/null || true)"
+  fi
+  if ! is_positive_integer "$cpus"; then
+    cpus=1
+  fi
+  if [ "$cpus" -gt 4 ]; then
+    cpus=4
+  fi
+
+  printf '%s' "$cpus"
+}
 
 singbox_rule_set_source_version_for_release() {
   local version="$1"
@@ -142,81 +185,6 @@ compile_domain_rule_list_to_artifacts() {
   sing-box rule-set compile "$json_out" --output "$srs_out"
 }
 
-render_domain_rule_dir_to_surge_dir() {
-  local rule_dir="$1"
-  local surge_dir="$2"
-  local tmp_dir="$3"
-  local list base surge_tmp surge_out
-
-  rm -rf "$surge_dir"
-  mkdir -p "$surge_dir" "$tmp_dir"
-
-  for list in "$rule_dir"/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    surge_tmp="$tmp_dir/$base.surge.tmp"
-    surge_out="$surge_dir/$base.list"
-    render_surge_domain_ruleset_from_rules "$list" "$surge_tmp"
-
-    if [ ! -s "$surge_tmp" ]; then
-      echo "domain list $base has no Surge-compatible DOMAIN/DOMAIN-SUFFIX/DOMAIN-KEYWORD entries" >&2
-      return 1
-    fi
-
-    mv "$surge_tmp" "$surge_out"
-  done
-}
-
-render_domain_rule_dir_to_quanx_dir() {
-  local rule_dir="$1"
-  local quanx_dir="$2"
-  local tmp_dir="$3"
-  local list base quanx_tmp quanx_out
-
-  rm -rf "$quanx_dir"
-  mkdir -p "$quanx_dir" "$tmp_dir"
-
-  for list in "$rule_dir"/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    quanx_tmp="$tmp_dir/$base.quanx.tmp"
-    quanx_out="$quanx_dir/$base.list"
-    render_quanx_domain_ruleset_from_rules "$list" "$quanx_tmp" "$base"
-
-    if [ ! -s "$quanx_tmp" ]; then
-      echo "domain list $base has no QuanX-compatible HOST/HOST-SUFFIX/HOST-KEYWORD entries" >&2
-      return 1
-    fi
-
-    mv "$quanx_tmp" "$quanx_out"
-  done
-}
-
-render_domain_rule_dir_to_egern_dir() {
-  local rule_dir="$1"
-  local egern_dir="$2"
-  local tmp_dir="$3"
-  local list base egern_tmp egern_out
-
-  rm -rf "$egern_dir"
-  mkdir -p "$egern_dir" "$tmp_dir"
-
-  for list in "$rule_dir"/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    egern_tmp="$tmp_dir/$base.egern.tmp"
-    egern_out="$egern_dir/$base.yaml"
-    render_egern_domain_ruleset_from_rules "$list" "$egern_tmp"
-
-    if [ ! -s "$egern_tmp" ]; then
-      echo "domain list $base has no Egern-compatible entries" >&2
-      return 1
-    fi
-
-    mv "$egern_tmp" "$egern_out"
-  done
-}
-
 build_mihomo_domain_text_from_rules() {
   local rule_list="$1"
   local plain_out="$2"
@@ -232,13 +200,52 @@ compile_mihomo_domain_plain_to_binary_artifact() {
   mihomo convert-ruleset domain text "$plain_list" "$mrs_out" >/dev/null
 }
 
+compile_domain_singbox_json_dir() {
+  local tmp_dir="$1"
+  local singbox_dir="$2"
+  local jobs="$3"
+  local list_file="$tmp_dir/.singbox-json-files"
+
+  find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$list_file"
+  if [ ! -s "$list_file" ]; then
+    return 0
+  fi
+
+  # shellcheck disable=SC2016
+  xargs -0 -n 1 -P "$jobs" sh -c '
+    out_dir="$1"
+    json="$2"
+    base="$(basename "$json" .json)"
+    sing-box rule-set compile "$json" --output "$out_dir/$base.srs"
+  ' sh "$singbox_dir" < "$list_file"
+}
+
+compile_domain_mihomo_text_dir() {
+  local tmp_dir="$1"
+  local mihomo_dir="$2"
+  local jobs="$3"
+  local list_file="$tmp_dir/.mihomo-text-files"
+
+  find "$tmp_dir" -maxdepth 1 -type f -name '*.mihomo.txt' -size +0c -print0 > "$list_file"
+  if [ ! -s "$list_file" ]; then
+    return 0
+  fi
+
+  # shellcheck disable=SC2016
+  xargs -0 -n 1 -P "$jobs" sh -c '
+    out_dir="$1"
+    plain="$2"
+    base="$(basename "$plain" .mihomo.txt)"
+    mihomo convert-ruleset domain text "$plain" "$out_dir/$base.mrs" >/dev/null
+  ' sh "$mihomo_dir" < "$list_file"
+}
+
 build_domain_artifacts_from_rule_dir() {
   local rule_dir="$1"
   local tmp_dir="$2"
   local singbox_dir="$3"
   local mihomo_dir="$4"
-  local base json srs_out mihomo_txt mrs_out source_version
-  local mihomo_ready=0
+  local mihomo_txt source_version compile_jobs
   local mihomo_built=0
   local mihomo_skipped=0
 
@@ -249,30 +256,24 @@ build_domain_artifacts_from_rule_dir() {
 
   SINGBOX_RULE_SET_VERSION="$source_version" \
     python3 "$ROOT/scripts/tools/export-domain-rules.py" binary-input-dir "$rule_dir" "$tmp_dir"
+  compile_jobs="$(detect_compile_jobs)"
 
-  for json in "$tmp_dir"/*.json; do
-    [ -f "$json" ] || continue
-    base="$(basename "$json" .json)"
-    srs_out="$singbox_dir/$base.srs"
-    mrs_out="$mihomo_dir/$base.mrs"
-    mihomo_txt="$tmp_dir/$base.mihomo.txt"
-
-    sing-box rule-set compile "$json" --output "$srs_out"
-
+  for mihomo_txt in "$tmp_dir"/*.mihomo.txt; do
+    [ -f "$mihomo_txt" ] || continue
     if [ ! -s "$mihomo_txt" ]; then
       mihomo_skipped=$((mihomo_skipped + 1))
-      rm -f "$mrs_out"
       continue
     fi
-
-    if [ "$mihomo_ready" -eq 0 ]; then
-      ensure_mihomo
-      mihomo_ready=1
-    fi
-
-    compile_mihomo_domain_plain_to_binary_artifact "$mihomo_txt" "$mrs_out"
     mihomo_built=$((mihomo_built + 1))
   done
+
+  echo "domain binary compile jobs: $compile_jobs"
+  compile_domain_singbox_json_dir "$tmp_dir" "$singbox_dir" "$compile_jobs"
+
+  if [ "$mihomo_built" -gt 0 ]; then
+    ensure_mihomo
+    compile_domain_mihomo_text_dir "$tmp_dir" "$mihomo_dir" "$compile_jobs"
+  fi
 
   if [ "$mihomo_skipped" -gt 0 ]; then
     echo "skipped mihomo domain artifacts for $mihomo_skipped list(s) without DOMAIN/DOMAIN-SUFFIX entries" >&2
