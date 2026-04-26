@@ -116,6 +116,19 @@ render_egern_domain_ruleset_from_rules() {
   python3 "$ROOT/scripts/tools/export-domain-rules.py" egern-yaml "$rule_list" "$egern_out"
 }
 
+render_domain_rule_dir_to_text_platform_dirs() {
+  local rule_dir="$1"
+  local surge_dir="$2"
+  local quanx_dir="$3"
+  local egern_dir="$4"
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \
+    "$rule_dir" \
+    "$surge_dir" \
+    "$quanx_dir" \
+    "$egern_dir"
+}
+
 compile_domain_rule_list_to_artifacts() {
   local rule_list="$1"
   local json_out="$2"
@@ -224,25 +237,27 @@ build_domain_artifacts_from_rule_dir() {
   local tmp_dir="$2"
   local singbox_dir="$3"
   local mihomo_dir="$4"
-  local list base json srs_out mihomo_txt mrs_out
+  local base json srs_out mihomo_txt mrs_out source_version
   local mihomo_ready=0
   local mihomo_built=0
   local mihomo_skipped=0
 
   ensure_sing_box
-  rm -rf "$singbox_dir" "$mihomo_dir"
+  rm -rf "$singbox_dir" "$mihomo_dir" "$tmp_dir"
   mkdir -p "$singbox_dir" "$mihomo_dir" "$tmp_dir"
+  source_version="$(detect_singbox_rule_set_source_version)"
 
-  for list in "$rule_dir"/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    json="$tmp_dir/$base.json"
+  SINGBOX_RULE_SET_VERSION="$source_version" \
+    python3 "$ROOT/scripts/tools/export-domain-rules.py" binary-input-dir "$rule_dir" "$tmp_dir"
+
+  for json in "$tmp_dir"/*.json; do
+    [ -f "$json" ] || continue
+    base="$(basename "$json" .json)"
     srs_out="$singbox_dir/$base.srs"
     mrs_out="$mihomo_dir/$base.mrs"
     mihomo_txt="$tmp_dir/$base.mihomo.txt"
 
-    compile_domain_rule_list_to_artifacts "$list" "$json" "$srs_out"
-    build_mihomo_domain_text_from_rules "$list" "$mihomo_txt"
+    sing-box rule-set compile "$json" --output "$srs_out"
 
     if [ ! -s "$mihomo_txt" ]; then
       mihomo_skipped=$((mihomo_skipped + 1))

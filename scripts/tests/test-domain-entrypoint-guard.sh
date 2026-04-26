@@ -91,5 +91,6 @@ assert_wrapper_calls_cli "normalize_custom_domain_source" "normalize-classical"
 assert_wrapper_calls_cli "render_surge_domain_ruleset_from_rules" "surge-list"
 assert_wrapper_calls_cli "render_quanx_domain_ruleset_from_rules" "quanx-list"
 assert_wrapper_calls_cli "render_egern_domain_ruleset_from_rules" "egern-yaml"
+assert_wrapper_calls_cli "render_domain_rule_dir_to_text_platform_dirs" "text-platform-dirs"
 
 echo "domain entrypoint guard passed"

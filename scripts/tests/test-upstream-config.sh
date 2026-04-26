@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 config = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))
-required_domain = {"dlc", "awavenue-ads"}
+required_domain = {"dlc", "anti-ad"}
 required_ip = {
     "cn-ipv4",
     "cn-ipv6",
@@ -29,6 +29,20 @@ missing_domain = required_domain - set(config.get("domain", {}))
 missing_ip = required_ip - set(config.get("ip", {}))
 if missing_domain or missing_ip:
     raise SystemExit(f"missing upstream config entries: domain={sorted(missing_domain)} ip={sorted(missing_ip)}")
+anti_ad_required_keys = {
+    "sing_box_srs_min_bytes",
+    "sing_box_srs_url",
+    "sing_box_srs_fallback_url",
+    "mihomo_mrs_min_bytes",
+    "mihomo_mrs_url",
+    "mihomo_mrs_fallback_url",
+}
+missing_anti_ad_keys = anti_ad_required_keys - set(config["domain"]["anti-ad"])
+if missing_anti_ad_keys:
+    raise SystemExit(f"domain.anti-ad missing native artifact config keys: {sorted(missing_anti_ad_keys)}")
+for key in anti_ad_required_keys:
+    if not config["domain"]["anti-ad"].get(key):
+        raise SystemExit(f"domain.anti-ad {key} must be non-empty")
 for section in ("domain", "ip"):
     for name, item in config[section].items():
         if "trust" not in item or "kind" not in item:
