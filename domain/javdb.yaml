@@ -1,0 +1,8 @@
+domain_suffix_set:
+  - 'jav.app'
+  - 'javdb.com'
+  - 'jdbimgs.com'
+  - 'jdbstatic.com'
+
+domain_regex_set:
+  - 'javdb\d+\.com$'

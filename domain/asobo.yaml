@@ -1,0 +1,6 @@
+domain_set:
+  - 'flightsimulator.azureedge.net'
+
+domain_suffix_set:
+  - 'asobostudio.com'
+  - 'flightsimulator.com'

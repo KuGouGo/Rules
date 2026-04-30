@@ -1,0 +1,8 @@
+domain_suffix_set:
+  - 'asktug.com'
+  - 'pingcap.cn'
+  - 'pingcap.com'
+  - 'tidb.ai'
+  - 'tidb.net'
+  - 'tidbcloud.com'
+  - 'tikv.org'

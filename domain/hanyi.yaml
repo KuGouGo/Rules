@@ -1,0 +1,10 @@
+domain_set:
+  - 'hellofontpreview.oss-cn-beijing.aliyuncs.com'
+  - 'hellowebfonts.oss-cn-beijing.aliyuncs.com'
+
+domain_suffix_set:
+  - 'hanyi.com'
+  - 'hanyi.com.cn'
+  - 'fontstar.com.cn'
+  - 'hellofont.cn'
+  - 'hellowebfont.com'

@@ -1,0 +1,5 @@
+domain_set:
+  - 'opgg-static.akamaized.net'
+
+domain_suffix_set:
+  - 'op.gg'

@@ -1,0 +1,6 @@
+domain_suffix_set:
+  - 'archlinux.de'
+  - 'archlinux.org'
+  - 'archlinuxarm.org'
+  - 'pkgbuild.com'
+  - 'archlinuxcn.org'

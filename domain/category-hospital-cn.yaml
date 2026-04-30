@@ -1,0 +1,11 @@
+domain_set:
+  - 'hospital.pku.edu.cn'
+  - 'ss.bjmu.edu.cn'
+
+domain_suffix_set:
+  - 'fuwai.com'
+  - 'pkuh6.cn'
+  - 'puh3.net.cn'
+  - 'yctdyy.com'
+  - 'smuszh.com'
+  - 'cd120.com'
