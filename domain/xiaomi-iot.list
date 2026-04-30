@@ -1,0 +1,4 @@
+HOST-SUFFIX,account.xiaomi.com,xiaomi-iot
+HOST-SUFFIX,cn-ha.mqtt.io.mi.com,xiaomi-iot
+HOST-SUFFIX,ha.api.io.mi.com,xiaomi-iot
+HOST-SUFFIX,miot-spec.org,xiaomi-iot
