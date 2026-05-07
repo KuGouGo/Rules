@@ -1,0 +1,8 @@
+domain_set:
+  - 'www.amd.com'
+
+domain_suffix_set:
+  - 'amd.com'
+  - 'amd.com.cn'
+  - 'amdfanstore.com'
+  - 'radeon.com'

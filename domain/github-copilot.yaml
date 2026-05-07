@@ -1,0 +1,9 @@
+domain_set:
+  - 'copilot-proxy.githubusercontent.com'
+  - 'copilot-workspace.githubnext.com'
+  - 'copilotprodattachments.blob.core.windows.net'
+  - 'copilot-telemetry-service.githubusercontent.com'
+  - 'copilot-telemetry.githubusercontent.com'
+
+domain_suffix_set:
+  - 'githubcopilot.com'

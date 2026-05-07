@@ -1,0 +1,8 @@
+domain_set:
+  - 'copilot-telemetry-service.githubusercontent.com'
+  - 'copilot-telemetry.githubusercontent.com'
+
+domain_suffix_set:
+  - 'collector.github.com'
+  - 'iads.unity3d.com'
+  - 'unityads.unity3d.com'
