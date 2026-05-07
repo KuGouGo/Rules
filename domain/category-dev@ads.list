@@ -1,0 +1,5 @@
+HOST-SUFFIX,collector.github.com,category-dev@ads
+HOST,copilot-telemetry-service.githubusercontent.com,category-dev@ads
+HOST,copilot-telemetry.githubusercontent.com,category-dev@ads
+HOST-SUFFIX,iads.unity3d.com,category-dev@ads
+HOST-SUFFIX,unityads.unity3d.com,category-dev@ads

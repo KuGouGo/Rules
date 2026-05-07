@@ -1,0 +1,11 @@
+HOST-SUFFIX,researchkit.cn,category-dev@cn
+HOST-SUFFIX,researchkit.com.cn,category-dev@cn
+HOST-SUFFIX,swiftui.cn,category-dev@cn
+HOST-SUFFIX,swiftui.com.cn,category-dev@cn
+HOST,firebase-settings.crashlytics.com,category-dev@cn
+HOST-SUFFIX,cdn.jetbrains.com,category-dev@cn
+HOST-SUFFIX,download-cdn.jetbrains.com.cn,category-dev@cn
+HOST-SUFFIX,microsoftreactor.cn,category-dev@cn
+HOST-SUFFIX,microsoftreactor.com.cn,category-dev@cn
+HOST-SUFFIX,reactorms.com.cn,category-dev@cn
+HOST,cdn.ampproject.org,category-dev@cn

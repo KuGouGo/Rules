@@ -1,0 +1,15 @@
+HOST,ads-gate.wildberries.ru,wildberries@ads
+HOST,ads-media.wildberries.ru,wildberries@ads
+HOST,ads.wildberries.ru,wildberries@ads
+HOST,advert-api.wb.ru,wildberries@ads
+HOST,advert-api-sandbox.wb.ru,wildberries@ads
+HOST,advert-media-api.wb.ru,wildberries@ads
+HOST,advert-api.wildberries.ru,wildberries@ads
+HOST,advert-api-sandbox.wildberries.ru,wildberries@ads
+HOST,advert-media-api.wildberries.ru,wildberries@ads
+HOST,analytics-stage.wildberries.ru,wildberries@ads
+HOST,analytics.wildberries.ru,wildberries@ads
+HOST,marketing-info.wildberries.ru,wildberries@ads
+HOST,marketplace-sentry.wb.ru,wildberries@ads
+HOST,sentry.wb.ru,wildberries@ads
+HOST,web-analytics.wildberries.ru,wildberries@ads

@@ -1,0 +1,17 @@
+HOST-SUFFIX,captive.apple.com,connectivity-check
+HOST,ping.archlinux.org,connectivity-check
+HOST,redirect.archlinux.org,connectivity-check
+HOST-SUFFIX,cp.cloudflare.com,connectivity-check
+HOST-SUFFIX,network-test.debian.org,connectivity-check
+HOST-SUFFIX,detectportal.firefox.com,connectivity-check
+HOST-SUFFIX,connectivitycheck.gstatic.com,connectivity-check
+HOST,connectivitycheck.platform.hihonorcloud.com,connectivity-check
+HOST,connectivitycheck.platform.hicloud.com,connectivity-check
+HOST-SUFFIX,networkcheck.kde.org,connectivity-check
+HOST,connect.rom.miui.com,connectivity-check
+HOST-SUFFIX,ipv6check-http.steamserver.net,connectivity-check
+HOST-SUFFIX,ipv6check-udp.steamserver.net,connectivity-check
+HOST-SUFFIX,test.steampowered.com,connectivity-check
+HOST,connectivity-check.ubuntu.com,connectivity-check
+HOST-SUFFIX,msftconnecttest.com,connectivity-check
+HOST-SUFFIX,msftncsi.com,connectivity-check
