@@ -98,4 +98,22 @@ assert_lint_fails_with \
   "$TMP_DIR/ip-coverage/domain" \
   "$TMP_DIR/ip-coverage/ip"
 
+make_case_dirs "$TMP_DIR/empty-file"
+: > "$TMP_DIR/empty-file/domain/empty.list"
+assert_lint_fails_with \
+  "empty-file" \
+  "has no effective rules" \
+  "$TMP_DIR/empty-file/domain" \
+  "$TMP_DIR/empty-file/ip"
+
+make_case_dirs "$TMP_DIR/invalid-name"
+cat > "$TMP_DIR/invalid-name/domain/Bad_Name.list" <<'EOF'
+DOMAIN,api.example.com
+EOF
+assert_lint_fails_with \
+  "invalid-name" \
+  "invalid custom rule filename" \
+  "$TMP_DIR/invalid-name/domain" \
+  "$TMP_DIR/invalid-name/ip"
+
 echo "custom rule quality tests passed"

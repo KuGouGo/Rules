@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
 IP_RULE_TYPES = {"IP-CIDR", "IP-CIDR6"}
 DOMAIN_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
+RULE_FILE_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
 @dataclass(frozen=True)
@@ -58,6 +59,11 @@ def iter_rule_files(directory: Path) -> list[Path]:
     if not directory.exists():
         return []
     return sorted(path for path in directory.glob("*.list") if path.is_file())
+
+
+def validate_rule_file_name(path: Path, reporter: Reporter) -> None:
+    if not RULE_FILE_NAME_RE.fullmatch(path.stem):
+        reporter.error(Location(path, 0), "invalid custom rule filename; use lowercase letters, digits, and hyphens only")
 
 
 def strip_inline_comment(line: str) -> str:
@@ -195,7 +201,10 @@ def check_domain_redundancy(rules: list[DomainRule], reporter: Reporter) -> None
 
 def lint_domain_dir(directory: Path, reporter: Reporter) -> None:
     for path in iter_rule_files(directory):
+        validate_rule_file_name(path, reporter)
         rules = parse_domain_file(path, reporter)
+        if not rules:
+            reporter.error(Location(path, 0), "has no effective rules")
         check_domain_redundancy(rules, reporter)
 
 
@@ -265,7 +274,10 @@ def check_ip_redundancy(rules: list[IpRule], reporter: Reporter) -> None:
 
 def lint_ip_dir(directory: Path, reporter: Reporter) -> None:
     for path in iter_rule_files(directory):
+        validate_rule_file_name(path, reporter)
         rules = parse_ip_file(path, reporter)
+        if not rules:
+            reporter.error(Location(path, 0), "has no effective rules")
         check_ip_redundancy(rules, reporter)
 
 
