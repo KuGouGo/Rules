@@ -226,6 +226,10 @@ while IFS= read -r file; do
   check_ip_file "$file" || overall_error=1
 done <<< "$IP_RULE_FILES"
 
+python3 "$ROOT/scripts/tools/lint-custom-rules.py" \
+  --domain-dir "$CUSTOM_DOMAIN_DIR" \
+  --ip-dir "$CUSTOM_IP_DIR" || overall_error=1
+
 if [ "$overall_error" -ne 0 ]; then
   echo "custom rule lint failed" >&2
   exit 1
