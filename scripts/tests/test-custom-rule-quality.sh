@@ -67,6 +67,29 @@ assert_lint_fails_with \
   "$TMP_DIR/domain-coverage/domain" \
   "$TMP_DIR/domain-coverage/ip"
 
+make_case_dirs "$TMP_DIR/domain-exact-suffix-coverage"
+cat > "$TMP_DIR/domain-exact-suffix-coverage/domain/example.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN,example.com
+EOF
+assert_lint_fails_with \
+  "domain-exact-suffix-coverage" \
+  "DOMAIN,example.com is covered by DOMAIN-SUFFIX,example.com" \
+  "$TMP_DIR/domain-exact-suffix-coverage/domain" \
+  "$TMP_DIR/domain-exact-suffix-coverage/ip"
+
+make_case_dirs "$TMP_DIR/domain-coverage-order"
+cat > "$TMP_DIR/domain-coverage-order/domain/example.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN-SUFFIX,api.example.com
+DOMAIN,www.api.example.com
+EOF
+assert_lint_fails_with \
+  "domain-coverage-order" \
+  "DOMAIN-SUFFIX,api.example.com is covered by DOMAIN-SUFFIX,example.com" \
+  "$TMP_DIR/domain-coverage-order/domain" \
+  "$TMP_DIR/domain-coverage-order/ip"
+
 make_case_dirs "$TMP_DIR/domain-regex"
 cat > "$TMP_DIR/domain-regex/domain/example.list" <<'EOF'
 DOMAIN-REGEX,[
@@ -97,6 +120,18 @@ assert_lint_fails_with \
   "IP-CIDR,10.1.0.0/16 is covered by IP-CIDR,10.0.0.0/8" \
   "$TMP_DIR/ip-coverage/domain" \
   "$TMP_DIR/ip-coverage/ip"
+
+make_case_dirs "$TMP_DIR/ip-coverage-order"
+cat > "$TMP_DIR/ip-coverage-order/ip/private.list" <<'EOF'
+IP-CIDR,10.0.0.0/8
+IP-CIDR,10.1.0.0/16
+IP-CIDR,10.1.2.0/24
+EOF
+assert_lint_fails_with \
+  "ip-coverage-order" \
+  "IP-CIDR,10.1.0.0/16 is covered by IP-CIDR,10.0.0.0/8" \
+  "$TMP_DIR/ip-coverage-order/domain" \
+  "$TMP_DIR/ip-coverage-order/ip"
 
 make_case_dirs "$TMP_DIR/empty-file"
 : > "$TMP_DIR/empty-file/domain/empty.list"

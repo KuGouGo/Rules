@@ -1,78 +1,100 @@
 # Rules
 
-多平台代理规则构建仓库。
+<p align="center">
+  <a href="https://github.com/KuGouGo/Rules/actions/workflows/build.yml"><img alt="Sync Rules" src="https://github.com/KuGouGo/Rules/actions/workflows/build.yml/badge.svg"></a>
+  <img alt="Platforms" src="https://img.shields.io/badge/platforms-Surge%20%7C%20QuanX%20%7C%20Egern%20%7C%20sing--box%20%7C%20mihomo-2f6f6f">
+  <img alt="Artifacts" src="https://img.shields.io/badge/artifacts-domain%20%7C%20ip-4b5563">
+</p>
 
-## Quick Start
+一份规则源，多端规则产物。
 
-```bash
-make help
-make validate
-make preflight
-make build-custom-text
-```
+本仓库用于维护自定义规则、同步可信上游、生成并发布多平台代理客户端可直接引用的规则集。构建流程会统一做规则标准化、平台格式转换、二进制编译、产物检查和分支发布。
 
-`make build-custom` 会构建完整自定义规则产物，包括 `sing-box`/`mihomo` 二进制规则；首次运行可能会下载外部编译工具。只想检查文本产物时使用 `make build-custom-text`。
+## 快速使用
 
-## Paths
-
-- `sources/custom/domain/*.list`：自定义域名规则
-- `sources/custom/ip/*.list`：自定义 IP 规则
-- `scripts/`：同步、构建、测试、发布脚本
-- `config/`：构建校验配置
-- `tests/fixtures/`：测试夹具
-- `docs/STRUCTURE.md`：仓库结构与构建流程说明
-- `CONTRIBUTING.md`：规则贡献与本地校验说明
-
-## Commands
-
-```bash
-make help
-make lint
-make test
-make validate
-make preflight
-make build-custom-text
-make build-custom
-make clean
-```
-
-## Rule Sources
-
-```text
-sources/custom/domain/example.list
-DOMAIN,api.example.com
-DOMAIN-SUFFIX,example.com
-DOMAIN-KEYWORD,example
-DOMAIN-REGEX,^(.+\.)?example\.com$
-
-sources/custom/ip/example.list
-IP-CIDR,1.2.3.0/24
-IP-CIDR6,2001:db8::/32
-```
-
-## Output URL
+产物发布在客户端专用分支，URL 结构固定：
 
 ```text
 https://raw.githubusercontent.com/KuGouGo/Rules/{platform}/{type}/{name}.{ext}
 ```
 
-- `platform`: `surge` | `quanx` | `egern` | `sing-box` | `mihomo`
-- `type`: `domain` | `ip`
-- `ext`: `list` | `yaml` | `srs` | `mrs`
+| 字段 | 可选值 |
+| --- | --- |
+| `platform` | `surge`, `quanx`, `egern`, `sing-box`, `mihomo` |
+| `type` | `domain`, `ip` |
+| `name` | 规则名称，例如 `cn`, `google`, `telegram`, `emby` |
+| `ext` | `list`, `yaml`, `srs`, `mrs` |
 
-## Output Matrix
+常用示例：
 
-| Platform | Domain | IP |
-| --- | --- | --- |
-| Surge | `domain/{name}.list` | `ip/{name}.list` |
-| Quantumult X | `domain/{name}.list` | `ip/{name}.list` |
-| Egern | `domain/{name}.yaml` | `ip/{name}.yaml` |
-| sing-box | `domain/{name}.srs` | `ip/{name}.srs` |
-| mihomo | `domain/{name}.mrs` | `ip/{name}.mrs` |
+```text
+https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list
+https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/ip/google.srs
+https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/emby.mrs
+```
 
-## Development
+## 产物矩阵
 
-- 仓库结构见 [docs/STRUCTURE.md](docs/STRUCTURE.md)。
-- 贡献规则或改脚本前，先看 [CONTRIBUTING.md](CONTRIBUTING.md)。
-- `make lint` 会同时检查脚本语法、Python 工具、自定义规则质量和配置文件。
-- 新增测试脚本命名为 `scripts/tests/test-*.sh`，`make test` 会自动发现。
+| 平台 | 域名规则 | IP 规则 | 说明 |
+| --- | --- | --- | --- |
+| Surge | `domain/{name}.list` | `ip/{name}.list` | Classical rule-set |
+| Quantumult X | `domain/{name}.list` | `ip/{name}.list` | 带显式策略字段 |
+| Egern | `domain/{name}.yaml` | `ip/{name}.yaml` | YAML rule-set |
+| sing-box | `domain/{name}.srs` | `ip/{name}.srs` | Binary rule-set |
+| mihomo | `domain/{name}.mrs` | `ip/{name}.mrs` | Binary rule-provider |
+
+## 本地维护
+
+```bash
+make help
+make validate
+make build-custom-text
+```
+
+`make validate` 会执行脚本语法检查、Python 编译检查、配置校验、自定义规则质量检查和测试套件。
+
+`make build-custom-text` 只构建文本产物，适合快速检查自定义规则。需要完整二进制产物时运行：
+
+```bash
+make build-custom
+```
+
+完整推送前建议运行：
+
+```bash
+make preflight
+```
+
+## 规则源格式
+
+自定义域名规则放在 `sources/custom/domain/*.list`：
+
+```text
+DOMAIN,api.example.com
+DOMAIN-SUFFIX,example.com
+DOMAIN-KEYWORD,example
+DOMAIN-REGEX,^(.+\.)?example\.com$
+```
+
+自定义 IP 规则放在 `sources/custom/ip/*.list`：
+
+```text
+IP-CIDR,1.2.3.0/24
+IP-CIDR6,2001:db8::/32
+```
+
+文件名只使用小写字母、数字和连字符，例如 `emby-cn.list`。规则质量要求和本地校验细节见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 仓库结构
+
+| 路径 | 用途 |
+| --- | --- |
+| `sources/custom/` | 自定义域名和 IP 规则源 |
+| `config/` | 上游来源、基线阈值、平台能力配置 |
+| `scripts/commands/` | Makefile 和 GitHub Actions 使用的入口脚本 |
+| `scripts/tools/` | 规则解析、归一化、分类、摘要工具 |
+| `scripts/tests/` | 自动发现的 `test-*.sh` 测试 |
+| `tests/fixtures/` | 稳定输入和期望输出夹具 |
+| `.output/` | 本地生成产物，已忽略，不手动编辑 |
+
+更完整的构建流程说明见 [docs/STRUCTURE.md](docs/STRUCTURE.md)。

@@ -7,8 +7,11 @@ cd "$ROOT"
 TEST_DIR="$ROOT/scripts/tests"
 TEST_FILTER="${TEST_FILTER:-}"
 ran=0
+test_scripts=()
 
-mapfile -t test_scripts < <(find "$TEST_DIR" -maxdepth 1 -type f -name 'test-*.sh' | sort)
+while IFS= read -r test_script; do
+  test_scripts+=("$test_script")
+done < <(find "$TEST_DIR" -maxdepth 1 -type f -name 'test-*.sh' | sort)
 
 if [ "${#test_scripts[@]}" -eq 0 ]; then
   echo "no test scripts found in $TEST_DIR" >&2

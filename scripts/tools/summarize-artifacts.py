@@ -6,7 +6,16 @@ import json
 from pathlib import Path
 
 TEXT_EXTENSIONS = {".list", ".yaml", ".yml", ".txt", ".json"}
-DOMAIN_KINDS = ("DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX")
+DOMAIN_KINDS = (
+    "DOMAIN",
+    "DOMAIN-SUFFIX",
+    "DOMAIN-KEYWORD",
+    "DOMAIN-REGEX",
+    "HOST",
+    "HOST-SUFFIX",
+    "HOST-KEYWORD",
+    "HOST-REGEX",
+)
 IP_KINDS = ("IP-CIDR", "IP-CIDR6", "IP6-CIDR")
 
 

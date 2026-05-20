@@ -14,6 +14,7 @@ ARTIFACTS_DIR="$ROOT_DIR/.output"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
+IP_TEXT_ARTIFACTS=(cn google telegram cloudflare cloudfront aws fastly github apple)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 UPSTREAM_SUMMARY_FILE="$ARTIFACTS_DIR/upstream-summary.jsonl"
@@ -172,6 +173,27 @@ merge_cidr_plain_files() {
   awk '!/^[[:space:]]*$/ && !/^[[:space:]]*#/ && !seen[$0]++' "$@" > "$output_file"
 }
 
+render_ip_text_artifact() {
+  local name="$1"
+  local plain_file="$IP_BUILD_TMP_DIR/${name}.cidr.txt"
+
+  render_ip_plain_to_surge_list \
+    "$plain_file" \
+    "$IP_ARTIFACTS_DIR/surge/${name}.list"
+  render_ip_plain_to_quanx_list \
+    "$plain_file" \
+    "$IP_ARTIFACTS_DIR/quanx/${name}.list" \
+    "$name"
+}
+
+render_ip_text_artifacts() {
+  local name
+
+  for name in "$@"; do
+    render_ip_text_artifact "$name"
+  done
+}
+
 # sync_asn_ip_list <name> <asn> [<asn> ...]
 # Download RIPE NCC Stat prefix data for each ASN, normalise in one batch,
 # merge, and render to a Surge list at IP_ARTIFACTS_DIR/surge/<name>.list.
@@ -206,13 +228,7 @@ sync_asn_ip_list() {
     return 0
   fi
 
-  render_ip_plain_to_surge_list \
-    "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
-    "$IP_ARTIFACTS_DIR/surge/${name}.list"
-  render_ip_plain_to_quanx_list \
-    "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
-    "$IP_ARTIFACTS_DIR/quanx/${name}.list" \
-    "$name"
+  render_ip_text_artifact "$name"
   record_upstream_summary ip "${name}-asn" ok "$RIPE_STAT_BASE_URL" "" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "asns=${asns[*]}"
 }
 
@@ -659,24 +675,7 @@ merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
 assert_min_cidrs apple "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$APPLE_MIN_CIDR_COUNT"
 
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cn.cidr.txt"         "$IP_ARTIFACTS_DIR/surge/cn.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/google.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/google.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/telegram.cidr.txt"   "$IP_ARTIFACTS_DIR/surge/telegram.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cloudflare.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt" "$IP_ARTIFACTS_DIR/surge/cloudfront.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/aws.cidr.txt"        "$IP_ARTIFACTS_DIR/surge/aws.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/fastly.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/github.cidr.txt"     "$IP_ARTIFACTS_DIR/surge/github.list"
-render_ip_plain_to_surge_list "$IP_BUILD_TMP_DIR/apple.cidr.txt"      "$IP_ARTIFACTS_DIR/surge/apple.list"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/cn.cidr.txt"         "$IP_ARTIFACTS_DIR/quanx/cn.list" "cn"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/google.cidr.txt"     "$IP_ARTIFACTS_DIR/quanx/google.list" "google"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/telegram.cidr.txt"   "$IP_ARTIFACTS_DIR/quanx/telegram.list" "telegram"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" "$IP_ARTIFACTS_DIR/quanx/cloudflare.list" "cloudflare"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt" "$IP_ARTIFACTS_DIR/quanx/cloudfront.list" "cloudfront"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/aws.cidr.txt"        "$IP_ARTIFACTS_DIR/quanx/aws.list" "aws"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/fastly.cidr.txt"     "$IP_ARTIFACTS_DIR/quanx/fastly.list" "fastly"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/github.cidr.txt"     "$IP_ARTIFACTS_DIR/quanx/github.list" "github"
-render_ip_plain_to_quanx_list "$IP_BUILD_TMP_DIR/apple.cidr.txt"      "$IP_ARTIFACTS_DIR/quanx/apple.list" "apple"
+render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
 
 # Streaming services: no official CIDR lists; use RIPE NCC Stat (RPKI data) by ASN.
 sync_asn_ip_list netflix  "${NETFLIX_ASNS[@]}"

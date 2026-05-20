@@ -177,26 +177,35 @@ def parse_domain_file(path: Path, reporter: Reporter) -> list[DomainRule]:
     return rules
 
 
-def domain_is_covered_by_suffix(domain: str, suffix: str) -> bool:
-    return domain == suffix or domain.endswith(f".{suffix}")
+def domain_suffix_candidates(value: str) -> list[str]:
+    labels = value.split(".")
+    return [".".join(labels[index:]) for index in range(len(labels))]
 
 
 def check_domain_redundancy(rules: list[DomainRule], reporter: Reporter) -> None:
-    suffixes = [rule for rule in rules if rule.kind == "DOMAIN-SUFFIX"]
+    suffixes_by_value: dict[str, DomainRule] = {}
+    suffix_order: dict[str, int] = {}
+    for index, rule in enumerate(rules):
+        if rule.kind == "DOMAIN-SUFFIX":
+            suffixes_by_value[rule.value] = rule
+            suffix_order[rule.value] = index
 
     for rule in rules:
         if rule.kind not in {"DOMAIN", "DOMAIN-SUFFIX"}:
             continue
-        for suffix_rule in suffixes:
-            if rule == suffix_rule:
+        covering_rule = None
+        for suffix in domain_suffix_candidates(rule.value):
+            suffix_rule = suffixes_by_value.get(suffix)
+            if suffix_rule is None or rule == suffix_rule:
                 continue
-            if domain_is_covered_by_suffix(rule.value, suffix_rule.value):
-                reporter.error(
-                    rule.location,
-                    f"{rule.kind},{rule.value} is covered by "
-                    f"DOMAIN-SUFFIX,{suffix_rule.value} at {suffix_rule.location}",
-                )
-                break
+            if covering_rule is None or suffix_order[suffix_rule.value] < suffix_order[covering_rule.value]:
+                covering_rule = suffix_rule
+        if covering_rule is not None:
+            reporter.error(
+                rule.location,
+                f"{rule.kind},{rule.value} is covered by "
+                f"DOMAIN-SUFFIX,{covering_rule.value} at {covering_rule.location}",
+            )
 
 
 def lint_domain_dir(directory: Path, reporter: Reporter) -> None:
@@ -259,17 +268,24 @@ def parse_ip_file(path: Path, reporter: Reporter) -> list[IpRule]:
 
 
 def check_ip_redundancy(rules: list[IpRule], reporter: Reporter) -> None:
+    rules_by_network = {rule.network: rule for rule in rules}
+    network_order = {rule.network: index for index, rule in enumerate(rules)}
+
     for rule in rules:
-        for candidate in rules:
-            if rule == candidate or rule.network.version != candidate.network.version:
+        covering_rule = None
+        for prefix_len in range(rule.network.prefixlen - 1, -1, -1):
+            candidate_network = rule.network.supernet(new_prefix=prefix_len)
+            candidate = rules_by_network.get(candidate_network)
+            if candidate is None:
                 continue
-            if rule.network.subnet_of(candidate.network):
-                reporter.error(
-                    rule.location,
-                    f"{rule.kind},{rule.network} is covered by "
-                    f"{candidate.kind},{candidate.network} at {candidate.location}",
-                )
-                break
+            if covering_rule is None or network_order[candidate.network] < network_order[covering_rule.network]:
+                covering_rule = candidate
+        if covering_rule is not None:
+            reporter.error(
+                rule.location,
+                f"{rule.kind},{rule.network} is covered by "
+                f"{covering_rule.kind},{covering_rule.network} at {covering_rule.location}",
+            )
 
 
 def lint_ip_dir(directory: Path, reporter: Reporter) -> None:
