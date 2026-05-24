@@ -310,27 +310,34 @@ assert_branch_layout() {
 
 cleanup_tempdir() {
   local tempdir="$1"
-  popd >/dev/null || true
-  rm -rf "$tempdir"
+  [ -n "$tempdir" ] && rm -rf "$tempdir"
 }
 
-publish_branch() {
+reset_publish_worktree() {
+  local branch="$1"
+
+  git checkout --orphan "$branch" >/dev/null 2>&1
+  git rm -rf . >/dev/null 2>&1 || true
+  find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+}
+
+queue_publish_ref() {
+  local branch="$1"
+  local commit="$2"
+  local remote_commit="$3"
+
+  printf '%s\t%s\t%s\n' "$branch" "$commit" "$remote_commit" >> "$PUBLISH_QUEUE_FILE"
+}
+
+prepare_branch() {
   local branch="$1"
   local domain_dir="$2"
   local ip_dir="$3"
   local domain_extensions="$4"
   local ip_extensions="$5"
-  local tmpdir local_tree remote_tree
+  local local_tree remote_tree remote_commit commit
 
-  tmpdir="$(mktemp -d)"
-  pushd "$tmpdir" >/dev/null
-  trap 'cleanup_tempdir "$tmpdir"' RETURN
-
-  git init -q
-  git checkout --orphan "$branch" >/dev/null 2>&1
-  git config user.name "github-actions[bot]"
-  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+  reset_publish_worktree "$branch"
   prepare_publish_side "$branch" "$domain_dir" domain "$domain_extensions" domain
   prepare_publish_side "$branch" "$ip_dir" ip "$ip_extensions" ip
   branch_readme "$branch" > README.md
@@ -338,7 +345,7 @@ publish_branch() {
 
   git add README.md domain ip
   local_tree="$(git write-tree)"
-  remote_tree="$(git -C "$ROOT" rev-parse "origin/$branch^{tree}" 2>/dev/null || true)"
+  remote_tree="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{tree}" 2>/dev/null || true)"
 
   if [ -n "$remote_tree" ] && [ "$local_tree" = "$remote_tree" ]; then
     echo "$branch artifacts unchanged, skip publish"
@@ -346,12 +353,31 @@ publish_branch() {
   fi
 
   git commit -m "chore: publish ${branch} artifacts" >/dev/null
+  commit="$(git rev-parse HEAD)"
+  remote_commit="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}" 2>/dev/null || true)"
 
-  local remote_url
   if [ "$DRY_RUN" = "1" ]; then
     echo "=== ${branch} publish dry-run ==="
     echo "domain files: $(find domain -maxdepth 1 -type f | wc -l | tr -d ' ')"
     echo "ip files: $(find ip -maxdepth 1 -type f | wc -l | tr -d ' ')"
+    return 0
+  fi
+
+  queue_publish_ref "$branch" "$commit" "$remote_commit"
+}
+
+publish_queued_refs() {
+  local remote_url branch commit remote_commit refspec lease
+  local -a refspecs=()
+  local -a leases=()
+  local -a names=()
+
+  if [ "$DRY_RUN" = "1" ]; then
+    return 0
+  fi
+
+  if [ ! -s "$PUBLISH_QUEUE_FILE" ]; then
+    echo "all publish branches unchanged, skip push"
     return 0
   fi
 
@@ -361,20 +387,39 @@ publish_branch() {
   fi
   git remote add origin "$remote_url"
 
-  local_tree="$(git rev-parse 'HEAD^{tree}')"
-  if git fetch --depth=1 origin "$branch" >/dev/null 2>&1; then
-    remote_tree="$(git rev-parse 'FETCH_HEAD^{tree}')"
-    if [ "$local_tree" = "$remote_tree" ]; then
-      echo "${branch} artifacts unchanged, skip push"
-      return 0
-    fi
-  fi
+  git ls-remote --exit-code origin HEAD >/dev/null
 
-  git push --force-with-lease "origin" "HEAD:$branch"
+  while IFS=$'\t' read -r branch commit remote_commit; do
+    [ -n "$branch" ] || continue
+    refspec="${commit}:refs/heads/${branch}"
+    if [ -n "$remote_commit" ]; then
+      lease="--force-with-lease=refs/heads/${branch}:${remote_commit}"
+    else
+      lease="--force-with-lease=refs/heads/${branch}:"
+    fi
+    refspecs+=("$refspec")
+    leases+=("$lease")
+    names+=("$branch")
+  done < "$PUBLISH_QUEUE_FILE"
+
+  echo "publishing branches atomically: ${names[*]}"
+  git push --atomic "${leases[@]}" origin "${refspecs[@]}"
 }
 
-publish_branch surge domain/surge ip/surge list list
-publish_branch quanx domain/quanx ip/quanx list list
-publish_branch egern domain/egern ip/egern yaml yaml
-publish_branch sing-box domain/sing-box ip/sing-box srs srs
-publish_branch mihomo domain/mihomo ip/mihomo mrs mrs
+PUBLISH_TMPDIR="$(mktemp -d)"
+PUBLISH_QUEUE_FILE="$PUBLISH_TMPDIR/publish-queue.tsv"
+PUBLISH_WORKTREE="$PUBLISH_TMPDIR/worktree"
+trap 'cleanup_tempdir "$PUBLISH_TMPDIR"' EXIT
+
+mkdir -p "$PUBLISH_WORKTREE"
+cd "$PUBLISH_WORKTREE"
+git init -q
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+prepare_branch surge domain/surge ip/surge list list
+prepare_branch quanx domain/quanx ip/quanx list list
+prepare_branch egern domain/egern ip/egern yaml yaml
+prepare_branch sing-box domain/sing-box ip/sing-box srs srs
+prepare_branch mihomo domain/mihomo ip/mihomo mrs mrs
+publish_queued_refs
