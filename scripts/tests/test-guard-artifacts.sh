@@ -52,6 +52,19 @@ touch \
   "$TMP_DIR/shape-bad/cn@cn.list" \
   "$TMP_DIR/shape-bad/geolocation-cn@cn.list" \
   "$TMP_DIR/shape-bad/category-ai-!cn@!cn.list"
+mkdir -p "$TMP_DIR/ip-valid" "$TMP_DIR/ip-invalid"
+cat > "$TMP_DIR/ip-valid/telegram.list" <<'RULES'
+IP-CIDR,91.108.4.0/22,no-resolve
+IP-CIDR6,2001:b28:f23c::/48,no-resolve
+RULES
+cat > "$TMP_DIR/ip-valid/private.list" <<'RULES'
+IP-CIDR,10.0.0.0/8,no-resolve
+IP-CIDR6,fc00::/7,no-resolve
+RULES
+cat > "$TMP_DIR/ip-invalid/example.list" <<'RULES'
+IP-CIDR,10.0.0.0/8,no-resolve
+IP-CIDR6,192.0.2.0/24,no-resolve
+RULES
 
 assert_equals "7" "$(count_domain_rules_from_file "$TMP_DIR/domain.list")" "domain list counts Surge and QuanX domain entries"
 assert_equals "2" "$(count_domain_rules_from_file "$TMP_DIR/domain.yaml")" "domain yaml counts Egern entries"
@@ -104,6 +117,58 @@ fi
 if ! grep -Fq "shape-bad redundant attr filter artifact should not be published: geolocation-cn@cn.list" "$TMP_DIR/shape-bad.stderr"; then
   echo "test failed: missing redundant attr artifact guard message" >&2
   cat "$TMP_DIR/shape-bad.stderr" >&2
+  exit 1
+fi
+
+mkdir -p "$TMP_DIR/plain-summary/.output"
+cat > "$TMP_DIR/plain-summary/.output/upstream-summary.json" <<'JSON'
+[
+  {
+    "category": "domain",
+    "name": "dlc",
+    "raw": {"path": "/tmp/dlc.dat_plain.yml"},
+    "url": "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat_plain.yml"
+  }
+]
+JSON
+
+if ! ( cd "$TMP_DIR/plain-summary" && uses_dlc_plain_yaml_artifact ); then
+  echo "test failed: DLC plain YAML summary should be detected" >&2
+  exit 1
+fi
+
+mkdir -p "$TMP_DIR/git-summary/.output"
+cat > "$TMP_DIR/git-summary/.output/upstream-summary.json" <<'JSON'
+[
+  {
+    "category": "domain",
+    "name": "dlc",
+    "url": "https://github.com/v2fly/domain-list-community.git"
+  }
+]
+JSON
+
+if ( cd "$TMP_DIR/git-summary" && uses_dlc_plain_yaml_artifact ); then
+  echo "test failed: git DLC summary should not be treated as plain YAML" >&2
+  exit 1
+fi
+
+check_public_ip_cidrs_in_dir "$TMP_DIR/ip-valid" "ip-valid"
+
+if ( check_public_ip_cidrs_in_dir "$TMP_DIR/ip-invalid" "ip-invalid" ) >"$TMP_DIR/ip-invalid.stdout" 2>"$TMP_DIR/ip-invalid.stderr"; then
+  echo "test failed: invalid public IP artifacts should fail guard" >&2
+  exit 1
+fi
+
+if ! grep -Fq "non-global CIDR outside private.list: 10.0.0.0/8" "$TMP_DIR/ip-invalid.stderr"; then
+  echo "test failed: missing non-global CIDR guard message" >&2
+  cat "$TMP_DIR/ip-invalid.stderr" >&2
+  exit 1
+fi
+
+if ! grep -Fq "IP-CIDR6 requires IPv6, got 192.0.2.0/24" "$TMP_DIR/ip-invalid.stderr"; then
+  echo "test failed: missing IP family guard message" >&2
+  cat "$TMP_DIR/ip-invalid.stderr" >&2
   exit 1
 fi
 

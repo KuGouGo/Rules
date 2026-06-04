@@ -1,44 +1,21 @@
 {
   "domain": {
     "dlc": {
-      "kind": "git",
+      "kind": "yaml",
       "trust": "community",
-      "url": "https://github.com/v2fly/domain-list-community.git"
-    },
-    "anti-ad": {
-      "kind": "text",
-      "trust": "community",
-      "min_rules": 50000,
-      "url": "https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-surge.txt",
-      "fallback_url": "https://anti-ad.net/surge.txt",
-      "sing_box_srs_min_bytes": 500000,
-      "sing_box_srs_url": "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/anti-ad-sing-box.srs",
-      "sing_box_srs_fallback_url": "https://anti-ad.net/anti-ad-sing-box.srs",
-      "mihomo_mrs_min_bytes": 500000,
-      "mihomo_mrs_url": "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs",
-      "mihomo_mrs_fallback_url": "https://anti-ad.net/mihomo.mrs"
+      "url": "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat_plain.yml"
     }
   },
   "ip": {
-    "cn-ipv4": {
+    "cn-ipv46": {
       "kind": "text",
       "trust": "registry",
-      "url": "https://ispip.clang.cn/all_cn.txt"
+      "url": "https://ispip.clang.cn/all_cn_ipv46.txt"
     },
-    "cn-ipv6": {
+    "cn-ipv46-apnic": {
       "kind": "text",
       "trust": "registry",
-      "url": "https://ispip.clang.cn/all_cn_ipv6.txt"
-    },
-    "cn-asn-ipv4": {
-      "kind": "text",
-      "trust": "registry",
-      "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
-    },
-    "cn-asn-ipv6": {
-      "kind": "text",
-      "trust": "registry",
-      "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt"
+      "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
     },
     "google": {
       "kind": "json",
@@ -96,8 +73,9 @@
     }
   },
   "asn_groups": {
+    "telegram": [44907, 59930, 62014, 62041, 211157],
     "netflix": [2906, 40027],
     "spotify": [35228, 7441],
-    "disney": [133530, 394297]
+    "disney": [13379, 15260, 23344, 25932, 29736, 30311, 53578]
   }
 }

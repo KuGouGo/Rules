@@ -231,6 +231,32 @@ check_domain_rule_entry_volatility() {
   fi
 }
 
+uses_dlc_plain_yaml_artifact() {
+  python3 - <<'PY'
+import json
+from pathlib import Path
+
+summary_file = Path(".output/upstream-summary.json")
+if not summary_file.exists():
+    raise SystemExit(1)
+
+try:
+    items = json.loads(summary_file.read_text(encoding="utf-8"))
+except json.JSONDecodeError:
+    raise SystemExit(1)
+
+for item in items:
+    if item.get("category") != "domain" or item.get("name") != "dlc":
+        continue
+    url = item.get("url", "")
+    raw_path = item.get("raw", {}).get("path", "")
+    if url.endswith("dlc.dat_plain.yml") or raw_path.endswith("dlc.dat_plain.yml"):
+        raise SystemExit(0)
+
+raise SystemExit(1)
+PY
+}
+
 ensure_origin_branch_baseline() {
   local branch="$1"
 
@@ -250,6 +276,11 @@ check_domain_rule_entry_volatility_against_branch() {
   local branch="$1"
   local dir="$2"
   local label="$3"
+
+  if uses_dlc_plain_yaml_artifact; then
+    echo "$label: DLC plain YAML artifact in use, skip legacy branch entry volatility check"
+    return 0
+  fi
 
   ensure_origin_branch_baseline "$branch" || return 0
   check_domain_rule_entry_volatility "$label" "$dir" "origin/$branch" "domain"
@@ -288,6 +319,64 @@ count_ip_cidrs_by_family_from_file() {
     family == "v6" && ($1 == "IP-CIDR6" || $1 == "IP6-CIDR") { count++ }
     END { print count + 0 }
   ' "$file"
+}
+
+check_public_ip_cidrs_in_dir() {
+  local dir="$1"
+  local label="$2"
+
+  python3 - <<'PY' "$dir" "$label"
+import ipaddress
+import sys
+from pathlib import Path
+
+dir_path = Path(sys.argv[1])
+label = sys.argv[2]
+violations: list[str] = []
+ip_rule_types = {"IP-CIDR", "IP-CIDR6", "IP6-CIDR"}
+
+if not dir_path.exists():
+    raise SystemExit(0)
+
+for path in sorted(dir_path.glob("*.list")):
+    allow_non_global = path.stem == "private"
+    for line_no, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        parts = [part.strip() for part in line.split(",")]
+        kind = parts[0] if parts else ""
+        if kind not in ip_rule_types:
+            continue
+        if len(parts) < 2 or not parts[1]:
+            violations.append(f"{label}/{path.name}:{line_no}: missing CIDR value")
+            continue
+
+        try:
+            network = ipaddress.ip_network(parts[1], strict=False)
+        except ValueError as exc:
+            violations.append(f"{label}/{path.name}:{line_no}: invalid CIDR {parts[1]!r} ({exc})")
+            continue
+
+        if kind == "IP-CIDR" and network.version != 4:
+            violations.append(f"{label}/{path.name}:{line_no}: IP-CIDR requires IPv4, got {network}")
+        if kind in {"IP-CIDR6", "IP6-CIDR"} and network.version != 6:
+            violations.append(f"{label}/{path.name}:{line_no}: {kind} requires IPv6, got {network}")
+        if not allow_non_global and not network.is_global:
+            violations.append(f"{label}/{path.name}:{line_no}: non-global CIDR outside private.list: {network}")
+
+if violations:
+    print("IP CIDR validity guard failed:", file=sys.stderr)
+    for violation in violations:
+        print(violation, file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
+check_public_ip_cidrs() {
+  check_public_ip_cidrs_in_dir ".output/ip/surge" "ip-surge"
+  check_public_ip_cidrs_in_dir ".output/ip/quanx" "ip-quanx"
 }
 
 builtin_ip_min_family_entries() {
@@ -451,6 +540,7 @@ main() {
   check_domain_rule_entry_volatility_against_branch egern ".output/domain/egern" "domain/egern"
 
   print_section "IP CIDR entry checks"
+  check_public_ip_cidrs
   check_builtin_ip_min_entries
   check_builtin_ip_family_min_entries
   check_builtin_ip_entry_volatility

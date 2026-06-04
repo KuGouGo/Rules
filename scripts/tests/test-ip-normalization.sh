@@ -53,6 +53,31 @@ CIDRS
 python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single text "$TMP_DIR/mixed.txt" "$TMP_DIR/mixed.out"
 assert_file_content "$TMP_DIR/mixed.out" $'192.168.1.0/24\n2001:db8::/32'
 
+cat > "$TMP_DIR/merge-a.txt" <<'CIDRS'
+10.0.0.0/8
+192.168.1.0/24
+2001:db8::/32
+CIDRS
+cat > "$TMP_DIR/merge-b.txt" <<'CIDRS'
+10.1.0.0/16
+192.168.2.0/24
+2001:db8:1::/48
+CIDRS
+
+python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
+  merge \
+  "$TMP_DIR/merged.out" \
+  "$TMP_DIR/merge-a.txt" \
+  "$TMP_DIR/merge-b.txt"
+assert_file_content "$TMP_DIR/merged.out" $'10.0.0.0/8\n192.168.1.0/24\n192.168.2.0/24\n2001:db8::/32'
+
+python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
+  merge-dedupe \
+  "$TMP_DIR/merged-dedupe.out" \
+  "$TMP_DIR/merge-a.txt" \
+  "$TMP_DIR/merge-b.txt"
+assert_file_content "$TMP_DIR/merged-dedupe.out" $'10.0.0.0/8\n192.168.1.0/24\n2001:db8::/32\n10.1.0.0/16\n192.168.2.0/24\n2001:db8:1::/48'
+
 cat > "$TMP_DIR/empty.txt" <<'CIDRS'
 # comment only
 not-a-cidr

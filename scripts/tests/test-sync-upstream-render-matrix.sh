@@ -50,6 +50,20 @@ if not asn_function_match:
     raise SystemExit("test failed: sync_asn_ip_list function is missing")
 if 'render_ip_text_artifact "$name"' not in asn_function_match.group("body"):
     raise SystemExit("test failed: sync_asn_ip_list does not share the IP text render entrypoint")
+
+asn_cidr_function_match = re.search(
+    r"sync_asn_ip_cidrs\(\) \{(?P<body>.*?)\n\}",
+    script,
+    re.DOTALL,
+)
+if not asn_cidr_function_match:
+    raise SystemExit("test failed: private sync_asn_ip_cidrs helper is missing")
+if "render_ip_text_artifact" in asn_cidr_function_match.group("body"):
+    raise SystemExit("test failed: private ASN CIDR helper must not render public artifacts")
+if 'sync_asn_ip_list "${name}_asn"' in script:
+    raise SystemExit("test failed: merged ASN sources must not render private *_asn artifacts")
+if "telegram_asn.list" in script or "telegram_asn.yaml" in script:
+    raise SystemExit("test failed: telegram_asn intermediate artifact leaked into sync script")
 PY
 
 echo "sync upstream render matrix tests passed"

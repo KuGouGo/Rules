@@ -18,9 +18,8 @@ DEFAULT_SINGBOX_RULE_SET_VERSION = 4
 SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
 
 
-def deduplicated_cidrs(values: list[str]) -> list[str]:
-    seen: set[str] = set()
-    normalized: list[str] = []
+def normalize_networks(values: list[str]) -> list[ipaddress._BaseNetwork]:
+    networks: list[ipaddress._BaseNetwork] = []
 
     for value in values:
         cidr = value.strip()
@@ -28,9 +27,18 @@ def deduplicated_cidrs(values: list[str]) -> list[str]:
             continue
         try:
             # strict=False silently masks host bits (e.g. 192.168.1.1/24 → 192.168.1.0/24).
-            network = ipaddress.ip_network(cidr, strict=False)
+            networks.append(ipaddress.ip_network(cidr, strict=False))
         except ValueError:
             continue
+
+    return networks
+
+
+def deduplicated_cidrs(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    normalized: list[str] = []
+
+    for network in normalize_networks(values):
         text = str(network)
         if text in seen:
             continue
@@ -46,6 +54,33 @@ def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
     if output_text:
         output_text += "\n"
     output_file.write_text(output_text, encoding="utf-8")
+
+
+def collapsed_cidrs(values: list[str]) -> list[str]:
+    networks = normalize_networks(values)
+    ipv4 = [network for network in networks if network.version == 4]
+    ipv6 = [network for network in networks if network.version == 6]
+    collapsed = list(ipaddress.collapse_addresses(ipv4))
+    collapsed.extend(ipaddress.collapse_addresses(ipv6))
+    return [str(network) for network in collapsed]
+
+
+def merge_plain_cidr_files(input_files: list[Path], output_file: Path) -> None:
+    values: list[str] = []
+    for input_file in input_files:
+        values.extend(input_file.read_text(encoding="utf-8").splitlines())
+
+    output_text = "\n".join(collapsed_cidrs(values))
+    if output_text:
+        output_text += "\n"
+    output_file.write_text(output_text, encoding="utf-8")
+
+
+def merge_plain_cidr_files_dedup(input_files: list[Path], output_file: Path) -> None:
+    values: list[str] = []
+    for input_file in input_files:
+        values.extend(input_file.read_text(encoding="utf-8").splitlines())
+    write_deduplicated_cidrs(values, output_file)
 
 
 def extract_text_cidrs(input_file: Path, output_file: Path) -> None:
@@ -226,6 +261,14 @@ def main() -> int:
     batch_parser = subparsers.add_parser("batch")
     batch_parser.add_argument("manifest_file")
 
+    merge_parser = subparsers.add_parser("merge")
+    merge_parser.add_argument("output_file")
+    merge_parser.add_argument("input_files", nargs="+")
+
+    merge_dedupe_parser = subparsers.add_parser("merge-dedupe")
+    merge_dedupe_parser.add_argument("output_file")
+    merge_dedupe_parser.add_argument("input_files", nargs="+")
+
     singbox_parser = subparsers.add_parser("singbox-json")
     singbox_parser.add_argument("input_file")
     singbox_parser.add_argument("output_file")
@@ -237,6 +280,10 @@ def main() -> int:
             run_single_task(args.source_type, Path(args.input_file), Path(args.output_file))
         elif args.command == "batch":
             run_batch_tasks(Path(args.manifest_file))
+        elif args.command == "merge":
+            merge_plain_cidr_files([Path(path) for path in args.input_files], Path(args.output_file))
+        elif args.command == "merge-dedupe":
+            merge_plain_cidr_files_dedup([Path(path) for path in args.input_files], Path(args.output_file))
         else:
             build_singbox_json_from_plain(Path(args.input_file), Path(args.output_file))
         return 0

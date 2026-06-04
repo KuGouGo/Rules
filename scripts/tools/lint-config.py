@@ -10,12 +10,10 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[2]
 
-REQUIRED_DOMAIN_SOURCES = {"dlc", "anti-ad"}
+REQUIRED_DOMAIN_SOURCES = {"dlc"}
 REQUIRED_IP_SOURCES = {
-    "cn-ipv4",
-    "cn-ipv6",
-    "cn-asn-ipv4",
-    "cn-asn-ipv6",
+    "cn-ipv46",
+    "cn-ipv46-apnic",
     "google",
     "telegram",
     "cloudflare-ipv4",
@@ -26,23 +24,15 @@ REQUIRED_IP_SOURCES = {
     "apple",
     "ripe-stat",
 }
-REQUIRED_ASN_GROUPS = {"netflix", "spotify", "disney"}
+REQUIRED_ASN_GROUPS = {"telegram", "netflix", "spotify", "disney"}
 REQUIRED_FIRST_BATCH_SOURCES = {"google-json", "github-json", "telegram"}
 SUPPORTED_IP_PARSERS = {"google-json", "github-json", "telegram"}
 SUPPORTED_DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
 REQUIRED_DOMAIN_PLATFORMS = {"surge", "quanx", "egern", "sing-box", "mihomo-mrs"}
 ALLOWED_TRUST_VALUES = {"community", "official", "registry"}
 ALLOWED_KINDS = {
-    "domain": {"git", "text"},
+    "domain": {"git", "text", "yaml"},
     "ip": {"html", "json", "json-api", "text"},
-}
-ANTI_AD_REQUIRED_KEYS = {
-    "sing_box_srs_min_bytes",
-    "sing_box_srs_url",
-    "sing_box_srs_fallback_url",
-    "mihomo_mrs_min_bytes",
-    "mihomo_mrs_url",
-    "mihomo_mrs_fallback_url",
 }
 
 
@@ -162,18 +152,6 @@ def validate_upstreams(data: dict, reporter: Reporter) -> None:
         validate_source("domain", name, item, reporter)
     for name, item in sorted(ip.items()):
         validate_source("ip", name, item, reporter)
-
-    anti_ad = domain.get("anti-ad")
-    if isinstance(anti_ad, dict):
-        missing_anti_ad_keys = ANTI_AD_REQUIRED_KEYS - set(anti_ad)
-        if missing_anti_ad_keys:
-            reporter.error(
-                "upstreams.domain.anti-ad",
-                f"missing native artifact keys: {sorted(missing_anti_ad_keys)}",
-            )
-        for key in ANTI_AD_REQUIRED_KEYS:
-            if key in anti_ad and not anti_ad[key]:
-                reporter.error(f"upstreams.domain.anti-ad.{key}", "must be non-empty")
 
     for name, values in sorted(asn_groups.items()):
         location = f"upstreams.asn_groups.{name}"

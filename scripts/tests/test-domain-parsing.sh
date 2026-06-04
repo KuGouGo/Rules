@@ -158,6 +158,39 @@ EOF
   fi
 }
 
+test_export_plain_yaml_artifact() {
+  mkdir -p "$TMP_DIR/export_plain_yaml/out"
+  cat > "$TMP_DIR/export_plain_yaml/dlc.dat_plain.yml" <<'EOF'
+lists:
+  - name: yaml-test
+    length: 6
+    rules:
+      - "domain:Example.COM."
+      - "full:Api.Example.COM."
+      - "keyword:YouTube"
+      - "regexp:^Foo\\."
+      - "domain:example.com"
+      - "full:api.example.com"
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/export_plain_yaml/dlc.dat_plain.yml" \
+    "$TMP_DIR/export_plain_yaml/out" \
+    2>"$TMP_DIR/export_plain_yaml/stderr"
+
+  cat > "$TMP_DIR/export_plain_yaml/expected.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN,api.example.com
+DOMAIN-KEYWORD,youtube
+DOMAIN-REGEX,^Foo\.
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/export_plain_yaml/expected.list" \
+    "$TMP_DIR/export_plain_yaml/out/yaml-test.list" \
+    "export supports domain-list-community plain YAML artifacts"
+}
+
 test_classical_domain_fixture_outputs() {
   local fixture_name="mixed"
   local input_file="$FIXTURE_ROOT/input/$fixture_name.list"
@@ -652,6 +685,7 @@ EOF
 test_compile_jobs_override_validation
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
+test_export_plain_yaml_artifact
 test_classical_domain_fixture_outputs
 test_batch_domain_dir_outputs
 test_include_filter_semantics

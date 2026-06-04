@@ -7,7 +7,6 @@ cd "$ROOT_DIR"
 WORK_TMP_DIR="$ROOT_DIR/.tmp/sync"
 BIN_DIR="$ROOT_DIR/.bin"
 DOMAIN_BUILD_TMP_DIR="$WORK_TMP_DIR/domain-build"
-DOMAIN_BINARY_RULE_TMP_DIR="$WORK_TMP_DIR/domain-binary-rules"
 DOMAIN_RULE_TMP_DIR="$WORK_TMP_DIR/domain-rules"
 IP_BUILD_TMP_DIR="$WORK_TMP_DIR/ip-build"
 ARTIFACTS_DIR="$ROOT_DIR/.output"
@@ -46,16 +45,8 @@ PY
 }
 
 DOMAIN_SOURCE_REPO_URL="$(upstream_value domain dlc url)"
-ANTI_AD_DOMAIN_SOURCE_URL="$(upstream_value domain anti-ad url)"
-ANTI_AD_DOMAIN_SOURCE_FALLBACK_URL="$(upstream_value domain anti-ad fallback_url)"
-ANTI_AD_SING_BOX_SRS_SOURCE_URL="$(upstream_value domain anti-ad sing_box_srs_url)"
-ANTI_AD_SING_BOX_SRS_SOURCE_FALLBACK_URL="$(upstream_value domain anti-ad sing_box_srs_fallback_url)"
-ANTI_AD_MIHOMO_MRS_SOURCE_URL="$(upstream_value domain anti-ad mihomo_mrs_url)"
-ANTI_AD_MIHOMO_MRS_SOURCE_FALLBACK_URL="$(upstream_value domain anti-ad mihomo_mrs_fallback_url)"
-CN_IPV4_SOURCE_URL="$(upstream_value ip cn-ipv4 url)"
-CN_IPV6_SOURCE_URL="$(upstream_value ip cn-ipv6 url)"
-CN_ASN_IPV4_SOURCE_URL="$(upstream_value ip cn-asn-ipv4 url)"
-CN_ASN_IPV6_SOURCE_URL="$(upstream_value ip cn-asn-ipv6 url)"
+CN_IPV46_SOURCE_URL="$(upstream_value ip cn-ipv46 url)"
+CN_IPV46_APNIC_SOURCE_URL="$(upstream_value ip cn-ipv46-apnic url)"
 GOOGLE_IP_SOURCE_URL="$(upstream_value ip google url)"
 TELEGRAM_IP_SOURCE_URL="$(upstream_value ip telegram url)"
 CLOUDFLARE_IPV4_SOURCE_URL="$(upstream_value ip cloudflare-ipv4 url)"
@@ -67,9 +58,7 @@ APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
 APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
 RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
 APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-$(upstream_value ip apple min_cidrs)}"
-ANTI_AD_MIN_RULE_COUNT="${ANTI_AD_MIN_RULE_COUNT:-$(upstream_value domain anti-ad min_rules)}"
-ANTI_AD_SING_BOX_SRS_MIN_BYTES="${ANTI_AD_SING_BOX_SRS_MIN_BYTES:-$(upstream_value domain anti-ad sing_box_srs_min_bytes)}"
-ANTI_AD_MIHOMO_MRS_MIN_BYTES="${ANTI_AD_MIHOMO_MRS_MIN_BYTES:-$(upstream_value domain anti-ad mihomo_mrs_min_bytes)}"
+read -r -a TELEGRAM_ASNS <<< "$(upstream_asn_group telegram)"
 read -r -a NETFLIX_ASNS <<< "$(upstream_asn_group netflix)"
 read -r -a SPOTIFY_ASNS <<< "$(upstream_asn_group spotify)"
 read -r -a DISNEY_ASNS <<< "$(upstream_asn_group disney)"
@@ -131,13 +120,6 @@ with open(summary_file, "a", encoding="utf-8") as fh:
 PY
 }
 
-record_dlc_summary() {
-  local repo_dir="$1"
-  local commit=""
-  commit="$(git -C "$repo_dir" rev-parse HEAD 2>/dev/null || true)"
-  record_upstream_summary domain dlc ok "$DOMAIN_SOURCE_REPO_URL" "" "" 0 "commit=$commit"
-}
-
 write_upstream_summary_json() {
   local json_file="$ARTIFACTS_DIR/upstream-summary.json"
   python3 - <<'PY' "$UPSTREAM_SUMMARY_FILE" "$json_file"
@@ -169,8 +151,13 @@ assert_files_present() {
 merge_cidr_plain_files() {
   local output_file="$1"
   shift
-  # Filter blank/comment lines while deduplicating.
-  awk '!/^[[:space:]]*$/ && !/^[[:space:]]*#/ && !seen[$0]++' "$@" > "$output_file"
+  python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge "$output_file" "$@"
+}
+
+merge_cidr_plain_files_dedup() {
+  local output_file="$1"
+  shift
+  python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge-dedupe "$output_file" "$@"
 }
 
 render_ip_text_artifact() {
@@ -194,16 +181,13 @@ render_ip_text_artifacts() {
   done
 }
 
-# sync_asn_ip_list <name> <asn> [<asn> ...]
-# Download RIPE NCC Stat prefix data for each ASN, normalise in one batch,
-# merge, and render to a Surge list at IP_ARTIFACTS_DIR/surge/<name>.list.
-sync_asn_ip_list() {
+sync_asn_ip_cidrs() {
   local name="$1"
   shift
   local -a asns=("$@")
   local -a cidr_files=()
   local -a task_args=()
-  local asn raw_json cidr_txt manifest_file
+  local asn raw_json cidr_txt manifest_file merge_mode
 
   for asn in "${asns[@]}"; do
     raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
@@ -221,15 +205,60 @@ sync_asn_ip_list() {
   generate_normalize_manifest "$manifest_file" "${task_args[@]}"
   python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$manifest_file"
 
-  merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
+  merge_mode="${ASN_CIDR_MERGE_MODE:-collapse}"
+  case "$merge_mode" in
+    collapse) merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}" ;;
+    dedupe) merge_cidr_plain_files_dedup "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}" ;;
+    *)
+      echo "unsupported ASN_CIDR_MERGE_MODE: $merge_mode" >&2
+      return 1
+      ;;
+  esac
 
   if [ ! -s "$IP_BUILD_TMP_DIR/${name}.cidr.txt" ]; then
     echo "warning: no prefixes found for $name (ASNs: ${asns[*]}), skipping" >&2
     return 0
   fi
+}
+
+# sync_asn_ip_list <name> <asn> [<asn> ...]
+# Download RIPE NCC Stat prefix data for each ASN, normalise in one batch,
+# merge, and render public IP text artifacts for the named ruleset.
+sync_asn_ip_list() {
+  local name="$1"
+  shift
+  local -a asns=("$@")
+
+  sync_asn_ip_cidrs "$name" "${asns[@]}"
+
+  if [ ! -s "$IP_BUILD_TMP_DIR/${name}.cidr.txt" ]; then
+    return 0
+  fi
 
   render_ip_text_artifact "$name"
   record_upstream_summary ip "${name}-asn" ok "$RIPE_STAT_BASE_URL" "" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "asns=${asns[*]}"
+}
+
+sync_merged_asn_ip_list() {
+  local name="$1"
+  shift
+  local source_file="$IP_BUILD_TMP_DIR/${name}.cidr.txt"
+  local asn_file="$IP_BUILD_TMP_DIR/${name}_asn.cidr.txt"
+  local merged_file="$IP_BUILD_TMP_DIR/${name}_merged.cidr.txt"
+
+  sync_asn_ip_cidrs "${name}_asn" "$@"
+
+  if [ ! -s "$asn_file" ]; then
+    echo "warning: no ASN prefixes found for $name, keeping direct source only" >&2
+    return 0
+  fi
+
+  # ASN prefixes are still parsed to CIDR, then collapsed with the official
+  # list so redundant child prefixes do not bloat published rules.
+  merge_cidr_plain_files "$merged_file" "$source_file" "$asn_file"
+  mv "$merged_file" "$source_file"
+  render_ip_text_artifact "$name"
+  record_upstream_summary ip "${name}-merged" ok "$RIPE_STAT_BASE_URL" "" "$source_file" 0 "official+asn-collapsed"
 }
 
 generate_normalize_manifest() {
@@ -264,10 +293,8 @@ generate_ip_normalize_manifest() {
   local tmp_dir="$IP_BUILD_TMP_DIR"
 
   generate_normalize_manifest "$manifest_file" \
-    text "$tmp_dir/cn_ipv4.raw.txt" "$tmp_dir/cn_ipv4.cidr.txt" \
-    text "$tmp_dir/cn_ipv6.raw.txt" "$tmp_dir/cn_ipv6.cidr.txt" \
-    text "$tmp_dir/cn_asn_ipv4.raw.txt" "$tmp_dir/cn_asn_ipv4.cidr.txt" \
-    text "$tmp_dir/cn_asn_ipv6.raw.txt" "$tmp_dir/cn_asn_ipv6.cidr.txt" \
+    text "$tmp_dir/cn_ipv46.raw.txt" "$tmp_dir/cn_ipv46.cidr.txt" \
+    text "$tmp_dir/cn_ipv46_apnic.raw.txt" "$tmp_dir/cn_ipv46_apnic.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv4.raw.txt" "$tmp_dir/cloudflare_ipv4.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv6.raw.txt" "$tmp_dir/cloudflare_ipv6.cidr.txt" \
     aws-cloudfront-json "$tmp_dir/aws.raw.json" "$tmp_dir/cloudfront.cidr.txt" \
@@ -514,78 +541,13 @@ assert_min_bytes() {
   fi
 }
 
-sync_remote_domain_ruleset() {
-  local name="$1"
-  local min_expected="$2"
-  shift 2
-  local raw_file normalized_file
-
-  raw_file="$DOMAIN_BUILD_TMP_DIR/${name}.raw.list"
-  normalized_file="$DOMAIN_RULE_TMP_DIR/${name}.list"
-
-  download_file_with_fallback "$raw_file" "$@"
-  normalize_custom_domain_source "$raw_file" "$normalized_file"
-
-  if [ ! -s "$normalized_file" ]; then
-    echo "normalized remote domain ruleset is empty: $name" >&2
-    return 1
-  fi
-
-  assert_min_rules "$name" "$normalized_file" "$min_expected"
-  record_upstream_summary domain "$name" ok "${UPSTREAM_LAST_URL:-}" "$raw_file" "$normalized_file" "${UPSTREAM_LAST_FALLBACK_USED:-0}"
-}
-
-sync_remote_domain_binary_artifact() {
-  local name="$1"
-  local platform="$2"
-  local out_file="$3"
-  local min_expected="$4"
-  shift 4
-  local tmp_file
-
-  tmp_file="$DOMAIN_BUILD_TMP_DIR/$(basename "$out_file").download"
-  download_file_with_fallback "$tmp_file" "$@"
-
-  if [ ! -s "$tmp_file" ]; then
-    echo "remote domain artifact is empty: $name $platform" >&2
-    return 1
-  fi
-
-  assert_min_bytes "$name $platform" "$tmp_file" "$min_expected"
-  mv "$tmp_file" "$out_file"
-}
-
-prepare_domain_binary_rule_dir() {
-  local source_dir="$1"
-  local target_dir="$2"
-  local list base
-
-  rm -rf "$target_dir"
-  mkdir -p "$target_dir"
-
-  for list in "$source_dir"/*.list; do
-    [ -f "$list" ] || continue
-    base="$(basename "$list" .list)"
-    case "$base" in
-      anti-ad) continue ;;
-    esac
-    cp "$list" "$target_dir/$base.list"
-  done
-}
-
-# Domain rules from domain-list-community/data plus curated remote lists
-# The export script materializes upstream @attribute filters and drops only redundant tag names.
+# Domain rules from domain-list-community's published plain YAML artifact.
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
-clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
-record_dlc_summary "$WORK_TMP_DIR/domain-list-community"
+download_file "$DOMAIN_SOURCE_REPO_URL" "$DOMAIN_BUILD_TMP_DIR/dlc.dat_plain.yml"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
-  "$WORK_TMP_DIR/domain-list-community/data" \
+  "$DOMAIN_BUILD_TMP_DIR/dlc.dat_plain.yml" \
   "$DOMAIN_RULE_TMP_DIR"
-sync_remote_domain_ruleset \
-  anti-ad \
-  "$ANTI_AD_MIN_RULE_COUNT" \
-  "$ANTI_AD_DOMAIN_SOURCE_URL" \
-  "$ANTI_AD_DOMAIN_SOURCE_FALLBACK_URL"
+record_upstream_summary domain dlc ok "$DOMAIN_SOURCE_REPO_URL" "$DOMAIN_BUILD_TMP_DIR/dlc.dat_plain.yml" "$DOMAIN_RULE_TMP_DIR"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
   "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_RULE_MANIFEST_FILE"
@@ -599,28 +561,11 @@ assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/quanx/*.list"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/egern/*.yaml"
 
-# Domain sing-box and mihomo are built locally unless a source publishes native binaries.
-# anti-AD provides official SRS/MRS artifacts, so exclude it from local binary compile.
-prepare_domain_binary_rule_dir "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_BINARY_RULE_TMP_DIR"
 build_domain_artifacts_from_rule_dir \
-  "$DOMAIN_BINARY_RULE_TMP_DIR" \
+  "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_BUILD_TMP_DIR/domain-compile" \
   "$DOMAIN_ARTIFACTS_DIR/sing-box" \
   "$DOMAIN_ARTIFACTS_DIR/mihomo"
-sync_remote_domain_binary_artifact \
-  anti-ad \
-  sing-box \
-  "$DOMAIN_ARTIFACTS_DIR/sing-box/anti-ad.srs" \
-  "$ANTI_AD_SING_BOX_SRS_MIN_BYTES" \
-  "$ANTI_AD_SING_BOX_SRS_SOURCE_URL" \
-  "$ANTI_AD_SING_BOX_SRS_SOURCE_FALLBACK_URL"
-sync_remote_domain_binary_artifact \
-  anti-ad \
-  mihomo \
-  "$DOMAIN_ARTIFACTS_DIR/mihomo/anti-ad.mrs" \
-  "$ANTI_AD_MIHOMO_MRS_MIN_BYTES" \
-  "$ANTI_AD_MIHOMO_MRS_SOURCE_URL" \
-  "$ANTI_AD_MIHOMO_MRS_SOURCE_FALLBACK_URL"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/sing-box/*.srs"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihomo/*.mrs"
 
@@ -628,10 +573,8 @@ assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihom
 rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
 mkdir -p "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx"
 
-download_file "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt"
-download_file "$CN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt"
-download_file "$CN_ASN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt"
-download_file "$CN_ASN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt"
+download_file "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt"
+download_file "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt"
 download_and_classify_first_batch_source "google-json" "$GOOGLE_IP_SOURCE_URL"
 download_and_classify_first_batch_source "telegram" "$TELEGRAM_IP_SOURCE_URL"
 download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
@@ -649,10 +592,8 @@ IP_NORMALIZE_MANIFEST="$IP_BUILD_TMP_DIR/normalize-tasks.json"
 
 generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$IP_NORMALIZE_MANIFEST"
-record_upstream_summary ip cn-ipv4 ok "$CN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt"
-record_upstream_summary ip cn-ipv6 ok "$CN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt"
-record_upstream_summary ip cn-asn-ipv4 ok "$CN_ASN_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt"
-record_upstream_summary ip cn-asn-ipv6 ok "$CN_ASN_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
+record_upstream_summary ip cn-ipv46 ok "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt"
+record_upstream_summary ip cn-ipv46-apnic ok "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"
 record_upstream_summary ip cloudflare-ipv4 ok "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt"
 record_upstream_summary ip cloudflare-ipv6 ok "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
 record_upstream_summary ip aws ok "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" "$IP_BUILD_TMP_DIR/aws.cidr.txt"
@@ -663,12 +604,10 @@ summarize_first_batch_checks
 normalize_first_batch_source "google-json"
 normalize_first_batch_source "github-json"
 normalize_first_batch_source "telegram"
-merge_cidr_plain_files \
+python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv4.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv6.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_asn_ipv4.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_asn_ipv6.cidr.txt"
+  "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \
@@ -678,6 +617,7 @@ assert_min_cidrs apple "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$APPLE_MIN_CIDR_COUNT
 render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
 
 # Streaming services: no official CIDR lists; use RIPE NCC Stat (RPKI data) by ASN.
+sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"
 sync_asn_ip_list netflix  "${NETFLIX_ASNS[@]}"
 sync_asn_ip_list spotify  "${SPOTIFY_ASNS[@]}"
 sync_asn_ip_list disney   "${DISNEY_ASNS[@]}"

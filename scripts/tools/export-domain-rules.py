@@ -304,6 +304,58 @@ def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
     return rules
 
 
+def parse_plain_yaml_quoted_value(raw_value: str) -> str:
+    value = raw_value.strip()
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        return bytes(value[1:-1], "utf-8").decode("unicode_escape")
+    if len(value) >= 2 and value[0] == value[-1] == "'":
+        return value[1:-1].replace("''", "'")
+    return value
+
+
+def export_plain_yaml_lists(input_file: Path, output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    current_name = ""
+    current_rules: list[Rule] = []
+
+    def flush_current() -> None:
+        if not current_name or not current_rules:
+            return
+        print_platform_skip_summary(current_name, current_rules)
+        rendered = [render_rule(rule) for rule in collect_rule_set_output(current_rules).rules]
+        (output_dir / f"{current_name}.list").write_text("\n".join(rendered) + "\n", encoding="utf-8")
+
+    for line_no, raw_line in enumerate(input_file.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw_line.rstrip()
+        stripped = line.strip()
+        if not stripped or stripped == "lists:":
+            continue
+
+        if stripped.startswith("- name: "):
+            flush_current()
+            current_name = parse_plain_yaml_quoted_value(stripped.removeprefix("- name: "))
+            current_rules = []
+            continue
+
+        if stripped in {"rules:"} or stripped.startswith("length: "):
+            continue
+
+        if stripped.startswith("- "):
+            token = parse_plain_yaml_quoted_value(stripped.removeprefix("- "))
+            try:
+                kind, value = parse_rule_token(token)
+            except ValueError as exc:
+                raise ValueError(f"{input_file}:{line_no} {exc}") from exc
+            value = normalize_rule_value(kind, value)
+            if value:
+                current_rules.append(Rule(kind=RULE_KIND_MAP[kind], value=value, attrs=tuple()))
+            continue
+
+        raise ValueError(f"{input_file}:{line_no} unsupported plain YAML line: {stripped}")
+
+    flush_current()
+
+
 def write_text_lines(lines: list[str], output_file: Path) -> None:
     if lines:
         output_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -405,7 +457,7 @@ def build_mihomo_text(input_file: Path, output_file: Path) -> None:
     write_text_lines(build_mihomo_lines(input_file, rules), output_file)
 
 
-def export_lists(data_dir: Path, output_dir: Path) -> None:
+def export_data_dir_lists(data_dir: Path, output_dir: Path) -> None:
     direct_rules: dict[str, list[Rule]] = {}
     include_rules: dict[str, list[Include]] = {}
     affiliated_rules: dict[str, list[Rule]] = {}
@@ -460,6 +512,13 @@ def export_lists(data_dir: Path, output_dir: Path) -> None:
             if is_redundant_attr_rule_set_name(name, attr):
                 continue
             write_rule_set(f"{name}@{attr}", rules)
+
+
+def export_lists(input_path: Path, output_dir: Path) -> None:
+    if input_path.is_dir():
+        export_data_dir_lists(input_path, output_dir)
+        return
+    export_plain_yaml_lists(input_path, output_dir)
 
 
 def build_singbox_payload(rules: list[Rule]) -> dict[str, list[str]]:
