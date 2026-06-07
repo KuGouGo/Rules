@@ -58,6 +58,11 @@ APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
 APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
 RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
 APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-$(upstream_value ip apple min_cidrs)}"
+DLC_MIN_ATTR_RULESETS="${DLC_MIN_ATTR_RULESETS:-300}"
+DLC_MIN_CN_ATTR_RULESETS="${DLC_MIN_CN_ATTR_RULESETS:-100}"
+DLC_MIN_NOT_CN_ATTR_RULESETS="${DLC_MIN_NOT_CN_ATTR_RULESETS:-30}"
+DLC_MIN_ADS_ATTR_RULESETS="${DLC_MIN_ADS_ATTR_RULESETS:-100}"
+DLC_MIN_REGIONAL_RULESETS="${DLC_MIN_REGIONAL_RULESETS:-40}"
 read -r -a TELEGRAM_ASNS <<< "$(upstream_asn_group telegram)"
 read -r -a NETFLIX_ASNS <<< "$(upstream_asn_group netflix)"
 read -r -a SPOTIFY_ASNS <<< "$(upstream_asn_group spotify)"
@@ -541,16 +546,90 @@ assert_min_bytes() {
   fi
 }
 
-# Domain rules from domain-list-community's published plain YAML artifact.
+assert_domain_attr_derivatives() {
+  local manifest_file="$1"
+
+  python3 - <<'PY' "$manifest_file" "$DLC_MIN_ATTR_RULESETS" "$DLC_MIN_CN_ATTR_RULESETS" "$DLC_MIN_NOT_CN_ATTR_RULESETS" "$DLC_MIN_ADS_ATTR_RULESETS" "$DLC_MIN_REGIONAL_RULESETS"
+import json
+import sys
+from pathlib import Path
+
+manifest_file = Path(sys.argv[1])
+min_attr = int(sys.argv[2])
+min_cn = int(sys.argv[3])
+min_not_cn = int(sys.argv[4])
+min_ads = int(sys.argv[5])
+min_regional = int(sys.argv[6])
+
+manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+lists = manifest.get("lists", [])
+names = {entry.get("name", "") for entry in lists}
+attr_rule_sets = [entry for entry in lists if entry.get("kind") == "attr"]
+cn_attr = [entry for entry in lists if entry.get("attr") == "cn"]
+not_cn_attr = [entry for entry in lists if entry.get("attr") == "!cn"]
+ads_attr = [entry for entry in lists if entry.get("attr") == "ads"]
+regional = [entry for entry in lists if entry.get("kind") == "regional"]
+required = {
+    "alibaba@!cn",
+    "apple@ads",
+    "apple@cn",
+    "baidu@ads",
+    "category-games-!cn@cn",
+    "cn",
+    "geolocation-!cn",
+    "geolocation-!cn@cn",
+    "geolocation-cn",
+    "google@cn",
+    "speedtest@ads",
+    "tld-!cn",
+    "tld-cn",
+}
+
+print(
+    "domain derivative rule sets: "
+    f"attr={len(attr_rule_sets)} (min {min_attr}), "
+    f"@cn={len(cn_attr)} (min {min_cn}), "
+    f"@!cn={len(not_cn_attr)} (min {min_not_cn}), "
+    f"@ads={len(ads_attr)} (min {min_ads}), "
+    f"regional={len(regional)} (min {min_regional})"
+)
+
+errors = []
+if len(attr_rule_sets) < min_attr:
+    errors.append(f"attribute derivative rule sets too low: {len(attr_rule_sets)} < {min_attr}")
+if len(cn_attr) < min_cn:
+    errors.append(f"@cn derivative rule sets too low: {len(cn_attr)} < {min_cn}")
+if len(not_cn_attr) < min_not_cn:
+    errors.append(f"@!cn derivative rule sets too low: {len(not_cn_attr)} < {min_not_cn}")
+if len(ads_attr) < min_ads:
+    errors.append(f"@ads derivative rule sets too low: {len(ads_attr)} < {min_ads}")
+if len(regional) < min_regional:
+    errors.append(f"regional -cn/-!cn rule sets too low: {len(regional)} < {min_regional}")
+
+missing = sorted(required - names)
+if missing:
+    errors.append("missing required derivative rule sets: " + ", ".join(missing))
+
+if errors:
+    for error in errors:
+        print(error, file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
+# Domain rules from domain-list-community/data. The source tree preserves
+# upstream @attributes, which are required for derived rule sets such as
+# geolocation-!cn@cn and apple@cn.
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
-download_file "$DOMAIN_SOURCE_REPO_URL" "$DOMAIN_BUILD_TMP_DIR/dlc.dat_plain.yml"
+clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
-  "$DOMAIN_BUILD_TMP_DIR/dlc.dat_plain.yml" \
+  "$WORK_TMP_DIR/domain-list-community/data" \
   "$DOMAIN_RULE_TMP_DIR"
-record_upstream_summary domain dlc ok "$DOMAIN_SOURCE_REPO_URL" "$DOMAIN_BUILD_TMP_DIR/dlc.dat_plain.yml" "$DOMAIN_RULE_TMP_DIR"
+record_upstream_summary domain dlc ok "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community/data" "$DOMAIN_RULE_TMP_DIR"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
   "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_RULE_MANIFEST_FILE"
+assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
 render_domain_rule_dir_to_text_platform_dirs \
   "$DOMAIN_RULE_TMP_DIR" \

@@ -26,6 +26,17 @@ assert_lint_fails_with() {
 
 python3 "$TOOL"
 
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+dlc = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))["domain"]["dlc"]
+if dlc.get("kind") != "git":
+    raise SystemExit("test failed: domain.dlc must use the git source tree to preserve @attribute filters")
+if dlc.get("url") != "https://github.com/v2fly/domain-list-community.git":
+    raise SystemExit("test failed: domain.dlc URL must point at domain-list-community.git")
+PY
+
 cp config/upstreams.json "$TMP_DIR/upstreams.invalid-url.json"
 python3 - <<'PY' "$TMP_DIR/upstreams.invalid-url.json"
 import json

@@ -41,6 +41,20 @@ for snippet in required_snippets:
 if 'render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"' not in script:
     raise SystemExit("test failed: sync-upstream does not render the shared IP text artifact matrix")
 
+domain_required_snippets = [
+    'clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"',
+    '"$WORK_TMP_DIR/domain-list-community/data"',
+    'assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"',
+    '"apple@cn"',
+    '"apple@ads"',
+    '"geolocation-!cn@cn"',
+    '"alibaba@!cn"',
+    '"speedtest@ads"',
+]
+for snippet in domain_required_snippets:
+    if snippet not in script:
+        raise SystemExit(f"test failed: sync-upstream missing domain derivative guard snippet {snippet!r}")
+
 asn_function_match = re.search(
     r"sync_asn_ip_list\(\) \{(?P<body>.*?)\n\}",
     script,

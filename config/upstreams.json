@@ -1,9 +1,9 @@
 {
   "domain": {
     "dlc": {
-      "kind": "yaml",
+      "kind": "git",
       "trust": "community",
-      "url": "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat_plain.yml"
+      "url": "https://github.com/v2fly/domain-list-community.git"
     }
   },
   "ip": {

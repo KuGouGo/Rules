@@ -6,9 +6,9 @@
   <img alt="Artifacts" src="https://img.shields.io/badge/artifacts-domain%20%7C%20ip-4b5563">
 </p>
 
-一份规则源，多端规则产物。
+一份规则源，多端规则产物。仓库面向日常代理客户端使用，尽量在不同客户端之间保持规则命名、来源和更新节奏一致。
 
-本仓库用于维护自定义规则、同步可信上游、生成并发布多平台代理客户端可直接引用的规则集。构建流程会统一做规则标准化、平台格式转换、二进制编译、产物检查和分支发布。
+本仓库维护自定义规则，定时同步可信上游，生成 Surge、Quantumult X、Egern、sing-box、mihomo 可直接引用的规则集。构建流程会统一做规则标准化、平台格式转换、二进制编译、完整性守卫和分支发布。
 
 ## 快速使用
 
@@ -33,15 +33,36 @@ https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/ip/google.srs
 https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/emby.mrs
 ```
 
+规则名称保留上游语义：
+
+- `*-cn` / `*-!cn` 是上游已有的区域列表，例如 `geolocation-cn`、`geolocation-!cn`。
+- `name@cn`、`name@!cn`、`name@ads` 是从上游属性标签派生的筛选列表，例如 `apple@cn`、`alibaba@!cn`、`apple@ads`。
+- `@!cn` 是普通属性名，不是对 `@cn` 取反。上游 `include:list @-!cn` 这类语法才表示排除 `!cn` 属性。
+- 冗余派生不会发布，例如 `cn@cn`、`geolocation-cn@cn`、`geolocation-!cn@!cn`。
+
 ## 产物矩阵
 
 | 平台 | 域名规则 | IP 规则 | 说明 |
 | --- | --- | --- | --- |
-| Surge | `domain/{name}.list` | `ip/{name}.list` | Classical rule-set |
-| Quantumult X | `domain/{name}.list` | `ip/{name}.list` | 带显式策略字段 |
-| Egern | `domain/{name}.yaml` | `ip/{name}.yaml` | YAML rule-set |
-| sing-box | `domain/{name}.srs` | `ip/{name}.srs` | Binary rule-set |
-| mihomo | `domain/{name}.mrs` | `ip/{name}.mrs` | Binary rule-provider |
+| Surge | `domain/{name}.list` | `ip/{name}.list` | Classical rule-set；域名规则保留 `DOMAIN`、`DOMAIN-SUFFIX`、`DOMAIN-KEYWORD` |
+| Quantumult X | `domain/{name}.list` | `ip/{name}.list` | `HOST` / `HOST-SUFFIX` / `HOST-KEYWORD`，带显式策略字段 |
+| Egern | `domain/{name}.yaml` | `ip/{name}.yaml` | YAML rule-set；域名规则保留 suffix、full、keyword、regex |
+| sing-box | `domain/{name}.srs` | `ip/{name}.srs` | Binary rule-set；域名规则保留 suffix、full、keyword、regex |
+| mihomo | `domain/{name}.mrs` | `ip/{name}.mrs` | Binary rule-provider；域名 `.mrs` 保留 domain/full/suffix 类匹配 |
+
+平台能力不完全相同。若某个域名列表只包含 `DOMAIN-REGEX`，Surge、Quantumult X 和 mihomo `.mrs` 不会发布空规则；Egern 和 sing-box 会保留完整规则。mihomo 继续只发布 `.mrs`，以保持客户端配置简单、加载快、行为稳定。
+
+mihomo 示例：
+
+```yaml
+rule-providers:
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/cn.mrs
+    interval: 86400
+```
 
 ## 本地维护
 
@@ -84,6 +105,16 @@ IP-CIDR6,2001:db8::/32
 ```
 
 文件名只使用小写字母、数字和连字符，例如 `emby-cn.list`。规则质量要求和本地校验细节见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 构建守卫
+
+构建会在发布前检查关键不变量：
+
+- v2fly `domain-list-community/data` 必须作为域名上游，以保留 `@cn`、`@!cn`、`@ads` 等属性信息。
+- 派生规则数量和代表性文件必须存在，例如 `apple@cn`、`apple@ads`、`alibaba@!cn`、`geolocation-!cn@cn`。
+- 各平台不会发布冗余属性筛选文件，例如 `geolocation-cn@cn`。
+- IP 规则会检查 CIDR 族、非公网地址泄漏和核心上游条目数量。
+- 发布分支只包含目标客户端需要的最终产物和 README。
 
 ## 仓库结构
 
