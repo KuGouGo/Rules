@@ -47,7 +47,6 @@ domain_required_snippets = [
     'assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"',
     '"apple@cn"',
     '"apple@ads"',
-    '"geolocation-cn@!cn"',
     '"geolocation-!cn@cn"',
     '"alibaba@!cn"',
     '"speedtest@ads"',

@@ -576,7 +576,6 @@ required = {
     "baidu@ads",
     "category-games-!cn@cn",
     "cn",
-    "geolocation-cn@!cn",
     "geolocation-!cn",
     "geolocation-!cn@cn",
     "geolocation-cn",
@@ -623,8 +622,7 @@ PY
 
 # Domain rules from domain-list-community/data. The source tree preserves
 # upstream @attributes and -cn/-!cn regional source names, which are required
-# for derived rule sets such as geolocation-cn@!cn, geolocation-!cn@cn, and
-# apple@cn.
+# for derived rule sets such as geolocation-!cn@cn and apple@cn.
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
