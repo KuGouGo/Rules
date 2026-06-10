@@ -47,9 +47,11 @@ domain_required_snippets = [
     'assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"',
     '"apple@cn"',
     '"apple@ads"',
+    '"geolocation-cn@!cn"',
     '"geolocation-!cn@cn"',
     '"alibaba@!cn"',
     '"speedtest@ads"',
+    '"missing geolocation -cn/-!cn regional pair"',
 ]
 for snippet in domain_required_snippets:
     if snippet not in script:

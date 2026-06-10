@@ -59,6 +59,8 @@ EGERN_KIND_MAP = {
     "DOMAIN-REGEX": "domain_regex_set",
 }
 
+REGIONAL_ATTRS = ("!cn", "cn")
+
 
 def load_platform_capabilities(path: Path = CAPABILITIES_FILE) -> dict[str, set[str]]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -232,8 +234,24 @@ def collect_rule_set_output(rules: list[Rule]) -> RuleSetOutput:
     return RuleSetOutput(unique_rules, rules_by_attr)
 
 
+def regional_suffix_for_rule_set_name(name: str) -> str | None:
+    if name == "cn":
+        return "cn"
+    for suffix in REGIONAL_ATTRS:
+        if name.endswith(f"-{suffix}"):
+            return suffix
+    return None
+
+
+def regional_base_for_rule_set_name(name: str) -> str | None:
+    suffix = regional_suffix_for_rule_set_name(name)
+    if not suffix or name == suffix:
+        return None
+    return name[: -(len(suffix) + 1)]
+
+
 def is_region_named_list(name: str) -> bool:
-    return name == "cn" or name.endswith("-cn") or name.endswith("-!cn")
+    return regional_suffix_for_rule_set_name(name) is not None
 
 
 def split_attr_rule_set_name(name: str) -> tuple[str, str] | None:
@@ -245,30 +263,46 @@ def split_attr_rule_set_name(name: str) -> tuple[str, str] | None:
     return base, attr
 
 
-def last_rule_set_name_segment(name: str) -> str:
-    parts = name.split("-")
-    if len(parts) > 1:
-        return parts[-1]
-    return name
-
-
 def is_redundant_attr_rule_set_name(base: str, attr: str) -> bool:
-    return last_rule_set_name_segment(base) == attr
+    return regional_suffix_for_rule_set_name(base) == attr
 
 
 def classify_rule_set_name(name: str) -> dict[str, object]:
     attr_parts = split_attr_rule_set_name(name)
     if attr_parts:
         base, attr = attr_parts
-        return {
+        base_region_suffix = regional_suffix_for_rule_set_name(base)
+        classification = {
             "kind": "attr",
             "base": base,
             "attr": attr,
-            "base_kind": "regional" if is_region_named_list(base) else "base",
+            "base_kind": "regional" if base_region_suffix else "base",
         }
-    if is_region_named_list(name):
-        return {"kind": "regional"}
+        if base_region_suffix:
+            classification["base_region_suffix"] = base_region_suffix
+            base_region_base = regional_base_for_rule_set_name(base)
+            if base_region_base:
+                classification["base_region_base"] = base_region_base
+        return classification
+    region_suffix = regional_suffix_for_rule_set_name(name)
+    if region_suffix:
+        classification = {"kind": "regional", "region_suffix": region_suffix}
+        region_base = regional_base_for_rule_set_name(name)
+        if region_base:
+            classification["region_base"] = region_base
+        return classification
     return {"kind": "base"}
+
+
+def region_pairs_for_rule_set_names(names: set[str]) -> dict[str, list[str]]:
+    pairs: dict[str, set[str]] = {}
+    for name in names:
+        region_suffix = regional_suffix_for_rule_set_name(name)
+        region_base = regional_base_for_rule_set_name(name)
+        if not region_suffix or not region_base:
+            continue
+        pairs.setdefault(region_base, set()).add(region_suffix)
+    return {base: sorted(suffixes) for base, suffixes in sorted(pairs.items())}
 
 
 def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
@@ -552,8 +586,12 @@ def domain_rule_manifest(rule_dir: Path) -> dict[str, object]:
     lists: list[dict[str, object]] = []
     by_kind: dict[str, int] = {}
     by_attr: dict[str, int] = {}
+    by_region_suffix: dict[str, int] = {}
+    input_files = sorted_classical_rule_files(rule_dir)
+    names = {input_file.stem for input_file in input_files}
+    region_pairs = region_pairs_for_rule_set_names(names)
 
-    for input_file in sorted_classical_rule_files(rule_dir):
+    for input_file in input_files:
         name = input_file.stem
         rules = parse_classical_domain_rules(input_file)
         entry = {
@@ -563,6 +601,12 @@ def domain_rule_manifest(rule_dir: Path) -> dict[str, object]:
         }
         classification = classify_rule_set_name(name)
         entry.update(classification)
+        region_base = classification.get("region_base")
+        if isinstance(region_base, str):
+            entry["region_siblings"] = region_pairs.get(region_base, [])
+        base_region_base = classification.get("base_region_base")
+        if isinstance(base_region_base, str):
+            entry["base_region_siblings"] = region_pairs.get(base_region_base, [])
         lists.append(entry)
 
         kind = str(classification["kind"])
@@ -570,11 +614,16 @@ def domain_rule_manifest(rule_dir: Path) -> dict[str, object]:
         attr = classification.get("attr")
         if isinstance(attr, str):
             by_attr[attr] = by_attr.get(attr, 0) + 1
+        region_suffix = classification.get("region_suffix")
+        if isinstance(region_suffix, str):
+            by_region_suffix[region_suffix] = by_region_suffix.get(region_suffix, 0) + 1
 
     return {
         "total": len(lists),
         "by_kind": dict(sorted(by_kind.items())),
         "by_attr": dict(sorted(by_attr.items())),
+        "by_region_suffix": dict(sorted(by_region_suffix.items())),
+        "region_pairs": region_pairs,
         "lists": lists,
     }
 

@@ -494,6 +494,9 @@ EOF
   cat > "$TMP_DIR/region_derivatives/data/category-games-!cn" <<'EOF'
 domain:games-mainland.example @cn
 EOF
+  cat > "$TMP_DIR/region_derivatives/data/tracking-ads" <<'EOF'
+domain:tracking-ad.example @ads
+EOF
 
   python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
     "$TMP_DIR/region_derivatives/data" \
@@ -514,11 +517,17 @@ EOF
   cat > "$TMP_DIR/region_derivatives/geolocation_not_cn_cn_expected.list" <<'EOF'
 DOMAIN-SUFFIX,vendor-overseas-cn.example
 EOF
+  cat > "$TMP_DIR/region_derivatives/geolocation_cn_not_cn_expected.list" <<'EOF'
+DOMAIN,not-mainland.example
+EOF
   cat > "$TMP_DIR/region_derivatives/cn_not_cn_expected.list" <<'EOF'
 DOMAIN,not-mainland.example
 EOF
   cat > "$TMP_DIR/region_derivatives/category_games_not_cn_cn_expected.list" <<'EOF'
 DOMAIN-SUFFIX,games-mainland.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/tracking_ads_expected.list" <<'EOF'
+DOMAIN-SUFFIX,tracking-ad.example
 EOF
 
   assert_file_equals \
@@ -538,6 +547,10 @@ EOF
     "$TMP_DIR/region_derivatives/out/geolocation-!cn@cn.list" \
     "geolocation-!cn keeps non-redundant @cn derivative"
   assert_file_equals \
+    "$TMP_DIR/region_derivatives/geolocation_cn_not_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/geolocation-cn@!cn.list" \
+    "geolocation-cn keeps non-redundant @!cn derivative"
+  assert_file_equals \
     "$TMP_DIR/region_derivatives/cn_not_cn_expected.list" \
     "$TMP_DIR/region_derivatives/out/cn@!cn.list" \
     "cn keeps non-redundant @!cn derivative"
@@ -545,6 +558,10 @@ EOF
     "$TMP_DIR/region_derivatives/category_games_not_cn_cn_expected.list" \
     "$TMP_DIR/region_derivatives/out/category-games-!cn@cn.list" \
     "category-games-!cn keeps non-redundant @cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/tracking_ads_expected.list" \
+    "$TMP_DIR/region_derivatives/out/tracking-ads@ads.list" \
+    "non-region names still materialize matching attrs"
   assert_file_absent \
     "$TMP_DIR/region_derivatives/out/cn@cn.list" \
     "cn should not generate redundant @cn derivative"
@@ -572,16 +589,25 @@ from pathlib import Path
 manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 by_name = {entry["name"]: entry for entry in manifest["lists"]}
 assert by_name["geolocation-cn"]["kind"] == "regional"
+assert by_name["geolocation-cn"]["region_suffix"] == "cn"
+assert by_name["geolocation-cn"]["region_base"] == "geolocation"
 assert by_name["vendor-!cn"]["kind"] == "regional"
+assert by_name["vendor-!cn"]["region_suffix"] == "!cn"
 assert by_name["vendor@cn"]["kind"] == "attr"
 assert by_name["vendor@cn"]["base"] == "vendor"
 assert by_name["vendor@cn"]["attr"] == "cn"
 assert by_name["vendor@cn"]["base_kind"] == "base"
 assert by_name["geolocation-!cn@cn"]["base_kind"] == "regional"
+assert by_name["geolocation-!cn@cn"]["base_region_suffix"] == "!cn"
+assert by_name["geolocation-!cn@cn"]["base_region_base"] == "geolocation"
+assert by_name["geolocation-cn@!cn"]["base_kind"] == "regional"
+assert by_name["geolocation-cn@!cn"]["base_region_suffix"] == "cn"
+assert by_name["tracking-ads@ads"]["base_kind"] == "base"
 assert "cn@cn" not in by_name
 assert "geolocation-cn@cn" not in by_name
 assert "category-ai-!cn@!cn" not in by_name
-assert manifest["by_attr"] == {"!cn": 2, "ads": 3, "cn": 4}
+assert manifest["by_attr"] == {"!cn": 2, "ads": 4, "cn": 4}
+assert manifest["by_region_suffix"] == {"!cn": 4, "cn": 3}
 PY
 }
 

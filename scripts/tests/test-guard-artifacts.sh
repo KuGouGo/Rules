@@ -47,7 +47,9 @@ touch \
   "$TMP_DIR/shape-ok/geolocation-cn.list" \
   "$TMP_DIR/shape-ok/category-games-!cn.list" \
   "$TMP_DIR/shape-ok/google@cn.list" \
-  "$TMP_DIR/shape-ok/geolocation-!cn@cn.list"
+  "$TMP_DIR/shape-ok/geolocation-!cn@cn.list" \
+  "$TMP_DIR/shape-ok/geolocation-cn@!cn.list" \
+  "$TMP_DIR/shape-ok/tracking-ads@ads.list"
 touch \
   "$TMP_DIR/shape-bad/cn@cn.list" \
   "$TMP_DIR/shape-bad/geolocation-cn@cn.list" \
@@ -79,6 +81,16 @@ fi
 
 if is_redundant_attr_filter_artifact_name "geolocation-!cn@cn"; then
   echo "test failed: geolocation-!cn@cn should remain an allowed attr artifact" >&2
+  exit 1
+fi
+
+if is_redundant_attr_filter_artifact_name "geolocation-cn@!cn"; then
+  echo "test failed: geolocation-cn@!cn should remain an allowed attr artifact" >&2
+  exit 1
+fi
+
+if is_redundant_attr_filter_artifact_name "tracking-ads@ads"; then
+  echo "test failed: tracking-ads@ads should remain an allowed attr artifact" >&2
   exit 1
 fi
 

@@ -95,7 +95,7 @@ check_min_files() {
 
 is_redundant_attr_filter_artifact_name() {
   local name="$1"
-  local base attr last_segment
+  local base attr
 
   case "$name" in
     *@*@*) return 1 ;;
@@ -108,8 +108,17 @@ is_redundant_attr_filter_artifact_name() {
   [ -n "$base" ] || return 1
   [ -n "$attr" ] || return 1
 
-  last_segment="${base##*-}"
-  [ "$last_segment" = "$attr" ]
+  case "$attr" in
+    cn)
+      [ "$base" = "cn" ] || [ "${base%-cn}" != "$base" ]
+      ;;
+    '!cn')
+      [ "${base%-!cn}" != "$base" ]
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
 
 check_no_redundant_attr_filter_artifacts_in_dir() {

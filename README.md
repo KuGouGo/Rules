@@ -37,6 +37,7 @@ https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/emby.mrs
 
 - `*-cn` / `*-!cn` 是上游已有的区域列表，例如 `geolocation-cn`、`geolocation-!cn`。
 - `name@cn`、`name@!cn`、`name@ads` 是从上游属性标签派生的筛选列表，例如 `apple@cn`、`alibaba@!cn`、`apple@ads`。
+- 区域列表也会保留非冗余属性筛选，例如 `geolocation-cn@!cn`、`geolocation-!cn@cn`。
 - `@!cn` 是普通属性名，不是对 `@cn` 取反。上游 `include:list @-!cn` 这类语法才表示排除 `!cn` 属性。
 - 冗余派生不会发布，例如 `cn@cn`、`geolocation-cn@cn`、`geolocation-!cn@!cn`。
 
@@ -111,7 +112,7 @@ IP-CIDR6,2001:db8::/32
 构建会在发布前检查关键不变量：
 
 - v2fly `domain-list-community/data` 必须作为域名上游，以保留 `@cn`、`@!cn`、`@ads` 等属性信息。
-- 派生规则数量和代表性文件必须存在，例如 `apple@cn`、`apple@ads`、`alibaba@!cn`、`geolocation-!cn@cn`。
+- 派生规则数量和代表性文件必须存在，例如 `apple@cn`、`apple@ads`、`alibaba@!cn`、`geolocation-cn@!cn`、`geolocation-!cn@cn`。
 - 各平台不会发布冗余属性筛选文件，例如 `geolocation-cn@cn`。
 - IP 规则会检查 CIDR 族、非公网地址泄漏和核心上游条目数量。
 - 发布分支只包含目标客户端需要的最终产物和 README。

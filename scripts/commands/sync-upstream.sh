@@ -576,6 +576,7 @@ required = {
     "baidu@ads",
     "category-games-!cn@cn",
     "cn",
+    "geolocation-cn@!cn",
     "geolocation-!cn",
     "geolocation-!cn@cn",
     "geolocation-cn",
@@ -605,6 +606,9 @@ if len(ads_attr) < min_ads:
     errors.append(f"@ads derivative rule sets too low: {len(ads_attr)} < {min_ads}")
 if len(regional) < min_regional:
     errors.append(f"regional -cn/-!cn rule sets too low: {len(regional)} < {min_regional}")
+geolocation_regions = set(manifest.get("region_pairs", {}).get("geolocation", []))
+if not {"cn", "!cn"}.issubset(geolocation_regions):
+    errors.append("missing geolocation -cn/-!cn regional pair")
 
 missing = sorted(required - names)
 if missing:
@@ -618,8 +622,9 @@ PY
 }
 
 # Domain rules from domain-list-community/data. The source tree preserves
-# upstream @attributes, which are required for derived rule sets such as
-# geolocation-!cn@cn and apple@cn.
+# upstream @attributes and -cn/-!cn regional source names, which are required
+# for derived rule sets such as geolocation-cn@!cn, geolocation-!cn@cn, and
+# apple@cn.
 rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
 clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
