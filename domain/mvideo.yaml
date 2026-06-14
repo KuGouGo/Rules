@@ -1,0 +1,6 @@
+domain_set:
+  - 'mvideo.edna.io'
+
+domain_suffix_set:
+  - 'acmvid.com'
+  - 'mvideo.ru'

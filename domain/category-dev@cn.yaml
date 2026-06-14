@@ -1,0 +1,16 @@
+domain_set:
+  - 'crashlyticsreports-pa.googleapis.com'
+  - 'firebase-settings.crashlytics.com'
+  - 'update.crashlytics.com'
+  - 'cdn.ampproject.org'
+
+domain_suffix_set:
+  - 'researchkit.cn'
+  - 'researchkit.com.cn'
+  - 'swiftui.cn'
+  - 'swiftui.com.cn'
+  - 'cdn.jetbrains.com'
+  - 'download-cdn.jetbrains.com.cn'
+  - 'microsoftreactor.cn'
+  - 'microsoftreactor.com.cn'
+  - 'reactorms.com.cn'

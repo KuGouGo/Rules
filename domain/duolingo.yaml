@@ -1,0 +1,6 @@
+domain_suffix_set:
+  - 'duolingo.com'
+  - 'duolingo.cn'
+  - 'ads-api.duolingo.com'
+  - 'analytics.vpc.duolingo.com'
+  - 'metrics.duolingo.com'

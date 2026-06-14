@@ -1,0 +1,3 @@
+domain_suffix_set:
+  - 'kubernetes.io'
+  - 'k8s.io'

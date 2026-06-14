@@ -1,0 +1,6 @@
+domain_suffix_set:
+  - 'pki.symantec.com'
+  - 'symauth.com'
+  - 'symcb.com'
+  - 'symcd.com'
+  - 'ws.symantec.com'

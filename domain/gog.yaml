@@ -1,0 +1,18 @@
+domain_set:
+  - 'gog.qtlglb.com'
+  - 'gogalaxy.gog-statics.com'
+  - 'menu-static.gog-statics.com'
+  - 'productcard.gog-statics.com'
+  - 'static-login.gog-statics.com'
+  - 'www4-static.gog-statics.com'
+  - 'gog-cdn-fastly.gog.com'
+  - 'gog-cdn.akamaized.net'
+
+domain_suffix_set:
+  - 'gog.com'
+  - 'gog-statics.com'
+
+domain_regex_set:
+  - '^cdn-akamai-.+\.gog-services\.com$'
+  - '^gog-cdn-.+\.footprint\.net$'
+  - '^images(-\d)?\.gog-statics\.com$'

@@ -1,0 +1,4 @@
+domain_suffix_set:
+  - 'discourse-cdn.com'
+  - 'discourse.group'
+  - 'discourse.org'
