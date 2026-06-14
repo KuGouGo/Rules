@@ -1,0 +1,7 @@
+HOST-SUFFIX,alphassl.com,globalsign@cn
+HOST-SUFFIX,easy-signing.com,globalsign@cn
+HOST-SUFFIX,globalsign.cn,globalsign@cn
+HOST-SUFFIX,globalsign.com,globalsign@cn
+HOST-SUFFIX,globalsigncdn.com,globalsign@cn
+HOST,cdn.globalsigncdn.com.cdn.cloudflare.net,globalsign@cn
+HOST,crl.globalsign.net,globalsign@cn

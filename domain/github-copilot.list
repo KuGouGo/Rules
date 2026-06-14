@@ -1,0 +1,6 @@
+HOST-SUFFIX,githubcopilot.com,github-copilot
+HOST,copilot-proxy.githubusercontent.com,github-copilot
+HOST,copilot-workspace.githubnext.com,github-copilot
+HOST,copilotprodattachments.blob.core.windows.net,github-copilot
+HOST,copilot-telemetry-service.githubusercontent.com,github-copilot
+HOST,copilot-telemetry.githubusercontent.com,github-copilot

@@ -1,0 +1,11 @@
+HOST-SUFFIX,unity.com,unity
+HOST-SUFFIX,unity3d.com,unity
+HOST-SUFFIX,analytics.cloud.unity3d.com,unity
+HOST-SUFFIX,api2.amplitude.com,unity
+HOST-SUFFIX,config.uca.cloud.unity3d.com,unity
+HOST-SUFFIX,cdp.cloud.unity3d.com,unity
+HOST-SUFFIX,prd-lender.cdp.internal.unity3d.com,unity
+HOST-SUFFIX,iads.unity3d.com,unity
+HOST-SUFFIX,perf.cloud.unity3d.com,unity
+HOST-SUFFIX,perf-events.cloud.unity3d.com,unity
+HOST-SUFFIX,unityads.unity3d.com,unity
