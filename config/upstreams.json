@@ -17,6 +17,18 @@
       "trust": "registry",
       "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
     },
+    "loyalsoldier-geoip-cn": {
+      "kind": "text",
+      "trust": "community",
+      "min_cidrs": 5000,
+      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt"
+    },
+    "loyalsoldier-geoip-private": {
+      "kind": "text",
+      "trust": "community",
+      "min_cidrs": 15,
+      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/private.txt"
+    },
     "google": {
       "kind": "json",
       "trust": "official",

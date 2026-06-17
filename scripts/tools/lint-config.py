@@ -14,6 +14,8 @@ REQUIRED_DOMAIN_SOURCES = {"dlc"}
 REQUIRED_IP_SOURCES = {
     "cn-ipv46",
     "cn-ipv46-apnic",
+    "loyalsoldier-geoip-cn",
+    "loyalsoldier-geoip-private",
     "google",
     "telegram",
     "cloudflare-ipv4",

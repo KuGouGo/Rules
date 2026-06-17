@@ -24,6 +24,7 @@ MIN_IP_CIDR_CLOUDFLARE="${MIN_IP_CIDR_CLOUDFLARE:-15}"
 MIN_IP_CIDR_CLOUDFRONT="${MIN_IP_CIDR_CLOUDFRONT:-150}"
 MIN_IP_CIDR_FASTLY="${MIN_IP_CIDR_FASTLY:-12}"
 MIN_IP_CIDR_APPLE="${MIN_IP_CIDR_APPLE:-3}"
+MIN_IP_CIDR_PRIVATE="${MIN_IP_CIDR_PRIVATE:-15}"
 
 print_section() {
   local title="$1"
@@ -432,6 +433,7 @@ builtin_ip_min_entries() {
     cn) printf '%s' "$MIN_IP_CIDR_CN" ;;
     google) printf '%s' "$MIN_IP_CIDR_GOOGLE" ;;
     telegram) printf '%s' "$MIN_IP_CIDR_TELEGRAM" ;;
+    private) printf '%s' "$MIN_IP_CIDR_PRIVATE" ;;
     cloudflare) printf '%s' "$MIN_IP_CIDR_CLOUDFLARE" ;;
     cloudfront) printf '%s' "$MIN_IP_CIDR_CLOUDFRONT" ;;
     fastly) printf '%s' "$MIN_IP_CIDR_FASTLY" ;;
@@ -478,7 +480,7 @@ check_builtin_ip_entry_volatility() {
 
   ensure_origin_branch_baseline surge || return 0
 
-  for base in cn google telegram cloudflare cloudfront fastly apple; do
+  for base in cn private google telegram cloudflare cloudfront fastly apple; do
     path=".output/ip/surge/${base}.list"
     if [ ! -f "$path" ]; then
       echo "ip/$base generated file missing for entry guard" >&2
@@ -530,15 +532,15 @@ main() {
   check_min_files ".output/domain/egern" ".output/domain/egern/*.yaml" 1000
   check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
   check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
-  # Minimum 9 covers the guaranteed official sources:
-  # cn, google, telegram, cloudflare, cloudfront, aws, fastly, github, apple.
+  # Minimum 10 covers the guaranteed sources:
+  # cn, private, google, telegram, cloudflare, cloudfront, aws, fastly, github, apple.
   # Streaming services (netflix, spotify, disney) are best-effort via RIPE NCC
   # Stat and are not counted here as they may return empty prefixes.
-  check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 9
-  check_min_files ".output/ip/quanx" ".output/ip/quanx/*.list" 9
-  check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 9
-  check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 9
-  check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 9
+  check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 10
+  check_min_files ".output/ip/quanx" ".output/ip/quanx/*.list" 10
+  check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 10
+  check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 10
+  check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 10
 
   print_section "Domain artifact shape checks"
   check_no_redundant_attr_filter_artifacts

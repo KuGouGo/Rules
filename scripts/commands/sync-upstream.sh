@@ -13,7 +13,7 @@ ARTIFACTS_DIR="$ROOT_DIR/.output"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
-IP_TEXT_ARTIFACTS=(cn google telegram cloudflare cloudfront aws fastly github apple)
+IP_TEXT_ARTIFACTS=(cn private google telegram cloudflare cloudfront aws fastly github apple)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 UPSTREAM_SUMMARY_FILE="$ARTIFACTS_DIR/upstream-summary.jsonl"
@@ -47,6 +47,8 @@ PY
 DOMAIN_SOURCE_REPO_URL="$(upstream_value domain dlc url)"
 CN_IPV46_SOURCE_URL="$(upstream_value ip cn-ipv46 url)"
 CN_IPV46_APNIC_SOURCE_URL="$(upstream_value ip cn-ipv46-apnic url)"
+LOYALSOLDIER_GEOIP_CN_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-cn url)"
+LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-private url)"
 GOOGLE_IP_SOURCE_URL="$(upstream_value ip google url)"
 TELEGRAM_IP_SOURCE_URL="$(upstream_value ip telegram url)"
 CLOUDFLARE_IPV4_SOURCE_URL="$(upstream_value ip cloudflare-ipv4 url)"
@@ -58,6 +60,8 @@ APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
 APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
 RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
 APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-$(upstream_value ip apple min_cidrs)}"
+LOYALSOLDIER_GEOIP_CN_MIN_CIDR_COUNT="${LOYALSOLDIER_GEOIP_CN_MIN_CIDR_COUNT:-$(upstream_value ip loyalsoldier-geoip-cn min_cidrs)}"
+LOYALSOLDIER_GEOIP_PRIVATE_MIN_CIDR_COUNT="${LOYALSOLDIER_GEOIP_PRIVATE_MIN_CIDR_COUNT:-$(upstream_value ip loyalsoldier-geoip-private min_cidrs)}"
 DLC_MIN_ATTR_RULESETS="${DLC_MIN_ATTR_RULESETS:-300}"
 DLC_MIN_CN_ATTR_RULESETS="${DLC_MIN_CN_ATTR_RULESETS:-100}"
 DLC_MIN_NOT_CN_ATTR_RULESETS="${DLC_MIN_NOT_CN_ATTR_RULESETS:-30}"
@@ -300,6 +304,8 @@ generate_ip_normalize_manifest() {
   generate_normalize_manifest "$manifest_file" \
     text "$tmp_dir/cn_ipv46.raw.txt" "$tmp_dir/cn_ipv46.cidr.txt" \
     text "$tmp_dir/cn_ipv46_apnic.raw.txt" "$tmp_dir/cn_ipv46_apnic.cidr.txt" \
+    text "$tmp_dir/loyalsoldier_geoip_cn.raw.txt" "$tmp_dir/loyalsoldier_geoip_cn.cidr.txt" \
+    text "$tmp_dir/private.raw.txt" "$tmp_dir/private.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv4.raw.txt" "$tmp_dir/cloudflare_ipv4.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv6.raw.txt" "$tmp_dir/cloudflare_ipv6.cidr.txt" \
     aws-cloudfront-json "$tmp_dir/aws.raw.json" "$tmp_dir/cloudfront.cidr.txt" \
@@ -657,6 +663,8 @@ mkdir -p "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx"
 
 download_file "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt"
 download_file "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt"
+download_file "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.raw.txt"
+download_file "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL" "$IP_BUILD_TMP_DIR/private.raw.txt"
 download_and_classify_first_batch_source "google-json" "$GOOGLE_IP_SOURCE_URL"
 download_and_classify_first_batch_source "telegram" "$TELEGRAM_IP_SOURCE_URL"
 download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
@@ -676,6 +684,8 @@ generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$IP_NORMALIZE_MANIFEST"
 record_upstream_summary ip cn-ipv46 ok "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt"
 record_upstream_summary ip cn-ipv46-apnic ok "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"
+record_upstream_summary ip loyalsoldier-geoip-cn ok "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.raw.txt" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"
+record_upstream_summary ip loyalsoldier-geoip-private ok "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL" "$IP_BUILD_TMP_DIR/private.raw.txt" "$IP_BUILD_TMP_DIR/private.cidr.txt"
 record_upstream_summary ip cloudflare-ipv4 ok "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt"
 record_upstream_summary ip cloudflare-ipv6 ok "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
 record_upstream_summary ip aws ok "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" "$IP_BUILD_TMP_DIR/aws.cidr.txt"
@@ -686,10 +696,13 @@ summarize_first_batch_checks
 normalize_first_batch_source "google-json"
 normalize_first_batch_source "github-json"
 normalize_first_batch_source "telegram"
+assert_min_cidrs loyalsoldier-geoip-cn "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt" "$LOYALSOLDIER_GEOIP_CN_MIN_CIDR_COUNT"
+assert_min_cidrs loyalsoldier-geoip-private "$IP_BUILD_TMP_DIR/private.cidr.txt" "$LOYALSOLDIER_GEOIP_PRIVATE_MIN_CIDR_COUNT"
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"
+  "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \

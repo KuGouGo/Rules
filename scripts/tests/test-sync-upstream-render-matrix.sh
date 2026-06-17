@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 script = Path("scripts/commands/sync-upstream.sh").read_text(encoding="utf-8")
-expected = ["cn", "google", "telegram", "cloudflare", "cloudfront", "aws", "fastly", "github", "apple"]
+expected = ["cn", "private", "google", "telegram", "cloudflare", "cloudfront", "aws", "fastly", "github", "apple"]
 
 match = re.search(r"^IP_TEXT_ARTIFACTS=\(([^)]+)\)$", script, re.MULTILINE)
 if not match:
@@ -40,6 +40,23 @@ for snippet in required_snippets:
 
 if 'render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"' not in script:
     raise SystemExit("test failed: sync-upstream does not render the shared IP text artifact matrix")
+
+loyalsoldier_required_snippets = [
+    'LOYALSOLDIER_GEOIP_CN_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-cn url)"',
+    'LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-private url)"',
+    'download_file "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.raw.txt"',
+    'download_file "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL" "$IP_BUILD_TMP_DIR/private.raw.txt"',
+    'text "$tmp_dir/loyalsoldier_geoip_cn.raw.txt" "$tmp_dir/loyalsoldier_geoip_cn.cidr.txt"',
+    'text "$tmp_dir/private.raw.txt" "$tmp_dir/private.cidr.txt"',
+    'record_upstream_summary ip loyalsoldier-geoip-cn ok "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL"',
+    'record_upstream_summary ip loyalsoldier-geoip-private ok "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL"',
+    'assert_min_cidrs loyalsoldier-geoip-cn "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"',
+    'assert_min_cidrs loyalsoldier-geoip-private "$IP_BUILD_TMP_DIR/private.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"',
+]
+for snippet in loyalsoldier_required_snippets:
+    if snippet not in script:
+        raise SystemExit(f"test failed: sync-upstream missing Loyalsoldier CN IP snippet {snippet!r}")
 
 domain_required_snippets = [
     'clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"',

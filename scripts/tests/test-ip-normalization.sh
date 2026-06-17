@@ -71,6 +71,22 @@ python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
   "$TMP_DIR/merge-b.txt"
 assert_file_content "$TMP_DIR/merged.out" $'10.0.0.0/8\n192.168.1.0/24\n192.168.2.0/24\n2001:db8::/32'
 
+cat > "$TMP_DIR/adjacent-a.txt" <<'CIDRS'
+192.0.2.0/25
+2001:db8::/33
+CIDRS
+cat > "$TMP_DIR/adjacent-b.txt" <<'CIDRS'
+192.0.2.128/25
+2001:db8:8000::/33
+CIDRS
+
+python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
+  merge \
+  "$TMP_DIR/adjacent-merged.out" \
+  "$TMP_DIR/adjacent-a.txt" \
+  "$TMP_DIR/adjacent-b.txt"
+assert_file_content "$TMP_DIR/adjacent-merged.out" $'192.0.2.0/24\n2001:db8::/32'
+
 python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
   merge-dedupe \
   "$TMP_DIR/merged-dedupe.out" \

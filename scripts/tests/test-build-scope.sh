@@ -31,7 +31,7 @@ assert_scope custom "manual custom-only publish" \
 
 assert_scope custom "push only updates custom sources" \
   EVENT_NAME=push CURRENT_SHA=HEAD BEFORE_SHA=base \
-  CHANGED_FILES=$'sources/custom/domain/emby.list\nsources/custom/ip/private.list'
+  CHANGED_FILES=$'sources/custom/domain/emby.list\nsources/custom/ip/example.list'
 
 assert_scope full "push includes non-custom changes" \
   EVENT_NAME=push CURRENT_SHA=HEAD BEFORE_SHA=base \
