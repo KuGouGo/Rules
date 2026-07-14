@@ -31,7 +31,7 @@ make clean
 - `make build-custom`：生成自定义文本和二进制产物。
 - `make preflight`：`make validate` 加文本自定义构建；不执行完整同步、产物守卫（artifact guard）或发布。
 - `build-artifacts-transaction.sh`：CI 的完整入口。它在 `.tmp/` 中以事务自有的 `RULES_ARTIFACT_ROOT` 组合上游同步或已发布分支恢复、自定义构建、守卫、摘要、manifest 生成与验证；调用方提供 `RULES_ARTIFACT_ROOT` 会被拒绝，测试或运维如需改变最终提升位置应使用 `RULES_LIVE_ARTIFACT_ROOT`。全部成功后才以目录替换提升为 `.output/`（或该显式 live root）。失败诊断写入非发布目录 `.artifacts/diagnostics/`，旧 live root 保持不变。`config/upstreams.json` 为每个源声明 parser、required/optional、原始字节、规范条目、地址族和 fallback policy；required 源的传输、fallback 或语义健康回归都会在提升前失败。每个 RIPE Stat ASN 响应和合并分组都使用 `ripe-stat` health policy，过小或无效响应会先写入诊断摘要再阻断事务。自定义恢复要求五个发布分支具有相同 generation/source 身份，并把分支 commit 写入 manifest restoration metadata。缺失分支的跨平台有损转换默认禁用，仅可用 `RULES_ALLOW_LOSSY_RESTORE_FALLBACK=1` 显式开启。
-- `generate-artifact-manifest.sh`：在构建与守卫完成后、写 manifest 前，按能力配置中的 `verifier` 分派器验证每个产物；缺失或未验证的二进制会阻断生成。默认位于 `.output/`，事务内服从 `RULES_ARTIFACT_ROOT`。调用方应明确提供 generation id、build scope，CI 还将 source SHA 绑定到 `github.sha`。
+- `generate-artifact-manifest.sh`：在构建与守卫完成后、写 manifest 前，按能力配置中的 `verifier` 分派器验证每个产物；缺失或未验证的二进制会阻断生成。默认位于 `.output/`，事务内服从 `RULES_ARTIFACT_ROOT`。调用方应明确提供 generation id、build scope，CI 还将 source SHA 绑定到实际 checkout 的 `github.sha`：PR 验证记录被测试的合并提交，正式发布记录 `main` 提交。
 - `verify-artifact-manifest.sh`：严格重算所选 artifact root 内的可发布文件集合、路径、大小和 SHA-256，并重新执行产物验证、核对能力/lock 与可选 source SHA；发布 job 在恢复或安装锁定工具后强制执行同一验证。
 
 二进制验证使用固定工具的真实读回接口：`.srs` 执行 `sing-box rule-set decompile` 并解析 JSON；`.mrs` 执行 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT`。对仍有规范自定义源的二进制，读回规则总数和类型计数必须匹配 compiler 输入。恢复分支和上游二进制没有保留逐产物规范 compiler 输入，因此仅记录真实读回计数及 `canonical_linkage.status=unavailable`，不宣称语义 round-trip。manifest 每个产物记录验证状态、方法、读回计数和规范计数关联。
