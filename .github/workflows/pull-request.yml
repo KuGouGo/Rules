@@ -65,7 +65,7 @@ jobs:
           RULES_BUILD_SCOPE: full
           ARTIFACT_GENERATION_ID: pr-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
           ARTIFACT_BUILD_ID: ${{ github.run_id }}
-          ARTIFACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
         run: ./scripts/commands/build-artifacts-transaction.sh
 
       - name: Show release candidate summary
