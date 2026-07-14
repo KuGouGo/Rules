@@ -1,23 +1,26 @@
-name: Pull Request Validation
+name: Development Validation
 
 on:
-  pull_request:
+  push:
+    branches:
+      - dev
 
 permissions:
   contents: read
 
 concurrency:
-  group: pull-request-${{ github.event.pull_request.number }}
+  group: development-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  validate:
+  preflight:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Python
@@ -28,5 +31,5 @@ jobs:
       - name: Prepare scripts
         run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
 
-      - name: Run preflight validation and text build
+      - name: Run preflight
         run: REQUIRE_SHELLCHECK=1 make preflight

@@ -71,9 +71,16 @@ if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
         scope="full"
         reason="manual custom baseline unavailable; using full sync"
         base_sha=""
+      elif ! deleted_custom_files="$(collect_deleted_custom_files "$base_sha" "$CURRENT_SHA")"; then
+        scope="full"
+        reason="manual custom diff unavailable; using full sync"
+        base_sha=""
       elif [ -z "$changed_files" ]; then
         scope="full"
         reason="manual custom delta empty; using full sync"
+      elif [ -n "$deleted_custom_files" ]; then
+        scope="full"
+        reason="custom deletions require full sync"
       elif printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
         echo "manual custom scope refused: delta contains non-custom paths" >&2
         printf '%s\n' "$changed_files" >&2

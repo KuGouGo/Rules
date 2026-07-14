@@ -12,13 +12,13 @@ import sys
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from artifact_origins import ALLOWED_ORIGINS, load_origin_file
 from artifact_verifier import verify_one
 from platform_capabilities import load_platform_capabilities
 
 SCHEMA_VERSION = 2
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-ORIGINS = {"generated-custom", "generated-upstream", "restored-published-branch"}
 TOP_KEYS = {"schema_version", "generation_id", "build_id", "build_scope", "source", "inputs", "tools", "summaries", "artifacts", "restoration"}
 SOURCE_KEYS = {"commit", "tree"}
 INPUT_KEYS = {"capabilities", "tool_lock", "artifact_origins"}
@@ -70,13 +70,6 @@ def require_exact(value: Any, keys: set[str], location: str, errors: list[str]) 
         errors.append(f"{location} must contain exactly {sorted(keys)}")
         return False
     return True
-
-
-def load_origins(path: Path) -> dict[str, str]:
-    data = load_json(path)
-    if not isinstance(data, dict) or not data or any(not isinstance(key, str) or value not in ORIGINS for key, value in data.items()):
-        raise SystemExit("artifact origin provenance map must be a non-empty path-to-origin object")
-    return data
 
 
 def collect_artifacts(root: Path, origins: dict[str, str]) -> list[dict[str, Any]]:
@@ -179,7 +172,7 @@ def generate(args: argparse.Namespace) -> None:
     output.mkdir(parents=True, exist_ok=True)
     capabilities_path, lock_path = root / "config/domain-platform-capabilities.json", root / "config/tools-lock.json"
     origins_path = output / "artifact-origins.json"
-    lock, origins = load_json(lock_path), load_origins(origins_path)
+    lock, origins = load_json(lock_path), load_origin_file(origins_path, require_nonempty=True)
     source_commit = args.source_sha or git_value(root, "rev-parse", "HEAD")
     source_tree = git_value(root, "rev-parse", f"{source_commit}^{{tree}}") if source_commit else None
     if args.source_sha and (not GIT_SHA_RE.fullmatch(args.source_sha) or source_tree is None):
@@ -232,7 +225,7 @@ def verify(args: argparse.Namespace) -> None:
             if actual_tree and source["tree"] != actual_tree: errors.append(f"source tree mismatch: expected {actual_tree}, got {source['tree']}")
     capabilities_path, lock_path, origins_path = root / "config/domain-platform-capabilities.json", root / "config/tools-lock.json", output / "artifact-origins.json"
     try:
-        matrix, lock, origins = capability_matrix(root), load_json(lock_path), load_origins(origins_path)
+        matrix, lock, origins = capability_matrix(root), load_json(lock_path), load_origin_file(origins_path, require_nonempty=True)
     except (OSError, ValueError, json.JSONDecodeError, SystemExit) as exc:
         errors.append(f"manifest verification input invalid: {exc}"); matrix, lock, origins = {}, {}, {}
     inputs = manifest.get("inputs")
@@ -278,7 +271,7 @@ def verify(args: argparse.Namespace) -> None:
         recorded.add(rel); artifact_type, platform, filename = PurePosixPath(rel).parts; expected = matrix.get((artifact_type, platform)); extension = filename.rsplit(".", 1)[-1] if "." in filename else ""
         if not expected: errors.append(f"artifact capability missing for {rel}")
         elif entry["type"] != artifact_type or entry["platform"] != platform or entry["extension"] != extension or extension != expected["extension"]: errors.append(f"artifact metadata disagrees with capabilities: {rel}")
-        if entry["origin"] not in ORIGINS or origins.get(rel) != entry["origin"]: errors.append(f"artifact origin provenance mismatch for {rel}")
+        if entry["origin"] not in ALLOWED_ORIGINS or origins.get(rel) != entry["origin"]: errors.append(f"artifact origin provenance mismatch for {rel}")
         path = output / Path(*PurePosixPath(rel).parts)
         if not path.is_file(): errors.append(f"manifest artifact missing: {rel}"); continue
         size = path.stat().st_size

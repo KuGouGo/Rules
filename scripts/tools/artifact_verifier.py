@@ -49,7 +49,7 @@ def singbox_counts(data: dict[str, Any], kind: str) -> Counter[str]:
             continue
         for field, canonical in mappings.items():
             values = rule.get(field, [])
-            if isinstance(values, list):
+            if isinstance(values, list) and values:
                 if kind == "ip" and field == "ip_cidr":
                     for value in values:
                         counts["IP-CIDR6" if ":" in value else "IP-CIDR"] += 1

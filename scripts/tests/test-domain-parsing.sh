@@ -627,7 +627,7 @@ EOF
     >"$TMP_DIR/capability_summary/stdout" \
     2>"$TMP_DIR/capability_summary/stderr"
 
-  grep -Fx "domain summary: base skips unsupported rules for mihomo-mrs: DOMAIN-KEYWORD=1, DOMAIN-REGEX=1" \
+  grep -Fx "domain summary: base skips unsupported rules for mihomo: DOMAIN-KEYWORD=1, DOMAIN-REGEX=1" \
     "$TMP_DIR/capability_summary/stderr" >/dev/null || {
       echo "test failed: missing mihomo-mrs capability summary" >&2
       cat "$TMP_DIR/capability_summary/stderr" >&2

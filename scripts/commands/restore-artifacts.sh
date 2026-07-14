@@ -183,18 +183,8 @@ payload = {"generation_id": next(iter(generations)), "source_commit": next(iter(
 Path(sys.argv[2]).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
-python3 - <<'PY' "$ARTIFACT_ROOT" "$ARTIFACT_ROOT/artifact-origins.json"
-import json, sys
-from pathlib import Path
-root, target = map(Path, sys.argv[1:])
-origins = {}
-for section in ("domain", "ip"):
-    base = root / section
-    if base.is_dir():
-        for path in base.glob("*/*"):
-            if path.is_file():
-                origins[path.relative_to(root).as_posix()] = "restored-published-branch"
-target.write_text(json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-PY
+python3 "$ROOT/scripts/tools/artifact_origins.py" reset \
+  "$ARTIFACT_ROOT" \
+  restored-published-branch
 
 echo "published artifact restore done"

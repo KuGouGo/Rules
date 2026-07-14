@@ -158,7 +158,7 @@ cat > "$TMP_DIR/plain-summary/.output/upstream-summary.json" <<'JSON'
 ]
 JSON
 
-if ! ( cd "$TMP_DIR/plain-summary" && uses_dlc_plain_yaml_artifact ); then
+if ! ( ARTIFACT_ROOT="$TMP_DIR/plain-summary/.output"; uses_dlc_plain_yaml_artifact ); then
   echo "test failed: DLC plain YAML summary should be detected" >&2
   exit 1
 fi
@@ -174,7 +174,7 @@ cat > "$TMP_DIR/git-summary/.output/upstream-summary.json" <<'JSON'
 ]
 JSON
 
-if ( cd "$TMP_DIR/git-summary" && uses_dlc_plain_yaml_artifact ); then
+if ( ARTIFACT_ROOT="$TMP_DIR/git-summary/.output"; uses_dlc_plain_yaml_artifact ); then
   echo "test failed: git DLC summary should not be treated as plain YAML" >&2
   exit 1
 fi

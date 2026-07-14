@@ -1,13 +1,15 @@
 SHELL := /usr/bin/env bash
 REQUIRE_SHELLCHECK ?= 0
+BASH_MIN_MAJOR := 5
 
 SHELL_SCRIPTS := $(shell find scripts -type f -name '*.sh' | sort)
 PYTHON_TOOLS := $(shell find scripts/tools -type f -name '*.py' | sort)
 
-.PHONY: help lint lint-shell lint-python lint-config lint-rules test validate preflight build-custom build-custom-text clean
+.PHONY: help check-runtime lint lint-shell lint-python lint-config lint-rules test validate preflight build-custom build-custom-text clean
 
 help:
 	@echo "Available targets:"
+	@echo "  make check-runtime     Verify the supported Bash runtime"
 	@echo "  make lint              Run shell, Python, and custom rule lint checks"
 	@echo "  make test              Run all repository test scripts"
 	@echo "  make validate          Run lint and tests"
@@ -16,7 +18,10 @@ help:
 	@echo "  make build-custom-text Build custom text artifacts without downloading binary compilers"
 	@echo "  make clean             Remove generated artifacts and temporary files"
 
-lint: lint-shell lint-python lint-config lint-rules
+check-runtime:
+	@bash -c 'if (( BASH_VERSINFO[0] < $(BASH_MIN_MAJOR) )); then echo "Bash $(BASH_MIN_MAJOR)+ is required (found $$BASH_VERSION)" >&2; exit 1; fi'
+
+lint: check-runtime lint-shell lint-python lint-config lint-rules
 
 lint-shell:
 	bash -n $(SHELL_SCRIPTS)
@@ -38,17 +43,17 @@ lint-config:
 lint-rules:
 	./scripts/commands/lint-custom-rules.sh
 
-test:
+test: check-runtime
 	./scripts/tests/run.sh
 
 validate: lint test
 
 preflight: validate build-custom-text
 
-build-custom:
+build-custom: check-runtime
 	./scripts/commands/build-custom.sh
 
-build-custom-text:
+build-custom-text: check-runtime
 	RULES_BUILD_CUSTOM_TEXT_ONLY=1 ./scripts/commands/build-custom.sh
 
 clean:

@@ -17,6 +17,7 @@ git -C "$REPO" config user.name test
 git -C "$REPO" config user.email test@example.com
 git -C "$REPO" add scripts config sources
 git -C "$REPO" commit -m base >/dev/null
+BASE_SHA="$(git -C "$REPO" rev-parse HEAD)"
 
 snapshot_output() {
   local destination="$1"
@@ -40,13 +41,17 @@ assert_injected_failure_preserves_output() {
   local after="$TMP_DIR/$point.after"
 
   snapshot_output "$before"
-  if env RULES_BUILD_CUSTOM_FAIL_AT="$point" "$@" \
+  if env RULES_CONFLICT_BASE_SHA="$BASE_SHA" RULES_BUILD_CUSTOM_FAIL_AT="$point" "$@" \
     "$REPO/scripts/commands/build-custom.sh" \
     >"$TMP_DIR/$point.stdout" 2>"$TMP_DIR/$point.stderr"; then
     echo "test failed: expected injected $point failure" >&2
     exit 1
   fi
-  grep -Fx "injected custom build failure at $point" "$TMP_DIR/$point.stderr" >/dev/null
+  grep -Fx "injected custom build failure at $point" "$TMP_DIR/$point.stderr" >/dev/null || {
+    echo "test failed: missing injected failure marker for $point" >&2
+    cat "$TMP_DIR/$point.stderr" >&2
+    exit 1
+  }
   snapshot_output "$after"
   if ! cmp -s "$before" "$after"; then
     echo "test failed: $point failure changed .output" >&2
@@ -93,7 +98,8 @@ assert_injected_failure_preserves_output late-binary
 # A successful text-only commit updates only controlled text targets. Binary
 # targets and unrelated restored/upstream files remain untouched.
 printf 'restored binary\n' > "$REPO/.output/domain/surge/unrelated.list"
-RULES_BUILD_CUSTOM_TEXT_ONLY=1 "$REPO/scripts/commands/build-custom.sh" >/dev/null
+RULES_CONFLICT_BASE_SHA="$BASE_SHA" RULES_BUILD_CUSTOM_TEXT_ONLY=1 \
+  "$REPO/scripts/commands/build-custom.sh" >/dev/null
 grep -Fx 'DOMAIN-SUFFIX,atomic-stage.example' "$REPO/.output/domain/surge/emby.list" >/dev/null
 grep -Fx 'restored upstream' "$REPO/.output/unrelated/upstream.txt" >/dev/null
 grep -Fx 'restored binary' "$REPO/.output/domain/surge/unrelated.list" >/dev/null

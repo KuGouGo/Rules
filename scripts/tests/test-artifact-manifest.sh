@@ -5,7 +5,12 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 REPO="$TMP/repo"
 mkdir -p "$REPO/scripts/tools" "$REPO/scripts/commands" "$REPO/config" "$REPO/sources/custom/domain" "$REPO/.bin"
-cp "$ROOT/scripts/tools/artifact_manifest.py" "$ROOT/scripts/tools/artifact_verifier.py" "$ROOT/scripts/tools/platform_capabilities.py" "$REPO/scripts/tools/"
+cp \
+  "$ROOT/scripts/tools/artifact_manifest.py" \
+  "$ROOT/scripts/tools/artifact_origins.py" \
+  "$ROOT/scripts/tools/artifact_verifier.py" \
+  "$ROOT/scripts/tools/platform_capabilities.py" \
+  "$REPO/scripts/tools/"
 cat > "$REPO/.bin/sing-box" <<'EOF'
 #!/usr/bin/env bash
 set -eu
@@ -49,8 +54,24 @@ make_files() {
   rm -rf "$REPO/.output"
   while read -r platform extension; do
     mkdir -p "$REPO/.output/domain/$platform" "$REPO/.output/ip/$platform"
-    printf 'domain-%s\n' "$platform" > "$REPO/.output/domain/$platform/custom.$extension"
-    printf 'ip-%s\n' "$platform" > "$REPO/.output/ip/$platform/base.$extension"
+    case "$platform" in
+      surge)
+        printf 'DOMAIN-SUFFIX,custom.example\n' > "$REPO/.output/domain/$platform/custom.$extension"
+        printf 'IP-CIDR,192.0.2.0/24,no-resolve\n' > "$REPO/.output/ip/$platform/base.$extension"
+        ;;
+      quanx)
+        printf 'HOST-SUFFIX,custom.example,custom\n' > "$REPO/.output/domain/$platform/custom.$extension"
+        printf 'IP-CIDR,192.0.2.0/24,base\n' > "$REPO/.output/ip/$platform/base.$extension"
+        ;;
+      egern)
+        printf "domain_suffix_set:\n  - 'custom.example'\n" > "$REPO/.output/domain/$platform/custom.$extension"
+        printf "no_resolve: true\nip_cidr_set:\n  - '192.0.2.0/24'\n" > "$REPO/.output/ip/$platform/base.$extension"
+        ;;
+      sing-box|mihomo)
+        printf 'domain-%s\n' "$platform" > "$REPO/.output/domain/$platform/custom.$extension"
+        printf 'ip-%s\n' "$platform" > "$REPO/.output/ip/$platform/base.$extension"
+        ;;
+    esac
   done <<'EOF'
 surge list
 quanx list

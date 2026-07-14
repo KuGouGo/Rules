@@ -15,8 +15,8 @@ fail() {
   exit 1
 }
 
-SING_BOX_VERSION=latest
-MIHOMO_VERSION=latest
+export SING_BOX_VERSION=latest
+export MIHOMO_VERSION=latest
 [ "$(resolve_sing_box_version)" = "1.13.14" ] || fail "sing-box version must come only from lock"
 [ "$(resolve_mihomo_version)" = "1.19.28" ] || fail "mihomo version must come only from lock"
 [ "$(tool_lock_value sing-box tag_commit)" = "25a600db24f7680ad9806ce5427bd0ab8afe1114" ] || fail "sing-box tag commit is not locked"

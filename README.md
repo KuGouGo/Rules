@@ -7,39 +7,28 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4b5563">
 </p>
 
-面向 **Surge、Quantumult X、Egern、sing-box 和 mihomo** 的多平台规则构建仓库。仓库维护少量原创规则，并同步第三方数据，经规范化、转换和编译后发布到五个平台分支。
+面向 Surge、Quantumult X、Egern、sing-box 和 mihomo 的规则构建仓库。`dev` 集成开发变更，`main` 保存稳定源码并触发发布，客户端产物位于对应平台分支。
 
 > [!IMPORTANT]
-> `main` 保存源码和构建逻辑，不是规则下载分支。客户端应引用 `surge`、`quanx`、`egern`、`sing-box` 或 `mihomo`。MIT 许可的适用范围及第三方边界见 [`NOTICE`](NOTICE) 和 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+> 客户端不要引用 `main`。第三方规则不因格式转换而自动适用 MIT，来源和许可边界见 [`NOTICE`](NOTICE) 与 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
 
-## 快速选择
+## 使用规则
 
-| 需求 | 规则 | 类型 | 注意事项 |
-| --- | --- | --- | --- |
-| 中国大陆域名 | `cn` 或 `geolocation-cn` | domain | 两者沿用不同上游语义，不是同义别名 |
-| 非中国大陆域名 | `geolocation-!cn` | domain | `!cn` 是上游名称的一部分 |
-| 中国大陆 IP | `cn` | ip | 合并多个已配置来源并规范化为 CIDR |
-| Google / Telegram IP | `google` / `telegram` | ip | Telegram 还会合并配置的 ASN 前缀 |
-| Emby 中国大陆细分 | `emby-cn` | domain | 必须放在 `emby` 前面 |
-| 通用 Emby | `emby` | domain | 包含较宽泛的后缀和关键词 |
-
-上游列表名称会随上游演进。使用前请在目标发布分支的 `domain/` 或 `ip/` 目录确认文件存在；构建摘要和结构清单不随发布分支分发。
-
-## 稳定 URL 模板
+稳定 URL 格式：
 
 ```text
 https://raw.githubusercontent.com/KuGouGo/Rules/{branch}/{type}/{name}.{extension}
 ```
 
-| 分支 | domain | ip |
-| --- | --- | --- |
-| `surge` | `{name}.list` | `{name}.list` |
-| `quanx` | `{name}.list` | `{name}.list` |
-| `egern` | `{name}.yaml` | `{name}.yaml` |
-| `sing-box` | `{name}.srs` | `{name}.srs` |
-| `mihomo` | `{name}.mrs` | `{name}.mrs` |
+| 客户端 | 分支 | domain / ip 扩展名 | 分支说明 |
+| --- | --- | --- | --- |
+| Surge | `surge` | `.list` | [查看产物](https://github.com/KuGouGo/Rules/tree/surge) |
+| Quantumult X | `quanx` | `.list` | [查看产物](https://github.com/KuGouGo/Rules/tree/quanx) |
+| Egern | `egern` | `.yaml` | [查看产物](https://github.com/KuGouGo/Rules/tree/egern) |
+| sing-box | `sing-box` | `.srs` | [查看产物](https://github.com/KuGouGo/Rules/tree/sing-box) |
+| mihomo | `mihomo` | `.mrs` | [查看产物](https://github.com/KuGouGo/Rules/tree/mihomo) |
 
-五个平台的可用 URL 示例：
+示例：
 
 ```text
 https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list
@@ -49,188 +38,75 @@ https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/cn.srs
 https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/google.mrs
 ```
 
-发布分支 URL 会随更新改变内容，不是固定快照。需要可复现内容时请把 URL 中的分支替换为具体提交 SHA。
+各平台的接入方式和最小配置示例位于对应产物分支的 `README.md`。分支 URL 始终指向最新产物；需要固定内容时，将分支名替换为具体提交 SHA。
 
-## 五平台接入示例
+## 常用规则
 
-示例策略仅用于展示，请替换为客户端中真实存在的策略或出站标签，并保持规则顺序。
+| 名称 | 类型 | 用途 |
+| --- | --- | --- |
+| `cn` | domain / ip | 中国大陆域名或合并后的中国大陆 CIDR |
+| `geolocation-cn` | domain | 上游定义的中国大陆区域域名 |
+| `geolocation-!cn` | domain | 上游定义的非中国大陆区域域名 |
+| `google` / `telegram` | ip | 对应服务的 CIDR；Telegram 额外合并 ASN 前缀 |
+| `emby-cn` | domain | Emby 中国大陆细分规则 |
+| `emby` | domain | 通用 Emby 规则 |
+| `fakeip-filter` | domain | 本仓库维护的 Fake-IP 排除规则 |
 
-### Surge
+`emby-cn` 必须放在 `emby` 前面。规则名称来自上游，不同名称即使内容相近也不视为别名；使用前请在目标分支确认文件存在。
 
-Surge 产物为 classical rule-set；IP 规则默认带 `no-resolve`。
+## 平台能力
 
-```ini
-[Rule]
-RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/emby-cn.list,DIRECT
-RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/emby.list,Emby
-RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.list,DIRECT
-```
+| 平台 | 精确域名 | 后缀 | 关键词 | 正则 | IP CIDR |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| Surge | ✓ | ✓ | ✓ | — | ✓ |
+| Quantumult X | ✓ | ✓ | ✓ | — | ✓ |
+| Egern | ✓ | ✓ | ✓ | ✓ | ✓ |
+| sing-box | ✓ | ✓ | ✓ | ✓ | ✓ |
+| mihomo | ✓ | ✓ | — | — | ✓ |
 
-### Quantumult X
+`—` 表示当前转换链不保留该类型，不代表客户端本身不支持。列表只包含不受支持的规则类型时，对应平台不会发布空产物。
 
-Quantumult X 产物使用 `HOST`、`HOST-SUFFIX`、`HOST-KEYWORD`、`IP-CIDR` 和 `IP6-CIDR`。构建器把规则名写入第三字段；使用 `filter_remote` 时应通过 `force-policy` 绑定本地策略。
+属性与区域名称沿用上游语义：
 
-```ini
-[filter_remote]
-https://raw.githubusercontent.com/KuGouGo/Rules/quanx/domain/emby-cn.list, tag=Emby-CN, force-policy=direct, enabled=true
-https://raw.githubusercontent.com/KuGouGo/Rules/quanx/domain/emby.list, tag=Emby, force-policy=Emby, enabled=true
-https://raw.githubusercontent.com/KuGouGo/Rules/quanx/ip/cn.list, tag=CN-IP, force-policy=direct, enabled=true
-```
+- `name@cn`、`name@!cn`、`name@ads` 是属性派生集合，`@!cn` 不是布尔取反。
+- `*-cn`、`*-!cn` 是区域列表名称；明显冗余的属性派生不会发布。
+- `official`、`registry`、`community` 仅表示采集来源分类，不代表质量或许可等级。
 
-### Egern
+## 本地维护
 
-Egern 产物为 YAML 规则集。域名按内容写入对应集合，IP 写入 IPv4/IPv6 CIDR 集合并设置 `no_resolve: true`。
-
-```text
-https://raw.githubusercontent.com/KuGouGo/Rules/egern/domain/emby-cn.yaml
-https://raw.githubusercontent.com/KuGouGo/Rules/egern/domain/emby.yaml
-https://raw.githubusercontent.com/KuGouGo/Rules/egern/ip/cn.yaml
-```
-
-在 Egern 中添加远程规则集，再绑定本地策略。仓库只保证生成的数据结构，不提供完整客户端配置。
-
-### sing-box
-
-sing-box 产物是 `sing-box rule-set compile` 生成的二进制 `.srs`。以下仅为展示远程规则集引用关系的概念片段，不是可直接使用的完整配置。
-
-```json
-{
-  "route": {
-    "rules": [
-      { "rule_set": ["emby-cn"], "outbound": "direct" },
-      { "rule_set": ["emby"], "outbound": "proxy" },
-      { "rule_set": ["cn-ip"], "outbound": "direct" }
-    ],
-    "rule_set": [
-      {
-        "tag": "emby-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/emby-cn.srs"
-      },
-      {
-        "tag": "emby",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/emby.srs"
-      },
-      {
-        "tag": "cn-ip",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/ip/cn.srs"
-      }
-    ]
-  }
-}
-```
-
-字段可能随 sing-box 版本演进，请以所用版本的官方 schema 为准。
-
-### mihomo
-
-mihomo 只发布二进制 `.mrs`。domain provider 使用 `behavior: domain`，IP provider 使用 `behavior: ipcidr`。
-
-```yaml
-rule-providers:
-  emby-cn:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/emby-cn.mrs
-    path: ./ruleset/emby-cn.mrs
-    interval: 86400
-  emby:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/emby.mrs
-    path: ./ruleset/emby.mrs
-    interval: 86400
-  cn-ip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    url: https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/cn.mrs
-    path: ./ruleset/cn-ip.mrs
-    interval: 86400
-rules:
-  - RULE-SET,emby-cn,DIRECT
-  - RULE-SET,emby,Emby
-  - RULE-SET,cn-ip,DIRECT,no-resolve
-```
-
-## 平台能力与降级
-
-| 平台 | 精确域名 | 后缀 | 关键词 | 正则 | IP CIDR | 当前转换边界 |
-| --- | :---: | :---: | :---: | :---: | :---: | --- |
-| Surge | ✓ | ✓ | ✓ | — | ✓ | 不写入域名正则 |
-| Quantumult X | ✓ | ✓ | ✓ | — | ✓ | 转换为 `HOST*`；不写入域名正则 |
-| Egern | ✓ | ✓ | ✓ | ✓ | ✓ | 保留四类域名规则 |
-| sing-box | ✓ | ✓ | ✓ | ✓ | ✓ | 编译为 `.srs` |
-| mihomo | ✓ | ✓ | — | — | ✓ | domain `.mrs` 仅保留精确域名与后缀 |
-
-`—` 只表示当前转换链路未保留，不表示客户端本身不支持。若源列表仅含目标平台不保留的类型，该平台可能不发布对应空产物。
-
-## 规则语义
-
-- `name@cn`、`name@!cn`、`name@ads` 是按上游属性派生的集合；`@!cn` 不是布尔取反。
-- `*-cn` 和 `*-!cn` 保留上游区域列表命名；明显冗余的属性派生不会发布。
-- `official`、`registry`、`community` 只是采集来源分类，不是质量等级或许可结论。
-- `emby-cn` 与 `emby` 当前有三条经审核并逐条锁定的覆盖关系。采用首条命中时必须先加载 `emby-cn`，再加载 `emby`。
-
-## 更新、构建与审计边界
-
-- `Sync Rules` 每天 08:00 UTC 完整同步；也支持手动选择构建范围。
-- `main` 的相关实现、配置或自定义源变更会触发构建；纯文档变更不在 `push.paths` 中。
-- 自定义范围会恢复发布分支产物后重建自定义规则；完整范围会同步全部已配置上游。
-- `fakeip-filter` 当前由本仓库在 `sources/custom/domain/fakeip-filter.list` 维护，并与其他自定义规则一起生成 Surge、Quantumult X、Egern 文本产物及 sing-box、mihomo 二进制产物；构建不再下载第三方预编译文件。
-- 过去曾直接采用 `wwqgtxx/clash-rules` 的预编译 `fakeip-filter.mrs`；该路径仅属历史，不是当前输入或构建步骤。
-- `.output/upstream-summary.json` 由主上游同步生成，只是部分采集摘要；本仓库维护的自定义源（包括 `fakeip-filter`）、完整转换链、提交身份和内容校验和不在其中，因此它不是完整来源追溯记录。
-- `.output/domain/rule-manifest.json` 描述域名列表和属性派生结构。
-- `.output/build-summary.json` 由成功的构建事务在产物守卫之后、manifest 之前生成，并由 manifest 绑定文件摘要与嵌入内容；独立运行 `make build-custom*` 不会生成它。
-- 摘要和结构清单都不是许可证证明，也不进入客户端发布分支。
-
-## 校验的实际范围
-
-`make validate` 执行 Shell 语法、可用时的 ShellCheck、Python 编译、配置、自定义规则和测试检查。CI 强制要求 ShellCheck。
-
-产物守卫（artifact guard）检查产物最低数量、域名派生形状、部分文本域名产物的下降、Surge/Quantumult X 文本 IP 的 CIDR 与非公网地址、部分内置 IP 集最低数量及其 Surge 基线波动。它不对所有二进制内容执行等价语义检查。
-
-自定义名称冲突检查发生在构建阶段，仅针对相对基准提交**新加入**的自定义源，并在同一 `domain` 或 `ip` 类型内检查五个平台当前 `.output/` 路径；既有自定义源的修改不会经过同一“新增名称”判断，domain 与 ip 同名也不互相冲突。
-
-许可核验完全依赖维护者人工评审。脚本不会解析 `NOTICE` 或 `THIRD_PARTY_NOTICES.md`，未知许可也不会被 CI 自动识别或阻断。CI 通过不能视为已取得授权。
-
-## 本地开发
-
-支持目标是 GitHub Actions 的 Ubuntu 环境，以及具备 Bash、GNU Make、Git、Python 3、curl 和常用 GNU 工具的 Linux/WSL。脚本可识别非 Windows 的 `amd64` 与 `arm64` 二进制工具资产；原生 Windows 在需要下载新工具时会被明确拒绝，完整二进制构建不属于支持组合，其他环境组合也不作保证。
+要求 Bash 5+、GNU Make、Git 和 Python 3。macOS 可使用 Homebrew Bash 完成验证与文本构建；sing-box 和 mihomo 的完整二进制构建仅支持 lock 文件声明的 Linux 平台。
 
 ```bash
-make help
+make check-runtime
 make validate
 make build-custom-text
-make build-custom
 make preflight
 make clean
 ```
 
-`make build-custom-text` 不下载二进制编译器；`make preflight` 也不执行完整上游同步、产物守卫（artifact guard）或发布。完整构建只接受 `config/tools-lock.json` 固定的版本、tag commit、Linux 资产名和 SHA-256；归档在解包前校验，`.bin/` 命中还会复核原子写入的 provenance、二进制 SHA-256 与版本探针。`make clean` 删除 `.tmp/`、`.output/`、Python 缓存和未完成的工具临时文件，但保留已验证的工具缓存。
+- `make validate`：运行 Shell、Python、配置、规则质量和测试检查。
+- `make build-custom-text`：生成自定义文本产物，不下载二进制工具。
+- `make preflight`：执行完整验证和文本构建，适合提交前检查。
+- `make clean`：删除生成产物和临时文件，保留可信工具缓存。
 
-自定义域名源位于 `sources/custom/domain/*.list`，支持 `DOMAIN`、`DOMAIN-SUFFIX`、`DOMAIN-KEYWORD` 和 `DOMAIN-REGEX`。可选 IP 源位于 `sources/custom/ip/*.list`，支持 `IP-CIDR` 和 `IP-CIDR6`；目录可不存在。文件名只使用小写字母、数字和连字符。
+完整环境、构建事务和调试命令见 [开发指南](docs/DEVELOPMENT.md)。
 
-## 许可与风险
+## 仓库边界
 
-标准 MIT License 位于 [`LICENSE`](LICENSE)，适用范围说明位于 [`NOTICE`](NOTICE)。第三方来源及人工核对状态见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。格式转换、合并或编译不会把第三方材料重新许可为 MIT；“官方来源”、公开 URL、摘要记录或构建成功也不代表获得再分发授权。
+- 长期分支只保留 `dev`、`main` 与 `surge`、`quanx`、`egern`、`sing-box`、`mihomo` 五个产物分支。
+- 日常代码、文档和依赖更新先进入 `dev`；`dev` 只验证不发布，合并到 `main` 后才构建并更新产物分支。
+- Dependabot 以 `dev` 为目标，把 GitHub Actions 更新合并为一个月度分组 PR；临时更新分支在合并后删除。
+- `fakeip-filter` 是本仓库维护的文本源，不下载第三方预编译文件。
+- 构建摘要、manifest 和 CI 通过都不是第三方许可证明。
+- 规则按现状提供，部署前应检查内容并保留回滚方案。
 
-规则按现状提供，不保证完整、实时、无误或适合特定用途。部署前请审查规则并保留回滚方案。本说明不是法律意见。
+## 文档
 
-## 文档导航
-
-- [`README.md`](README.md)：用户入口、平台示例和关键边界
-- [`CONTRIBUTING.md`](CONTRIBUTING.md)：贡献规则与人工评审清单
-- [`docs/README.md`](docs/README.md)：文档职责与阅读路径
-- [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)：环境、命令和开发流程
-- [`docs/STRUCTURE.md`](docs/STRUCTURE.md)：构建、产物、守卫和发布结构
-- [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)：常见失败与定位步骤
-- [`SECURITY.md`](SECURITY.md)：安全支持范围和私密报告
-- [`NOTICE`](NOTICE) / [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)：许可范围与第三方状态
+| 文档 | 内容 |
+| --- | --- |
+| [贡献指南](CONTRIBUTING.md) | 规则格式、来源要求和评审清单 |
+| [开发指南](docs/DEVELOPMENT.md) | 环境、命令和开发流程 |
+| [仓库结构](docs/STRUCTURE.md) | 同步、构建、manifest、守卫和发布架构 |
+| [故障排查](docs/TROUBLESHOOTING.md) | 常见构建和产物问题 |
+| [安全政策](SECURITY.md) | 安全问题报告范围与方式 |
+| [第三方声明](THIRD_PARTY_NOTICES.md) | 上游来源和人工许可核对状态 |

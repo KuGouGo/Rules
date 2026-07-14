@@ -75,7 +75,7 @@ path.write_text(json.dumps(data), encoding="utf-8")
 PY
 assert_lint_fails_with \
   "invalid-parser" \
-  "upstreams.ip.github.parser: unsupported parser" \
+  "upstreams.ip.github.parser: unsupported or missing parser 'unknown-json'" \
   --upstreams "$TMP_DIR/upstreams.invalid-parser.json"
 
 cp config/upstream-first-batch-baselines.json "$TMP_DIR/baselines.invalid.json"

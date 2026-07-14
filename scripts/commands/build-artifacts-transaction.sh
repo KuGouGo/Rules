@@ -22,7 +22,8 @@ mkdir -p "$STAGE_ROOT"
 preserve_failure_diagnostics() {
   local status=$?
   if [ "$status" -ne 0 ]; then
-    local failure_dir="$DIAGNOSTICS_ROOT/${ARTIFACT_GENERATION_ID:-local}-$(date -u +%Y%m%dT%H%M%SZ)"
+    local failure_dir
+    failure_dir="$DIAGNOSTICS_ROOT/${ARTIFACT_GENERATION_ID:-local}-$(date -u +%Y%m%dT%H%M%SZ)"
     mkdir -p "$failure_dir"
     [ ! -f "$STAGE_ROOT/upstream-summary.json" ] || cp "$STAGE_ROOT/upstream-summary.json" "$failure_dir/"
     [ ! -f "$STAGE_ROOT/build-summary.json" ] || cp "$STAGE_ROOT/build-summary.json" "$failure_dir/"

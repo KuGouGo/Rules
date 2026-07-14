@@ -22,21 +22,28 @@ fi
 grep -F 'KuGouGo-maintained' "$ROOT/sources/custom/domain/fakeip-filter.list" >/dev/null
 
 RENDER_REPO="$TMP_DIR/render"
+FAKEIP_SOURCE="$TMP_DIR/fakeip-filter.list"
+cp "$ROOT/sources/custom/domain/fakeip-filter.list" "$FAKEIP_SOURCE"
 mkdir -p "$RENDER_REPO"
 cp -R "$ROOT/scripts" "$ROOT/config" "$ROOT/sources" "$RENDER_REPO/"
+rm "$RENDER_REPO/sources/custom/domain/fakeip-filter.list"
 git -C "$RENDER_REPO" init -q
 git -C "$RENDER_REPO" config user.name test
 git -C "$RENDER_REPO" config user.email test@example.com
 git -C "$RENDER_REPO" add scripts config sources
 git -C "$RENDER_REPO" commit -m base >/dev/null
+cp "$FAKEIP_SOURCE" "$RENDER_REPO/sources/custom/domain/fakeip-filter.list"
+git -C "$RENDER_REPO" add sources/custom/domain/fakeip-filter.list
+git -C "$RENDER_REPO" commit -m add-fakeip >/dev/null
+RULES_BUILD_CUSTOM_TEXT_ONLY=1 "$RENDER_REPO/scripts/commands/build-custom.sh" >/dev/null
 RULES_BUILD_CUSTOM_TEXT_ONLY=1 "$RENDER_REPO/scripts/commands/build-custom.sh" >/dev/null
 
 grep -Fx 'DOMAIN-SUFFIX,in-addr.arpa' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null
 grep -Fx 'DOMAIN,localhost.localdomain' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null
 grep -Fx 'HOST-SUFFIX,in-addr.arpa,fakeip-filter' "$RENDER_REPO/.output/domain/quanx/fakeip-filter.list" >/dev/null
 grep -Fx 'HOST,localhost.localdomain,fakeip-filter' "$RENDER_REPO/.output/domain/quanx/fakeip-filter.list" >/dev/null
-grep -Fx '  - in-addr.arpa' "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
-grep -Fx '  - localhost.localdomain' "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
+grep -Fx "  - 'in-addr.arpa'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
+grep -Fx "  - 'localhost.localdomain'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
 
 prepare_collision_repo() {
   local repo="$1"
