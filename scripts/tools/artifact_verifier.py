@@ -48,13 +48,17 @@ def singbox_counts(data: dict[str, Any], kind: str) -> Counter[str]:
         if not isinstance(rule, dict):
             continue
         for field, canonical in mappings.items():
-            values = rule.get(field, [])
-            if isinstance(values, list):
-                if kind == "ip" and field == "ip_cidr":
-                    for value in values:
-                        counts["IP-CIDR6" if ":" in value else "IP-CIDR"] += 1
-                else:
-                    counts[canonical] += len(values)
+            raw_values = rule.get(field)
+            if raw_values is None:
+                continue
+            values = raw_values if isinstance(raw_values, list) else [raw_values]
+            if not values or any(not isinstance(value, str) for value in values):
+                raise ValueError(f"sing-box decompile returned invalid {field} values")
+            if kind == "ip" and field == "ip_cidr":
+                for value in values:
+                    counts["IP-CIDR6" if ":" in value else "IP-CIDR"] += 1
+            else:
+                counts[canonical] += len(values)
     return counts
 
 

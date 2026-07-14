@@ -23,6 +23,16 @@ if PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifi
   echo "Egern verifier accepted unknown YAML field" >&2; exit 1
 fi
 
+PYTHONPATH="$ROOT/scripts/tools" python3 - <<'PY'
+from collections import Counter
+from artifact_verifier import singbox_counts
+
+domain = {"rules": [{"domain": "one.example", "domain_suffix": ["a.example", "b.example"], "domain_keyword": "emby"}]}
+assert singbox_counts(domain, "domain") == Counter({"DOMAIN-SUFFIX": 2, "DOMAIN": 1, "DOMAIN-KEYWORD": 1})
+ip = {"rules": [{"ip_cidr": "192.0.2.0/24"}, {"ip_cidr": ["2001:db8::/32"]}]}
+assert singbox_counts(ip, "ip") == Counter({"IP-CIDR": 1, "IP-CIDR6": 1})
+PY
+
 if ! command -v sing-box >/dev/null 2>&1 || ! command -v mihomo >/dev/null 2>&1; then
   echo "binary verifier real-tool fixture skipped: sing-box and mihomo are not both available"
   exit 0

@@ -49,9 +49,9 @@ summary = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 assert summary["domain"]["surge"]["files"] == 1
 assert summary["domain"]["surge"]["rules"] == 3
 assert summary["domain"]["surge"]["by_kind"]["DOMAIN-KEYWORD"] == 1
-assert summary["domain"]["quanx"]["rules"] == 4
+assert summary["domain"]["quanx"]["rules"] == 3
 assert summary["domain"]["quanx"]["by_kind"]["HOST-KEYWORD"] == 1
-assert summary["domain"]["quanx"]["by_kind"]["HOST-REGEX"] == 1
+assert "HOST-REGEX" not in summary["domain"]["quanx"]["by_kind"]
 assert summary["domain"]["egern"]["rules"] == 2
 assert summary["domain"]["egern"]["by_kind"]["YAML-ENTRY"] == 2
 assert summary["ip"]["surge"]["rules"] == 2

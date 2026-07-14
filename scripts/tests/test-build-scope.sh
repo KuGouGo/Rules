@@ -30,6 +30,11 @@ assert_scope custom "manual custom-only publish" \
   EVENT_NAME=workflow_dispatch INPUT_SCOPE=custom CURRENT_SHA=HEAD \
   CHANGED_FILES=$'sources/custom/domain/emby.list'
 
+assert_scope full "custom deletions require full sync" \
+  EVENT_NAME=workflow_dispatch INPUT_SCOPE=custom CURRENT_SHA=HEAD \
+  CHANGED_FILES=$'sources/custom/domain/old.list' \
+  DELETED_CUSTOM_FILES=$'sources/custom/domain/old.list'
+
 assert_scope custom "push only updates custom sources" \
   EVENT_NAME=push CURRENT_SHA=HEAD BEFORE_SHA=base \
   CHANGED_FILES=$'sources/custom/domain/emby.list\nsources/custom/ip/example.list'

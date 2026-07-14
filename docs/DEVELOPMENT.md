@@ -4,7 +4,7 @@
 
 ## 环境支持
 
-CI 的受支持基准是 GitHub Actions `ubuntu-latest` 和 Python 3.11。本地建议使用具备 Bash、GNU Make、Git、Python 3、curl、tar、gzip、find 等常用 GNU 工具的 Linux 或 WSL。
+CI 的受支持基准是 GitHub Actions `ubuntu-latest`、Bash 5+ 和 Python 3.11。本地验证与文本构建支持安装了 Bash 5+、GNU Make、Git、Python 3、curl、tar、gzip、find 的 Linux、WSL 和 macOS；macOS 应使用 Homebrew Bash，并确保 `/opt/homebrew/bin` 或 `/usr/local/bin` 位于 `/bin` 之前。`make check-runtime` 会在构建前拒绝旧版 Bash。
 
 二进制工具下载逻辑仅支持 Linux 的 `amd64`、`arm64` 锁定资产。原生 Windows 在需要下载 sing-box/mihomo 时会被 `require_non_windows_shell` 明确拒绝；macOS 也没有对应 lock 平台。请使用 Linux、WSL 或 GitHub Actions 完成二进制构建。
 
@@ -26,6 +26,7 @@ make clean
 ```
 
 - `make validate`：Shell 语法、可用时的 ShellCheck、Python 编译、配置、自定义规则和测试。
+- `make check-runtime`：验证当前 `PATH` 解析到 Bash 5+。
 - `make build-custom-text`：只生成自定义文本产物，不下载二进制编译器。
 - `make build-custom`：生成自定义文本和二进制产物。
 - `make preflight`：`make validate` 加文本自定义构建；不执行完整同步、产物守卫（artifact guard）或发布。
@@ -38,13 +39,16 @@ make clean
 
 CI 设置 `REQUIRE_SHELLCHECK=1`，本地缺少 ShellCheck 时的跳过不代表 CI 会通过。
 
+GitHub Actions 使用完整 commit SHA 固定版本。Dependabot 每月把 GitHub Actions 的 minor/patch 更新组合为一个以 `main` 为目标的 PR，减少临时分支和重复 CI；major 更新单独评估，避免阻塞常规更新。GitHub 漏洞告警保持启用，自动安全修复分支关闭；安全更新由维护者确认影响后通过临时分支提交。合并后的临时分支由 GitHub 自动删除。
+
 ## 开发流程
 
-1. 从最新 `main` 创建分支，不手工编辑生成目录。
+1. 从 `main` 创建临时分支，不手工编辑生成目录。
 2. 修改自定义源、配置、实现或测试夹具。
-3. 运行 `make validate` 和适用的自定义构建命令。
+3. 运行 `make preflight` 和适用的完整构建命令。
 4. 检查差异中没有 `.output/`、`.tmp/`、`.bin/`、凭据或无关格式化。
-5. 按 [贡献指南](../CONTRIBUTING.md) 说明来源、人工许可评审状态、测试和产物影响。
+5. 通过 Pull Request 合并到 `main`；PR 必须完成预检和不发布的完整构建，合并后由 `main` 工作流更新五个平台分支。
+6. 按 [贡献指南](../CONTRIBUTING.md) 说明来源、人工许可评审状态、测试和产物影响。
 
 ## 自定义规则与名称
 

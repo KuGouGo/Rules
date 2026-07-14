@@ -151,10 +151,10 @@ restore_branch_artifacts() {
   subject="$(git log -1 --format=%s "origin/$branch")"
   generation="$(printf '%s' "$subject" | grep -oE '\[generation [^ ]+' | cut -d' ' -f2 || true)"
   source="$(printf '%s' "$subject" | grep -oE 'source [0-9a-f]{40}\]' | cut -d' ' -f2 | tr -d ']' || true)"
-  [ -n "$generation" ] && [ -n "$source" ] || {
+  if [ -z "$generation" ] || [ -z "$source" ]; then
     echo "origin/$branch lacks required generation/source publication metadata" >&2
     return 1
-  }
+  fi
   printf '%s\t%s\t%s\t%s\n' "$branch" "$commit" "$generation" "$source" >> "$RESTORE_METADATA_FILE"
   echo "restored $branch artifacts at $commit (generation $generation, source $source)"
 }
@@ -183,18 +183,8 @@ payload = {"generation_id": next(iter(generations)), "source_commit": next(iter(
 Path(sys.argv[2]).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
-python3 - <<'PY' "$ARTIFACT_ROOT" "$ARTIFACT_ROOT/artifact-origins.json"
-import json, sys
-from pathlib import Path
-root, target = map(Path, sys.argv[1:])
-origins = {}
-for section in ("domain", "ip"):
-    base = root / section
-    if base.is_dir():
-        for path in base.glob("*/*"):
-            if path.is_file():
-                origins[path.relative_to(root).as_posix()] = "restored-published-branch"
-target.write_text(json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-PY
+python3 "$ROOT/scripts/tools/artifact_origins.py" reset \
+  "$ARTIFACT_ROOT" \
+  restored-published-branch
 
 echo "published artifact restore done"

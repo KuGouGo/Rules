@@ -2,7 +2,7 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$ROOT"
+cd "$ROOT" || exit
 
 TEST_DIR="${TEST_DIR:-$ROOT/scripts/tests}"
 TEST_FILTER="${TEST_FILTER:-}"

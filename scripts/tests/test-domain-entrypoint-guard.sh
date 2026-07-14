@@ -70,7 +70,10 @@ assert_wrapper_calls_cli() {
 }
 
 RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_TEST" ./scripts/tests/test-domain-parsing.sh >/dev/null
-RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_BUILD" RULES_BUILD_CUSTOM_TEXT_ONLY=1 ./scripts/commands/build-custom.sh >/dev/null
+RULES_TRACE_DOMAIN_CLI_FILE="$TRACE_BUILD" \
+  RULES_ARTIFACT_ROOT="$TMP_DIR/output" \
+  RULES_BUILD_CUSTOM_TEXT_ONLY=1 \
+  ./scripts/commands/build-custom.sh >/dev/null
 
 for command in "${required_text_commands[@]}"; do
   assert_trace_contains "$TRACE_TEST" "$command" "test-domain-parsing"
@@ -93,8 +96,10 @@ assert_wrapper_calls_cli "render_quanx_domain_ruleset_from_rules" "quanx-list"
 assert_wrapper_calls_cli "render_egern_domain_ruleset_from_rules" "egern-yaml"
 assert_wrapper_calls_cli "render_domain_rule_dir_to_text_platform_dirs" "text-platform-dirs"
 
-lint_line="$(grep -nF '"$ROOT/scripts/commands/lint-custom-rules.sh"' "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
-tmp_line="$(grep -nF 'mkdir -p "$TMP_PARENT_DIR"' "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
+lint_invocation="\"\$ROOT/scripts/commands/lint-custom-rules.sh\""
+tmp_setup="mkdir -p \"\$TMP_PARENT_DIR\""
+lint_line="$(grep -nF "$lint_invocation" "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
+tmp_line="$(grep -nF "$tmp_setup" "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
 setup_line="$(grep -nF 'setup_tool_cache' "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
 if [ -z "$lint_line" ] || [ -z "$tmp_line" ] || [ -z "$setup_line" ] \
   || [ "$lint_line" -ge "$tmp_line" ] || [ "$lint_line" -ge "$setup_line" ]; then

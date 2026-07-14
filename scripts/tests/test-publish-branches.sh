@@ -13,6 +13,7 @@ SEED="$TMP_DIR/seed"
 REAL_GIT="$(command -v git)"
 BRANCHES=(surge quanx egern sing-box mihomo)
 TEMPLATE_DIR="$ROOT/templates/branch-readmes"
+published_tree_description="仅保留 \`README.md\`、\`domain/\` 和 \`ip/\`"
 
 grep -Fq -- "- 'templates/**'" "$ROOT/.github/workflows/build.yml" || {
   echo "test failed: build workflow push.paths must include templates/**" >&2
@@ -26,7 +27,7 @@ for branch in "${BRANCHES[@]}"; do
     exit 1
   }
   grep -F '滚动构建产物' "$template" >/dev/null
-  grep -F '仅保留 `README.md`、`domain/` 和 `ip/`' "$template" >/dev/null
+  grep -F "$published_tree_description" "$template" >/dev/null
   grep -F '## 产物格式与能力降级' "$template" >/dev/null
   grep -F '## 最小示例' "$template" >/dev/null
   case "$branch" in
@@ -65,6 +66,7 @@ git --git-dir="$REMOTE" symbolic-ref HEAD refs/heads/main
 
 mkdir -p "$REPO"
 cp -R scripts templates config "$REPO/"
+mkdir -p "$REPO/.bin"
 mkdir -p \
   "$REPO/.output/domain/surge" "$REPO/.output/ip/surge" \
   "$REPO/.output/domain/quanx" "$REPO/.output/ip/quanx" \
@@ -76,12 +78,77 @@ printf 'DOMAIN-SUFFIX,example.com\n' > "$REPO/.output/domain/surge/test.list"
 printf 'IP-CIDR,192.0.2.0/24,no-resolve\n' > "$REPO/.output/ip/surge/test.list"
 printf 'HOST-SUFFIX,example.com,direct\n' > "$REPO/.output/domain/quanx/test.list"
 printf 'IP-CIDR,192.0.2.0/24,direct\n' > "$REPO/.output/ip/quanx/test.list"
-printf 'domain_suffix_set:\n  - example.com\n' > "$REPO/.output/domain/egern/test.yaml"
-printf 'ip_cidr_set:\n  - 192.0.2.0/24\n' > "$REPO/.output/ip/egern/test.yaml"
+printf "domain_suffix_set:\n  - 'example.com'\n" > "$REPO/.output/domain/egern/test.yaml"
+printf "no_resolve: true\nip_cidr_set:\n  - '192.0.2.0/24'\n" > "$REPO/.output/ip/egern/test.yaml"
 printf 'srs-domain\n' > "$REPO/.output/domain/sing-box/test.srs"
 printf 'srs-ip\n' > "$REPO/.output/ip/sing-box/test.srs"
 printf 'mrs-domain\n' > "$REPO/.output/domain/mihomo/test.mrs"
 printf 'mrs-ip\n' > "$REPO/.output/ip/mihomo/test.mrs"
+
+cat > "$REPO/.bin/sing-box" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+input="$3"
+output="$5"
+if [[ "$input" == */ip/* ]]; then
+  printf '{"version":4,"rules":[{"ip_cidr":["192.0.2.0/24"]}]}\n' > "$output"
+else
+  printf '{"version":4,"rules":[{"domain_suffix":["example.com"]}]}\n' > "$output"
+fi
+EOF
+cat > "$REPO/.bin/mihomo" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+input="$4"
+output="$5"
+if [[ "$input" == */ip/* ]]; then
+  printf '192.0.2.0/24\n' > "$output"
+else
+  printf '+.example.com\n' > "$output"
+fi
+EOF
+chmod +x "$REPO/.bin/sing-box" "$REPO/.bin/mihomo"
+
+python3 - "$REPO" <<'PY'
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+lock_path = root / "config/tools-lock.json"
+lock = json.loads(lock_path.read_text(encoding="utf-8"))
+for tool in ("sing-box", "mihomo"):
+    binary = root / ".bin" / tool
+    digest = hashlib.sha256(binary.read_bytes()).hexdigest()
+    item = lock["tools"][tool]
+    platform = "linux-amd64"
+    item["platforms"][platform]["binary_sha256"] = digest
+    sidecar = {
+        "schema_version": 1,
+        "tool": tool,
+        "version": item["version"],
+        "tag_commit": item["tag_commit"],
+        "platform": platform,
+        "asset": item["platforms"][platform]["asset"],
+        "archive_sha256": item["platforms"][platform]["sha256"],
+        "binary_sha256": digest,
+        "version_probe": "fixture",
+    }
+    (root / ".bin" / f"{tool}.provenance.json").write_text(
+        json.dumps(sidecar, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+origins = {}
+for path in (root / ".output").glob("*/*/*"):
+    if path.is_file():
+        origins[path.relative_to(root / ".output").as_posix()] = "generated-upstream"
+(root / ".output/artifact-origins.json").write_text(
+    json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+)
+(root / ".output/build-summary.json").write_text("{}\n", encoding="utf-8")
+PY
 
 git -C "$REPO" init -q
 git -C "$REPO" remote add origin "$REMOTE"
@@ -159,12 +226,27 @@ after_missing_template="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REM
 # update must reject the complete batch, leaving every other branch untouched.
 for branch in "${BRANCHES[@]}"; do
   case "$branch" in
-    surge|quanx) extension=list ;;
-    egern) extension=yaml ;;
-    sing-box) extension=srs ;;
-    mihomo) extension=mrs ;;
+    surge)
+      extension=list
+      printf 'DOMAIN-SUFFIX,updated.example\n' > "$REPO/.output/domain/$branch/test.$extension"
+      ;;
+    quanx)
+      extension=list
+      printf 'HOST-SUFFIX,updated.example,direct\n' > "$REPO/.output/domain/$branch/test.$extension"
+      ;;
+    egern)
+      extension=yaml
+      printf "domain_suffix_set:\n  - 'updated.example'\n" > "$REPO/.output/domain/$branch/test.$extension"
+      ;;
+    sing-box)
+      extension=srs
+      printf 'updated-%s\n' "$branch" > "$REPO/.output/domain/$branch/test.$extension"
+      ;;
+    mihomo)
+      extension=mrs
+      printf 'updated-%s\n' "$branch" > "$REPO/.output/domain/$branch/test.$extension"
+      ;;
   esac
-  printf 'updated-%s\n' "$branch" > "$REPO/.output/domain/$branch/test.$extension"
 done
 
 set +e

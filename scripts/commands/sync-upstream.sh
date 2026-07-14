@@ -815,18 +815,8 @@ assert_files_present "$IP_ARTIFACTS_DIR/mihomo" "$IP_ARTIFACTS_DIR/mihomo/*.mrs"
 assert_files_present "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/egern/*.yaml"
 inject_sync_failure late-compiler
 write_upstream_summary_json
-python3 - <<'PYORIGINS' "$ARTIFACTS_DIR" "$ARTIFACTS_DIR/artifact-origins.json"
-import json, sys
-from pathlib import Path
-root, target = map(Path, sys.argv[1:])
-origins = {}
-for section in ("domain", "ip"):
-    base = root / section
-    if base.is_dir():
-        for path in base.glob("*/*"):
-            if path.is_file():
-                origins[path.relative_to(root).as_posix()] = "generated-upstream"
-target.write_text(json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-PYORIGINS
+python3 "$ROOT_DIR/scripts/tools/artifact_origins.py" reset \
+  "$ARTIFACTS_DIR" \
+  generated-upstream
 
 echo "=== SYNC DONE ==="

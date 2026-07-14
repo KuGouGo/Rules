@@ -39,7 +39,13 @@ def normalize_domain_value(kind: str, value: str) -> str:
     return value
 
 
-def domain_value_errors(kind: str, value: str, *, require_canonical: bool) -> list[str]:
+def domain_value_errors(
+    kind: str,
+    value: str,
+    *,
+    require_canonical: bool,
+    allow_single_label_suffix: bool = False,
+) -> list[str]:
     errors: list[str] = []
     if not value:
         return ["rule value must not be empty"]
@@ -57,7 +63,7 @@ def domain_value_errors(kind: str, value: str, *, require_canonical: bool) -> li
         canonical = value.lower().rstrip(".")
         if len(canonical) > 253:
             errors.append(f"{kind} value is longer than 253 characters: {value}")
-        elif "." not in canonical:
+        elif "." not in canonical and not (allow_single_label_suffix and kind == "DOMAIN-SUFFIX"):
             errors.append(f"{kind} value is too broad; use a fully qualified domain: {value}")
         else:
             for label in canonical.split("."):
@@ -82,7 +88,12 @@ def domain_value_errors(kind: str, value: str, *, require_canonical: bool) -> li
     return errors
 
 
-def parse_classical_domain_file(path: Path, *, require_canonical: bool = True) -> tuple[list[ParsedDomainRule], list[str]]:
+def parse_classical_domain_file(
+    path: Path,
+    *,
+    require_canonical: bool = True,
+    allow_single_label_suffix: bool = False,
+) -> tuple[list[ParsedDomainRule], list[str]]:
     rules: list[ParsedDomainRule] = []
     errors: list[str] = []
     seen: dict[tuple[str, str], int] = {}
@@ -105,7 +116,12 @@ def parse_classical_domain_file(path: Path, *, require_canonical: bool = True) -
         if require_canonical and value_raw != value_raw.strip():
             errors.append(f"{path}:{line_no} rule value must not have surrounding whitespace: {value_raw!r}")
             continue
-        value_errors = domain_value_errors(kind, value_raw, require_canonical=require_canonical)
+        value_errors = domain_value_errors(
+            kind,
+            value_raw,
+            require_canonical=require_canonical,
+            allow_single_label_suffix=allow_single_label_suffix,
+        )
         errors.extend(f"{path}:{line_no} {message}" for message in value_errors)
         if value_errors:
             continue

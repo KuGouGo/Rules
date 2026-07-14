@@ -106,6 +106,18 @@ custom_source_existed_in_base() {
   printf '%s\n' "$base_custom_sources" | grep -Fxq "$rel_path"
 }
 
+collect_generated_custom_artifacts() {
+  python3 "$ROOT/scripts/tools/artifact_origins.py" list \
+    "$ARTIFACT_ROOT" \
+    --origin generated-custom
+}
+
+artifact_was_generated_custom() {
+  local relative_path="$1"
+
+  printf '%s\n' "$GENERATED_CUSTOM_ARTIFACTS" | grep -Fxq "$relative_path"
+}
+
 historical_fakeip_migration_collision() {
   local base_ref="$1"
   local custom_rel_path="$2"
@@ -138,7 +150,8 @@ assert_no_name_conflict() {
     if historical_fakeip_migration_collision "$base_ref" "$custom_rel_path" "$tracked_path"; then
       continue
     fi
-    if [ -e "$ARTIFACT_ROOT/${tracked_path#.output/}" ]; then
+    if [ -e "$ARTIFACT_ROOT/${tracked_path#.output/}" ] \
+      && ! artifact_was_generated_custom "${tracked_path#.output/}"; then
       conflicts+=("$tracked_path")
     fi
   done
@@ -151,6 +164,8 @@ assert_no_name_conflict() {
     return 1
   fi
 }
+
+GENERATED_CUSTOM_ARTIFACTS="$(collect_generated_custom_artifacts)"
 
 build_domain_plain_and_surge() {
   local list_file="$1"
@@ -371,21 +386,11 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
   inject_custom_build_failure late-binary
 fi
 commit_staged_custom_artifacts
-python3 - <<'PY' "$ARTIFACT_ROOT" "$CUSTOM_DOMAIN_DIR" "$CUSTOM_IP_DIR"
-import json, sys
-from pathlib import Path
-root, domain_sources, ip_sources = map(Path, sys.argv[1:])
-target = root / "artifact-origins.json"
-origins = json.loads(target.read_text(encoding="utf-8")) if target.is_file() else {}
-for section, sources in (("domain", domain_sources), ("ip", ip_sources)):
-    if not sources.is_dir():
-        continue
-    for source in sources.glob("*.list"):
-        for path in (root / section).glob(f"*/{source.stem}.*"):
-            if path.is_file():
-                origins[path.relative_to(root).as_posix()] = "generated-custom"
-target.write_text(json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-PY
+origin_args=(mark-custom "$ARTIFACT_ROOT" "$CUSTOM_DOMAIN_DIR" "$CUSTOM_IP_DIR")
+if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
+  origin_args+=(--text-only)
+fi
+python3 "$ROOT/scripts/tools/artifact_origins.py" "${origin_args[@]}"
 
 if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
   echo "custom build done (text only)"

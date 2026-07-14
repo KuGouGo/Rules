@@ -159,6 +159,34 @@ EOF
   fi
 }
 
+test_upstream_single_label_suffix() {
+  mkdir -p "$TMP_DIR/tld_suffix/data" "$TMP_DIR/tld_suffix/out"
+  printf '%s\n' 'alibaba' > "$TMP_DIR/tld_suffix/data/brand-tld"
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/tld_suffix/data" \
+    "$TMP_DIR/tld_suffix/out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" surge-list \
+    "$TMP_DIR/tld_suffix/out/brand-tld.list" \
+    "$TMP_DIR/tld_suffix/brand-tld.surge.list"
+
+  grep -Fx 'DOMAIN-SUFFIX,alibaba' "$TMP_DIR/tld_suffix/brand-tld.surge.list" >/dev/null || {
+    echo "test failed: upstream brand TLD suffix was not rendered" >&2
+    exit 1
+  }
+
+  python3 - "$ROOT" "$TMP_DIR/tld_suffix/out/brand-tld.list" <<'PY'
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(sys.argv[1]) / "scripts" / "tools"))
+from domain_rules import parse_classical_domain_file
+
+_, errors = parse_classical_domain_file(Path(sys.argv[2]))
+assert errors and "too broad" in errors[0], errors
+PY
+}
+
 test_export_plain_yaml_artifact() {
   mkdir -p "$TMP_DIR/export_plain_yaml/out"
   cat > "$TMP_DIR/export_plain_yaml/dlc.dat_plain.yml" <<'EOF'
@@ -627,7 +655,7 @@ EOF
     >"$TMP_DIR/capability_summary/stdout" \
     2>"$TMP_DIR/capability_summary/stderr"
 
-  grep -Fx "domain summary: base skips unsupported rules for mihomo-mrs: DOMAIN-KEYWORD=1, DOMAIN-REGEX=1" \
+  grep -Fx "domain summary: base skips unsupported rules for mihomo: DOMAIN-KEYWORD=1, DOMAIN-REGEX=1" \
     "$TMP_DIR/capability_summary/stderr" >/dev/null || {
       echo "test failed: missing mihomo-mrs capability summary" >&2
       cat "$TMP_DIR/capability_summary/stderr" >&2
@@ -736,6 +764,7 @@ EOF
 test_compile_jobs_override_validation
 test_export_alias_prefixes
 test_export_unknown_prefix_fails
+test_upstream_single_label_suffix
 test_export_plain_yaml_artifact
 test_classical_domain_fixture_outputs
 test_batch_domain_dir_outputs
