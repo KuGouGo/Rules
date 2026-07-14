@@ -165,7 +165,12 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
                 raise ValueError(f"{path}:{line_no} {exc}") from exc
             value = normalize_rule_value(kind, value)
             canonical_kind = RULE_KIND_MAP[kind]
-            validation_errors = domain_value_errors(canonical_kind, value, require_canonical=False)
+            validation_errors = domain_value_errors(
+                canonical_kind,
+                value,
+                require_canonical=False,
+                allow_single_label_suffix=True,
+            )
             if validation_errors:
                 raise ValueError(f"{path}:{line_no} {validation_errors[0]}")
             rule = Rule(kind=canonical_kind, value=value, attrs=tuple(attrs))
@@ -296,7 +301,11 @@ def region_pairs_for_rule_set_names(names: set[str]) -> dict[str, list[str]]:
 
 
 def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
-    parsed, errors = parse_classical_domain_file(input_file, require_canonical=True)
+    parsed, errors = parse_classical_domain_file(
+        input_file,
+        require_canonical=True,
+        allow_single_label_suffix=True,
+    )
     if errors:
         raise ValueError("\n".join(errors))
     return [Rule(kind=rule.kind, value=rule.value, attrs=tuple()) for rule in parsed]
