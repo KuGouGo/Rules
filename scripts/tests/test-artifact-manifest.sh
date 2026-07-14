@@ -95,7 +95,7 @@ PY
 }
 
 generate() {
-  ARTIFACT_GENERATION_ID=offline-1 ARTIFACT_BUILD_ID=build-1 ARTIFACT_BUILD_SCOPE="${1:-custom}" ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
+  ARTIFACT_GENERATION_ID=offline-1 ARTIFACT_BUILD_ID=build-1 ARTIFACT_BUILD_SCOPE=custom ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
 }
 verify() { ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/verify-artifact-manifest.sh" >/dev/null; }
 rejects() {

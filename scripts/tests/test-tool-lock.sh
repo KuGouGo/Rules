@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Calls use the sourced implementation until the deliberate final failure override.
+# shellcheck disable=SC2218
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

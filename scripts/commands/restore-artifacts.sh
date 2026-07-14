@@ -151,10 +151,10 @@ restore_branch_artifacts() {
   subject="$(git log -1 --format=%s "origin/$branch")"
   generation="$(printf '%s' "$subject" | grep -oE '\[generation [^ ]+' | cut -d' ' -f2 || true)"
   source="$(printf '%s' "$subject" | grep -oE 'source [0-9a-f]{40}\]' | cut -d' ' -f2 | tr -d ']' || true)"
-  [ -n "$generation" ] && [ -n "$source" ] || {
+  if [ -z "$generation" ] || [ -z "$source" ]; then
     echo "origin/$branch lacks required generation/source publication metadata" >&2
     return 1
-  }
+  fi
   printf '%s\t%s\t%s\t%s\n' "$branch" "$commit" "$generation" "$source" >> "$RESTORE_METADATA_FILE"
   echo "restored $branch artifacts at $commit (generation $generation, source $source)"
 }
