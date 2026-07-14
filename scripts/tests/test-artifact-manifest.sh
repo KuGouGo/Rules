@@ -110,6 +110,9 @@ rejects() {
 make_files
 generate
 verify
+mkdir -p "$REPO/.output/domain"
+printf '{}\n' > "$REPO/.output/domain/rule-manifest.json"
+verify
 cp "$REPO/.output/artifact-manifest.json" "$TMP/first.json"
 generate
 cmp "$TMP/first.json" "$REPO/.output/artifact-manifest.json"

@@ -29,6 +29,7 @@ ARTIFACT_KEYS = {"path", "platform", "type", "extension", "bytes", "sha256", "or
 RESTORATION_KEYS = {"generation_id", "source_commit", "branches"}
 BRANCH_KEYS = {"commit"}
 PUBLISH_BRANCHES = {"surge", "quanx", "egern", "sing-box", "mihomo"}
+INTERNAL_ARTIFACT_FILES = {"domain/rule-manifest.json"}
 
 
 def digest(path: Path) -> str:
@@ -290,6 +291,7 @@ def verify(args: argparse.Namespace) -> None:
         for path in base.rglob("*"):
             if not path.is_file(): continue
             rel, parts = path.relative_to(output).as_posix(), PurePosixPath(path.relative_to(output).as_posix()).parts
+            if rel in INTERNAL_ARTIFACT_FILES: continue
             if len(parts) != 3: errors.append(f"unexpected nested publishable file: {rel}"); continue
             expected = matrix.get((parts[0], parts[1]))
             if not expected or path.suffix != "." + expected["extension"]: errors.append(f"unexpected publishable file: {rel}"); continue
