@@ -30,3 +30,50 @@ jobs:
 
       - name: Run preflight validation and text build
         run: REQUIRE_SHELLCHECK=1 make preflight
+
+  release-candidate:
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Require the development branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: test "$HEAD_REF" = dev
+
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+
+      - name: Resolve tool versions
+        id: core_versions
+        run: bash ./scripts/commands/resolve-tool-versions.sh
+
+      - name: Restore verified tool cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: .bin
+          key: rules-tools-v3-${{ steps.core_versions.outputs.sing_box_version }}-${{ steps.core_versions.outputs.mihomo_version }}-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('config/tools-lock.json') }}
+
+      - name: Build and verify release candidate
+        env:
+          RULES_BUILD_SCOPE: full
+          ARTIFACT_GENERATION_ID: pr-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
+          ARTIFACT_BUILD_ID: ${{ github.run_id }}
+          ARTIFACT_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: ./scripts/commands/build-artifacts-transaction.sh
+
+      - name: Show release candidate summary
+        run: |
+          cat .output/build-summary.json
+          cat .output/upstream-summary.json
