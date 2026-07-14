@@ -16,35 +16,41 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build.yml'
+      - '.github/workflows/**'
       - 'Makefile'
       - 'config/**'
       - 'scripts/**'
       - 'sources/custom/**'
+      - 'templates/**'
       - 'tests/**'
   schedule:
-    # Run once per day at 08:00 UTC.
     - cron: '0 8 * * *'
+
+permissions: {}
+
 concurrency:
   group: sync-rules
   cancel-in-progress: false
 
 jobs:
-  sync:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
+
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
 
       - name: Select build scope
         id: scope
@@ -55,9 +61,6 @@ jobs:
           CURRENT_SHA: ${{ github.sha }}
         run: ./scripts/commands/select-build-scope.sh
 
-      - name: Prepare scripts
-        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
-
       - name: Validate scripts and fixtures
         run: REQUIRE_SHELLCHECK=1 make validate
 
@@ -66,39 +69,30 @@ jobs:
         run: bash ./scripts/commands/resolve-tool-versions.sh
 
       - name: Restore tool cache
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: .bin
-          key: rules-tools-${{ runner.os }}-${{ runner.arch }}-singbox-${{ steps.core_versions.outputs.sing_box_version }}-mihomo-${{ steps.core_versions.outputs.mihomo_version }}
+          key: rules-tools-v3-${{ steps.core_versions.outputs.sing_box_version }}-${{ steps.core_versions.outputs.mihomo_version }}-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('config/tools-lock.json') }}
 
       - name: Show selected build scope
         run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
 
-      - name: Sync upstream rules
-        if: steps.scope.outputs.scope == 'full'
-        run: ./scripts/commands/sync-upstream.sh
-
-      - name: Restore artifacts
-        if: steps.scope.outputs.scope == 'custom'
-        run: ./scripts/commands/restore-artifacts.sh
-
-      - name: Build custom rules
+      - name: Build artifact transaction
         env:
+          RULES_BUILD_SCOPE: ${{ steps.scope.outputs.scope }}
           RULES_CONFLICT_BASE_SHA: ${{ steps.scope.outputs.base_sha }}
-        run: make build-custom
-
-      - name: Sync fakeip-filter
-        if: steps.scope.outputs.scope == 'full'
-        run: ./scripts/commands/sync-fakeip-filter.sh
-
-      - name: Guard artifacts
-        run: ./scripts/commands/guard-artifacts.sh
+          ARTIFACT_GENERATION_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          ARTIFACT_BUILD_ID: ${{ github.run_id }}
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
+        run: ./scripts/commands/build-artifacts-transaction.sh
 
       - name: Show summary
         if: always()
         run: |
           if [ -d .output ]; then
-            python3 scripts/tools/summarize-artifacts.py .output --output .output/build-summary.json >/dev/null
+            if [ ! -f .output/build-summary.json ]; then
+              python3 scripts/tools/summarize-artifacts.py .output --output .output/build-summary.json >/dev/null
+            fi
             cat .output/build-summary.json
             if [ -f .output/upstream-summary.json ]; then
               cat .output/upstream-summary.json
@@ -107,8 +101,68 @@ jobs:
           echo "Changed files summary:"
           git status --short
 
-      - name: Publish client branches
+      - name: Upload publish artifacts
         if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: publish-output
+          path: .output/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+
+      - name: Download publish artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: publish-output
+          path: .output
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+
+      - name: Lint publish configuration
+        run: python3 ./scripts/tools/lint-config.py
+
+      - name: Resolve tool versions
+        id: publish_versions
+        run: bash ./scripts/commands/resolve-tool-versions.sh
+
+      - name: Restore tool cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: .bin
+          key: rules-tools-v3-${{ steps.publish_versions.outputs.sing_box_version }}-${{ steps.publish_versions.outputs.mihomo_version }}-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('config/tools-lock.json') }}
+
+      - name: Resolve verification tools
+        run: |
+          source ./scripts/lib/common.sh
+          ensure_sing_box
+          ensure_mihomo
+
+      - name: Reverify artifact manifest
+        env:
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
+        run: ./scripts/commands/verify-artifact-manifest.sh
+
+      - name: Publish client branches
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
         run: ./scripts/commands/publish-branches.sh

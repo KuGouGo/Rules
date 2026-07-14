@@ -2,49 +2,52 @@
 from __future__ import annotations
 
 import argparse
-import ipaddress
+import json
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from domain_rules import parse_classical_domain_file
+from ip_rules import parse_classical_ip_file
+
 
 ROOT = Path(__file__).resolve().parents[2]
-DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
-IP_RULE_TYPES = {"IP-CIDR", "IP-CIDR6"}
-DOMAIN_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
 RULE_FILE_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
 @dataclass(frozen=True)
-class Location:
+class LocatedRule:
+    family: str
+    file: str
     path: Path
     line_no: int
+    text: str
+    value: str
+    network: object | None = None
 
-    def __str__(self) -> str:
+    @property
+    def location(self) -> str:
         return f"{self.path}:{self.line_no}"
 
 
 @dataclass(frozen=True)
-class DomainRule:
-    kind: str
-    value: str
-    location: Location
+class Conflict:
+    family: str
+    covered: LocatedRule
+    covering: LocatedRule
 
-
-@dataclass(frozen=True)
-class IpRule:
-    kind: str
-    network: ipaddress._BaseNetwork
-    location: Location
+    @property
+    def key(self) -> tuple[str, str, str, str, str]:
+        return (self.family, self.covered.file, self.covered.text, self.covering.file, self.covering.text)
 
 
 class Reporter:
     def __init__(self) -> None:
         self.errors: list[str] = []
 
-    def error(self, location: Location, message: str) -> None:
-        self.errors.append(f"{location} {message}")
+    def error(self, message: str) -> None:
+        self.errors.append(message)
 
     def emit(self) -> None:
         for error in self.errors:
@@ -63,254 +66,184 @@ def iter_rule_files(directory: Path) -> list[Path]:
 
 def validate_rule_file_name(path: Path, reporter: Reporter) -> None:
     if not RULE_FILE_NAME_RE.fullmatch(path.stem):
-        reporter.error(Location(path, 0), "invalid custom rule filename; use lowercase letters, digits, and hyphens only")
+        reporter.error(f"{path}:0 invalid custom rule filename; use lowercase letters, digits, and hyphens only")
 
 
-def strip_inline_comment(line: str) -> str:
-    return line.split("#", 1)[0].strip()
+def load_domain_rules(directory: Path, reporter: Reporter) -> list[LocatedRule]:
+    result: list[LocatedRule] = []
+    for path in iter_rule_files(directory):
+        validate_rule_file_name(path, reporter)
+        rules, errors = parse_classical_domain_file(path, require_canonical=True)
+        reporter.errors.extend(errors)
+        if not rules:
+            reporter.error(f"{path}:0 has no effective rules")
+        result.extend(
+            LocatedRule("domain", path.name, path, rule.line_no, rule.text, rule.value)
+            for rule in rules
+        )
+    return result
 
 
-def iter_effective_lines(path: Path) -> list[tuple[Location, str]]:
-    lines: list[tuple[Location, str]] = []
-    for line_no, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        line = raw_line.rstrip("\r")
-        if not line.strip() or line.lstrip().startswith("#"):
-            continue
-        value = strip_inline_comment(line)
-        if value:
-            lines.append((Location(path, line_no), value))
-    return lines
+def load_ip_rules(directory: Path, reporter: Reporter) -> list[LocatedRule]:
+    result: list[LocatedRule] = []
+    for path in iter_rule_files(directory):
+        validate_rule_file_name(path, reporter)
+        rules, errors = parse_classical_ip_file(path, require_canonical=True)
+        reporter.errors.extend(errors)
+        if not rules:
+            reporter.error(f"{path}:0 has no effective rules")
+        result.extend(
+            LocatedRule("ip", path.name, path, rule.line_no, rule.text, rule.value, rule.network)
+            for rule in rules
+        )
+    return result
 
 
-def normalize_rule_type(value: str) -> str:
-    return value.strip().upper().replace("_", "-")
+def domain_covers(covering: LocatedRule, covered: LocatedRule) -> bool:
+    if not covering.text.startswith("DOMAIN-SUFFIX,"):
+        return False
+    if not covered.text.startswith(("DOMAIN,", "DOMAIN-SUFFIX,")):
+        return False
+    return covered.value == covering.value or covered.value.endswith("." + covering.value)
 
 
-def normalize_domain_value(kind: str, value: str) -> str:
-    value = value.strip()
-    if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
-        return value.lower().rstrip(".")
-    if kind == "DOMAIN-KEYWORD":
-        return value.lower()
-    return value
+def find_domain_conflicts(rules: list[LocatedRule]) -> list[Conflict]:
+    conflicts: list[Conflict] = []
+    for index, covered in enumerate(rules):
+        for covering in rules[:index]:
+            if covered.text == covering.text:
+                conflicts.append(Conflict("domain", covered, covering))
+            elif domain_covers(covering, covered):
+                conflicts.append(Conflict("domain", covered, covering))
+            elif domain_covers(covered, covering):
+                conflicts.append(Conflict("domain", covering, covered))
+    return unique_conflicts(conflicts)
 
 
-def validate_domain_name(location: Location, kind: str, value: str, reporter: Reporter) -> None:
-    if value.startswith("."):
-        reporter.error(location, f"{kind} value must not start with a dot: {value}")
-        return
-    if value.endswith("."):
-        reporter.error(location, f"{kind} value must not end with a dot: {value}")
-        return
-    if "," in value:
-        reporter.error(location, f"{kind} value must not contain commas: {value}")
-    if any(char.isspace() for char in value):
-        reporter.error(location, f"{kind} value must not contain whitespace: {value}")
-    if value != value.lower():
-        reporter.error(location, f"{kind} value must be lowercase: {value}")
-    canonical = value.lower()
-    if len(canonical) > 253:
-        reporter.error(location, f"{kind} value is longer than 253 characters: {value}")
-        return
-    if "." not in canonical:
-        reporter.error(location, f"{kind} value is too broad; use a fully qualified domain: {value}")
-        return
-    for label in canonical.split("."):
-        if not label:
-            reporter.error(location, f"{kind} value contains an empty label: {value}")
-            return
-        if not DOMAIN_LABEL_RE.fullmatch(label):
-            reporter.error(location, f"{kind} value has an invalid label: {value}")
-            return
+def find_ip_conflicts(rules: list[LocatedRule]) -> list[Conflict]:
+    conflicts: list[Conflict] = []
+    for index, right in enumerate(rules):
+        for left in rules[:index]:
+            if left.network == right.network:
+                conflicts.append(Conflict("ip", right, left))
+            elif left.network.version == right.network.version and right.network.subnet_of(left.network):
+                conflicts.append(Conflict("ip", right, left))
+            elif left.network.version == right.network.version and left.network.subnet_of(right.network):
+                conflicts.append(Conflict("ip", left, right))
+    return unique_conflicts(conflicts)
 
 
-def validate_domain_keyword(location: Location, value: str, reporter: Reporter) -> None:
-    if "," in value:
-        reporter.error(location, f"DOMAIN-KEYWORD value must not contain commas: {value}")
-    if any(char.isspace() for char in value):
-        reporter.error(location, f"DOMAIN-KEYWORD value must not contain whitespace: {value}")
-    if value != value.lower():
-        reporter.error(location, f"DOMAIN-KEYWORD value must be lowercase: {value}")
+def unique_conflicts(conflicts: list[Conflict]) -> list[Conflict]:
+    result: list[Conflict] = []
+    seen: set[tuple[str, str, str, str, str]] = set()
+    for conflict in conflicts:
+        if conflict.key not in seen:
+            seen.add(conflict.key)
+            result.append(conflict)
+    return result
 
 
-def validate_domain_regex(location: Location, value: str, reporter: Reporter) -> None:
+def parse_endpoint(value: object, location: str, reporter: Reporter) -> tuple[str, str] | None:
+    if not isinstance(value, dict) or set(value) != {"file", "rule"}:
+        reporter.error(f"{location} must contain exactly 'file' and 'rule'")
+        return None
+    file = value.get("file")
+    rule = value.get("rule")
+    if (
+        not isinstance(file, str)
+        or not file.endswith(".list")
+        or "/" in file
+        or "\\" in file
+        or Path(file).name != file
+        or not RULE_FILE_NAME_RE.fullmatch(Path(file).stem)
+    ):
+        reporter.error(f"{location}.file must be a bare .list filename")
+        return None
+    if not isinstance(rule, str) or not rule or rule != rule.strip():
+        reporter.error(f"{location}.rule must be a non-empty canonical rule string")
+        return None
+    return file, rule
+
+
+def load_allowlist(path: Path, reporter: Reporter) -> set[tuple[str, str, str, str, str]]:
     try:
-        re.compile(value)
-    except re.error as exc:
-        reporter.error(location, f"invalid DOMAIN-REGEX pattern: {exc}")
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        reporter.error(f"{path} conflict allowlist does not exist")
+        return set()
+    except json.JSONDecodeError as exc:
+        reporter.error(f"{path} invalid JSON: {exc.msg}")
+        return set()
+    if (
+        not isinstance(data, dict)
+        or set(data) != {"version", "relations"}
+        or type(data.get("version")) is not int
+        or data.get("version") != 1
+    ):
+        reporter.error(f"{path} must be an object with version 1 and relations only; broad pair-wide allowlists are forbidden")
+        return set()
+    relations = data.get("relations")
+    if not isinstance(relations, list):
+        reporter.error(f"{path}.relations must be an array")
+        return set()
 
-
-def parse_domain_file(path: Path, reporter: Reporter) -> list[DomainRule]:
-    rules: list[DomainRule] = []
-    seen: dict[tuple[str, str], Location] = {}
-
-    for location, line in iter_effective_lines(path):
-        if "," not in line:
-            reporter.error(location, f"invalid domain rule syntax: {line}")
+    result: set[tuple[str, str, str, str, str]] = set()
+    for index, item in enumerate(relations):
+        location = f"{path}.relations[{index}]"
+        if not isinstance(item, dict) or set(item) != {"family", "covered", "covering"}:
+            reporter.error(f"{location} must contain exactly family, covered, and covering")
             continue
-
-        kind_raw, value_raw = line.split(",", 1)
-        kind = normalize_rule_type(kind_raw)
-        value = normalize_domain_value(kind, value_raw)
-
-        if kind not in DOMAIN_RULE_TYPES:
-            reporter.error(location, f"invalid domain rule type: {kind_raw.strip()}")
+        family = item.get("family")
+        if family not in {"domain", "ip"}:
+            reporter.error(f"{location}.family must be domain or ip")
             continue
-        if not value:
-            reporter.error(location, "rule value must not be empty")
+        covered = parse_endpoint(item.get("covered"), f"{location}.covered", reporter)
+        covering = parse_endpoint(item.get("covering"), f"{location}.covering", reporter)
+        if covered is None or covering is None:
             continue
+        key = (family, covered[0], covered[1], covering[0], covering[1])
+        if key in result:
+            reporter.error(f"{location} duplicates an earlier allowlisted relation")
+            continue
+        result.add(key)
+    return result
 
-        if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
-            validate_domain_name(location, kind, value_raw.strip(), reporter)
-        elif kind == "DOMAIN-KEYWORD":
-            validate_domain_keyword(location, value_raw.strip(), reporter)
+
+def report_conflicts(conflicts: list[Conflict], allowlist: set[tuple[str, str, str, str, str]], reporter: Reporter) -> None:
+    actual = {conflict.key for conflict in conflicts}
+    for conflict in conflicts:
+        if conflict.key in allowlist:
+            continue
+        if conflict.covered.text == conflict.covering.text:
+            message = f"duplicate {conflict.family} rule; first seen at {conflict.covering.location}: {conflict.covered.text}"
         else:
-            validate_domain_regex(location, value, reporter)
-
-        key = (kind, value)
-        if key in seen:
-            reporter.error(location, f"duplicate rule; first seen at {seen[key]}: {kind},{value}")
-            continue
-        seen[key] = location
-        rules.append(DomainRule(kind, value, location))
-
-    return rules
-
-
-def domain_suffix_candidates(value: str) -> list[str]:
-    labels = value.split(".")
-    return [".".join(labels[index:]) for index in range(len(labels))]
-
-
-def check_domain_redundancy(rules: list[DomainRule], reporter: Reporter) -> None:
-    suffixes_by_value: dict[str, DomainRule] = {}
-    suffix_order: dict[str, int] = {}
-    for index, rule in enumerate(rules):
-        if rule.kind == "DOMAIN-SUFFIX":
-            suffixes_by_value[rule.value] = rule
-            suffix_order[rule.value] = index
-
-    for rule in rules:
-        if rule.kind not in {"DOMAIN", "DOMAIN-SUFFIX"}:
-            continue
-        covering_rule = None
-        for suffix in domain_suffix_candidates(rule.value):
-            suffix_rule = suffixes_by_value.get(suffix)
-            if suffix_rule is None or rule == suffix_rule:
-                continue
-            if covering_rule is None or suffix_order[suffix_rule.value] < suffix_order[covering_rule.value]:
-                covering_rule = suffix_rule
-        if covering_rule is not None:
-            reporter.error(
-                rule.location,
-                f"{rule.kind},{rule.value} is covered by "
-                f"DOMAIN-SUFFIX,{covering_rule.value} at {covering_rule.location}",
-            )
-
-
-def lint_domain_dir(directory: Path, reporter: Reporter) -> None:
-    for path in iter_rule_files(directory):
-        validate_rule_file_name(path, reporter)
-        rules = parse_domain_file(path, reporter)
-        if not rules:
-            reporter.error(Location(path, 0), "has no effective rules")
-        check_domain_redundancy(rules, reporter)
-
-
-def parse_ip_file(path: Path, reporter: Reporter) -> list[IpRule]:
-    rules: list[IpRule] = []
-    seen: dict[str, Location] = {}
-
-    for location, line in iter_effective_lines(path):
-        if "," not in line:
-            reporter.error(location, f"invalid IP rule syntax: {line}")
-            continue
-
-        kind_raw, value_raw = line.split(",", 1)
-        kind = normalize_rule_type(kind_raw)
-        value = value_raw.strip()
-
-        if kind not in IP_RULE_TYPES:
-            reporter.error(location, f"invalid IP rule type: {kind_raw.strip()}")
-            continue
-        if not value:
-            reporter.error(location, "CIDR value must not be empty")
-            continue
-        if "," in value or any(char.isspace() for char in value):
-            reporter.error(location, f"CIDR value must not contain commas or whitespace: {value}")
-            continue
-
-        try:
-            network = ipaddress.ip_network(value, strict=False)
-        except ValueError as exc:
-            reporter.error(location, f"invalid CIDR value: {value} ({exc})")
-            continue
-
-        if kind == "IP-CIDR" and network.version != 4:
-            reporter.error(location, f"IP-CIDR requires an IPv4 CIDR: {value}")
-            continue
-        if kind == "IP-CIDR6" and network.version != 6:
-            reporter.error(location, f"IP-CIDR6 requires an IPv6 CIDR: {value}")
-            continue
-
-        canonical = str(network)
-        if value != canonical:
-            reporter.error(location, f"CIDR must be canonical; use {canonical} instead of {value}")
-            continue
-
-        if canonical in seen:
-            reporter.error(location, f"duplicate CIDR; first seen at {seen[canonical]}: {value}")
-            continue
-        seen[canonical] = location
-        rules.append(IpRule(kind, network, location))
-
-    return rules
-
-
-def check_ip_redundancy(rules: list[IpRule], reporter: Reporter) -> None:
-    rules_by_network = {rule.network: rule for rule in rules}
-    network_order = {rule.network: index for index, rule in enumerate(rules)}
-
-    for rule in rules:
-        covering_rule = None
-        for prefix_len in range(rule.network.prefixlen - 1, -1, -1):
-            candidate_network = rule.network.supernet(new_prefix=prefix_len)
-            candidate = rules_by_network.get(candidate_network)
-            if candidate is None:
-                continue
-            if covering_rule is None or network_order[candidate.network] < network_order[covering_rule.network]:
-                covering_rule = candidate
-        if covering_rule is not None:
-            reporter.error(
-                rule.location,
-                f"{rule.kind},{rule.network} is covered by "
-                f"{covering_rule.kind},{covering_rule.network} at {covering_rule.location}",
-            )
-
-
-def lint_ip_dir(directory: Path, reporter: Reporter) -> None:
-    for path in iter_rule_files(directory):
-        validate_rule_file_name(path, reporter)
-        rules = parse_ip_file(path, reporter)
-        if not rules:
-            reporter.error(Location(path, 0), "has no effective rules")
-        check_ip_redundancy(rules, reporter)
+            message = f"{conflict.covered.text} is covered by {conflict.covering.text} at {conflict.covering.location}"
+        reporter.error(f"{conflict.covered.location} {message}")
+    for stale in sorted(allowlist - actual):
+        family, covered_file, covered_rule, covering_file, covering_rule = stale
+        reporter.error(
+            f"stale conflict allowlist relation: {family} {covered_file}:{covered_rule} covered by "
+            f"{covering_file}:{covering_rule}"
+        )
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Lint custom rule source quality.")
+    parser = argparse.ArgumentParser(description="Strictly lint all custom rule sources and global conflicts.")
     parser.add_argument("--domain-dir", default=str(ROOT / "sources" / "custom" / "domain"))
     parser.add_argument("--ip-dir", default=str(ROOT / "sources" / "custom" / "ip"))
+    parser.add_argument("--conflicts", default=str(ROOT / "config" / "custom-rule-conflicts.json"))
     args = parser.parse_args()
 
     reporter = Reporter()
-    lint_domain_dir(Path(args.domain_dir), reporter)
-    lint_ip_dir(Path(args.ip_dir), reporter)
+    domain_rules = load_domain_rules(Path(args.domain_dir), reporter)
+    ip_rules = load_ip_rules(Path(args.ip_dir), reporter)
+    allowlist = load_allowlist(Path(args.conflicts), reporter)
+    conflicts = find_domain_conflicts(domain_rules) + find_ip_conflicts(ip_rules)
+    report_conflicts(conflicts, allowlist, reporter)
 
     if not reporter.ok:
         reporter.emit()
         return 1
-
     print("custom rule quality checks passed")
     return 0
 

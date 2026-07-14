@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=scripts/lib/common.sh
 source "$ROOT/scripts/lib/common.sh"
 
 TMP_DIR="$(mktemp -d)"
@@ -100,11 +101,6 @@ test_write_if_nonempty_or_remove_deletes_empty_output_and_stale_target() {
   fi
 }
 
-test_normalize_version_strips_leading_v() {
-  assert_equals "1.2.3" "$(normalize_version v1.2.3)" "normalize_version strips v"
-  assert_equals "1.2.3" "$(normalize_version 1.2.3)" "normalize_version keeps bare version"
-}
-
 test_common_source_has_no_tool_cache_side_effects() {
   local probe_root="$TMP_DIR/source_probe"
   local probe_output
@@ -142,7 +138,6 @@ test_write_if_changed_replaces_different_file
 test_write_if_changed_removes_identical_source
 test_write_if_nonempty_or_remove_moves_nonempty_source
 test_write_if_nonempty_or_remove_deletes_empty_output_and_stale_target
-test_normalize_version_strips_leading_v
 test_common_source_has_no_tool_cache_side_effects
 test_setup_tool_cache_creates_bin_and_updates_path_once
 

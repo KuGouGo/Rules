@@ -6,153 +6,29 @@ cd "$ROOT"
 
 DRY_RUN="${PUBLISH_DRY_RUN:-0}"
 ALLOW_REMOTE_FALLBACK="${PUBLISH_ALLOW_REMOTE_FALLBACK:-0}"
-ARTIFACT_ROOT="$ROOT/.output"
+ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
+MANIFEST_FILE="$ARTIFACT_ROOT/artifact-manifest.json"
+CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" shell-registry)"
+
+ARTIFACT_SOURCE_SHA="${ARTIFACT_SOURCE_SHA:-}" "$ROOT/scripts/commands/verify-artifact-manifest.sh"
+read -r MANIFEST_GENERATION_ID MANIFEST_SOURCE_SHA < <(
+  python3 - <<'PY' "$MANIFEST_FILE"
+import json, sys
+manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+print(manifest["generation_id"], manifest["source"]["commit"] or "unknown")
+PY
+)
 
 branch_readme() {
   local branch="$1"
-  case "$branch" in
-    surge)
-      cat <<'EOF'
-# Rules / Surge
+  local template="$ROOT/templates/branch-readmes/${branch}.md"
 
-Generated artifacts for Surge.
-This branch intentionally contains only the final Surge rule files and this README.
+  if [ ! -f "$template" ]; then
+    echo "missing publish README template: $template" >&2
+    exit 1
+  fi
 
-## Contents
-
-- [domain/](./domain/)
-- [ip/](./ip/)
-
-Surge plain-text rule files in this branch use the `.list` extension.
-
-## Example
-
-```ini
-[Rule]
-RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/domain/cn.list,DIRECT
-RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.list,DIRECT
-```
-EOF
-      ;;
-    quanx)
-      cat <<'EOF'
-# Rules / QuanX
-
-Generated artifacts for Quantumult X.
-This branch intentionally contains only the final QuanX rule files and this README.
-
-## Contents
-
-- [domain/](./domain/)
-- [ip/](./ip/)
-
-QuanX plain-text rule files in this branch use the `.list` extension.
-Rules are emitted with QuanX types (`HOST`, `HOST-SUFFIX`, `HOST-KEYWORD`, `IP-CIDR`, `IP6-CIDR`) and an explicit policy tag in field 3.
-Using `force-policy` in `filter_remote` is recommended.
-
-## Example
-
-```ini
-[filter_remote]
-https://raw.githubusercontent.com/KuGouGo/Rules/quanx/domain/cn.list, tag=CN-DOMAIN, force-policy=direct, enabled=true
-https://raw.githubusercontent.com/KuGouGo/Rules/quanx/ip/cn.list, tag=CN-IP, force-policy=direct, enabled=true
-```
-EOF
-      ;;
-    egern)
-      cat <<'EOF'
-# Rules / Egern
-
-Generated artifacts for Egern.
-This branch intentionally contains only the final Egern rule files and this README.
-
-## Contents
-
-- [domain/](./domain/)
-- [ip/](./ip/)
-
-Egern rule files in this branch use the `.yaml` extension.
-Domain files may contain `domain_set`, `domain_suffix_set`, `domain_keyword_set`, `domain_regex_set`.
-IP files may contain `ip_cidr_set` and `ip_cidr6_set`.
-
-## URLs
-
-- Domain example: `https://raw.githubusercontent.com/KuGouGo/Rules/egern/domain/cn.yaml`
-- IP example: `https://raw.githubusercontent.com/KuGouGo/Rules/egern/ip/cn.yaml`
-EOF
-      ;;
-    sing-box)
-      cat <<'EOF'
-# Rules / sing-box
-
-Generated artifacts for sing-box.
-This branch intentionally contains only the final sing-box rule files and this README.
-
-## Contents
-
-- [domain/](./domain/)
-- [ip/](./ip/)
-
-## Example
-
-```json
-{
-  "route": {
-    "rule_set": [
-      {
-        "tag": "cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/cn.srs"
-      },
-      {
-        "tag": "cn-ip",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/ip/cn.srs"
-      }
-    ]
-  }
-}
-```
-EOF
-      ;;
-    mihomo)
-      cat <<'EOF'
-# Rules / mihomo
-
-Generated artifacts for mihomo.
-This branch intentionally contains only the final mihomo rule files and this README.
-
-## Contents
-
-- [domain/](./domain/)
-- [ip/](./ip/)
-
-Domain rules use binary `.mrs` files.
-IP rules use binary `.mrs` files.
-
-## Example
-
-```yaml
-rule-providers:
-  cn:
-    type: http
-    behavior: domain
-    format: mrs
-    url: "https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/domain/cn.mrs"
-    interval: 86400
-
-  cn-ip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    url: "https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/cn.mrs"
-    interval: 86400
-```
-EOF
-      ;;
-  esac
+  cp "$template" README.md
 }
 
 has_publish_source_artifacts() {
@@ -340,7 +216,7 @@ prepare_branch() {
   reset_publish_worktree "$branch"
   prepare_publish_side "$branch" "$domain_dir" domain "$domain_extensions" domain
   prepare_publish_side "$branch" "$ip_dir" ip "$ip_extensions" ip
-  branch_readme "$branch" > README.md
+  branch_readme "$branch"
   assert_branch_layout "$domain_extensions" "$ip_extensions"
 
   git add README.md domain ip
@@ -352,7 +228,7 @@ prepare_branch() {
     return 0
   fi
 
-  git commit -m "chore: publish ${branch} artifacts" >/dev/null
+  git commit -m "chore: publish ${branch} artifacts [generation ${MANIFEST_GENERATION_ID} source ${MANIFEST_SOURCE_SHA}]" >/dev/null
   commit="$(git rev-parse HEAD)"
   remote_commit="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}" 2>/dev/null || true)"
 
@@ -417,9 +293,23 @@ git init -q
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-prepare_branch surge domain/surge ip/surge list list
-prepare_branch quanx domain/quanx ip/quanx list list
-prepare_branch egern domain/egern ip/egern yaml yaml
-prepare_branch sing-box domain/sing-box ip/sing-box srs srs
-prepare_branch mihomo domain/mihomo ip/mihomo mrs mrs
+declare -A PUBLISH_BRANCH PUBLISH_DOMAIN_EXTENSION PUBLISH_IP_EXTENSION
+while IFS=$'\t' read -r platform _public_name branch section extension _format _empty _compiler _verifier; do
+  PUBLISH_BRANCH["$platform"]="$branch"
+  if [ "$section" = domain ]; then
+    PUBLISH_DOMAIN_EXTENSION["$platform"]="$extension"
+  else
+    PUBLISH_IP_EXTENSION["$platform"]="$extension"
+  fi
+done <<< "$CAPABILITY_REGISTRY"
+
+while IFS=$'\t' read -r platform _public_name _branch section _extension _format _empty _compiler _verifier; do
+  [ "$section" = ip ] || continue
+  prepare_branch \
+    "${PUBLISH_BRANCH[$platform]}" \
+    "domain/$platform" \
+    "ip/$platform" \
+    "${PUBLISH_DOMAIN_EXTENSION[$platform]}" \
+    "${PUBLISH_IP_EXTENSION[$platform]}"
+done <<< "$CAPABILITY_REGISTRY"
 publish_queued_refs

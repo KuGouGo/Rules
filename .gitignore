@@ -1,0 +1,14 @@
+# 构建产物与临时目录
+.output/
+.tmp/
+.bin/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# 编辑器与系统文件
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

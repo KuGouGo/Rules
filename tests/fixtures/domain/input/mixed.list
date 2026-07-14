@@ -1,8 +1,5 @@
-# Mixed classical domain rules used to characterize shared text-platform rendering.
-domain_suffix,Example.COM.
-domain,API.Example.COM
-DOMAIN-KEYWORD,YouTube
-DOMAIN-REGEX,^Foo\\.
-DOMAIN-SUFFIX,Example.COM.
+# Mixed canonical domain rules used to characterize shared text-platform rendering.
+DOMAIN-SUFFIX,example.com
 DOMAIN,api.example.com
+DOMAIN-KEYWORD,youtube
 DOMAIN-REGEX,^Foo\\.

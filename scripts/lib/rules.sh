@@ -288,32 +288,9 @@ normalize_ip_rule_source() {
   local input_file="$1"
   local surge_out="$2"
   local plain_out="$3"
-  local raw_plain_out="${plain_out}.raw"
 
-  : > "$raw_plain_out"
-
-  awk -F, '
-    /^[[:space:]]*$/ || /^[[:space:]]*#/ {
-      next
-    }
-    NF < 2 {
-      next
-    }
-    {
-      type=$1
-      value=$2
-      sub(/\r$/, "", value)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", type)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-      if (type == "IP-CIDR" || type == "IP-CIDR6") {
-        print value >> plain
-      }
-    }
-  ' plain="$raw_plain_out" "$input_file"
-
-  python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single text "$raw_plain_out" "$plain_out"
+  python3 "$ROOT/scripts/tools/normalize-ip-rules.py" custom-source "$input_file" "$plain_out"
   render_ip_plain_to_surge_list "$plain_out" "$surge_out"
-  rm -f "$raw_plain_out"
 }
 
 normalize_ip_surge_list_to_plain() {
@@ -338,23 +315,12 @@ normalize_ip_surge_list_to_plain() {
 render_ip_plain_to_surge_list() {
   local plain_list="$1"
   local surge_out="$2"
+  local -a args=(render-classical surge "$plain_list" "$surge_out")
 
-  awk -v append_no_resolve="$SURGE_IP_APPEND_NO_RESOLVE" '
-    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
-    {
-      value=$0
-      gsub(/\r$/, "", value)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-      if (value == "") {
-        next
-      }
-      type = (value ~ /:/ ? "IP-CIDR6" : "IP-CIDR")
-      suffix = (append_no_resolve == "1" ? ",no-resolve" : "")
-      printf "%s,%s%s\n", type, value, suffix
-    }
-  ' "$plain_list" > "$surge_out"
-
-  dedupe_file_in_place "$surge_out"
+  if [ "$SURGE_IP_APPEND_NO_RESOLVE" != "1" ]; then
+    args+=(--omit-no-resolve)
+  fi
+  python3 "$ROOT/scripts/tools/normalize-ip-rules.py" "${args[@]}"
 }
 
 render_ip_plain_to_quanx_list() {

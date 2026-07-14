@@ -6,6 +6,10 @@ cd "$ROOT"
 
 TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
 
+# Reject malformed or globally conflicting custom sources before creating build
+# directories, inspecting staged artifacts, or downloading build tools.
+"$ROOT/scripts/commands/lint-custom-rules.sh"
+
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
 CUSTOM_IP_DIR="$ROOT/sources/custom/ip"
 TMP_PARENT_DIR="$ROOT/.tmp"
@@ -13,20 +17,23 @@ mkdir -p "$TMP_PARENT_DIR"
 TMP_DIR="$(mktemp -d "$TMP_PARENT_DIR/custom.XXXXXX")"
 TMP_DOMAIN_DIR="$TMP_DIR/domain"
 TMP_IP_DIR="$TMP_DIR/ip"
+STAGE_ROOT="$TMP_DIR/output"
 BIN_DIR="$ROOT/.bin"
-ARTIFACT_ROOT="$ROOT/.output"
-DOMAIN_SURGE_DIR="$ARTIFACT_ROOT/domain/surge"
-DOMAIN_QUANX_DIR="$ARTIFACT_ROOT/domain/quanx"
-DOMAIN_EGERN_DIR="$ARTIFACT_ROOT/domain/egern"
-DOMAIN_SINGBOX_DIR="$ARTIFACT_ROOT/domain/sing-box"
-DOMAIN_MIHOMO_DIR="$ARTIFACT_ROOT/domain/mihomo"
-IP_SURGE_DIR="$ARTIFACT_ROOT/ip/surge"
-IP_QUANX_DIR="$ARTIFACT_ROOT/ip/quanx"
-IP_EGERN_DIR="$ARTIFACT_ROOT/ip/egern"
-IP_SINGBOX_DIR="$ARTIFACT_ROOT/ip/sing-box"
-IP_MIHOMO_DIR="$ARTIFACT_ROOT/ip/mihomo"
+ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
+DOMAIN_SURGE_DIR="$STAGE_ROOT/domain/surge"
+DOMAIN_QUANX_DIR="$STAGE_ROOT/domain/quanx"
+DOMAIN_EGERN_DIR="$STAGE_ROOT/domain/egern"
+DOMAIN_SINGBOX_DIR="$STAGE_ROOT/domain/sing-box"
+DOMAIN_MIHOMO_DIR="$STAGE_ROOT/domain/mihomo"
+IP_SURGE_DIR="$STAGE_ROOT/ip/surge"
+IP_QUANX_DIR="$STAGE_ROOT/ip/quanx"
+IP_EGERN_DIR="$STAGE_ROOT/ip/egern"
+IP_SINGBOX_DIR="$STAGE_ROOT/ip/sing-box"
+IP_MIHOMO_DIR="$STAGE_ROOT/ip/mihomo"
 
+# shellcheck source=scripts/lib/common.sh
 source "$ROOT/scripts/lib/common.sh"
+# shellcheck source=scripts/lib/rules.sh
 source "$ROOT/scripts/lib/rules.sh"
 setup_tool_cache
 
@@ -99,12 +106,27 @@ custom_source_existed_in_base() {
   printf '%s\n' "$base_custom_sources" | grep -Fxq "$rel_path"
 }
 
+historical_fakeip_migration_collision() {
+  local base_ref="$1"
+  local custom_rel_path="$2"
+  local tracked_path="$3"
+
+  # This exception is available only while migrating a base commit that
+  # actually tracked the old binary but did not yet track the maintained source.
+  # Once the source exists in the base, the normal existing-source path applies.
+  [ -n "$base_ref" ] \
+    && [ "$custom_rel_path" = "sources/custom/domain/fakeip-filter.list" ] \
+    && [ "$tracked_path" = ".output/domain/mihomo/fakeip-filter.mrs" ] \
+    && git cat-file -e "$base_ref:$tracked_path" 2>/dev/null
+}
+
 assert_no_name_conflict() {
   local base="$1"
   local custom_rel_path="$2"
   local custom_dir="$3"
-  local base_custom_sources="$4"
-  shift 4
+  local base_ref="$4"
+  local base_custom_sources="$5"
+  shift 5
   local conflicts=()
   local tracked_path
 
@@ -113,7 +135,10 @@ assert_no_name_conflict() {
   fi
 
   for tracked_path in "$@"; do
-    if [ -e "$ROOT/$tracked_path" ]; then
+    if historical_fakeip_migration_collision "$base_ref" "$custom_rel_path" "$tracked_path"; then
+      continue
+    fi
+    if [ -e "$ARTIFACT_ROOT/${tracked_path#.output/}" ]; then
       conflicts+=("$tracked_path")
     fi
   done
@@ -227,6 +252,7 @@ while IFS= read -r list_file; do
     "$base" \
     "sources/custom/domain/$base.list" \
     "$CUSTOM_DOMAIN_DIR" \
+    "$CONFLICT_BASE_REF" \
     "$BASE_CUSTOM_SOURCES" \
     ".output/domain/surge/$base.list" \
     ".output/domain/quanx/$base.list" \
@@ -243,6 +269,7 @@ while IFS= read -r list_file; do
     "$base" \
     "sources/custom/ip/$base.list" \
     "$CUSTOM_IP_DIR" \
+    "$CONFLICT_BASE_REF" \
     "$BASE_CUSTOM_SOURCES" \
     ".output/ip/surge/$base.list" \
     ".output/ip/quanx/$base.list" \
@@ -251,6 +278,19 @@ while IFS= read -r list_file; do
     ".output/ip/mihomo/$base.mrs"
   build_ip_plain_and_surge "$list_file"
 done <<< "$IP_RULE_FILES"
+
+inject_custom_build_failure() {
+  local point="$1"
+
+  if [ "${RULES_BUILD_CUSTOM_FAIL_AT:-}" = "$point" ]; then
+    echo "injected custom build failure at $point" >&2
+    return 1
+  fi
+}
+
+# This point is deliberately after the final text render and before any binary
+# setup or compile. Tests use it to prove staged text cannot leak into .output.
+inject_custom_build_failure late-text
 
 if [ "$TEXT_ONLY_MODE" -ne 1 ] && { [ "$has_custom_domain" -gt 0 ] || [ "$has_custom_ip" -gt 0 ]; }; then
   ensure_sing_box
@@ -271,6 +311,81 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
     build_ip_binaries "$plain_list"
   done
 fi
+
+commit_staged_custom_artifacts() {
+  local list_file base relative staged target target_dir
+  local controlled=()
+
+  while IFS= read -r list_file; do
+    [ -n "$list_file" ] || continue
+    base="$(basename "$list_file" .list)"
+    controlled+=(
+      "domain/surge/$base.list"
+      "domain/quanx/$base.list"
+      "domain/egern/$base.yaml"
+    )
+    if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
+      controlled+=(
+        "domain/sing-box/$base.srs"
+        "domain/mihomo/$base.list"
+        "domain/mihomo/$base.mrs"
+      )
+    fi
+  done <<< "$DOMAIN_RULE_FILES"
+
+  while IFS= read -r list_file; do
+    [ -n "$list_file" ] || continue
+    base="$(basename "$list_file" .list)"
+    controlled+=(
+      "ip/surge/$base.list"
+      "ip/quanx/$base.list"
+      "ip/egern/$base.yaml"
+    )
+    if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
+      controlled+=(
+        "ip/sing-box/$base.srs"
+        "ip/mihomo/$base.mrs"
+      )
+    fi
+  done <<< "$IP_RULE_FILES"
+
+  # Only the paths derived from current custom sources are controlled here.
+  # Restored/upstream artifacts and summaries elsewhere in .output are untouched.
+  for relative in "${controlled[@]}"; do
+    staged="$STAGE_ROOT/$relative"
+    target="$ARTIFACT_ROOT/$relative"
+    target_dir="$(dirname "$target")"
+    mkdir -p "$target_dir"
+    if [ -f "$staged" ]; then
+      write_if_changed "$staged" "$target"
+    else
+      # A platform-specific skip is committed as deletion only after every
+      # render and binary compile has succeeded.
+      rm -f "$target"
+    fi
+  done
+}
+
+if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
+  # This point is after the last binary compile but before the controlled commit.
+  inject_custom_build_failure late-binary
+fi
+commit_staged_custom_artifacts
+python3 - <<'PY' "$ARTIFACT_ROOT" "$CUSTOM_DOMAIN_DIR" "$CUSTOM_IP_DIR"
+import json, sys
+from pathlib import Path
+root, domain_sources, ip_sources = map(Path, sys.argv[1:])
+target = root / "artifact-origins.json"
+origins = json.loads(target.read_text(encoding="utf-8")) if target.is_file() else {}
+for section, sources in (("domain", domain_sources), ("ip", ip_sources)):
+    if not sources.is_dir():
+        continue
+    for source in sources.glob("*.list"):
+        for path in (root / section).glob(f"*/{source.stem}.*"):
+            if path.is_file():
+                origins[path.relative_to(root).as_posix()] = "generated-custom"
+target.write_text(json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
 
 if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
   echo "custom build done (text only)"

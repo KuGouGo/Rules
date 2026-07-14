@@ -26,6 +26,15 @@ assert_lint_fails_with() {
 
 python3 "$TOOL"
 
+# Production capability config must be accepted by both the lint schema and the
+# runtime loader so the two independently maintained validators cannot drift.
+python3 - <<'PY'
+from scripts.tools.platform_capabilities import load_platform_capabilities
+
+capabilities = load_platform_capabilities()
+assert capabilities.platforms
+PY
+
 python3 - <<'PY'
 import json
 from pathlib import Path
@@ -93,12 +102,60 @@ from pathlib import Path
 
 path = Path(sys.argv[1])
 data = json.loads(path.read_text(encoding="utf-8"))
-data["surge"].append("DOMAIN-GLOB")
+data["platforms"]["surge"]["domain"]["unsupported_kinds"].append("DOMAIN-GLOB")
 path.write_text(json.dumps(data), encoding="utf-8")
 PY
 assert_lint_fails_with \
   "invalid-capability" \
-  "domain_platform_capabilities.surge[3]: unsupported domain rule type" \
+  "platforms.surge.domain must classify every declared domain kind" \
   --domain-platform-capabilities "$TMP_DIR/capabilities.invalid.json"
+
+cp config/tools-lock.json "$TMP_DIR/tools-lock.invalid-sha.json"
+python3 - <<'PY' "$TMP_DIR/tools-lock.invalid-sha.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["tools"]["sing-box"]["platforms"]["linux-amd64"]["sha256"] = "not-a-sha"
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "invalid-tool-sha" \
+  "tools_lock.tools.sing-box.platforms.linux-amd64.sha256: must be a lowercase 64-character SHA-256" \
+  --tools-lock "$TMP_DIR/tools-lock.invalid-sha.json"
+
+cp config/tools-lock.json "$TMP_DIR/tools-lock.invalid-commit.json"
+python3 - <<'PY' "$TMP_DIR/tools-lock.invalid-commit.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["tools"]["mihomo"]["tag_commit"] = "not-a-commit"
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "invalid-tool-commit" \
+  "tools_lock.tools.mihomo.tag_commit: must be a lowercase 40-character Git commit" \
+  --tools-lock "$TMP_DIR/tools-lock.invalid-commit.json"
+
+cp config/tools-lock.json "$TMP_DIR/tools-lock.invalid-asset.json"
+python3 - <<'PY' "$TMP_DIR/tools-lock.invalid-asset.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["tools"]["mihomo"]["platforms"]["linux-arm64"]["asset"] = "mihomo-linux-arm64-latest.gz"
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "invalid-tool-asset" \
+  "tools_lock.tools.mihomo.platforms.linux-arm64.asset: must equal mihomo-linux-arm64-v1.19.28.gz" \
+  --tools-lock "$TMP_DIR/tools-lock.invalid-asset.json"
 
 echo "upstream config tests passed"

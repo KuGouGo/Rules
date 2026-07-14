@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
+ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
+CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" shell-registry)"
 
 MAX_IP_ENTRY_CHANGE_PERCENT="${MAX_IP_ENTRY_CHANGE_PERCENT:-40}"
 MAX_IP_ENTRY_GROWTH_ABSOLUTE_DELTA="${MAX_IP_ENTRY_GROWTH_ABSOLUTE_DELTA:-50}"
@@ -43,14 +45,14 @@ summarize_artifact_dir() {
     return 0
   fi
 
-  matching_sample="$(find "$dir" -maxdepth 1 -type f -name "$pattern" | sort | head -n "$SUMMARY_LIMIT")"
+  matching_sample="$(find "$dir" -maxdepth 1 -type f -name "$pattern" | sort | awk -v limit="$SUMMARY_LIMIT" 'NR <= limit')"
   if [ -n "$matching_sample" ]; then
     echo "$label matching file sample:"
     printf '%s\n' "$matching_sample"
     return 0
   fi
 
-  file_sample="$(find "$dir" -maxdepth 1 -type f | sort | head -n "$SUMMARY_LIMIT")"
+  file_sample="$(find "$dir" -maxdepth 1 -type f | sort | awk -v limit="$SUMMARY_LIMIT" 'NR <= limit')"
   if [ -n "$file_sample" ]; then
     echo "$label non-matching file sample:"
     printf '%s\n' "$file_sample"
@@ -145,12 +147,16 @@ check_no_redundant_attr_filter_artifacts_in_dir() {
   echo "$label: no redundant attr filter artifacts"
 }
 
+capability_registry() {
+  printf '%s\n' "$CAPABILITY_REGISTRY"
+}
+
 check_no_redundant_attr_filter_artifacts() {
-  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/surge" "domain/surge"
-  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/quanx" "domain/quanx"
-  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/egern" "domain/egern"
-  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/sing-box" "domain/sing-box"
-  check_no_redundant_attr_filter_artifacts_in_dir ".output/domain/mihomo" "domain/mihomo"
+  local platform
+  while IFS=$'\t' read -r platform _public _branch section _extension _format _empty _compiler _verifier; do
+    [ "$section" = domain ] || continue
+    check_no_redundant_attr_filter_artifacts_in_dir "$ARTIFACT_ROOT/domain/$platform" "domain/$platform"
+  done < <(capability_registry)
 }
 
 count_domain_rules_from_file() {
@@ -242,11 +248,12 @@ check_domain_rule_entry_volatility() {
 }
 
 uses_dlc_plain_yaml_artifact() {
-  python3 - <<'PY'
+  python3 - "$ARTIFACT_ROOT/upstream-summary.json" <<'PY'
 import json
+import sys
 from pathlib import Path
 
-summary_file = Path(".output/upstream-summary.json")
+summary_file = Path(sys.argv[1])
 if not summary_file.exists():
     raise SystemExit(1)
 
@@ -278,7 +285,7 @@ ensure_origin_branch_baseline() {
     return 0
   fi
 
-  echo "origin/$branch baseline unavailable, skip related volatility checks"
+  echo "required origin/$branch baseline unavailable; refusing publish without volatility comparison" >&2
   return 1
 }
 
@@ -292,7 +299,7 @@ check_domain_rule_entry_volatility_against_branch() {
     return 0
   fi
 
-  ensure_origin_branch_baseline "$branch" || return 0
+  ensure_origin_branch_baseline "$branch" || return 1
   check_domain_rule_entry_volatility "$label" "$dir" "origin/$branch" "domain"
 }
 
@@ -385,8 +392,8 @@ PY
 }
 
 check_public_ip_cidrs() {
-  check_public_ip_cidrs_in_dir ".output/ip/surge" "ip-surge"
-  check_public_ip_cidrs_in_dir ".output/ip/quanx" "ip-quanx"
+  check_public_ip_cidrs_in_dir "$ARTIFACT_ROOT/ip/surge" "ip-surge"
+  check_public_ip_cidrs_in_dir "$ARTIFACT_ROOT/ip/quanx" "ip-quanx"
 }
 
 builtin_ip_min_family_entries() {
@@ -423,8 +430,8 @@ check_builtin_ip_family_min_entries_in_dir() {
 }
 
 check_builtin_ip_family_min_entries() {
-  check_builtin_ip_family_min_entries_in_dir ".output/ip/surge" "ip-surge"
-  check_builtin_ip_family_min_entries_in_dir ".output/ip/quanx" "ip-quanx"
+  check_builtin_ip_family_min_entries_in_dir "$ARTIFACT_ROOT/ip/surge" "ip-surge"
+  check_builtin_ip_family_min_entries_in_dir "$ARTIFACT_ROOT/ip/quanx" "ip-quanx"
 }
 
 builtin_ip_min_entries() {
@@ -464,8 +471,8 @@ check_builtin_ip_min_entries_in_dir() {
 }
 
 check_builtin_ip_min_entries() {
-  check_builtin_ip_min_entries_in_dir ".output/ip/surge" "ip-surge"
-  check_builtin_ip_min_entries_in_dir ".output/ip/quanx" "ip-quanx"
+  check_builtin_ip_min_entries_in_dir "$ARTIFACT_ROOT/ip/surge" "ip-surge"
+  check_builtin_ip_min_entries_in_dir "$ARTIFACT_ROOT/ip/quanx" "ip-quanx"
 }
 
 ip_entry_growth_exceeds_limit() {
@@ -478,25 +485,25 @@ ip_entry_growth_exceeds_limit() {
 check_builtin_ip_entry_volatility() {
   local base path current baseline delta abs_delta change_percent delete_percent
 
-  ensure_origin_branch_baseline surge || return 0
+  ensure_origin_branch_baseline surge || return 1
 
   for base in cn private google telegram cloudflare cloudfront fastly apple; do
-    path=".output/ip/surge/${base}.list"
+    path="$ARTIFACT_ROOT/ip/surge/${base}.list"
     if [ ! -f "$path" ]; then
       echo "ip/$base generated file missing for entry guard" >&2
       exit 1
     fi
 
     if ! git cat-file -e "origin/surge:ip/${base}.list" 2>/dev/null; then
-      echo "ip/$base baseline missing on origin/surge, skip volatility check"
-      continue
+      echo "required ip/$base baseline missing on origin/surge" >&2
+      return 1
     fi
 
     current="$(count_ip_cidrs_from_file "$path")"
     baseline="$(count_ip_cidrs_from_git_ref "origin/surge" "ip/${base}.list")"
     if [ "$baseline" -eq 0 ]; then
-      echo "ip/$base baseline entries are 0, skip volatility check"
-      continue
+      echo "required ip/$base baseline has zero entries" >&2
+      return 1
     fi
 
     delta=$(( current - baseline ))
@@ -527,28 +534,23 @@ check_builtin_ip_entry_volatility() {
 
 main() {
   print_section "Artifact count checks"
-  check_min_files ".output/domain/surge" ".output/domain/surge/*.list" 1000
-  check_min_files ".output/domain/quanx" ".output/domain/quanx/*.list" 1000
-  check_min_files ".output/domain/egern" ".output/domain/egern/*.yaml" 1000
-  check_min_files ".output/domain/sing-box" ".output/domain/sing-box/*.srs" 1000
-  check_min_files ".output/domain/mihomo" ".output/domain/mihomo/*.mrs" 1000
+  local platform section extension min_expected
+  while IFS=$'\t' read -r platform _public _branch section extension _format _empty _compiler _verifier; do
+    if [ "$section" = domain ]; then min_expected=1000; else min_expected=10; fi
+    check_min_files "$ARTIFACT_ROOT/$section/$platform" "$ARTIFACT_ROOT/$section/$platform/*.${extension}" "$min_expected"
+  done < <(capability_registry)
   # Minimum 10 covers the guaranteed sources:
   # cn, private, google, telegram, cloudflare, cloudfront, aws, fastly, github, apple.
   # Streaming services (netflix, spotify, disney) are best-effort via RIPE NCC
   # Stat and are not counted here as they may return empty prefixes.
-  check_min_files ".output/ip/surge" ".output/ip/surge/*.list" 10
-  check_min_files ".output/ip/quanx" ".output/ip/quanx/*.list" 10
-  check_min_files ".output/ip/egern" ".output/ip/egern/*.yaml" 10
-  check_min_files ".output/ip/sing-box" ".output/ip/sing-box/*.srs" 10
-  check_min_files ".output/ip/mihomo" ".output/ip/mihomo/*.mrs" 10
 
   print_section "Domain artifact shape checks"
   check_no_redundant_attr_filter_artifacts
 
   print_section "Domain rule entry checks"
-  check_domain_rule_entry_volatility_against_branch surge ".output/domain/surge" "domain/surge"
-  check_domain_rule_entry_volatility_against_branch quanx ".output/domain/quanx" "domain/quanx"
-  check_domain_rule_entry_volatility_against_branch egern ".output/domain/egern" "domain/egern"
+  check_domain_rule_entry_volatility_against_branch surge "$ARTIFACT_ROOT/domain/surge" "domain/surge"
+  check_domain_rule_entry_volatility_against_branch quanx "$ARTIFACT_ROOT/domain/quanx" "domain/quanx"
+  check_domain_rule_entry_volatility_against_branch egern "$ARTIFACT_ROOT/domain/egern" "domain/egern"
 
   print_section "IP CIDR entry checks"
   check_public_ip_cidrs

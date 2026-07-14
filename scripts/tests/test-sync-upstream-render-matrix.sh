@@ -41,6 +41,15 @@ for snippet in required_snippets:
 if 'render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"' not in script:
     raise SystemExit("test failed: sync-upstream does not render the shared IP text artifact matrix")
 
+summary_required_snippets = [
+    'UPSTREAM_SUMMARY_FILE="$WORK_TMP_DIR/upstream-summary.jsonl"',
+    'local json_file="$ARTIFACTS_DIR/upstream-summary.json"',
+    'rm -f "$UPSTREAM_SUMMARY_FILE"',
+]
+for snippet in summary_required_snippets:
+    if snippet not in script:
+        raise SystemExit(f"test failed: sync-upstream summary lifecycle missing {snippet!r}")
+
 loyalsoldier_required_snippets = [
     'LOYALSOLDIER_GEOIP_CN_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-cn url)"',
     'LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-private url)"',

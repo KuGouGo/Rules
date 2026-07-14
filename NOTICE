@@ -1,0 +1,17 @@
+Rules — Copyright and License Scope Notice
+
+Copyright (c) 2026 KuGouGo
+
+The MIT License in LICENSE applies only to repository content for which
+KuGouGo owns the copyright, including KuGouGo-authored code, documentation,
+and original rule content.
+
+Third-party data, rules, service responses, trademarks, and artifacts derived
+from them remain subject to their respective copyright, licenses, terms, and
+other rights. Downloading, normalizing, merging, converting, or compiling
+third-party material does not relicense it under the repository's MIT License.
+
+Known third-party sources and the status of manual license review are recorded
+in THIRD_PARTY_NOTICES.md. That record is informational, may be incomplete,
+and is not legal advice. Automated checks do not determine license status or
+redistribution permission.

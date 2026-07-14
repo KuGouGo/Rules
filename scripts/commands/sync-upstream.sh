@@ -4,19 +4,24 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
+if [ -z "${RULES_ARTIFACT_ROOT:-}" ]; then
+  RULES_BUILD_SCOPE=full exec "$ROOT_DIR/scripts/commands/build-artifacts-transaction.sh"
+fi
+
 WORK_TMP_DIR="$ROOT_DIR/.tmp/sync"
 BIN_DIR="$ROOT_DIR/.bin"
 DOMAIN_BUILD_TMP_DIR="$WORK_TMP_DIR/domain-build"
 DOMAIN_RULE_TMP_DIR="$WORK_TMP_DIR/domain-rules"
 IP_BUILD_TMP_DIR="$WORK_TMP_DIR/ip-build"
-ARTIFACTS_DIR="$ROOT_DIR/.output"
+ARTIFACTS_DIR="${RULES_ARTIFACT_ROOT:-$ROOT_DIR/.output}"
+DIAGNOSTICS_DIR="${RULES_ARTIFACT_DIAGNOSTICS_ROOT:-$ROOT_DIR/.tmp/artifact-diagnostics}"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
 IP_TEXT_ARTIFACTS=(cn private google telegram cloudflare cloudfront aws fastly github apple)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
-UPSTREAM_SUMMARY_FILE="$ARTIFACTS_DIR/upstream-summary.jsonl"
+UPSTREAM_SUMMARY_FILE="$WORK_TMP_DIR/upstream-summary.jsonl"
 FIRST_BATCH_BASELINES_FILE="$ROOT_DIR/config/upstream-first-batch-baselines.json"
 
 upstream_value() {
@@ -59,9 +64,6 @@ GITHUB_IP_SOURCE_URL="$(upstream_value ip github url)"
 APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
 APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
 RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
-APPLE_MIN_CIDR_COUNT="${APPLE_MIN_CIDR_COUNT:-$(upstream_value ip apple min_cidrs)}"
-LOYALSOLDIER_GEOIP_CN_MIN_CIDR_COUNT="${LOYALSOLDIER_GEOIP_CN_MIN_CIDR_COUNT:-$(upstream_value ip loyalsoldier-geoip-cn min_cidrs)}"
-LOYALSOLDIER_GEOIP_PRIVATE_MIN_CIDR_COUNT="${LOYALSOLDIER_GEOIP_PRIVATE_MIN_CIDR_COUNT:-$(upstream_value ip loyalsoldier-geoip-private min_cidrs)}"
 DLC_MIN_ATTR_RULESETS="${DLC_MIN_ATTR_RULESETS:-300}"
 DLC_MIN_CN_ATTR_RULESETS="${DLC_MIN_CN_ATTR_RULESETS:-100}"
 DLC_MIN_NOT_CN_ATTR_RULESETS="${DLC_MIN_NOT_CN_ATTR_RULESETS:-30}"
@@ -72,18 +74,38 @@ read -r -a NETFLIX_ASNS <<< "$(upstream_asn_group netflix)"
 read -r -a SPOTIFY_ASNS <<< "$(upstream_asn_group spotify)"
 read -r -a DISNEY_ASNS <<< "$(upstream_asn_group disney)"
 
+# shellcheck source=scripts/lib/common.sh
 source "$ROOT_DIR/scripts/lib/common.sh"
+# shellcheck source=scripts/lib/rules.sh
 source "$ROOT_DIR/scripts/lib/rules.sh"
 setup_tool_cache
 
 rm -rf "$WORK_TMP_DIR"
 mkdir -p "$WORK_TMP_DIR" "$BIN_DIR" "$DOMAIN_BUILD_TMP_DIR" "$DOMAIN_RULE_TMP_DIR" "$IP_BUILD_TMP_DIR"
-trap 'rm -rf "$WORK_TMP_DIR"' EXIT
+preserve_sync_diagnostics() {
+  local status=$?
+  if [ "$status" -ne 0 ]; then
+    mkdir -p "$DIAGNOSTICS_DIR"
+    [ ! -s "$UPSTREAM_SUMMARY_FILE" ] || cp "$UPSTREAM_SUMMARY_FILE" "$DIAGNOSTICS_DIR/upstream-summary.jsonl"
+    [ ! -f "$ARTIFACTS_DIR/upstream-summary.json" ] || cp "$ARTIFACTS_DIR/upstream-summary.json" "$DIAGNOSTICS_DIR/upstream-summary.json"
+  fi
+  rm -rf "$WORK_TMP_DIR"
+  return "$status"
+}
+trap preserve_sync_diagnostics EXIT
 
 mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR"
 : > "$UPSTREAM_SUMMARY_FILE"
 
 echo "=== SYNC START ==="
+
+inject_sync_failure() {
+  local point="$1"
+  if [ "${RULES_SYNC_FAIL_AT:-}" = "$point" ]; then
+    echo "injected upstream sync failure at $point" >&2
+    return 1
+  fi
+}
 
 record_upstream_summary() {
   local category="$1"
@@ -140,6 +162,7 @@ if jsonl_file.exists():
     items = [json.loads(line) for line in jsonl_file.read_text(encoding="utf-8").splitlines() if line.strip()]
 json_file.write_text(json.dumps(items, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
+  rm -f "$UPSTREAM_SUMMARY_FILE"
 }
 
 clone_repository_shallow() {
@@ -195,24 +218,46 @@ sync_asn_ip_cidrs() {
   shift
   local -a asns=("$@")
   local -a cidr_files=()
-  local -a task_args=()
-  local asn raw_json cidr_txt manifest_file merge_mode
+  local asn raw_json cidr_txt merge_mode health_json health_status health_detail
 
   for asn in "${asns[@]}"; do
     raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
     cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
     download_file "${RIPE_STAT_BASE_URL}${asn}" "$raw_json"
     cidr_files+=("$cidr_txt")
-    task_args+=(
-      "ripe-stat-json"
-      "$raw_json"
-      "$cidr_txt"
-    )
   done
 
-  manifest_file="$IP_BUILD_TMP_DIR/${name}.asn-normalize-tasks.json"
-  generate_normalize_manifest "$manifest_file" "${task_args[@]}"
-  python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$manifest_file"
+  # Normalize separately so malformed responses are attributed and reported
+  # before they block the transaction.
+  for asn in "${asns[@]}"; do
+    raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
+    cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
+    if ! python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" single ripe-stat-json "$raw_json" "$cidr_txt"; then
+      : > "$cidr_txt"
+      record_upstream_summary ip "ripe-stat-as${asn}" semantic_regression "${RIPE_STAT_BASE_URL}${asn}" "$raw_json" "$cidr_txt" 0 "invalid RIPE Stat response"
+      echo "RIPE Stat response AS${asn} is invalid" >&2
+      return 1
+    fi
+  done
+
+  # Every RIPE Stat response is independently subject to the configured source
+  # policy. Record the failing response before returning so transaction
+  # diagnostics explain which ASN was undersized or invalid.
+  for asn in "${asns[@]}"; do
+    raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
+    cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
+    if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$raw_json" "$cidr_txt")"; then
+      health_status=ok
+    else
+      health_status=semantic_regression
+    fi
+    health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
+    record_upstream_summary ip "ripe-stat-as${asn}" "$health_status" "${RIPE_STAT_BASE_URL}${asn}" "$raw_json" "$cidr_txt" 0 "$health_detail"
+    if [ "$health_status" != "ok" ]; then
+      echo "RIPE Stat response AS${asn} failed configured health policy: $health_detail" >&2
+      return 1
+    fi
+  done
 
   merge_mode="${ASN_CIDR_MERGE_MODE:-collapse}"
   case "$merge_mode" in
@@ -225,14 +270,32 @@ sync_asn_ip_cidrs() {
   esac
 
   if [ ! -s "$IP_BUILD_TMP_DIR/${name}.cidr.txt" ]; then
-    echo "warning: no prefixes found for $name (ASNs: ${asns[*]}), skipping" >&2
-    return 0
+    echo "RIPE Stat group $name produced no prefixes (ASNs: ${asns[*]})" >&2
+    record_upstream_summary ip "ripe-stat-group-${name}" semantic_regression "$RIPE_STAT_BASE_URL" "" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "empty normalized group"
+    return 1
+  fi
+
+  local group_raw="$IP_BUILD_TMP_DIR/${name}.ripe-group.raw"
+  : > "$group_raw"
+  for asn in "${asns[@]}"; do
+    cat "$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json" >> "$group_raw"
+  done
+  if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt")"; then
+    health_status=ok
+  else
+    health_status=semantic_regression
+  fi
+  health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
+  record_upstream_summary ip "ripe-stat-group-${name}" "$health_status" "$RIPE_STAT_BASE_URL" "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "asns=${asns[*]}${health_detail:+; $health_detail}"
+  if [ "$health_status" != "ok" ]; then
+    echo "RIPE Stat group $name failed configured health policy: $health_detail" >&2
+    return 1
   fi
 }
 
 # sync_asn_ip_list <name> <asn> [<asn> ...]
-# Download RIPE NCC Stat prefix data for each ASN, normalise in one batch,
-# merge, and render public IP text artifacts for the named ruleset.
+# Download RIPEstat announced-prefix data for each ASN, normalize it in one
+# batch, merge it, and render public IP text artifacts for the named ruleset.
 sync_asn_ip_list() {
   local name="$1"
   shift
@@ -639,6 +702,8 @@ python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
   "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_RULE_MANIFEST_FILE"
 assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"
+python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" domain dlc \
+  "$WORK_TMP_DIR/domain-list-community/data" "$DOMAIN_RULE_TMP_DIR"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
 render_domain_rule_dir_to_text_platform_dirs \
   "$DOMAIN_RULE_TMP_DIR" \
@@ -648,6 +713,7 @@ render_domain_rule_dir_to_text_platform_dirs \
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/surge/*.list"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/quanx/*.list"
 assert_files_present "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/egern/*.yaml"
+inject_sync_failure late-domain
 
 build_domain_artifacts_from_rule_dir \
   "$DOMAIN_RULE_TMP_DIR" \
@@ -696,8 +762,23 @@ summarize_first_batch_checks
 normalize_first_batch_source "google-json"
 normalize_first_batch_source "github-json"
 normalize_first_batch_source "telegram"
-assert_min_cidrs loyalsoldier-geoip-cn "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt" "$LOYALSOLDIER_GEOIP_CN_MIN_CIDR_COUNT"
-assert_min_cidrs loyalsoldier-geoip-private "$IP_BUILD_TMP_DIR/private.cidr.txt" "$LOYALSOLDIER_GEOIP_PRIVATE_MIN_CIDR_COUNT"
+for health_spec in \
+  "cn-ipv46 cn_ipv46.raw.txt cn_ipv46.cidr.txt" \
+  "cn-ipv46-apnic cn_ipv46_apnic.raw.txt cn_ipv46_apnic.cidr.txt" \
+  "loyalsoldier-geoip-cn loyalsoldier_geoip_cn.raw.txt loyalsoldier_geoip_cn.cidr.txt" \
+  "loyalsoldier-geoip-private private.raw.txt private.cidr.txt" \
+  "google google.raw.json google.cidr.txt" \
+  "telegram telegram.raw.txt telegram.cidr.txt" \
+  "cloudflare-ipv4 cloudflare_ipv4.raw.txt cloudflare_ipv4.cidr.txt" \
+  "cloudflare-ipv6 cloudflare_ipv6.raw.txt cloudflare_ipv6.cidr.txt" \
+  "aws aws.raw.json aws.cidr.txt" \
+  "fastly fastly.raw.json fastly.cidr.txt" \
+  "github github.raw.json github.cidr.txt" \
+  "apple apple.raw.html apple.cidr.txt"; do
+  read -r health_name health_raw health_normalized <<< "$health_spec"
+  python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip "$health_name" \
+    "$IP_BUILD_TMP_DIR/$health_raw" "$IP_BUILD_TMP_DIR/$health_normalized"
+done
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt" \
@@ -707,18 +788,19 @@ merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
-assert_min_cidrs apple "$IP_BUILD_TMP_DIR/apple.cidr.txt" "$APPLE_MIN_CIDR_COUNT"
-
 render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
 
-# Streaming services: no official CIDR lists; use RIPE NCC Stat (RPKI data) by ASN.
+# Supplement Telegram's direct source with ASN-derived prefixes.
 sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"
+
+# Streaming services without a direct CIDR source use ASN-derived prefixes.
 sync_asn_ip_list netflix  "${NETFLIX_ASNS[@]}"
 sync_asn_ip_list spotify  "${SPOTIFY_ASNS[@]}"
 sync_asn_ip_list disney   "${DISNEY_ASNS[@]}"
 
 assert_files_present "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/surge/*.list"
 assert_files_present "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/quanx/*.list"
+inject_sync_failure late-ip
 build_ip_artifacts_from_surge_dir \
   "$IP_ARTIFACTS_DIR/surge" \
   "$IP_BUILD_TMP_DIR" \
@@ -731,6 +813,20 @@ build_ip_egern_artifacts_from_surge_dir \
 assert_files_present "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/sing-box/*.srs"
 assert_files_present "$IP_ARTIFACTS_DIR/mihomo" "$IP_ARTIFACTS_DIR/mihomo/*.mrs"
 assert_files_present "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/egern/*.yaml"
+inject_sync_failure late-compiler
 write_upstream_summary_json
+python3 - <<'PYORIGINS' "$ARTIFACTS_DIR" "$ARTIFACTS_DIR/artifact-origins.json"
+import json, sys
+from pathlib import Path
+root, target = map(Path, sys.argv[1:])
+origins = {}
+for section in ("domain", "ip"):
+    base = root / section
+    if base.is_dir():
+        for path in base.glob("*/*"):
+            if path.is_file():
+                origins[path.relative_to(root).as_posix()] = "generated-upstream"
+target.write_text(json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PYORIGINS
 
 echo "=== SYNC DONE ==="

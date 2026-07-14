@@ -6,6 +6,8 @@ cd "$ROOT"
 
 BASELINES="$ROOT/config/upstream-first-batch-baselines.json"
 FIXTURE_ROOT="$ROOT/tests/fixtures/upstream"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 assert_status() {
   local source="$1"
@@ -30,5 +32,6 @@ assert_status "github-json" "$FIXTURE_ROOT/github-json/pass.raw.json" "ok" "gith
 assert_status "github-json" "$FIXTURE_ROOT/github-json/fail.raw.json" "semantic_regression" "github-json fail fixture trips semantic regression"
 assert_status "telegram" "$FIXTURE_ROOT/telegram/pass.raw.txt" "ok" "telegram pass fixture is healthy"
 assert_status "telegram" "$FIXTURE_ROOT/telegram/fail.raw.txt" "semantic_regression" "telegram fail fixture trips semantic regression"
+assert_status "telegram" "$TMP_DIR/missing.raw.txt" "transport_incident" "missing telegram payload is a transport incident"
 
-echo "first-batch upstream invariant tests passed"
+echo "first-batch upstream health tests passed"

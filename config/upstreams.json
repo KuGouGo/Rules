@@ -3,85 +3,63 @@
     "dlc": {
       "kind": "git",
       "trust": "community",
-      "url": "https://github.com/v2fly/domain-list-community.git"
+      "parser": "git-tree",
+      "url": "https://github.com/v2fly/domain-list-community.git",
+      "health": { "requirement": "required", "min_raw_bytes": 1024, "min_entries": 1, "family": "any", "fallback_policy": "none" }
     }
   },
   "ip": {
     "cn-ipv46": {
-      "kind": "text",
-      "trust": "registry",
-      "url": "https://ispip.clang.cn/all_cn_ipv46.txt"
+      "kind": "text", "trust": "registry", "parser": "cidr-text", "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 100, "family": "dual", "fallback_policy": "none" }
     },
     "cn-ipv46-apnic": {
-      "kind": "text",
-      "trust": "registry",
-      "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
+      "kind": "text", "trust": "registry", "parser": "cidr-text", "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 100, "family": "dual", "fallback_policy": "none" }
     },
     "loyalsoldier-geoip-cn": {
-      "kind": "text",
-      "trust": "community",
-      "min_cidrs": 5000,
-      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt"
+      "kind": "text", "trust": "community", "parser": "cidr-text", "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 5000, "family": "any", "fallback_policy": "none" }
     },
     "loyalsoldier-geoip-private": {
-      "kind": "text",
-      "trust": "community",
-      "min_cidrs": 15,
-      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/private.txt"
+      "kind": "text", "trust": "community", "parser": "cidr-text", "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/private.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 100, "min_entries": 15, "family": "any", "fallback_policy": "none" }
     },
     "google": {
-      "kind": "json",
-      "trust": "official",
-      "parser": "google-json",
-      "min_cidrs": 80,
-      "url": "https://www.gstatic.com/ipranges/goog.json"
+      "kind": "json", "trust": "official", "parser": "google-json", "url": "https://www.gstatic.com/ipranges/goog.json",
+      "health": { "requirement": "required", "min_raw_bytes": 100, "min_entries": 80, "family": "dual", "fallback_policy": "none" }
     },
     "telegram": {
-      "kind": "text",
-      "trust": "official",
-      "parser": "telegram",
-      "min_cidrs": 8,
-      "url": "https://core.telegram.org/resources/cidr.txt"
+      "kind": "text", "trust": "official", "parser": "telegram", "url": "https://core.telegram.org/resources/cidr.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 20, "min_entries": 8, "family": "ipv4", "fallback_policy": "none" }
     },
     "cloudflare-ipv4": {
-      "kind": "text",
-      "trust": "official",
-      "min_cidrs": 15,
-      "url": "https://www.cloudflare.com/ips-v4"
+      "kind": "text", "trust": "official", "parser": "cidr-text", "url": "https://www.cloudflare.com/ips-v4",
+      "health": { "requirement": "required", "min_raw_bytes": 20, "min_entries": 15, "family": "ipv4", "fallback_policy": "none" }
     },
     "cloudflare-ipv6": {
-      "kind": "text",
-      "trust": "official",
-      "url": "https://www.cloudflare.com/ips-v6"
+      "kind": "text", "trust": "official", "parser": "cidr-text", "url": "https://www.cloudflare.com/ips-v6",
+      "health": { "requirement": "required", "min_raw_bytes": 10, "min_entries": 5, "family": "ipv6", "fallback_policy": "none" }
     },
     "aws": {
-      "kind": "json",
-      "trust": "official",
-      "url": "https://ip-ranges.amazonaws.com/ip-ranges.json"
+      "kind": "json", "trust": "official", "parser": "aws-json", "url": "https://ip-ranges.amazonaws.com/ip-ranges.json",
+      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 100, "family": "dual", "fallback_policy": "none" }
     },
     "fastly": {
-      "kind": "json",
-      "trust": "official",
-      "min_cidrs": 12,
-      "url": "https://api.fastly.com/public-ip-list"
+      "kind": "json", "trust": "official", "parser": "fastly-json", "url": "https://api.fastly.com/public-ip-list",
+      "health": { "requirement": "required", "min_raw_bytes": 50, "min_entries": 12, "family": "any", "fallback_policy": "none" }
     },
     "github": {
-      "kind": "json",
-      "trust": "official",
-      "parser": "github-json",
-      "url": "https://api.github.com/meta"
+      "kind": "json", "trust": "official", "parser": "github-json", "url": "https://api.github.com/meta",
+      "health": { "requirement": "required", "min_raw_bytes": 100, "min_entries": 2, "family": "any", "fallback_policy": "none" }
     },
     "apple": {
-      "kind": "html",
-      "trust": "official",
-      "min_cidrs": 3,
-      "url": "https://support.apple.com/en-us/101555",
-      "fallback_url": "https://support.apple.com/zh-cn/101555"
+      "kind": "html", "trust": "official", "parser": "html-cidr", "url": "https://support.apple.com/en-us/101555", "fallback_url": "https://support.apple.com/zh-cn/101555",
+      "health": { "requirement": "required", "min_raw_bytes": 100, "min_entries": 3, "family": "any", "fallback_policy": "ordered" }
     },
     "ripe-stat": {
-      "kind": "json-api",
-      "trust": "registry",
-      "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS"
+      "kind": "json-api", "trust": "registry", "parser": "ripe-stat-json", "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
+      "health": { "requirement": "required", "min_raw_bytes": 50, "min_entries": 1, "family": "any", "fallback_policy": "none" }
     }
   },
   "asn_groups": {

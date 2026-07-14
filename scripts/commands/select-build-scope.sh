@@ -48,8 +48,7 @@ collect_deleted_custom_files() {
   local current="$2"
 
   if [ -n "$DELETED_CUSTOM_FILES_INPUT" ]; then
-    printf '%s
-' "$DELETED_CUSTOM_FILES_INPUT"
+    printf '%s\n' "$DELETED_CUSTOM_FILES_INPUT"
     return 0
   fi
 
@@ -67,9 +66,22 @@ collect_deleted_custom_files() {
 if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
   case "$INPUT_SCOPE" in
     custom)
-      scope="custom"
-      reason="manual custom-only publish"
       base_sha="$(git rev-parse HEAD^ 2>/dev/null || true)"
+      if [ -z "$base_sha" ] || ! changed_files="$(collect_changed_files "$base_sha" "$CURRENT_SHA")"; then
+        scope="full"
+        reason="manual custom baseline unavailable; using full sync"
+        base_sha=""
+      elif [ -z "$changed_files" ]; then
+        scope="full"
+        reason="manual custom delta empty; using full sync"
+      elif printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
+        echo "manual custom scope refused: delta contains non-custom paths" >&2
+        printf '%s\n' "$changed_files" >&2
+        exit 1
+      else
+        scope="custom"
+        reason="manual custom-only publish"
+      fi
       ;;
     full|auto)
       scope="full"
@@ -87,21 +99,43 @@ elif [ "$EVENT_NAME" = "push" ]; then
   fi
   base_sha="$before"
 
-  changed_files="$(collect_changed_files "$before" "$CURRENT_SHA")"
-  deleted_custom_files="$(collect_deleted_custom_files "$before" "$CURRENT_SHA")"
-
-  echo "Changed files:"
-  printf '%s\n' "$changed_files"
-
-  if [ -n "$deleted_custom_files" ]; then
+  if [ -z "$CHANGED_FILES_INPUT" ] && {
+    [ -z "$before" ] ||
+    ! git cat-file -e "${before}^{commit}" 2>/dev/null ||
+    ! git cat-file -e "${CURRENT_SHA}^{commit}" 2>/dev/null
+  }; then
     scope="full"
-    reason="custom deletions require full sync"
-  elif [ -n "$changed_files" ] && printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
-    scope="full"
-    reason="push includes non-custom changes"
+    reason="push base unavailable; using full sync"
+    base_sha=""
   else
-    scope="custom"
-    reason="push only updates custom sources"
+    if ! changed_files="$(collect_changed_files "$before" "$CURRENT_SHA")"; then
+      scope="full"
+      reason="push diff unavailable; using full sync"
+      base_sha=""
+      changed_files=""
+    elif ! deleted_custom_files="$(collect_deleted_custom_files "$before" "$CURRENT_SHA")"; then
+      scope="full"
+      reason="push diff unavailable; using full sync"
+      base_sha=""
+      deleted_custom_files=""
+    else
+      echo "Changed files:"
+      printf '%s\n' "$changed_files"
+
+      if [ -z "$changed_files" ]; then
+        scope="full"
+        reason="push diff empty; using full sync"
+      elif [ -n "$deleted_custom_files" ]; then
+        scope="full"
+        reason="custom deletions require full sync"
+      elif printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
+        scope="full"
+        reason="push includes non-custom changes"
+      else
+        scope="custom"
+        reason="push only updates custom sources"
+      fi
+    fi
   fi
 fi
 

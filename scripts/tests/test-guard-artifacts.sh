@@ -74,6 +74,20 @@ assert_equals "1" "$(count_matching_files "$TMP_DIR/files" "*.list")" "count_mat
 assert_equals "0" "$(count_matching_files "$TMP_DIR/missing" "*.list")" "count_matching_files handles missing directories"
 assert_equals "10" "$MIN_IP_CIDR_GOOGLE_V6" "google IPv6 guard default allows normal mid-teen payloads"
 
+mkdir -p "$TMP_DIR/large-matching" "$TMP_DIR/large-nonmatching"
+python3 - <<'PY' "$TMP_DIR/large-matching" "$TMP_DIR/large-nonmatching"
+import sys
+from pathlib import Path
+
+for directory, suffix in ((Path(sys.argv[1]), ".list"), (Path(sys.argv[2]), ".txt")):
+    for index in range(2000):
+        (directory / f"{index:04d}-{'x' * 80}{suffix}").touch()
+PY
+large_matching_summary="$(summarize_artifact_dir "large-matching" "$TMP_DIR/large-matching" "*.list")"
+large_nonmatching_summary="$(summarize_artifact_dir "large-nonmatching" "$TMP_DIR/large-nonmatching" "*.list")"
+assert_equals "$SUMMARY_LIMIT" "$(grep -Fc "$TMP_DIR/large-matching/" <<< "$large_matching_summary")" "large matching summary stays limited under pipefail"
+assert_equals "$SUMMARY_LIMIT" "$(grep -Fc "$TMP_DIR/large-nonmatching/" <<< "$large_nonmatching_summary")" "large non-matching summary stays limited under pipefail"
+
 if is_redundant_attr_filter_artifact_name "google@cn"; then
   echo "test failed: google@cn should remain an allowed attr artifact" >&2
   exit 1

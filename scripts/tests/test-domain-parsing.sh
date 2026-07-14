@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=scripts/lib/rules.sh
 source "$ROOT/scripts/lib/rules.sh"
 
 TMP_DIR="$(mktemp -d)"
@@ -673,10 +674,34 @@ EOF
 }
 
 
+test_classical_comments_preserve_hash_values() {
+  cat > "$TMP_DIR/hash-values.list" <<'EOF'
+# full-line comment
+   # indented full-line comment
+DOMAIN-REGEX,^foo#bar$
+DOMAIN-KEYWORD,hash#value
+EOF
+
+  python3 - "$ROOT" "$TMP_DIR/hash-values.list" <<'PY'
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(sys.argv[1]) / "scripts" / "tools"))
+from domain_rules import parse_classical_domain_file
+
+rules, errors = parse_classical_domain_file(Path(sys.argv[2]))
+assert not errors, errors
+assert [rule.text for rule in rules] == [
+    r"DOMAIN-REGEX,^foo#bar$",
+    "DOMAIN-KEYWORD,hash#value",
+]
+PY
+}
+
+
 test_mihomo_domain_text_generation() {
   cat > "$TMP_DIR/mihomo_domain_in.list" <<'EOF'
 DOMAIN,exact.example.com
-DOMAIN-SUFFIX,example.org
 DOMAIN-SUFFIX,example.org
 DOMAIN-KEYWORD,ignored-keyword
 DOMAIN-REGEX,^ignored$
@@ -720,6 +745,7 @@ test_attr_derivatives_merge_duplicate_rule_attrs
 test_export_materializes_attr_derivatives_with_sing_geosite_filter
 test_domain_capability_summary
 test_mihomo_mrs_skip_summary
+test_classical_comments_preserve_hash_values
 test_mihomo_domain_text_generation
 
 echo "domain parsing tests passed"

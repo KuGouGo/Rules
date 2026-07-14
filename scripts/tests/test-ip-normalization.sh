@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=scripts/lib/rules.sh
 source "$ROOT/scripts/lib/rules.sh"
 
 TMP_DIR="$(mktemp -d)"
@@ -41,6 +42,18 @@ assert_equals() {
 assert_equals "4" "$(singbox_rule_set_source_version_for_release 1.13.11)" "sing-box 1.13 uses source format v4"
 assert_equals "5" "$(singbox_rule_set_source_version_for_release 1.14.0)" "sing-box 1.14 uses source format v5"
 assert_equals "3" "$(singbox_rule_set_source_version_for_release 1.12.0)" "sing-box 1.12 uses source format v3"
+
+normalize_body="$TMP_DIR/normalize-ip-rule-source.body"
+awk '
+  /^normalize_ip_rule_source\(\) \{/ { capture = 1 }
+  capture { print }
+  capture && $0 == "}" { exit }
+' "$ROOT/scripts/lib/rules.sh" > "$normalize_body"
+if ! grep -Fq 'normalize-ip-rules.py" custom-source' "$normalize_body"; then
+  echo "test failed: custom IP normalization must use the strict shared entrypoint" >&2
+  cat "$normalize_body" >&2
+  exit 1
+fi
 
 cat > "$TMP_DIR/mixed.txt" <<'CIDRS'
 192.168.1.1/24
@@ -106,10 +119,37 @@ if [ -s "$TMP_DIR/empty.out" ]; then
   exit 1
 fi
 
+printf 'preserved single output\n' > "$TMP_DIR/atomic-single.out"
+printf '{invalid json\n' > "$TMP_DIR/invalid-google.json"
+if python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single google-json \
+  "$TMP_DIR/invalid-google.json" "$TMP_DIR/atomic-single.out" >/dev/null 2>&1; then
+  echo "test failed: invalid single input should fail" >&2
+  exit 1
+fi
+assert_file_content "$TMP_DIR/atomic-single.out" 'preserved single output'
+
+printf 'preserved batch one\n' > "$TMP_DIR/atomic-batch-one.out"
+printf 'preserved batch two\n' > "$TMP_DIR/atomic-batch-two.out"
+cat > "$TMP_DIR/atomic-batch.json" <<EOF
+[
+  {"source_type":"text","input_file":"$TMP_DIR/mixed.txt","output_file":"$TMP_DIR/atomic-batch-one.out"},
+  {"source_type":"google-json","input_file":"$TMP_DIR/invalid-google.json","output_file":"$TMP_DIR/atomic-batch-two.out"}
+]
+EOF
+if python3 "$ROOT/scripts/tools/normalize-ip-rules.py" batch "$TMP_DIR/atomic-batch.json" >/dev/null 2>&1; then
+  echo "test failed: late invalid batch task should fail" >&2
+  exit 1
+fi
+assert_file_content "$TMP_DIR/atomic-batch-one.out" 'preserved batch one'
+assert_file_content "$TMP_DIR/atomic-batch-two.out" 'preserved batch two'
+if find "$TMP_DIR" -maxdepth 1 -type f -name '.*.tmp' | grep -q .; then
+  echo "test failed: atomic normalization left temporary files" >&2
+  exit 1
+fi
+
 cat > "$TMP_DIR/custom-source.list" <<'CIDRS'
-IP-CIDR,192.168.1.1/24
 IP-CIDR,192.168.1.0/24
-IP-CIDR6,2001:db8::1/32
+IP-CIDR6,2001:db8::/32
 # comment
 CIDRS
 
@@ -123,6 +163,21 @@ assert_file_content \
 assert_file_content \
   "$TMP_DIR/custom-source.surge" \
   $'IP-CIDR,192.168.1.0/24,no-resolve\nIP-CIDR6,2001:db8::/32,no-resolve'
+
+printf '%s\n' 'IP-CIDR,192.168.1.1/24' > "$TMP_DIR/noncanonical-custom.list"
+if normalize_ip_rule_source \
+  "$TMP_DIR/noncanonical-custom.list" \
+  "$TMP_DIR/noncanonical-custom.surge" \
+  "$TMP_DIR/noncanonical-custom.plain" \
+  >"$TMP_DIR/noncanonical-custom.stdout" 2>"$TMP_DIR/noncanonical-custom.stderr"; then
+  echo "test failed: custom IP normalizer should reject non-canonical CIDR" >&2
+  exit 1
+fi
+if ! grep -Fq "CIDR must be canonical; use 192.168.1.0/24" "$TMP_DIR/noncanonical-custom.stderr"; then
+  echo "test failed: missing strict custom IP normalizer error" >&2
+  cat "$TMP_DIR/noncanonical-custom.stderr" >&2
+  exit 1
+fi
 
 render_ip_plain_to_egern_yaml "$TMP_DIR/custom-source.plain" "$TMP_DIR/custom-source.egern.yaml"
 assert_file_content \

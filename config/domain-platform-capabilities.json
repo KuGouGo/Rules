@@ -1,7 +1,155 @@
 {
-  "surge": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"],
-  "quanx": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD"],
-  "egern": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"],
-  "sing-box": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"],
-  "mihomo-mrs": ["DOMAIN", "DOMAIN-SUFFIX"]
+  "schema_version": 1,
+  "rule_kinds": {
+    "domain": ["DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"],
+    "ip": ["IP-CIDR", "IP-CIDR6"]
+  },
+  "platforms": {
+    "surge": {
+      "public_name": "Surge",
+      "branch": "surge",
+      "domain": {
+        "extension": "list",
+        "format": "classical",
+        "rule_mappings": {
+          "DOMAIN": "DOMAIN",
+          "DOMAIN-SUFFIX": "DOMAIN-SUFFIX",
+          "DOMAIN-KEYWORD": "DOMAIN-KEYWORD"
+        },
+        "unsupported_kinds": ["DOMAIN-REGEX"],
+        "empty_policy": "omit",
+        "compiler": "none",
+        "verifier": "classical-domain"
+      },
+      "ip": {
+        "extension": "list",
+        "format": "classical",
+        "rule_mappings": {
+          "IP-CIDR": "IP-CIDR",
+          "IP-CIDR6": "IP-CIDR6"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "none",
+        "verifier": "classical-ip"
+      }
+    },
+    "quanx": {
+      "public_name": "Quantumult X",
+      "branch": "quanx",
+      "domain": {
+        "extension": "list",
+        "format": "classical",
+        "rule_mappings": {
+          "DOMAIN": "HOST",
+          "DOMAIN-SUFFIX": "HOST-SUFFIX",
+          "DOMAIN-KEYWORD": "HOST-KEYWORD"
+        },
+        "unsupported_kinds": ["DOMAIN-REGEX"],
+        "empty_policy": "omit",
+        "compiler": "none",
+        "verifier": "classical-domain"
+      },
+      "ip": {
+        "extension": "list",
+        "format": "classical",
+        "rule_mappings": {
+          "IP-CIDR": "IP-CIDR",
+          "IP-CIDR6": "IP6-CIDR"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "none",
+        "verifier": "classical-ip"
+      }
+    },
+    "egern": {
+      "public_name": "Egern",
+      "branch": "egern",
+      "domain": {
+        "extension": "yaml",
+        "format": "yaml",
+        "rule_mappings": {
+          "DOMAIN": "domain_set",
+          "DOMAIN-SUFFIX": "domain_suffix_set",
+          "DOMAIN-KEYWORD": "domain_keyword_set",
+          "DOMAIN-REGEX": "domain_regex_set"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "none",
+        "verifier": "egern-yaml"
+      },
+      "ip": {
+        "extension": "yaml",
+        "format": "yaml",
+        "rule_mappings": {
+          "IP-CIDR": "ip_cidr_set",
+          "IP-CIDR6": "ip_cidr6_set"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "none",
+        "verifier": "egern-yaml"
+      }
+    },
+    "sing-box": {
+      "public_name": "sing-box",
+      "branch": "sing-box",
+      "domain": {
+        "extension": "srs",
+        "format": "binary",
+        "rule_mappings": {
+          "DOMAIN": "domain",
+          "DOMAIN-SUFFIX": "domain_suffix",
+          "DOMAIN-KEYWORD": "domain_keyword",
+          "DOMAIN-REGEX": "domain_regex"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "sing-box",
+        "verifier": "sing-box"
+      },
+      "ip": {
+        "extension": "srs",
+        "format": "binary",
+        "rule_mappings": {
+          "IP-CIDR": "ip_cidr",
+          "IP-CIDR6": "ip_cidr"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "sing-box",
+        "verifier": "sing-box"
+      }
+    },
+    "mihomo": {
+      "public_name": "mihomo",
+      "branch": "mihomo",
+      "domain": {
+        "extension": "mrs",
+        "format": "binary",
+        "rule_mappings": {
+          "DOMAIN": "plain",
+          "DOMAIN-SUFFIX": "leading-dot"
+        },
+        "unsupported_kinds": ["DOMAIN-KEYWORD", "DOMAIN-REGEX"],
+        "empty_policy": "omit",
+        "compiler": "mihomo-domain",
+        "verifier": "mihomo"
+      },
+      "ip": {
+        "extension": "mrs",
+        "format": "binary",
+        "rule_mappings": {
+          "IP-CIDR": "plain",
+          "IP-CIDR6": "plain"
+        },
+        "unsupported_kinds": [],
+        "empty_policy": "omit",
+        "compiler": "mihomo-ipcidr",
+        "verifier": "mihomo"
+      }
+    }
+  }
 }

@@ -7,7 +7,14 @@ import json
 import os
 import re
 import sys
+import tempfile
 from pathlib import Path
+
+from ip_rules import parse_classical_ip_file
+from platform_capabilities import load_platform_capabilities
+
+
+PLATFORM_CAPABILITIES = load_platform_capabilities().platforms
 
 
 # IPv4: strict dotted-quad/prefix. IPv6: must contain at least one colon to
@@ -16,6 +23,29 @@ from pathlib import Path
 CIDR_RE = re.compile(r"(?:\d{1,3}\.){3}\d{1,3}/\d{1,2}|[0-9a-fA-F]*:[0-9a-fA-F:]+/[0-9]{1,3}")
 DEFAULT_SINGBOX_RULE_SET_VERSION = 4
 SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
+
+
+def atomic_write_text(output_file: Path, output_text: str) -> None:
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            dir=output_file.parent,
+            prefix=f".{output_file.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temp_path = Path(handle.name)
+            handle.write(output_text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, output_file)
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
 
 
 def normalize_networks(values: list[str]) -> list[ipaddress._BaseNetwork]:
@@ -53,7 +83,7 @@ def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
     output_text = "\n".join(normalized)
     if output_text:
         output_text += "\n"
-    output_file.write_text(output_text, encoding="utf-8")
+    atomic_write_text(output_file, output_text)
 
 
 def collapsed_cidrs(values: list[str]) -> list[str]:
@@ -73,7 +103,7 @@ def merge_plain_cidr_files(input_files: list[Path], output_file: Path) -> None:
     output_text = "\n".join(collapsed_cidrs(values))
     if output_text:
         output_text += "\n"
-    output_file.write_text(output_text, encoding="utf-8")
+    atomic_write_text(output_file, output_text)
 
 
 def merge_plain_cidr_files_dedup(input_files: list[Path], output_file: Path) -> None:
@@ -188,10 +218,63 @@ def extract_html_cidrs(input_file: Path, output_file: Path) -> None:
     write_deduplicated_cidrs(values, output_file)
 
 
+def classify_plain_cidr(value: str) -> str:
+    return "IP-CIDR6" if ipaddress.ip_network(value, strict=False).version == 6 else "IP-CIDR"
+
+
+def render_ip_classical_from_plain(
+    platform: str,
+    input_file: Path,
+    output_file: Path,
+    policy_tag: str = "",
+    append_no_resolve: bool = True,
+) -> None:
+    capability = PLATFORM_CAPABILITIES[platform].ip
+    if capability.format != "classical" or capability.compiler != "none":
+        raise ValueError(f"unsupported {platform} IP renderer implementation")
+    lines: list[str] = []
+    for cidr in deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines()):
+        kind = classify_plain_cidr(cidr)
+        target = capability.mapping_for(kind)
+        fields = [target, cidr]
+        if platform == "surge" and append_no_resolve:
+            fields.append("no-resolve")
+        elif platform == "quanx":
+            if not policy_tag:
+                raise ValueError("quanx IP rendering requires a non-empty policy tag")
+            fields.append(policy_tag)
+        elif platform != "surge":
+            raise ValueError(f"unsupported classical IP renderer implementation for {platform}")
+        lines.append(",".join(fields))
+    atomic_write_text(output_file, "\n".join(lines) + ("\n" if lines else ""))
+
+
+def render_ip_egern_from_plain(input_file: Path, output_file: Path) -> None:
+    capability = PLATFORM_CAPABILITIES["egern"].ip
+    if capability.format != "yaml" or capability.compiler != "none":
+        raise ValueError("unsupported egern IP renderer implementation")
+    sections: dict[str, list[str]] = {}
+    for cidr in deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines()):
+        target = capability.mapping_for(classify_plain_cidr(cidr))
+        sections.setdefault(target, []).append(cidr)
+    chunks = [
+        f"{target}:\n" + "\n".join(f"  - '{value}'" for value in values)
+        for target, values in sections.items()
+    ]
+    text = "no_resolve: true\n\n" + "\n\n".join(chunks) + "\n" if chunks else ""
+    atomic_write_text(output_file, text)
+
+
 def build_singbox_json_from_plain(input_file: Path, output_file: Path) -> None:
+    capability = PLATFORM_CAPABILITIES["sing-box"].ip
+    if capability.format != "binary" or capability.compiler != "sing-box":
+        raise ValueError("unsupported sing-box IP renderer implementation")
+    mapped_targets = {capability.mapping_for(kind) for kind in ("IP-CIDR", "IP-CIDR6")}
+    if mapped_targets != {"ip_cidr"}:
+        raise ValueError(f"unsupported sing-box IP rule mappings: {sorted(mapped_targets)}")
     cidrs = deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines())
     data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [{"ip_cidr": cidrs}]}
-    output_file.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
+    atomic_write_text(output_file, json.dumps(data, separators=(",", ":")))
 
 
 def run_single_task(source_type: str, input_file: Path, output_file: Path) -> None:
@@ -213,18 +296,35 @@ def run_batch_tasks(manifest_file: Path) -> None:
     if not isinstance(tasks, list):
         raise ValueError("batch manifest must be a JSON array")
 
-    for index, task in enumerate(tasks, start=1):
-        if not isinstance(task, dict):
-            raise ValueError(f"batch task #{index} must be an object")
+    staged_outputs: list[tuple[Path, Path]] = []
+    try:
+        for index, task in enumerate(tasks, start=1):
+            if not isinstance(task, dict):
+                raise ValueError(f"batch task #{index} must be an object")
 
-        try:
-            source_type = str(task["source_type"])
-            input_file = Path(task["input_file"])
-            output_file = Path(task["output_file"])
-        except KeyError as exc:
-            raise ValueError(f"batch task #{index} missing field: {exc.args[0]}") from exc
+            try:
+                source_type = str(task["source_type"])
+                input_file = Path(task["input_file"])
+                output_file = Path(task["output_file"])
+            except KeyError as exc:
+                raise ValueError(f"batch task #{index} missing field: {exc.args[0]}") from exc
 
-        run_single_task(source_type, input_file, output_file)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            descriptor, staged_name = tempfile.mkstemp(
+                dir=output_file.parent,
+                prefix=f".{output_file.name}.batch.",
+                suffix=".tmp",
+            )
+            os.close(descriptor)
+            staged_output = Path(staged_name)
+            staged_outputs.append((staged_output, output_file))
+            run_single_task(source_type, input_file, staged_output)
+
+        for staged_output, output_file in staged_outputs:
+            os.replace(staged_output, output_file)
+    finally:
+        for staged_output, _ in staged_outputs:
+            staged_output.unlink(missing_ok=True)
 
 
 def main() -> int:
@@ -269,6 +369,21 @@ def main() -> int:
     merge_dedupe_parser.add_argument("output_file")
     merge_dedupe_parser.add_argument("input_files", nargs="+")
 
+    custom_parser = subparsers.add_parser("custom-source")
+    custom_parser.add_argument("input_file")
+    custom_parser.add_argument("output_file")
+
+    classical_parser = subparsers.add_parser("render-classical")
+    classical_parser.add_argument("platform", choices=("surge", "quanx"))
+    classical_parser.add_argument("input_file")
+    classical_parser.add_argument("output_file")
+    classical_parser.add_argument("--policy-tag", default="")
+    classical_parser.add_argument("--omit-no-resolve", action="store_true")
+
+    egern_parser = subparsers.add_parser("render-egern")
+    egern_parser.add_argument("input_file")
+    egern_parser.add_argument("output_file")
+
     singbox_parser = subparsers.add_parser("singbox-json")
     singbox_parser.add_argument("input_file")
     singbox_parser.add_argument("output_file")
@@ -284,6 +399,23 @@ def main() -> int:
             merge_plain_cidr_files([Path(path) for path in args.input_files], Path(args.output_file))
         elif args.command == "merge-dedupe":
             merge_plain_cidr_files_dedup([Path(path) for path in args.input_files], Path(args.output_file))
+        elif args.command == "custom-source":
+            input_file = Path(args.input_file)
+            rules, errors = parse_classical_ip_file(input_file, require_canonical=True)
+            if errors:
+                raise ValueError("\n".join(errors))
+            output_text = "\n".join(rule.value for rule in rules)
+            atomic_write_text(Path(args.output_file), output_text + ("\n" if output_text else ""))
+        elif args.command == "render-classical":
+            render_ip_classical_from_plain(
+                args.platform,
+                Path(args.input_file),
+                Path(args.output_file),
+                policy_tag=args.policy_tag,
+                append_no_resolve=not args.omit_no_resolve,
+            )
+        elif args.command == "render-egern":
+            render_ip_egern_from_plain(Path(args.input_file), Path(args.output_file))
         else:
             build_singbox_json_from_plain(Path(args.input_file), Path(args.output_file))
         return 0

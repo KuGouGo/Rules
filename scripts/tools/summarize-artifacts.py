@@ -5,18 +5,10 @@ import argparse
 import json
 from pathlib import Path
 
-TEXT_EXTENSIONS = {".list", ".yaml", ".yml", ".txt", ".json"}
-DOMAIN_KINDS = (
-    "DOMAIN",
-    "DOMAIN-SUFFIX",
-    "DOMAIN-KEYWORD",
-    "DOMAIN-REGEX",
-    "HOST",
-    "HOST-SUFFIX",
-    "HOST-KEYWORD",
-    "HOST-REGEX",
-)
-IP_KINDS = ("IP-CIDR", "IP-CIDR6", "IP6-CIDR")
+from platform_capabilities import load_platform_capabilities
+
+CAPABILITIES = load_platform_capabilities()
+TEXT_FORMATS = {"classical", "yaml"}
 
 
 def non_comment_lines(path: Path) -> list[str]:
@@ -28,8 +20,18 @@ def non_comment_lines(path: Path) -> list[str]:
     return lines
 
 
+def output_kinds(rule_type: str) -> tuple[str, ...]:
+    kinds = {
+        target.upper().replace("_", "-")
+        for _, _, _, capability in CAPABILITIES.iter_capabilities(rule_type)
+        for target in capability.rule_mappings.values()
+        if capability.format == "classical"
+    }
+    return tuple(sorted(kinds))
+
+
 def summarize_domain_text(path: Path) -> dict[str, int]:
-    counts = {kind: 0 for kind in DOMAIN_KINDS}
+    counts = {kind: 0 for kind in output_kinds("domain")}
     for line in non_comment_lines(path):
         kind = line.split(",", 1)[0].strip().upper().replace("_", "-")
         if kind in counts:
@@ -42,7 +44,7 @@ def summarize_domain_text(path: Path) -> dict[str, int]:
 
 
 def summarize_ip_text(path: Path) -> dict[str, int]:
-    counts = {kind: 0 for kind in IP_KINDS}
+    counts = {kind: 0 for kind in output_kinds("ip")}
     for line in non_comment_lines(path):
         kind = line.split(",", 1)[0].strip().upper()
         if kind in counts:
@@ -55,12 +57,13 @@ def summarize_ip_text(path: Path) -> dict[str, int]:
 
 def summarize_dir(root: Path, rule_type: str, platform: str) -> dict:
     directory = root / rule_type / platform
+    capability = getattr(CAPABILITIES.platform(platform), rule_type)
     files = sorted(path for path in directory.iterdir() if path.is_file()) if directory.exists() else []
     by_kind: dict[str, int] = {}
     text_files = 0
 
     for path in files:
-        if path.suffix not in TEXT_EXTENSIONS:
+        if capability.format not in TEXT_FORMATS or path.suffix != f".{capability.extension}":
             continue
         text_files += 1
         counts = summarize_domain_text(path) if rule_type == "domain" else summarize_ip_text(path)
@@ -76,7 +79,7 @@ def summarize_dir(root: Path, rule_type: str, platform: str) -> dict:
 
 
 def build_summary(root: Path) -> dict:
-    platforms = ["surge", "quanx", "egern", "sing-box", "mihomo"]
+    platforms = list(CAPABILITIES.platforms)
     return {
         rule_type: {platform: summarize_dir(root, rule_type, platform) for platform in platforms}
         for rule_type in ("domain", "ip")

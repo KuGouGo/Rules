@@ -3,8 +3,7 @@
 : "${ROOT:=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 : "${BIN_DIR:=$ROOT/.bin}"
 
-SING_BOX_VERSION="${SING_BOX_VERSION:-}"
-MIHOMO_VERSION="${MIHOMO_VERSION:-}"
+: "${TOOL_LOCK_FILE:=$ROOT/config/tools-lock.json}"
 
 setup_tool_cache() {
   mkdir -p "$BIN_DIR"
@@ -104,194 +103,280 @@ download_file() {
   fi
 }
 
-github_api_get() {
-  local url="$1"
-  local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-  local -a args=(
-    --retry 3
-    --retry-all-errors
-    --connect-timeout 20
-    --max-time 60
-    -fsSL
-    -H "Accept: application/vnd.github+json"
-    -H "X-GitHub-Api-Version: 2022-11-28"
-    -H "User-Agent: KuGouGo-Rules"
-  )
+tool_lock_value() {
+  local tool="$1"
+  local field="$2"
+  local platform="${3:-}"
+  python3 - "$TOOL_LOCK_FILE" "$tool" "$field" "$platform" <<'PY'
+import json
+import sys
 
-  if [ -n "$token" ]; then
-    args+=(-H "Authorization: Bearer $token")
-  fi
-
-  curl "${args[@]}" "$url"
-}
-
-github_latest_release_tag() {
-  local repo="$1"
-  local json tag
-  json="$(github_api_get "https://api.github.com/repos/${repo}/releases/latest")"
-  tag="$(printf '%s\n' "$json" | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])" 2>/dev/null || true)"
-
-  if [ -z "$tag" ]; then
-    echo "failed to resolve latest release tag for ${repo}" >&2
-    return 1
-  fi
-
-  printf '%s' "$tag"
-}
-
-normalize_version() {
-  local version="$1"
-  printf '%s' "${version#v}"
-}
-
-read_cached_tool_version() {
-  local executable="$1"
-  local version_file="$BIN_DIR/${executable}.version"
-  local version
-
-  if [ ! -x "$BIN_DIR/$executable" ] || [ ! -s "$version_file" ]; then
-    return 1
-  fi
-
-  version="$(head -n 1 "$version_file" | tr -d '\r\n')"
-  if [ -z "$version" ]; then
-    return 1
-  fi
-
-  printf '%s' "$version"
+path, tool, field, platform = sys.argv[1:]
+with open(path, encoding="utf-8") as handle:
+    entry = json.load(handle)["tools"][tool]
+if platform:
+    entry = entry["platforms"][platform]
+value = entry[field]
+if not isinstance(value, str) or not value:
+    raise SystemExit(f"invalid locked value: {tool}.{field}")
+print(value, end="")
+PY
 }
 
 resolve_sing_box_version() {
-  local latest_tag cached_version
-
-  if [ -n "$SING_BOX_VERSION" ]; then
-    printf '%s' "$SING_BOX_VERSION"
-    return 0
-  fi
-
-  if latest_tag="$(github_latest_release_tag 'SagerNet/sing-box' 2>/dev/null)"; then
-    SING_BOX_VERSION="$(normalize_version "$latest_tag")"
-    printf '%s' "$SING_BOX_VERSION"
-    return 0
-  fi
-
-  if cached_version="$(read_cached_tool_version 'sing-box' 2>/dev/null)"; then
-    SING_BOX_VERSION="$cached_version"
-    echo "warning: failed to resolve latest sing-box release; fallback to cached version $SING_BOX_VERSION" >&2
-    printf '%s' "$SING_BOX_VERSION"
-    return 0
-  fi
-
-  echo "failed to resolve sing-box version and no cached local binary is available" >&2
-  return 1
+  tool_lock_value "sing-box" version
 }
 
 resolve_mihomo_version() {
-  local latest_tag cached_version
-
-  if [ -n "$MIHOMO_VERSION" ]; then
-    printf '%s' "$MIHOMO_VERSION"
-    return 0
-  fi
-
-  if latest_tag="$(github_latest_release_tag 'MetaCubeX/mihomo' 2>/dev/null)"; then
-    MIHOMO_VERSION="$(normalize_version "$latest_tag")"
-    printf '%s' "$MIHOMO_VERSION"
-    return 0
-  fi
-
-  if cached_version="$(read_cached_tool_version 'mihomo' 2>/dev/null)"; then
-    MIHOMO_VERSION="$cached_version"
-    echo "warning: failed to resolve latest mihomo release; fallback to cached version $MIHOMO_VERSION" >&2
-    printf '%s' "$MIHOMO_VERSION"
-    return 0
-  fi
-
-  echo "failed to resolve mihomo version and no cached local binary is available" >&2
-  return 1
+  tool_lock_value "mihomo" version
 }
 
-tool_version_file() {
-  local tool_name="$1"
-  printf '%s/%s.version' "$BIN_DIR" "$tool_name"
+sha256_file() {
+  local file="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$file" | cut -d ' ' -f 1
+  else
+    python3 - "$file" <<'PY'
+import hashlib
+import sys
+
+with open(sys.argv[1], "rb") as handle:
+    print(hashlib.file_digest(handle, "sha256").hexdigest())
+PY
+  fi
 }
 
-tool_is_current() {
-  local executable="$1"
-  local expected_version="$2"
-  local version_file
-  version_file="$(tool_version_file "$executable")"
+verify_archive_sha256() {
+  local archive="$1"
+  local expected="$2"
+  local actual
+  actual="$(sha256_file "$archive")"
+  if [ "$actual" != "$expected" ]; then
+    echo "checksum mismatch for $(basename "$archive"): expected $expected, got $actual" >&2
+    return 1
+  fi
+}
 
-  if [ ! -f "$version_file" ]; then
+tool_provenance_file() {
+  printf '%s/%s.provenance.json' "$BIN_DIR" "$1"
+}
+
+tool_version_probe() {
+  local tool="$1"
+  local binary="$2"
+  local output
+  case "$tool" in
+    sing-box) output="$("$binary" version 2>&1)" || return 1 ;;
+    mihomo) output="$("$binary" -v 2>&1)" || return 1 ;;
+    *) return 1 ;;
+  esac
+  printf '%s' "${output%%$'\n'*}"
+}
+
+probe_matches_version() {
+  local tool="$1"
+  local probe="$2"
+  local version="$3"
+  case "$tool" in
+    sing-box) [[ "$probe" == *"sing-box version ${version}"* ]] ;;
+    mihomo) [[ "$probe" == *"Mihomo Meta v${version}"* || "$probe" == *"mihomo v${version}"* ]] ;;
+    *) return 1 ;;
+  esac
+}
+
+tool_cache_is_trusted() {
+  local tool="$1"
+  local platform="$2"
+  local binary="$BIN_DIR/$tool"
+  local sidecar version tag_commit asset archive_sha locked_binary_sha binary_sha recorded_probe actual_sha actual_probe
+
+  [ -x "$binary" ] || return 1
+  sidecar="$(tool_provenance_file "$tool")"
+  [ -s "$sidecar" ] || return 1
+  version="$(tool_lock_value "$tool" version)"
+  tag_commit="$(tool_lock_value "$tool" tag_commit)"
+  asset="$(tool_lock_value "$tool" asset "$platform")"
+  archive_sha="$(tool_lock_value "$tool" sha256 "$platform")"
+  locked_binary_sha="$(tool_lock_value "$tool" binary_sha256 "$platform")" || return 1
+
+  if ! IFS=$'\t' read -r binary_sha recorded_probe < <(
+    python3 - "$sidecar" "$tool" "$version" "$tag_commit" "$platform" "$asset" "$archive_sha" <<'PY'
+import json
+import re
+import sys
+
+path, tool, version, tag_commit, platform, asset, archive_sha = sys.argv[1:]
+try:
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    expected = {
+        "schema_version": 1,
+        "tool": tool,
+        "version": version,
+        "tag_commit": tag_commit,
+        "platform": platform,
+        "asset": asset,
+        "archive_sha256": archive_sha,
+    }
+    if set(data) != {*expected, "binary_sha256", "version_probe"}:
+        raise ValueError
+    if any(data.get(key) != value for key, value in expected.items()):
+        raise ValueError
+    binary_sha = data["binary_sha256"]
+    probe = data["version_probe"]
+    if not isinstance(binary_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", binary_sha):
+        raise ValueError
+    if not isinstance(probe, str) or not probe or "\n" in probe or "\r" in probe:
+        raise ValueError
+    print(f"{binary_sha}\t{probe}")
+except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+    raise SystemExit(1)
+PY
+  ); then
     return 1
   fi
 
-  [ "$(<"$version_file")" = "$expected_version" ]
+  actual_sha="$(sha256_file "$binary")"
+  [ "$actual_sha" = "$locked_binary_sha" ] || return 1
+  [ "$actual_sha" = "$binary_sha" ] || return 1
+  # Execute only after the binary is anchored to the independently locked
+  # digest derived from the verified official release archive.
+  actual_probe="$(tool_version_probe "$tool" "$binary")" || return 1
+  [ "$actual_probe" = "$recorded_probe" ] || return 1
+  probe_matches_version "$tool" "$actual_probe" "$version"
 }
 
-write_tool_version() {
-  local executable="$1"
-  local version="$2"
-  printf '%s\n' "$version" > "$(tool_version_file "$executable")"
+write_tool_provenance() {
+  local tool="$1"
+  local platform="$2"
+  local binary="$3"
+  local probe="$4"
+  local sidecar sidecar_tmp
+  sidecar="${5:-$(tool_provenance_file "$tool")}"
+  sidecar_tmp="$(mktemp "${BIN_DIR}/.${tool}.provenance.XXXXXX")"
+  if ! python3 - "$sidecar_tmp" "$tool" \
+    "$(tool_lock_value "$tool" version)" \
+    "$(tool_lock_value "$tool" tag_commit)" "$platform" \
+    "$(tool_lock_value "$tool" asset "$platform")" \
+    "$(tool_lock_value "$tool" sha256 "$platform")" \
+    "$(sha256_file "$binary")" "$probe" <<'PY'
+import json
+import os
+import sys
+
+path, tool, version, tag_commit, platform, asset, archive_sha, binary_sha, probe = sys.argv[1:]
+data = {
+    "schema_version": 1,
+    "tool": tool,
+    "version": version,
+    "tag_commit": tag_commit,
+    "platform": platform,
+    "asset": asset,
+    "archive_sha256": archive_sha,
+    "binary_sha256": binary_sha,
+    "version_probe": probe,
+}
+with open(path, "w", encoding="utf-8", newline="\n") as handle:
+    json.dump(data, handle, indent=2, sort_keys=True)
+    handle.write("\n")
+    handle.flush()
+    os.fsync(handle.fileno())
+PY
+  then
+    rm -f "$sidecar_tmp"
+    return 1
+  fi
+  mv -f "$sidecar_tmp" "$sidecar"
+}
+
+install_tool_with_provenance() {
+  local tool="$1" platform="$2" temp_binary="$3" probe="$4"
+  local binary sidecar staged_sidecar backup_binary backup_sidecar
+  binary="$BIN_DIR/$tool"
+  sidecar="$(tool_provenance_file "$tool")"
+  staged_sidecar="$BIN_DIR/.${tool}.provenance.install"
+  backup_binary="$BIN_DIR/.${tool}.binary.backup"
+  backup_sidecar="$BIN_DIR/.${tool}.provenance.backup"
+  rm -f "$staged_sidecar" "$backup_binary" "$backup_sidecar"
+
+  # Create durable metadata before touching either canonical cache path.
+  if ! write_tool_provenance "$tool" "$platform" "$temp_binary" "$probe" "$staged_sidecar"; then
+    rm -f "$staged_sidecar"
+    return 1
+  fi
+
+  [ ! -e "$binary" ] || mv "$binary" "$backup_binary" || { rm -f "$staged_sidecar"; return 1; }
+  if [ -e "$sidecar" ] && ! mv "$sidecar" "$backup_sidecar"; then
+    [ ! -e "$backup_binary" ] || mv "$backup_binary" "$binary"
+    rm -f "$staged_sidecar"
+    return 1
+  fi
+  if mv "$temp_binary" "$binary" && mv "$staged_sidecar" "$sidecar"; then
+    rm -f "$backup_binary" "$backup_sidecar"
+    return 0
+  fi
+
+  rm -f "$binary" "$sidecar" "$staged_sidecar"
+  [ ! -e "$backup_binary" ] || mv "$backup_binary" "$binary"
+  [ ! -e "$backup_sidecar" ] || mv "$backup_sidecar" "$sidecar"
+  return 1
 }
 
 ensure_sing_box() {
-  local version os arch archive package_dir temp_binary
+  local tool="sing-box" os arch platform version repository tag asset expected_sha archive package_dir temp_binary probe
   setup_tool_cache
-  version="$(resolve_sing_box_version)"
-
-  if [ -x "$BIN_DIR/sing-box" ] && tool_is_current "sing-box" "$version"; then
-    return 0
-  fi
-
   os="$(require_non_windows_shell)"
+  [ "$os" = "linux" ] || { echo "unsupported operating system for locked $tool assets: $os" >&2; return 1; }
   arch="$(detect_arch)"
+  platform="${os}-${arch}"
+  if tool_cache_is_trusted "$tool" "$platform"; then return 0; fi
 
-  archive="$BIN_DIR/sing-box.new.tar.gz"
+  version="$(tool_lock_value "$tool" version)"
+  repository="$(tool_lock_value "$tool" repository)"
+  tag="$(tool_lock_value "$tool" tag)"
+  asset="$(tool_lock_value "$tool" asset "$platform")"
+  expected_sha="$(tool_lock_value "$tool" sha256 "$platform")"
+  archive="$BIN_DIR/$tool.new.tar.gz"
   package_dir="sing-box-${version}-${os}-${arch}"
-  temp_binary="$BIN_DIR/sing-box.new"
-  rm -f "$archive" "$temp_binary"
+  temp_binary="$BIN_DIR/$tool.new"
+  rm -f "$archive" "$temp_binary" "$(tool_provenance_file "$tool").new"
   rm -rf "${BIN_DIR:?}/$package_dir"
-  download_file \
-    "https://github.com/SagerNet/sing-box/releases/download/v${version}/${package_dir}.tar.gz" \
-    "$archive"
+  download_file "https://github.com/${repository}/releases/download/${tag}/${asset}" "$archive"
+  if ! verify_archive_sha256 "$archive" "$expected_sha"; then rm -f "$archive"; return 1; fi
   tar -xzf "$archive" -C "$BIN_DIR"
   mv "$BIN_DIR/$package_dir/sing-box" "$temp_binary"
   chmod +x "$temp_binary"
-  mv "$temp_binary" "$BIN_DIR/sing-box"
+  if ! verify_archive_sha256 "$temp_binary" "$(tool_lock_value "$tool" binary_sha256 "$platform")"; then rm -f "$temp_binary" "$archive"; rm -rf "${BIN_DIR:?}/$package_dir"; return 1; fi
+  probe="$(tool_version_probe "$tool" "$temp_binary")"
+  probe_matches_version "$tool" "$probe" "$version" || { echo "unexpected $tool version probe: $probe" >&2; rm -f "$temp_binary" "$archive"; rm -rf "${BIN_DIR:?}/$package_dir"; return 1; }
+  install_tool_with_provenance "$tool" "$platform" "$temp_binary" "$probe" || { rm -f "$temp_binary" "$archive"; rm -rf "${BIN_DIR:?}/$package_dir"; return 1; }
   rm -rf "${BIN_DIR:?}/$package_dir" "$archive"
-
-  write_tool_version "sing-box" "$version"
-
 }
 
 ensure_mihomo() {
-  local version os arch asset archive temp_binary
+  local tool="mihomo" os arch platform version repository tag asset expected_sha archive temp_binary probe
   setup_tool_cache
-  version="$(resolve_mihomo_version)"
-
-  if [ -x "$BIN_DIR/mihomo" ] && tool_is_current "mihomo" "$version"; then
-    return 0
-  fi
-
   os="$(require_non_windows_shell)"
+  [ "$os" = "linux" ] || { echo "unsupported operating system for locked $tool assets: $os" >&2; return 1; }
   arch="$(detect_arch)"
+  platform="${os}-${arch}"
+  if tool_cache_is_trusted "$tool" "$platform"; then return 0; fi
 
-  case "$arch" in
-    amd64) asset="mihomo-${os}-amd64-compatible-v${version}.gz" ;;
-    arm64) asset="mihomo-${os}-arm64-v${version}.gz" ;;
-    *) echo "unsupported architecture for mihomo: $arch" >&2; return 1 ;;
-  esac
-  archive="$BIN_DIR/mihomo.new.gz"
-  temp_binary="$BIN_DIR/mihomo.new"
-  rm -f "$archive" "$temp_binary"
-  download_file \
-    "https://github.com/MetaCubeX/mihomo/releases/download/v${version}/${asset}" \
-    "$archive"
-  gzip -df "$archive"
+  version="$(tool_lock_value "$tool" version)"
+  repository="$(tool_lock_value "$tool" repository)"
+  tag="$(tool_lock_value "$tool" tag)"
+  asset="$(tool_lock_value "$tool" asset "$platform")"
+  expected_sha="$(tool_lock_value "$tool" sha256 "$platform")"
+  archive="$BIN_DIR/$tool.new.gz"
+  temp_binary="$BIN_DIR/$tool.new"
+  rm -f "$archive" "$temp_binary" "$(tool_provenance_file "$tool").new"
+  download_file "https://github.com/${repository}/releases/download/${tag}/${asset}" "$archive"
+  if ! verify_archive_sha256 "$archive" "$expected_sha"; then rm -f "$archive"; return 1; fi
+  gzip -dc "$archive" > "$temp_binary"
   chmod +x "$temp_binary"
-  mv "$temp_binary" "$BIN_DIR/mihomo"
-
-  write_tool_version "mihomo" "$version"
-
+  if ! verify_archive_sha256 "$temp_binary" "$(tool_lock_value "$tool" binary_sha256 "$platform")"; then rm -f "$temp_binary" "$archive"; return 1; fi
+  probe="$(tool_version_probe "$tool" "$temp_binary")"
+  probe_matches_version "$tool" "$probe" "$version" || { echo "unexpected $tool version probe: $probe" >&2; rm -f "$temp_binary" "$archive"; return 1; }
+  install_tool_with_provenance "$tool" "$platform" "$temp_binary" "$probe" || { rm -f "$temp_binary" "$archive"; return 1; }
+  rm -f "$archive"
 }

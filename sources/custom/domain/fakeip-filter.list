@@ -1,0 +1,13 @@
+# KuGouGo-maintained conservative Fake-IP exclusions.
+#
+# Reverse DNS namespaces must retain address semantics instead of receiving a
+# synthetic address. See RFC 3172 and RFC 3596.
+DOMAIN-SUFFIX,in-addr.arpa
+DOMAIN-SUFFIX,ip6.arpa
+
+# Special-use names used for local resolution and protocol discovery.
+# See RFC 6761, RFC 7050, RFC 8375, and RFC 9462.
+DOMAIN,localhost.localdomain
+DOMAIN-SUFFIX,ipv4only.arpa
+DOMAIN-SUFFIX,home.arpa
+DOMAIN-SUFFIX,resolver.arpa

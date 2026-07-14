@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "relations": [
+    {
+      "family": "domain",
+      "covered": {
+        "file": "emby-cn.list",
+        "rule": "DOMAIN,cdn.zhezhi.art"
+      },
+      "covering": {
+        "file": "emby.list",
+        "rule": "DOMAIN-SUFFIX,zhezhi.art"
+      }
+    },
+    {
+      "family": "domain",
+      "covered": {
+        "file": "emby.list",
+        "rule": "DOMAIN,pdtvs.com"
+      },
+      "covering": {
+        "file": "emby-cn.list",
+        "rule": "DOMAIN-SUFFIX,pdtvs.com"
+      }
+    },
+    {
+      "family": "domain",
+      "covered": {
+        "file": "emby-cn.list",
+        "rule": "DOMAIN,precdns.cn2gias.uk"
+      },
+      "covering": {
+        "file": "emby.list",
+        "rule": "DOMAIN-SUFFIX,cn2gias.uk"
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=scripts/lib/common.sh
 source "$ROOT/scripts/lib/common.sh"
 setup_tool_cache
 
@@ -20,8 +21,8 @@ mihomo_version="$(resolve_mihomo_version)"
   exit 1
 }
 
-echo "sing-box latest: ${sing_box_version}"
-echo "mihomo latest: ${mihomo_version}"
+echo "sing-box locked: ${sing_box_version}"
+echo "mihomo locked: ${mihomo_version}"
 
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
   {

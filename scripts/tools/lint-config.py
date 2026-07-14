@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
+
+from platform_capabilities import load_platform_capabilities
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -28,14 +31,35 @@ REQUIRED_IP_SOURCES = {
 }
 REQUIRED_ASN_GROUPS = {"telegram", "netflix", "spotify", "disney"}
 REQUIRED_FIRST_BATCH_SOURCES = {"google-json", "github-json", "telegram"}
-SUPPORTED_IP_PARSERS = {"google-json", "github-json", "telegram"}
-SUPPORTED_DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
-REQUIRED_DOMAIN_PLATFORMS = {"surge", "quanx", "egern", "sing-box", "mihomo-mrs"}
+SUPPORTED_PARSERS = {
+    "git-tree", "cidr-text", "google-json", "github-json", "telegram",
+    "aws-json", "fastly-json", "html-cidr", "ripe-stat-json",
+}
+ALLOWED_REQUIREMENTS = {"required", "optional"}
+ALLOWED_FAMILIES = {"any", "ipv4", "ipv6", "dual"}
+ALLOWED_FALLBACK_POLICIES = {"none", "ordered"}
+SUPPORTED_RULE_TYPES = {
+    "domain": {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"},
+    "ip": {"IP-CIDR", "IP-CIDR6"},
+}
+REQUIRED_PLATFORMS = {"surge", "quanx", "egern", "sing-box", "mihomo"}
+CAPABILITY_SECTIONS = {"domain", "ip"}
+ALLOWED_CAPABILITY_FORMATS = {"binary", "classical", "yaml"}
+ALLOWED_EMPTY_POLICIES = {"omit"}
+ALLOWED_COMPILERS = {"none", "sing-box", "mihomo-domain", "mihomo-ipcidr"}
+ALLOWED_VERIFIERS = {"classical-domain", "classical-ip", "egern-yaml", "sing-box", "mihomo"}
+PLATFORM_BRANCH_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+PLATFORM_EXTENSION_RE = re.compile(r"^[a-z0-9]+$")
 ALLOWED_TRUST_VALUES = {"community", "official", "registry"}
 ALLOWED_KINDS = {
     "domain": {"git", "text", "yaml"},
     "ip": {"html", "json", "json-api", "text"},
 }
+REQUIRED_TOOLS = {"sing-box", "mihomo"}
+REQUIRED_TOOL_PLATFORMS = {"linux-amd64", "linux-arm64"}
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 
 
 class Reporter:
@@ -114,8 +138,28 @@ def validate_source(section: str, name: str, item: object, reporter: Reporter) -
             validate_positive_int(key_location, value, reporter)
 
     parser = item.get("parser")
-    if parser is not None and parser not in SUPPORTED_IP_PARSERS:
-        reporter.error(f"{location}.parser", f"unsupported parser {parser!r}")
+    if parser not in SUPPORTED_PARSERS:
+        reporter.error(f"{location}.parser", f"unsupported or missing parser {parser!r}")
+
+    health = item.get("health")
+    if not isinstance(health, dict):
+        reporter.error(f"{location}.health", "must be an object")
+    else:
+        required_health = {"requirement", "min_raw_bytes", "min_entries", "family", "fallback_policy"}
+        if set(health) != required_health:
+            reporter.error(f"{location}.health", f"must contain exactly {sorted(required_health)}")
+        if health.get("requirement") not in ALLOWED_REQUIREMENTS:
+            reporter.error(f"{location}.health.requirement", "must be required or optional")
+        validate_positive_int(f"{location}.health.min_raw_bytes", health.get("min_raw_bytes"), reporter)
+        validate_positive_int(f"{location}.health.min_entries", health.get("min_entries"), reporter)
+        if health.get("family") not in ALLOWED_FAMILIES:
+            reporter.error(f"{location}.health.family", f"unsupported family {health.get('family')!r}")
+        fallback_policy = health.get("fallback_policy")
+        if fallback_policy not in ALLOWED_FALLBACK_POLICIES:
+            reporter.error(f"{location}.health.fallback_policy", f"unsupported policy {fallback_policy!r}")
+        has_fallback = "fallback_url" in item
+        if (fallback_policy == "ordered") != has_fallback:
+            reporter.error(f"{location}.health.fallback_policy", "ordered requires fallback_url and fallback_url requires ordered")
 
     for key in item:
         if not key.endswith("_fallback_url"):
@@ -189,26 +233,229 @@ def validate_first_batch_baselines(data: dict, reporter: Reporter) -> None:
             reporter.error(f"{location}.update_policy", "must be a non-empty string")
 
 
-def validate_domain_platform_capabilities(data: dict, reporter: Reporter) -> None:
-    missing = REQUIRED_DOMAIN_PLATFORMS - set(data)
-    if missing:
-        reporter.error("domain_platform_capabilities", f"missing platforms: {sorted(missing)}")
+def validate_string_enum(location: str, value: object, allowed: set[str], reporter: Reporter) -> None:
+    if value not in allowed:
+        reporter.error(location, f"unsupported value {value!r}; expected one of {sorted(allowed)}")
 
-    for platform, values in sorted(data.items()):
-        location = f"domain_platform_capabilities.{platform}"
-        if not isinstance(values, list) or not values:
-            reporter.error(location, "must be a non-empty list")
+
+def validate_rule_kind_list(
+    location: str,
+    value: object,
+    allowed: set[str],
+    reporter: Reporter,
+) -> set[str]:
+    if not isinstance(value, list):
+        reporter.error(location, "must be a list")
+        return set()
+
+    seen: set[str] = set()
+    for index, item in enumerate(value):
+        item_location = f"{location}[{index}]"
+        if item not in allowed:
+            reporter.error(item_location, f"unsupported rule kind {item!r}")
             continue
+        if item in seen:
+            reporter.error(item_location, f"duplicate rule kind {item}")
+        seen.add(item)
+    return seen
 
-        seen: set[str] = set()
-        for index, value in enumerate(values):
-            item_location = f"{location}[{index}]"
-            if value not in SUPPORTED_DOMAIN_RULE_TYPES:
-                reporter.error(item_location, f"unsupported domain rule type {value!r}")
+
+def validate_platform_capability_section(
+    platform: str,
+    section: str,
+    value: object,
+    declared_kinds: set[str],
+    reporter: Reporter,
+) -> None:
+    location = f"domain_platform_capabilities.platforms.{platform}.{section}"
+    if not isinstance(value, dict):
+        reporter.error(location, "must be an object")
+        return
+
+    required_fields = {
+        "extension",
+        "format",
+        "rule_mappings",
+        "unsupported_kinds",
+        "empty_policy",
+        "compiler",
+        "verifier",
+    }
+    if set(value) != required_fields:
+        reporter.error(location, f"must contain exactly {sorted(required_fields)}")
+
+    extension = value.get("extension")
+    if not isinstance(extension, str) or not PLATFORM_EXTENSION_RE.fullmatch(extension):
+        reporter.error(f"{location}.extension", "must be a lowercase alphanumeric extension without a dot")
+    validate_string_enum(f"{location}.format", value.get("format"), ALLOWED_CAPABILITY_FORMATS, reporter)
+    validate_string_enum(f"{location}.empty_policy", value.get("empty_policy"), ALLOWED_EMPTY_POLICIES, reporter)
+    validate_string_enum(f"{location}.compiler", value.get("compiler"), ALLOWED_COMPILERS, reporter)
+    validate_string_enum(f"{location}.verifier", value.get("verifier"), ALLOWED_VERIFIERS, reporter)
+
+    mappings = value.get("rule_mappings")
+    mapped_kinds: set[str] = set()
+    if not isinstance(mappings, dict) or not mappings:
+        reporter.error(f"{location}.rule_mappings", "must be a non-empty object")
+    else:
+        for kind, target in sorted(mappings.items()):
+            kind_location = f"{location}.rule_mappings.{kind}"
+            if kind not in declared_kinds:
+                reporter.error(kind_location, f"unsupported {section} rule kind")
                 continue
-            if value in seen:
-                reporter.error(item_location, f"duplicate rule type {value}")
-            seen.add(value)
+            mapped_kinds.add(kind)
+            if not isinstance(target, str) or not target:
+                reporter.error(kind_location, "mapping target must be a non-empty string")
+
+    unsupported = validate_rule_kind_list(
+        f"{location}.unsupported_kinds",
+        value.get("unsupported_kinds"),
+        declared_kinds,
+        reporter,
+    )
+    overlap = mapped_kinds & unsupported
+    if overlap:
+        reporter.error(location, f"mapped and unsupported kinds overlap: {sorted(overlap)}")
+    missing = declared_kinds - mapped_kinds - unsupported
+    if missing:
+        reporter.error(location, f"rule kinds must fail closed; unclassified kinds: {sorted(missing)}")
+
+
+def validate_domain_platform_capabilities(data: dict, reporter: Reporter) -> None:
+    if data.get("schema_version") != 1:
+        reporter.error("domain_platform_capabilities.schema_version", "must equal 1")
+    if set(data) != {"schema_version", "rule_kinds", "platforms"}:
+        reporter.error(
+            "domain_platform_capabilities",
+            "must contain exactly schema_version, rule_kinds, and platforms",
+        )
+
+    rule_kinds = data.get("rule_kinds")
+    declared: dict[str, set[str]] = {}
+    if not isinstance(rule_kinds, dict):
+        reporter.error("domain_platform_capabilities.rule_kinds", "must be an object")
+    else:
+        if set(rule_kinds) != CAPABILITY_SECTIONS:
+            reporter.error(
+                "domain_platform_capabilities.rule_kinds",
+                f"must contain exactly {sorted(CAPABILITY_SECTIONS)}",
+            )
+        for section in sorted(CAPABILITY_SECTIONS):
+            declared[section] = validate_rule_kind_list(
+                f"domain_platform_capabilities.rule_kinds.{section}",
+                rule_kinds.get(section),
+                SUPPORTED_RULE_TYPES[section],
+                reporter,
+            )
+            if declared[section] != SUPPORTED_RULE_TYPES[section]:
+                reporter.error(
+                    f"domain_platform_capabilities.rule_kinds.{section}",
+                    f"must declare exactly {sorted(SUPPORTED_RULE_TYPES[section])}",
+                )
+
+    platforms = data.get("platforms")
+    if not isinstance(platforms, dict):
+        reporter.error("domain_platform_capabilities.platforms", "must be an object")
+        return
+    if set(platforms) != REQUIRED_PLATFORMS:
+        reporter.error(
+            "domain_platform_capabilities.platforms",
+            f"must contain exactly {sorted(REQUIRED_PLATFORMS)}",
+        )
+
+    seen_branches: set[str] = set()
+    for platform in sorted(REQUIRED_PLATFORMS):
+        entry = platforms.get(platform)
+        location = f"domain_platform_capabilities.platforms.{platform}"
+        if not isinstance(entry, dict):
+            reporter.error(location, "must be an object")
+            continue
+        if set(entry) != {"public_name", "branch", "domain", "ip"}:
+            reporter.error(location, "must contain exactly public_name, branch, domain, and ip")
+        public_name = entry.get("public_name")
+        if not isinstance(public_name, str) or not public_name.strip():
+            reporter.error(f"{location}.public_name", "must be a non-empty string")
+        branch = entry.get("branch")
+        if not isinstance(branch, str) or not PLATFORM_BRANCH_RE.fullmatch(branch):
+            reporter.error(f"{location}.branch", "must be a lowercase kebab-case branch")
+        elif branch in seen_branches:
+            reporter.error(f"{location}.branch", f"duplicate branch {branch}")
+        else:
+            seen_branches.add(branch)
+        for section in sorted(CAPABILITY_SECTIONS):
+            validate_platform_capability_section(
+                platform,
+                section,
+                entry.get(section),
+                declared.get(section, SUPPORTED_RULE_TYPES[section]),
+                reporter,
+            )
+
+
+def validate_tools_lock(data: dict, reporter: Reporter) -> None:
+    if data.get("schema_version") != 1:
+        reporter.error("tools_lock.schema_version", "must equal 1")
+
+    tools = data.get("tools")
+    if not isinstance(tools, dict):
+        reporter.error("tools_lock.tools", "must be an object")
+        return
+    if set(tools) != REQUIRED_TOOLS:
+        reporter.error("tools_lock.tools", f"must contain exactly {sorted(REQUIRED_TOOLS)}")
+
+    repositories = {"sing-box": "SagerNet/sing-box", "mihomo": "MetaCubeX/mihomo"}
+    for tool in sorted(REQUIRED_TOOLS):
+        entry = tools.get(tool)
+        location = f"tools_lock.tools.{tool}"
+        if not isinstance(entry, dict):
+            reporter.error(location, "must be an object")
+            continue
+        if set(entry) != {"repository", "version", "tag", "tag_commit", "platforms"}:
+            reporter.error(location, "must contain exactly repository, version, tag, tag_commit, and platforms")
+        version = entry.get("version")
+        if not isinstance(version, str) or not VERSION_RE.fullmatch(version):
+            reporter.error(f"{location}.version", "must be a semantic x.y.z version")
+            version = ""
+        if entry.get("repository") != repositories[tool]:
+            reporter.error(f"{location}.repository", f"must equal {repositories[tool]}")
+        if entry.get("tag") != f"v{version}":
+            reporter.error(f"{location}.tag", "must equal v followed by the locked version")
+        tag_commit = entry.get("tag_commit")
+        if not isinstance(tag_commit, str) or not COMMIT_RE.fullmatch(tag_commit):
+            reporter.error(f"{location}.tag_commit", "must be a lowercase 40-character Git commit")
+
+        platforms = entry.get("platforms")
+        if not isinstance(platforms, dict):
+            reporter.error(f"{location}.platforms", "must be an object")
+            continue
+        if set(platforms) != REQUIRED_TOOL_PLATFORMS:
+            reporter.error(
+                f"{location}.platforms",
+                f"must contain exactly {sorted(REQUIRED_TOOL_PLATFORMS)}",
+            )
+        for platform in sorted(REQUIRED_TOOL_PLATFORMS):
+            asset_entry = platforms.get(platform)
+            asset_location = f"{location}.platforms.{platform}"
+            if not isinstance(asset_entry, dict):
+                reporter.error(asset_location, "must be an object")
+                continue
+            if set(asset_entry) != {"asset", "sha256", "binary_sha256"}:
+                reporter.error(asset_location, "must contain exactly asset, sha256, and binary_sha256")
+            arch = platform.removeprefix("linux-")
+            if tool == "sing-box":
+                expected_asset = f"sing-box-{version}-linux-{arch}.tar.gz"
+            elif arch == "amd64":
+                expected_asset = f"mihomo-linux-amd64-compatible-v{version}.gz"
+            else:
+                expected_asset = f"mihomo-linux-arm64-v{version}.gz"
+            if asset_entry.get("asset") != expected_asset:
+                reporter.error(f"{asset_location}.asset", f"must equal {expected_asset}")
+            for digest_field in ("sha256", "binary_sha256"):
+                digest = asset_entry.get(digest_field)
+                if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+                    reporter.error(
+                        f"{asset_location}.{digest_field}",
+                        "must be a lowercase 64-character SHA-256",
+                    )
 
 
 def main() -> int:
@@ -222,12 +469,20 @@ def main() -> int:
         "--domain-platform-capabilities",
         default=str(ROOT / "config" / "domain-platform-capabilities.json"),
     )
+    parser.add_argument("--tools-lock", default=str(ROOT / "config" / "tools-lock.json"))
     args = parser.parse_args()
 
     reporter = Reporter()
     validate_upstreams(load_json_object(Path(args.upstreams), reporter), reporter)
     validate_first_batch_baselines(load_json_object(Path(args.first_batch_baselines), reporter), reporter)
-    validate_domain_platform_capabilities(load_json_object(Path(args.domain_platform_capabilities), reporter), reporter)
+    capabilities_path = Path(args.domain_platform_capabilities)
+    capability_data = load_json_object(capabilities_path, reporter)
+    if capability_data:
+        try:
+            load_platform_capabilities(capabilities_path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            reporter.error("domain_platform_capabilities", str(exc))
+    validate_tools_lock(load_json_object(Path(args.tools_lock), reporter), reporter)
 
     if not reporter.ok:
         reporter.emit()

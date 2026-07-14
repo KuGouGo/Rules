@@ -10,6 +10,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from domain_rules import domain_value_errors, parse_classical_domain_file
+from platform_capabilities import PlatformCapabilities, load_platform_capabilities
+
 
 ROOT = Path(__file__).resolve().parents[2]
 CAPABILITIES_FILE = ROOT / "config" / "domain-platform-capabilities.json"
@@ -39,37 +42,18 @@ RULE_KIND_ALIASES = {
     "domain_regex": "regexp",
 }
 
-SINGBOX_KIND_MAP = {
-    "DOMAIN": "domain",
-    "DOMAIN-SUFFIX": "domain_suffix",
-    "DOMAIN-KEYWORD": "domain_keyword",
-    "DOMAIN-REGEX": "domain_regex",
-}
-
-QUANX_KIND_MAP = {
-    "DOMAIN": "HOST",
-    "DOMAIN-SUFFIX": "HOST-SUFFIX",
-    "DOMAIN-KEYWORD": "HOST-KEYWORD",
-}
-
-EGERN_KIND_MAP = {
-    "DOMAIN": "domain_set",
-    "DOMAIN-SUFFIX": "domain_suffix_set",
-    "DOMAIN-KEYWORD": "domain_keyword_set",
-    "DOMAIN-REGEX": "domain_regex_set",
-}
-
 REGIONAL_ATTRS = ("!cn", "cn")
 
 
-def load_platform_capabilities(path: Path = CAPABILITIES_FILE) -> dict[str, set[str]]:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return {platform: set(kinds) for platform, kinds in data.items()}
-
-
-PLATFORM_CAPABILITIES = load_platform_capabilities()
-SURGE_KIND_SET = PLATFORM_CAPABILITIES["surge"]
-MIHOMO_MRS_KIND_SET = PLATFORM_CAPABILITIES["mihomo-mrs"]
+CAPABILITY_SCHEMA: PlatformCapabilities = load_platform_capabilities(CAPABILITIES_FILE)
+PLATFORM_CAPABILITIES = CAPABILITY_SCHEMA.platforms
+SURGE_KIND_MAP = PLATFORM_CAPABILITIES["surge"].domain.rule_mappings
+QUANX_KIND_MAP = PLATFORM_CAPABILITIES["quanx"].domain.rule_mappings
+EGERN_KIND_MAP = PLATFORM_CAPABILITIES["egern"].domain.rule_mappings
+SINGBOX_KIND_MAP = PLATFORM_CAPABILITIES["sing-box"].domain.rule_mappings
+MIHOMO_KIND_MAP = PLATFORM_CAPABILITIES["mihomo"].domain.rule_mappings
+SURGE_KIND_SET = set(SURGE_KIND_MAP)
+MIHOMO_MRS_KIND_SET = set(MIHOMO_KIND_MAP)
 MIHOMO_MRS_SKIP_WARN_PERCENT = int(os.environ.get("MIHOMO_MRS_SKIP_WARN_PERCENT", "30"))
 DEFAULT_SINGBOX_RULE_SET_VERSION = 4
 SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
@@ -84,8 +68,12 @@ def count_rule_kinds(rules: list[Rule]) -> dict[str, int]:
 
 def print_platform_skip_summary(name: str, rules: list[Rule]) -> None:
     counts = count_rule_kinds(rules)
-    for platform, supported in PLATFORM_CAPABILITIES.items():
-        skipped = {kind: count for kind, count in counts.items() if count and kind not in supported}
+    for platform, capability in PLATFORM_CAPABILITIES.items():
+        skipped = {
+            kind: count
+            for kind, count in counts.items()
+            if count and kind in capability.domain.unsupported_kinds
+        }
         if skipped:
             details = ", ".join(f"{kind}={count}" for kind, count in sorted(skipped.items()))
             print(f"domain summary: {name} skips unsupported rules for {platform}: {details}", file=sys.stderr)
@@ -176,9 +164,11 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
             except ValueError as exc:
                 raise ValueError(f"{path}:{line_no} {exc}") from exc
             value = normalize_rule_value(kind, value)
-            if not value:
-                continue
-            rule = Rule(kind=RULE_KIND_MAP[kind], value=value, attrs=tuple(attrs))
+            canonical_kind = RULE_KIND_MAP[kind]
+            validation_errors = domain_value_errors(canonical_kind, value, require_canonical=False)
+            if validation_errors:
+                raise ValueError(f"{path}:{line_no} {validation_errors[0]}")
+            rule = Rule(kind=canonical_kind, value=value, attrs=tuple(attrs))
             rules.append(rule)
 
             for target in affiliate_targets:
@@ -306,36 +296,10 @@ def region_pairs_for_rule_set_names(names: set[str]) -> dict[str, list[str]]:
 
 
 def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
-    rules: list[Rule] = []
-    seen: set[tuple[str, str]] = set()
-    allowed = set(SINGBOX_KIND_MAP)
-
-    for raw_line in input_file.read_text(encoding="utf-8").splitlines():
-        line = strip_comment(raw_line)
-        if not line or "," not in line:
-            continue
-
-        kind, value = line.split(",", 1)
-        kind = kind.strip().upper().replace("_", "-")
-        value = value.strip()
-        if kind not in allowed or not value:
-            continue
-
-        if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
-            value = value.lower().rstrip(".")
-        elif kind == "DOMAIN-KEYWORD":
-            value = value.lower()
-
-        if not value:
-            continue
-
-        key = (kind, value)
-        if key in seen:
-            continue
-        seen.add(key)
-        rules.append(Rule(kind=kind, value=value, attrs=tuple()))
-
-    return rules
+    parsed, errors = parse_classical_domain_file(input_file, require_canonical=True)
+    if errors:
+        raise ValueError("\n".join(errors))
+    return [Rule(kind=rule.kind, value=rule.value, attrs=tuple()) for rule in parsed]
 
 
 def parse_plain_yaml_quoted_value(raw_value: str) -> str:
@@ -410,7 +374,7 @@ def write_normalized_classical_rules(input_file: Path, output_file: Path) -> Non
 
 def build_surge_lines(rules: list[Rule]) -> list[str]:
     return [
-        render_rule(rule)
+        f"{SURGE_KIND_MAP[rule.kind]},{rule.value}"
         for rule in rules
         if rule.kind in SURGE_KIND_SET
     ]
@@ -471,12 +435,17 @@ def build_mihomo_lines(input_file: Path, rules: list[Rule]) -> list[str]:
     print_mihomo_mrs_skip_summary(input_file, rules)
 
     for rule in rules:
-        if rule.kind == "DOMAIN":
+        implementation = MIHOMO_KIND_MAP.get(rule.kind)
+        if implementation is None:
+            if rule.kind in PLATFORM_CAPABILITIES["mihomo"].domain.unsupported_kinds:
+                continue
+            raise ValueError(f"unsupported mihomo domain mapping implementation for {rule.kind}")
+        if implementation == "plain":
             normalized = rule.value
-        elif rule.kind == "DOMAIN-SUFFIX":
+        elif implementation == "leading-dot":
             normalized = f".{rule.value}"
         else:
-            continue
+            raise ValueError(f"unsupported mihomo domain mapping implementation: {implementation}")
 
         if normalized in seen:
             continue

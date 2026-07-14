@@ -93,4 +93,13 @@ assert_wrapper_calls_cli "render_quanx_domain_ruleset_from_rules" "quanx-list"
 assert_wrapper_calls_cli "render_egern_domain_ruleset_from_rules" "egern-yaml"
 assert_wrapper_calls_cli "render_domain_rule_dir_to_text_platform_dirs" "text-platform-dirs"
 
+lint_line="$(grep -nF '"$ROOT/scripts/commands/lint-custom-rules.sh"' "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
+tmp_line="$(grep -nF 'mkdir -p "$TMP_PARENT_DIR"' "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
+setup_line="$(grep -nF 'setup_tool_cache' "$ROOT/scripts/commands/build-custom.sh" | cut -d: -f1)"
+if [ -z "$lint_line" ] || [ -z "$tmp_line" ] || [ -z "$setup_line" ] \
+  || [ "$lint_line" -ge "$tmp_line" ] || [ "$lint_line" -ge "$setup_line" ]; then
+  echo "test failed: build-custom must lint strict custom sources before staging or tool setup" >&2
+  exit 1
+fi
+
 echo "domain entrypoint guard passed"
