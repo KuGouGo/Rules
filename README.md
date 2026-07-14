@@ -7,7 +7,7 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4b5563">
 </p>
 
-面向 Surge、Quantumult X、Egern、sing-box 和 mihomo 的规则构建仓库。`dev` 集成开发变更，`main` 保存稳定源码并触发发布，客户端产物位于对应平台分支。
+面向 Surge、Quantumult X、Egern、sing-box 和 mihomo 的规则构建仓库。`main` 保存稳定源码并触发发布，客户端产物位于对应平台分支。
 
 > [!IMPORTANT]
 > 客户端不要引用 `main`。第三方规则不因格式转换而自动适用 MIT，来源和许可边界见 [`NOTICE`](NOTICE) 与 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
@@ -93,9 +93,9 @@ make clean
 
 ## 仓库边界
 
-- 长期分支只保留 `dev`、`main` 与 `surge`、`quanx`、`egern`、`sing-box`、`mihomo` 五个产物分支。
-- 日常代码、文档和依赖更新先进入 `dev`；`dev` 只验证不发布，合并到 `main` 后才构建并更新产物分支。
-- Dependabot 以 `dev` 为目标，每月集中提交 GitHub Actions 的 minor/patch 更新；major 与安全告警经人工评估后同样从 `dev` 进入，临时分支在合并后删除。
+- 长期分支只保留 `main` 与 `surge`、`quanx`、`egern`、`sing-box`、`mihomo` 五个产物分支。
+- 代码、文档和依赖更新通过临时分支向 `main` 提交 Pull Request；验证通过并合并后才构建和发布，临时分支自动删除。
+- Dependabot 每月向 `main` 集中提交一个 GitHub Actions minor/patch 更新 PR；major 与安全告警单独人工评估。
 - `fakeip-filter` 是本仓库维护的文本源，不下载第三方预编译文件。
 - 构建摘要、manifest 和 CI 通过都不是第三方许可证明。
 - 规则按现状提供，部署前应检查内容并保留回滚方案。

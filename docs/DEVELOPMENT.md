@@ -39,15 +39,15 @@ make clean
 
 CI 设置 `REQUIRE_SHELLCHECK=1`，本地缺少 ShellCheck 时的跳过不代表 CI 会通过。
 
-GitHub Actions 使用完整 commit SHA 固定版本。Dependabot 每月把 GitHub Actions 的 minor/patch 更新组合为一个以 `dev` 为目标的 PR，减少临时分支和重复 CI；major 更新在 `dev` 上单独评估，避免阻塞常规更新。GitHub 漏洞告警保持启用，自动安全修复分支关闭；安全更新由维护者确认影响后通过 `dev` 集成。合并后的临时分支由 GitHub 自动删除。
+GitHub Actions 使用完整 commit SHA 固定版本。Dependabot 每月把 GitHub Actions 的 minor/patch 更新组合为一个以 `main` 为目标的 PR，减少临时分支和重复 CI；major 更新单独评估，避免阻塞常规更新。GitHub 漏洞告警保持启用，自动安全修复分支关闭；安全更新由维护者确认影响后通过临时分支提交。合并后的临时分支由 GitHub 自动删除。
 
 ## 开发流程
 
-1. 在 `dev` 上集成日常代码、文档和依赖更新，不手工编辑生成目录。
+1. 从 `main` 创建临时分支，不手工编辑生成目录。
 2. 修改自定义源、配置、实现或测试夹具。
 3. 运行 `make preflight` 和适用的完整构建命令。
 4. 检查差异中没有 `.output/`、`.tmp/`、`.bin/`、凭据或无关格式化。
-5. 仅通过 `dev` 到 `main` 的 Pull Request 发布；PR 必须完成预检和不发布的完整构建，合并后由 `main` 工作流更新五个平台分支。
+5. 通过 Pull Request 合并到 `main`；PR 必须完成预检和不发布的完整构建，合并后由 `main` 工作流更新五个平台分支。
 6. 按 [贡献指南](../CONTRIBUTING.md) 说明来源、人工许可评审状态、测试和产物影响。
 
 ## 自定义规则与名称

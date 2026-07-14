@@ -23,7 +23,7 @@
 
 `fakeip-filter` 当前源为本仓库维护的 `sources/custom/domain/fakeip-filter.list`，由 `build-custom.sh` 与其他自定义规则一起生成五平台形式，不从网络下载预编译文件。过去采用 `wwqgtxx/clash-rules` 的 `fakeip-filter.mrs` 仅是历史迁移背景，不属于当前输入。`config/upstreams.json` 覆盖主上游网络输入；工具资产下载另由工具 lock 控制。
 
-`dev` 是只执行 preflight 的集成分支，`main` 是唯一发布源分支。发布分支为 `surge`、`quanx`、`egern`、`sing-box`、`mihomo`，只允许生成的 `README.md`、`domain/`、`ip/` 及平台对应扩展名。各分支 `README.md` 由 `templates/branch-readmes/` 生成，并直接包含 v2fly/domain-list-community 的完整 MIT 版权与许可通知；因此发布树无需新增独立许可证文件。模板变更属于构建触发路径。
+`main` 是唯一长期源码与发布源分支，开发使用合并后删除的临时分支。发布分支为 `surge`、`quanx`、`egern`、`sing-box`、`mihomo`，只允许生成的 `README.md`、`domain/`、`ip/` 及平台对应扩展名。各分支 `README.md` 由 `templates/branch-readmes/` 生成，并直接包含 v2fly/domain-list-community 的完整 MIT 版权与许可通知；因此发布树无需新增独立许可证文件。模板变更属于构建触发路径。
 
 ## 审计文件
 
