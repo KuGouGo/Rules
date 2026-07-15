@@ -49,7 +49,7 @@ https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/google.mrs
 | `geolocation-cn` / `geolocation-!cn` | domain | 上游提供的区域集合名称与内容 |
 | `google` / `telegram` | ip | 配置的服务地址源；Telegram 结果还合并配置的 ASN 前缀 |
 | `emby-cn` / `emby` | domain | 本仓库维护的两个 Emby 规则集合 |
-| `fakeip-filter` | domain | 本仓库维护的保守型 Fake-IP 排除集合 |
+| `fakeip-filter` | domain | 本仓库维护的 Fake-IP 排除集合 |
 
 在按首条命中处理的客户端中，如果同时使用 `emby-cn` 和 `emby`，应先加载范围较窄的 `emby-cn`。规则文件会随上游增加、删除或改变；使用前应在目标分支确认文件存在并检查内容。
 

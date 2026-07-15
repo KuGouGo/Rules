@@ -73,7 +73,11 @@ def load_domain_rules(directory: Path, reporter: Reporter) -> list[LocatedRule]:
     result: list[LocatedRule] = []
     for path in iter_rule_files(directory):
         validate_rule_file_name(path, reporter)
-        rules, errors = parse_classical_domain_file(path, require_canonical=True)
+        rules, errors = parse_classical_domain_file(
+            path,
+            require_canonical=True,
+            allow_single_label_suffix=path.name == "fakeip-filter.list",
+        )
         reporter.errors.extend(errors)
         if not rules:
             reporter.error(f"{path}:0 has no effective rules")

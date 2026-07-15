@@ -62,7 +62,7 @@ assert_injected_failure_preserves_output() {
 
 # Change a maintained source so staging contains output different from the
 # restored controlled artifact. A late text failure must still publish nothing.
-printf '\nDOMAIN-SUFFIX,atomic-stage.example\n' >> "$REPO/sources/custom/domain/emby.list"
+printf '\nDOMAIN-SUFFIX,atomic-stage.example.com\n' >> "$REPO/sources/custom/domain/emby.list"
 assert_injected_failure_preserves_output late-text RULES_BUILD_CUSTOM_TEXT_ONLY=1
 
 # Avoid network/tool-lock behavior only inside this disposable test copy. The
@@ -100,7 +100,7 @@ assert_injected_failure_preserves_output late-binary
 printf 'restored binary\n' > "$REPO/.output/domain/surge/unrelated.list"
 RULES_CONFLICT_BASE_SHA="$BASE_SHA" RULES_BUILD_CUSTOM_TEXT_ONLY=1 \
   "$REPO/scripts/commands/build-custom.sh" >/dev/null
-grep -Fx 'DOMAIN-SUFFIX,atomic-stage.example' "$REPO/.output/domain/surge/emby.list" >/dev/null
+grep -Fx 'DOMAIN-SUFFIX,atomic-stage.example.com' "$REPO/.output/domain/surge/emby.list" >/dev/null
 grep -Fx 'restored upstream' "$REPO/.output/unrelated/upstream.txt" >/dev/null
 grep -Fx 'restored binary' "$REPO/.output/domain/surge/unrelated.list" >/dev/null
 
