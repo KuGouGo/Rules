@@ -38,12 +38,21 @@ git -C "$RENDER_REPO" commit -m add-fakeip >/dev/null
 RULES_BUILD_CUSTOM_TEXT_ONLY=1 "$RENDER_REPO/scripts/commands/build-custom.sh" >/dev/null
 RULES_BUILD_CUSTOM_TEXT_ONLY=1 "$RENDER_REPO/scripts/commands/build-custom.sh" >/dev/null
 
-grep -Fx 'DOMAIN-SUFFIX,in-addr.arpa' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null
-grep -Fx 'DOMAIN,localhost.localdomain' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null
-grep -Fx 'HOST-SUFFIX,in-addr.arpa,fakeip-filter' "$RENDER_REPO/.output/domain/quanx/fakeip-filter.list" >/dev/null
-grep -Fx 'HOST,localhost.localdomain,fakeip-filter' "$RENDER_REPO/.output/domain/quanx/fakeip-filter.list" >/dev/null
-grep -Fx "  - 'in-addr.arpa'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
-grep -Fx "  - 'localhost.localdomain'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
+if grep -Fx '*' "$ROOT/sources/custom/domain/fakeip-filter.list" >/dev/null; then
+  echo "test failed: universal Fake-IP bypass must not be published" >&2
+  exit 1
+fi
+grep -Fx 'DOMAIN-SUFFIX,lan' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null
+grep -Fx 'DOMAIN,proxy.golang.org' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null
+if grep -F 'DOMAIN-REGEX,' "$RENDER_REPO/.output/domain/surge/fakeip-filter.list" >/dev/null; then
+  echo "test failed: Surge output retained unsupported regex rules" >&2
+  exit 1
+fi
+grep -Fx 'HOST-SUFFIX,lan,fakeip-filter' "$RENDER_REPO/.output/domain/quanx/fakeip-filter.list" >/dev/null
+grep -Fx 'HOST,proxy.golang.org,fakeip-filter' "$RENDER_REPO/.output/domain/quanx/fakeip-filter.list" >/dev/null
+grep -Fx "  - 'lan'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
+grep -Fx "  - 'proxy.golang.org'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
+grep -Fx "  - '^time\\.[^.]+\\.com$'" "$RENDER_REPO/.output/domain/egern/fakeip-filter.yaml" >/dev/null
 
 prepare_collision_repo() {
   local repo="$1"

@@ -58,6 +58,21 @@ IP-CIDR6,fc00::/7
 EOF
 assert_lint_passes "pass" "$TMP_DIR/pass/domain" "$TMP_DIR/pass/ip"
 
+make_case_dirs "$TMP_DIR/fakeip-single-label"
+printf '%s\n' 'DOMAIN-SUFFIX,lan' > "$TMP_DIR/fakeip-single-label/domain/fakeip-filter.list"
+assert_lint_passes \
+  "fakeip-single-label" \
+  "$TMP_DIR/fakeip-single-label/domain" \
+  "$TMP_DIR/fakeip-single-label/ip"
+
+make_case_dirs "$TMP_DIR/non-fakeip-single-label"
+printf '%s\n' 'DOMAIN-SUFFIX,lan' > "$TMP_DIR/non-fakeip-single-label/domain/example.list"
+assert_lint_fails_with \
+  "non-fakeip-single-label" \
+  "DOMAIN-SUFFIX value is too broad" \
+  "$TMP_DIR/non-fakeip-single-label/domain" \
+  "$TMP_DIR/non-fakeip-single-label/ip"
+
 make_case_dirs "$TMP_DIR/domain-coverage"
 cat > "$TMP_DIR/domain-coverage/domain/example.list" <<'EOF'
 DOMAIN-SUFFIX,example.com
