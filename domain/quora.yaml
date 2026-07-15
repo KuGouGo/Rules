@@ -1,0 +1,9 @@
+domain_set:
+  - 'www.quora.com.cdn.cloudflare.net'
+
+domain_suffix_set:
+  - 'qr.ae'
+  - 'quora.com'
+  - 'quoracdn.net'
+  - 'poe.com'
+  - 'poecdn.net'

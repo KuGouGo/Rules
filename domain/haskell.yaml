@@ -1,0 +1,4 @@
+domain_suffix_set:
+  - 'haskell.org'
+  - 'haskellstack.org'
+  - 'stackage.org'

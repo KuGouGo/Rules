@@ -1,0 +1,20 @@
+domain_suffix_set:
+  - 'kino.pub'
+  - 'kino.watch'
+  - 'kinopub.online'
+  - 'kpdl.link'
+  - 'ahc.ovh'
+  - 'gfw.ovh'
+  - 'tsx.ovh'
+  - 'mos-gorsud.co'
+  - 'api.alador.space'
+  - 'm.alador.space'
+  - 'support-kp.com'
+  - 'cdn-service.space'
+  - 'cdn2cdn.com'
+  - 'cdn2site.com'
+  - 'pushbr.com'
+  - 'smarttvcdn.online'
+
+domain_regex_set:
+  - '(\w+)-static-[0-9]+\.cdntogo\.net$'

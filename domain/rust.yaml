@@ -1,0 +1,5 @@
+domain_suffix_set:
+  - 'rust-lang.org'
+  - 'rustup.rs'
+  - 'crates.io'
+  - 'docs.rs'

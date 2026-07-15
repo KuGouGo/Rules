@@ -1,0 +1,8 @@
+domain_set:
+  - 'ppl-ai-file-upload.s3.amazonaws.com'
+  - 'pplx-res.cloudinary.com'
+
+domain_suffix_set:
+  - 'perplexity.ai'
+  - 'perplexity.com'
+  - 'pplx.ai'

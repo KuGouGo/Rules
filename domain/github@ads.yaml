@@ -1,0 +1,6 @@
+domain_set:
+  - 'copilot-telemetry-service.githubusercontent.com'
+  - 'copilot-telemetry.githubusercontent.com'
+
+domain_suffix_set:
+  - 'collector.github.com'

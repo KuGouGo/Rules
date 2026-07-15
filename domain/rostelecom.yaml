@@ -1,0 +1,12 @@
+domain_set:
+  - 'sentry.iptv.rt.ru'
+
+domain_suffix_set:
+  - 'azbukainterneta.ru'
+  - 'rostelecom.ru'
+  - 'rt.ru'
+  - 'restream-media.net'
+  - 'restream.ru'
+  - 'more.tv'
+  - 'wink.am'
+  - 'wink.ru'

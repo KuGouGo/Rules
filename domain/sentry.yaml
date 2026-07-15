@@ -1,0 +1,5 @@
+domain_suffix_set:
+  - 'getsentry.com'
+  - 'sentry.dev'
+  - 'sentry.io'
+  - 'sentry-cdn.com'

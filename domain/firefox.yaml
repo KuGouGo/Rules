@@ -1,0 +1,9 @@
+domain_set:
+  - 'mozilla-ohttp.fastly-edge.com'
+
+domain_suffix_set:
+  - 'extendfirefox.com'
+  - 'firefox.com'
+  - 'firefox.hu'
+  - 'firefoxtweetmachine.com'
+  - 'firefoxusercontent.com'
