@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=/dev/null
+source "$ROOT/scripts/commands/check-runtime.sh"
+
 TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
 
 # Reject malformed or globally conflicting custom sources before creating build
@@ -18,6 +21,7 @@ TMP_DIR="$(mktemp -d "$TMP_PARENT_DIR/custom.XXXXXX")"
 TMP_DOMAIN_DIR="$TMP_DIR/domain"
 TMP_IP_DIR="$TMP_DIR/ip"
 STAGE_ROOT="$TMP_DIR/output"
+CANONICAL_STAGE_ROOT="$TMP_DIR/canonical"
 BIN_DIR="$ROOT/.bin"
 ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
 DOMAIN_SURGE_DIR="$STAGE_ROOT/domain/surge"
@@ -31,9 +35,9 @@ IP_EGERN_DIR="$STAGE_ROOT/ip/egern"
 IP_SINGBOX_DIR="$STAGE_ROOT/ip/sing-box"
 IP_MIHOMO_DIR="$STAGE_ROOT/ip/mihomo"
 
-# shellcheck source=scripts/lib/common.sh
+# shellcheck source=/dev/null
 source "$ROOT/scripts/lib/common.sh"
-# shellcheck source=scripts/lib/rules.sh
+# shellcheck source=/dev/null
 source "$ROOT/scripts/lib/rules.sh"
 setup_tool_cache
 
@@ -55,6 +59,22 @@ mkdir -p \
 mkdir -p "$TMP_DOMAIN_DIR" "$TMP_IP_DIR"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
+prepare_canonical_stage() {
+  if [ -d "$ARTIFACT_ROOT/.canonical" ]; then
+    mkdir -p "$CANONICAL_STAGE_ROOT"
+    cp -R "$ARTIFACT_ROOT/.canonical/." "$CANONICAL_STAGE_ROOT/"
+  elif compgen -G "$ARTIFACT_ROOT/domain/egern/*.yaml" >/dev/null \
+    || compgen -G "$ARTIFACT_ROOT/ip/egern/*.yaml" >/dev/null; then
+    python3 "$ROOT/scripts/tools/artifact_verifier.py" \
+      --root "$ROOT" \
+      --seed-canonical-from "$ARTIFACT_ROOT" \
+      --canonical-output "$CANONICAL_STAGE_ROOT"
+  else
+    mkdir -p "$CANONICAL_STAGE_ROOT"
+  fi
+  mkdir -p "$CANONICAL_STAGE_ROOT/domain" "$CANONICAL_STAGE_ROOT/ip"
+}
+
 has_custom_domain=0
 has_custom_ip=0
 MIHOMO_READY=0
@@ -69,6 +89,8 @@ if [ "$has_custom_domain" -eq 0 ] && [ "$has_custom_ip" -eq 0 ]; then
   echo "no custom rule lists found, skip"
   exit 0
 fi
+
+prepare_canonical_stage
 
 ensure_mihomo_once() {
   if [ "$MIHOMO_READY" -eq 0 ]; then
@@ -162,6 +184,7 @@ build_domain_plain_and_surge() {
   egern_tmp="$TMP_DOMAIN_DIR/$base.egern.tmp"
 
   normalize_custom_domain_source "$list_file" "$plain_out"
+  cp "$plain_out" "$CANONICAL_STAGE_ROOT/domain/$base.list"
   render_surge_domain_ruleset_from_rules "$plain_out" "$surge_tmp"
   render_quanx_domain_ruleset_from_rules "$plain_out" "$quanx_tmp" "$base"
   render_egern_domain_ruleset_from_rules "$plain_out" "$egern_tmp"
@@ -221,6 +244,7 @@ build_ip_plain_and_surge() {
   write_if_nonempty_or_remove "$quanx_tmp" "$quanx_out"
   write_if_nonempty_or_remove "$egern_tmp" "$egern_out"
   mv "$plain_tmp" "$plain_out"
+  render_ip_plain_to_canonical_list "$plain_out" "$CANONICAL_STAGE_ROOT/ip/$base.list"
   rm -f "$surge_tmp" "$quanx_tmp" "$egern_tmp"
 }
 
@@ -307,70 +331,163 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
   done
 fi
 
-commit_staged_custom_artifacts() {
-  local list_file base relative staged target target_dir
-  local controlled=()
-
+controlled_artifact_paths() {
+  local list_file base
   while IFS= read -r list_file; do
     [ -n "$list_file" ] || continue
     base="$(basename "$list_file" .list)"
-    controlled+=(
-      "domain/surge/$base.list"
-      "domain/quanx/$base.list"
+    printf '%s\n' \
+      "domain/surge/$base.list" \
+      "domain/quanx/$base.list" \
       "domain/egern/$base.yaml"
-    )
     if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
-      controlled+=(
-        "domain/sing-box/$base.srs"
-        "domain/mihomo/$base.list"
+      printf '%s\n' \
+        "domain/sing-box/$base.srs" \
+        "domain/mihomo/$base.list" \
         "domain/mihomo/$base.mrs"
-      )
     fi
   done <<< "$DOMAIN_RULE_FILES"
 
   while IFS= read -r list_file; do
     [ -n "$list_file" ] || continue
     base="$(basename "$list_file" .list)"
-    controlled+=(
-      "ip/surge/$base.list"
-      "ip/quanx/$base.list"
+    printf '%s\n' \
+      "ip/surge/$base.list" \
+      "ip/quanx/$base.list" \
       "ip/egern/$base.yaml"
-    )
     if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
-      controlled+=(
-        "ip/sing-box/$base.srs"
+      printf '%s\n' \
+        "ip/sing-box/$base.srs" \
         "ip/mihomo/$base.mrs"
-      )
     fi
   done <<< "$IP_RULE_FILES"
+}
+
+commit_staged_custom_artifacts() {
+  local relative staged target target_dir
 
   # Only the paths derived from current custom sources are controlled here.
   # Restored/upstream artifacts and summaries elsewhere in .output are untouched.
-  for relative in "${controlled[@]}"; do
+  for relative in "${CONTROLLED_ARTIFACTS[@]}"; do
     staged="$STAGE_ROOT/$relative"
     target="$ARTIFACT_ROOT/$relative"
     target_dir="$(dirname "$target")"
-    mkdir -p "$target_dir"
+    mkdir -p "$target_dir" || return 1
     if [ -f "$staged" ]; then
-      write_if_changed "$staged" "$target"
+      write_if_changed "$staged" "$target" || return 1
     else
       # A platform-specific skip is committed as deletion only after every
       # render and binary compile has succeeded.
-      rm -f "$target"
+      rm -f "$target" || return 1
     fi
   done
+}
+
+COMMIT_BACKUP_ROOT="$TMP_DIR/commit-backup"
+CANONICAL_HAD_PREVIOUS=0
+CANONICAL_COMMITTED=0
+
+backup_controlled_state() {
+  local relative source backup
+
+  rm -rf "$COMMIT_BACKUP_ROOT"
+  mkdir -p "$COMMIT_BACKUP_ROOT/artifacts"
+  for relative in "${CONTROLLED_ARTIFACTS[@]}"; do
+    source="$ARTIFACT_ROOT/$relative"
+    backup="$COMMIT_BACKUP_ROOT/artifacts/$relative"
+    if [ -f "$source" ]; then
+      mkdir -p "$(dirname "$backup")"
+      cp "$source" "$backup"
+    fi
+  done
+  if [ -f "$ARTIFACT_ROOT/artifact-origins.json" ]; then
+    cp "$ARTIFACT_ROOT/artifact-origins.json" "$COMMIT_BACKUP_ROOT/artifact-origins.json"
+  fi
+}
+
+rollback_controlled_state() {
+  local relative target backup
+
+  for relative in "${CONTROLLED_ARTIFACTS[@]}"; do
+    target="$ARTIFACT_ROOT/$relative"
+    backup="$COMMIT_BACKUP_ROOT/artifacts/$relative"
+    rm -f "$target"
+    if [ -f "$backup" ]; then
+      mkdir -p "$(dirname "$target")"
+      cp "$backup" "$target"
+    fi
+  done
+  if [ -f "$COMMIT_BACKUP_ROOT/artifact-origins.json" ]; then
+    cp "$COMMIT_BACKUP_ROOT/artifact-origins.json" "$ARTIFACT_ROOT/artifact-origins.json"
+  else
+    rm -f "$ARTIFACT_ROOT/artifact-origins.json"
+  fi
+}
+
+commit_canonical_stage() {
+  local target="$ARTIFACT_ROOT/.canonical"
+  local next="$ARTIFACT_ROOT/.canonical.next"
+  local backup="$ARTIFACT_ROOT/.canonical.backup"
+
+  rm -rf "$next" "$backup"
+  mv "$CANONICAL_STAGE_ROOT" "$next" || return 1
+  if [ -e "$target" ]; then
+    CANONICAL_HAD_PREVIOUS=1
+    if ! mv "$target" "$backup"; then
+      rm -rf "$next"
+      return 1
+    fi
+  fi
+  if ! mv "$next" "$target"; then
+    [ ! -e "$backup" ] || mv "$backup" "$target"
+    rm -rf "$next"
+    return 1
+  fi
+  CANONICAL_COMMITTED=1
+}
+
+rollback_canonical_stage() {
+  local target="$ARTIFACT_ROOT/.canonical"
+  local backup="$ARTIFACT_ROOT/.canonical.backup"
+
+  [ "$CANONICAL_COMMITTED" -eq 1 ] || return 0
+  rm -rf "$target"
+  if [ "$CANONICAL_HAD_PREVIOUS" -eq 1 ] && [ -e "$backup" ]; then
+    mv "$backup" "$target"
+  fi
+  CANONICAL_COMMITTED=0
+}
+
+finalize_canonical_stage() {
+  rm -rf "$ARTIFACT_ROOT/.canonical.backup" "$COMMIT_BACKUP_ROOT"
 }
 
 if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
   # This point is after the last binary compile but before the controlled commit.
   inject_custom_build_failure late-binary
 fi
-commit_staged_custom_artifacts
+mapfile -t CONTROLLED_ARTIFACTS < <(controlled_artifact_paths)
 origin_args=(mark-custom "$ARTIFACT_ROOT" "$CUSTOM_DOMAIN_DIR" "$CUSTOM_IP_DIR")
 if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
   origin_args+=(--text-only)
 fi
-python3 "$ROOT/scripts/tools/artifact_origins.py" "${origin_args[@]}"
+backup_controlled_state
+commit_failed=0
+if ! commit_staged_custom_artifacts; then
+  commit_failed=1
+elif ! inject_custom_build_failure canonical-commit; then
+  commit_failed=1
+elif ! commit_canonical_stage; then
+  commit_failed=1
+elif ! python3 "$ROOT/scripts/tools/artifact_origins.py" "${origin_args[@]}"; then
+  commit_failed=1
+fi
+if [ "$commit_failed" -ne 0 ]; then
+  rollback_canonical_stage
+  rollback_controlled_state
+  exit 1
+fi
+finalize_canonical_stage
 
 if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
   echo "custom build done (text only)"

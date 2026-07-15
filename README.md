@@ -73,7 +73,7 @@ https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/google.mrs
 
 ## 本地维护
 
-本地命令要求 Bash 5+、GNU Make、Git 和 Python 3。macOS 可使用 Homebrew Bash 运行检查和文本构建；需要下载 sing-box 或 mihomo 的二进制构建只支持 lock 文件声明的 Linux 平台。
+本地命令要求 Bash 5+、Python 3.11+、GNU Make 和 Git。macOS 可使用 Homebrew Bash 与 Python 运行检查和文本构建；需要下载 sing-box 或 mihomo 的二进制构建只支持 lock 文件声明的 Linux 平台。
 
 ```bash
 make check-runtime

@@ -85,6 +85,11 @@ printf 'srs-ip\n' > "$REPO/.output/ip/sing-box/test.srs"
 printf 'mrs-domain\n' > "$REPO/.output/domain/mihomo/test.mrs"
 printf 'mrs-ip\n' > "$REPO/.output/ip/mihomo/test.mrs"
 
+python3 "$REPO/scripts/tools/artifact_verifier.py" \
+  --root "$REPO" \
+  --seed-canonical-from "$REPO/.output" \
+  --canonical-output "$REPO/.output/.canonical"
+
 cat > "$REPO/.bin/sing-box" <<'EOF'
 #!/usr/bin/env bash
 set -eu
@@ -146,9 +151,10 @@ for tool in ("sing-box", "mihomo"):
 lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 origins = {}
-for path in (root / ".output").glob("*/*/*"):
-    if path.is_file():
-        origins[path.relative_to(root / ".output").as_posix()] = "generated-upstream"
+for section in ("domain", "ip"):
+    for path in (root / ".output" / section).glob("*/*"):
+        if path.is_file():
+            origins[path.relative_to(root / ".output").as_posix()] = "generated-upstream"
 (root / ".output/artifact-origins.json").write_text(
     json.dumps(origins, indent=2, sort_keys=True) + "\n", encoding="utf-8"
 )
@@ -159,7 +165,67 @@ git -C "$REPO" init -q
 git -C "$REPO" remote add origin "$REMOTE"
 git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
 SOURCE_SHA="$(git -C "$SEED" rev-parse HEAD)"
-ARTIFACT_GENERATION_ID=test-generation ARTIFACT_BUILD_SCOPE=full ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
+BASELINE_FILE="$REPO/.tmp/publication-baseline.json"
+BRANCH_SEED="$TMP_DIR/branch-seed"
+git clone -q "$REMOTE" "$BRANCH_SEED"
+git -C "$BRANCH_SEED" config user.name test
+git -C "$BRANCH_SEED" config user.email test@example.com
+
+for branch in "${BRANCHES[@]}"; do
+  git -C "$BRANCH_SEED" checkout --orphan "$branch" >/dev/null 2>&1
+  git -C "$BRANCH_SEED" rm -rf . >/dev/null 2>&1 || true
+  find "$BRANCH_SEED" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+  mkdir -p "$BRANCH_SEED/domain" "$BRANCH_SEED/ip"
+  cp -R "$REPO/.output/domain/$branch/." "$BRANCH_SEED/domain/"
+  cp -R "$REPO/.output/ip/$branch/." "$BRANCH_SEED/ip/"
+  printf 'seed %s\n' "$branch" > "$BRANCH_SEED/README.md"
+  git -C "$BRANCH_SEED" add README.md domain ip
+  git -C "$BRANCH_SEED" commit -m "chore: publish ${branch} artifacts [generation 100-1 source ${SOURCE_SHA}]" >/dev/null
+  git -C "$BRANCH_SEED" push origin "$branch" >/dev/null 2>&1
+done
+
+write_remote_baseline() {
+  mkdir -p "$(dirname "$BASELINE_FILE")"
+  python3 - "$REMOTE" "$BASELINE_FILE" <<'PY'
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+remote, output = sys.argv[1:]
+branches = ("surge", "quanx", "egern", "sing-box", "mihomo")
+pattern = re.compile(r"^chore: publish ([^ ]+) artifacts \[generation ([0-9]+-[0-9]+) source ([0-9a-f]{40})\]$")
+items = {}
+identities = set()
+for branch in branches:
+    commit = subprocess.check_output(["git", f"--git-dir={remote}", "rev-parse", branch], text=True).strip()
+    subject = subprocess.check_output(["git", f"--git-dir={remote}", "log", "-1", "--format=%s", branch], text=True).strip()
+    match = pattern.fullmatch(subject)
+    generation = match.group(2) if match and match.group(1) == branch else None
+    source = match.group(3) if match and match.group(1) == branch else None
+    if generation and source:
+        identities.add((generation, source))
+    items[branch] = {"commit": commit, "generation_id": generation, "source_commit": source}
+consistent = len(identities) == 1 and all(item["generation_id"] for item in items.values())
+generation, source = next(iter(identities)) if consistent else (None, None)
+payload = {"status": "consistent" if consistent else "inconsistent",
+           "generation_id": generation, "source_commit": source, "branches": items}
+Path(output).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+}
+
+generate_manifest() {
+  local generation="$1"
+  git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
+  write_remote_baseline
+  ARTIFACT_BASELINE_FILE="$BASELINE_FILE" ARTIFACT_GENERATION_ID="$generation" \
+    ARTIFACT_BUILD_SCOPE=full ARTIFACT_SOURCE_SHA="$SOURCE_SHA" \
+    "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
+}
+
+generate_manifest 101-1
+cp "$REPO/.output/artifact-manifest.json" "$TMP_DIR/old-artifact-manifest.json"
 
 first_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
 grep -F "publishing branches atomically: surge quanx egern sing-box mihomo" <<< "$first_output" >/dev/null
@@ -199,11 +265,45 @@ git --git-dir="$REMOTE" show surge:domain/test.list | grep -Fx 'DOMAIN-SUFFIX,ex
 git --git-dir="$REMOTE" show quanx:ip/test.list | grep -Fx 'IP-CIDR,192.0.2.0/24,test' >/dev/null
 
 before_idempotent="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
-git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
+generate_manifest 102-1
 second_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
 after_idempotent="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
 [ "$before_idempotent" = "$after_idempotent" ]
 grep -F "all publish branches unchanged, skip push" <<< "$second_output" >/dev/null
+
+# Race an artifact ref during the second cohort refresh on the all-unchanged
+# path. The script must reject the stale baseline instead of returning success.
+generate_manifest 102-2
+mkdir -p "$TMP_DIR/skip-race-bin"
+cat > "$TMP_DIR/skip-race-bin/git" <<'EOF'
+#!/usr/bin/env bash
+set -e
+if [[ " $* " == *" fetch "* && " $* " == *"+refs/heads/surge:refs/remotes/origin/surge"* ]]; then
+  count=0
+  [ ! -f "$SKIP_RACE_COUNT" ] || count="$(cat "$SKIP_RACE_COUNT")"
+  count=$((count + 1))
+  printf '%s\n' "$count" > "$SKIP_RACE_COUNT"
+  if [ "$count" -eq 2 ]; then
+    "$REAL_GIT" clone -q --branch surge "$RACE_REMOTE" "$SKIP_RACE_REPO"
+    "$REAL_GIT" -C "$SKIP_RACE_REPO" config user.name racer
+    "$REAL_GIT" -C "$SKIP_RACE_REPO" config user.email racer@example.com
+    "$REAL_GIT" -C "$SKIP_RACE_REPO" commit --allow-empty -m skip-race >/dev/null
+    "$REAL_GIT" -C "$SKIP_RACE_REPO" push origin surge >/dev/null 2>&1
+  fi
+fi
+exec "$REAL_GIT" "$@"
+EOF
+chmod +x "$TMP_DIR/skip-race-bin/git"
+before_skip_race="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
+set +e
+skip_race_output="$(PATH="$TMP_DIR/skip-race-bin:$PATH" REAL_GIT="$REAL_GIT" SKIP_RACE_COUNT="$TMP_DIR/skip-race-count" RACE_REMOTE="$REMOTE" SKIP_RACE_REPO="$TMP_DIR/skip-racer" ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+skip_race_status=$?
+set -e
+[ "$skip_race_status" -ne 0 ]
+grep -F 'publication baseline is stale' <<< "$skip_race_output" >/dev/null
+after_skip_race="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
+[ "$(printf '%s\n' "$before_skip_race" | tail -n +2)" = "$(printf '%s\n' "$after_skip_race" | tail -n +2)" ]
+[ "$(printf '%s\n' "$before_skip_race" | head -n 1)" != "$(printf '%s\n' "$after_skip_race" | head -n 1)" ]
 
 # A change to one platform must advance the complete publication cohort. The
 # four unchanged trees receive metadata-only commits so a later custom restore
@@ -215,8 +315,7 @@ for branch in "${BRANCHES[@]}"; do
 done
 cp "$REPO/templates/branch-readmes/surge.md" "$REPO/templates/branch-readmes/surge.md.partial-original"
 printf '\npartial cohort fixture\n' >> "$REPO/templates/branch-readmes/surge.md"
-git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
-ARTIFACT_GENERATION_ID=test-generation-partial ARTIFACT_BUILD_SCOPE=full ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
+generate_manifest 103-1
 partial_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
 grep -F "publishing branches atomically: surge quanx egern sing-box mihomo" <<< "$partial_output" >/dev/null
 
@@ -233,7 +332,7 @@ for branch in "${BRANCHES[@]}"; do
     echo "test failed: $branch publication commit did not preserve parent history" >&2
     exit 1
   }
-  [ "$subject" = "chore: publish ${branch} artifacts [generation test-generation-partial source ${SOURCE_SHA}]" ] || {
+  [ "$subject" = "chore: publish ${branch} artifacts [generation 103-1 source ${SOURCE_SHA}]" ] || {
     echo "test failed: $branch publication identity differs from partial cohort" >&2
     exit 1
   }
@@ -251,7 +350,28 @@ for branch in "${BRANCHES[@]}"; do
 done
 mv "$REPO/templates/branch-readmes/surge.md.partial-original" "$REPO/templates/branch-readmes/surge.md"
 
+# Replaying an artifact manifest built against an older cohort must fail even
+# though every new commit would otherwise be a fast-forward artifact update.
+cp "$TMP_DIR/old-artifact-manifest.json" "$REPO/.output/artifact-manifest.json"
+set +e
+replay_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+replay_status=$?
+set -e
+[ "$replay_status" -ne 0 ]
+grep -F 'publication baseline is stale' <<< "$replay_output" >/dev/null
+
+# A fresh build may use the current cohort as its baseline, but its generation
+# still has to advance monotonically for the same source commit.
+generate_manifest 103-1
+set +e
+stale_generation_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+stale_generation_status=$?
+set -e
+[ "$stale_generation_status" -ne 0 ]
+grep -F 'stale publication generation refused' <<< "$stale_generation_output" >/dev/null
+
 # A missing template must fail before the queued batch is pushed.
+generate_manifest 104-1
 before_missing_template="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
 cp "$REPO/templates/branch-readmes/surge.md" "$REPO/templates/branch-readmes/surge.md.original"
 printf '\nqueued template change\n' >> "$REPO/templates/branch-readmes/surge.md"
@@ -310,8 +430,65 @@ set -e
 }
 grep -F 'artifact hash mismatch' <<< "$unverified_publish_output" >/dev/null
 
-git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
-ARTIFACT_GENERATION_ID=test-generation-2 ARTIFACT_BUILD_SCOPE=full ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
+rm -rf "$REPO/.output/.canonical"
+python3 "$REPO/scripts/tools/artifact_verifier.py" \
+  --root "$REPO" \
+  --seed-canonical-from "$REPO/.output" \
+  --canonical-output "$REPO/.output/.canonical"
+generate_manifest 105-1
+printf 'new main tip\n' >> "$SEED/README.md"
+git -C "$SEED" add README.md
+git -C "$SEED" commit -m main-advanced >/dev/null
+git -C "$SEED" push origin main >/dev/null 2>&1
+NEW_SOURCE_SHA="$(git -C "$SEED" rev-parse HEAD)"
+set +e
+stale_main_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+stale_main_status=$?
+set -e
+[ "$stale_main_status" -ne 0 ]
+grep -F 'stale publication source refused: remote main is' <<< "$stale_main_output" >/dev/null
+SOURCE_SHA="$NEW_SOURCE_SHA"
+generate_manifest 106-1
+
+# Move main from inside the git-push wrapper, after both pre-push checks but
+# before the real atomic artifact push. The push succeeds, then the mandatory
+# post-push source check fails the run and requests a queued roll-forward.
+mkdir -p "$TMP_DIR/main-race-bin"
+cat > "$TMP_DIR/main-race-bin/git" <<'EOF'
+#!/usr/bin/env bash
+set -e
+if [ "${1:-}" = push ] && [ "${2:-}" = --atomic ] && [ ! -e "$MAIN_RACE_MARKER" ]; then
+  : > "$MAIN_RACE_MARKER"
+  "$REAL_GIT" clone -q --branch main "$RACE_REMOTE" "$MAIN_RACE_REPO"
+  "$REAL_GIT" -C "$MAIN_RACE_REPO" config user.name racer
+  "$REAL_GIT" -C "$MAIN_RACE_REPO" config user.email racer@example.com
+  printf '\npost-push main race\n' >> "$MAIN_RACE_REPO/README.md"
+  "$REAL_GIT" -C "$MAIN_RACE_REPO" add README.md
+  "$REAL_GIT" -C "$MAIN_RACE_REPO" commit -m main-race >/dev/null
+  "$REAL_GIT" -C "$MAIN_RACE_REPO" push origin main >/dev/null 2>&1
+fi
+exec "$REAL_GIT" "$@"
+EOF
+chmod +x "$TMP_DIR/main-race-bin/git"
+before_post_push_race="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
+set +e
+post_push_race_output="$(PATH="$TMP_DIR/main-race-bin:$PATH" REAL_GIT="$REAL_GIT" MAIN_RACE_MARKER="$TMP_DIR/main-raced" RACE_REMOTE="$REMOTE" MAIN_RACE_REPO="$TMP_DIR/main-racer" ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+post_push_race_status=$?
+set -e
+[ "$post_push_race_status" -ne 0 ]
+[ -e "$TMP_DIR/main-raced" ]
+grep -F 'artifact cohort was published while main advanced' <<< "$post_push_race_output" >/dev/null
+after_post_push_race="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
+[ "$before_post_push_race" != "$after_post_push_race" ]
+for branch in "${BRANCHES[@]}"; do
+  subject="$(git --git-dir="$REMOTE" log -1 --format=%s "$branch")"
+  [ "$subject" = "chore: publish ${branch} artifacts [generation 106-1 source ${SOURCE_SHA}]" ]
+done
+
+SOURCE_SHA="$(git --git-dir="$REMOTE" rev-parse refs/heads/main)"
+generate_manifest 107-1
+cp "$REPO/templates/branch-readmes/surge.md" "$REPO/templates/branch-readmes/surge.md.race-original"
+printf '\nlease race fixture\n' >> "$REPO/templates/branch-readmes/surge.md"
 before_race="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
 mkdir -p "$TMP_DIR/bin"
 cat > "$TMP_DIR/bin/git" <<'EOF'
@@ -350,5 +527,47 @@ after_race_without_surge="$(printf '%s\n' "$after_race" | tail -n +2)"
 }
 [ "$(printf '%s\n' "$after_race" | head -n 1)" != "$(printf '%s\n' "$before_race" | head -n 1)" ]
 git --git-dir="$REMOTE" show surge:README.md | grep -F 'racing update' >/dev/null
+mv "$REPO/templates/branch-readmes/surge.md.race-original" "$REPO/templates/branch-readmes/surge.md"
+
+# A full build can bind the exact five current commits even when their
+# generation/source metadata is split, then repair the cohort atomically.
+generate_manifest 108-1
+python3 - "$REPO/.output/artifact-manifest.json" <<'PY'
+import json, sys
+manifest=json.load(open(sys.argv[1], encoding='utf-8'))
+assert manifest['baseline']['status']=='inconsistent'
+PY
+recovery_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+grep -F "publishing branches atomically: surge quanx egern sing-box mihomo" <<< "$recovery_output" >/dev/null
+for branch in "${BRANCHES[@]}"; do
+  subject="$(git --git-dir="$REMOTE" log -1 --format=%s "$branch")"
+  [ "$subject" = "chore: publish ${branch} artifacts [generation 108-1 source ${SOURCE_SHA}]" ] || {
+    echo "test failed: full recovery did not repair $branch metadata" >&2
+    exit 1
+  }
+done
+
+# Invalid metadata with unchanged artifact trees must still force a metadata
+# cohort publication; otherwise an all-unchanged full build could never heal it.
+surge_parent="$(git --git-dir="$REMOTE" rev-parse surge)"
+surge_tree="$(git --git-dir="$REMOTE" rev-parse 'surge^{tree}')"
+surge_invalid="$(printf 'manual metadata drift\n' | \
+  GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com \
+  GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com \
+  git --git-dir="$REMOTE" commit-tree "$surge_tree" -p "$surge_parent")"
+git --git-dir="$REMOTE" update-ref refs/heads/surge "$surge_invalid" "$surge_parent"
+before_metadata_recovery="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
+generate_manifest 109-1
+metadata_recovery_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+grep -F "publishing branches atomically: surge quanx egern sing-box mihomo" <<< "$metadata_recovery_output" >/dev/null
+after_metadata_recovery="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
+[ "$before_metadata_recovery" != "$after_metadata_recovery" ]
+for branch in "${BRANCHES[@]}"; do
+  subject="$(git --git-dir="$REMOTE" log -1 --format=%s "$branch")"
+  [ "$subject" = "chore: publish ${branch} artifacts [generation 109-1 source ${SOURCE_SHA}]" ] || {
+    echo "test failed: unchanged-tree recovery did not advance $branch metadata" >&2
+    exit 1
+  }
+done
 
 printf 'publish branch tests passed\n'

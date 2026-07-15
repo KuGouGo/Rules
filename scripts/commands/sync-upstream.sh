@@ -17,8 +17,10 @@ ARTIFACTS_DIR="${RULES_ARTIFACT_ROOT:-$ROOT_DIR/.output}"
 DIAGNOSTICS_DIR="${RULES_ARTIFACT_DIAGNOSTICS_ROOT:-$ROOT_DIR/.tmp/artifact-diagnostics}"
 DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
+CANONICAL_ARTIFACTS_DIR="$ARTIFACTS_DIR/.canonical"
 DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
 IP_TEXT_ARTIFACTS=(cn private google telegram cloudflare cloudfront aws fastly github apple)
+IP_CANONICAL_ARTIFACTS=("${IP_TEXT_ARTIFACTS[@]}" netflix spotify disney)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 UPSTREAM_SUMMARY_FILE="$WORK_TMP_DIR/upstream-summary.jsonl"
@@ -95,7 +97,8 @@ preserve_sync_diagnostics() {
 }
 trap preserve_sync_diagnostics EXIT
 
-mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR"
+rm -rf "$CANONICAL_ARTIFACTS_DIR"
+mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR" "$CANONICAL_ARTIFACTS_DIR"
 : > "$UPSTREAM_SUMMARY_FILE"
 
 echo "=== SYNC START ==="
@@ -795,6 +798,9 @@ python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
   "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_RULE_MANIFEST_FILE"
+stage_domain_canonical_rules \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$CANONICAL_ARTIFACTS_DIR/domain"
 assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"
 verify_and_record_upstream_health \
   domain \
@@ -895,6 +901,14 @@ sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"
 sync_asn_ip_list netflix  "${NETFLIX_ASNS[@]}"
 sync_asn_ip_list spotify  "${SPOTIFY_ASNS[@]}"
 sync_asn_ip_list disney   "${DISNEY_ASNS[@]}"
+
+rm -rf "$CANONICAL_ARTIFACTS_DIR/ip"
+mkdir -p "$CANONICAL_ARTIFACTS_DIR/ip"
+for name in "${IP_CANONICAL_ARTIFACTS[@]}"; do
+  render_ip_plain_to_canonical_list \
+    "$IP_BUILD_TMP_DIR/${name}.cidr.txt" \
+    "$CANONICAL_ARTIFACTS_DIR/ip/${name}.list"
+done
 
 assert_files_present "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/surge/*.list"
 assert_files_present "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/quanx/*.list"

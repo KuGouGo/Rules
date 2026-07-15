@@ -78,30 +78,32 @@ def semantic_digest(entries: Counter[RuleEntry]) -> str:
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
 
 
-def canonical_source_entries(
-    root: Path,
-    kind: str,
-    stem: str,
-    supported_kinds: set[str],
-) -> Counter[RuleEntry] | None:
-    source = root / "sources" / "custom" / kind / f"{stem}.list"
-    if not source.is_file():
-        return None
+def canonical_file_entries(path: Path, kind: str) -> Counter[RuleEntry]:
+    if not path.is_file():
+        raise ValueError(f"canonical rule source is missing: {path}")
     result: Counter[RuleEntry] = Counter()
     if kind == "domain":
         rules, errors = parse_classical_domain_file(
-            source,
+            path,
             require_canonical=True,
             allow_single_label_suffix=True,
         )
     else:
-        rules, errors = parse_classical_ip_file(source, require_canonical=True)
+        rules, errors = parse_classical_ip_file(path, require_canonical=True)
     if errors:
-        raise ValueError(f"canonical custom source is invalid: {'; '.join(errors)}")
+        raise ValueError(f"canonical rule source is invalid: {'; '.join(errors)}")
     for rule in rules:
-        if rule.kind in supported_kinds:
-            result[(rule.kind, rule.value)] += 1
+        result[(rule.kind, rule.value)] += 1
+    if not result:
+        raise ValueError(f"canonical rule source is empty: {path}")
     return result
+
+
+def canonical_source_entries(root: Path, kind: str, stem: str) -> Counter[RuleEntry] | None:
+    source = root / "sources" / "custom" / kind / f"{stem}.list"
+    if not source.is_file():
+        return None
+    return canonical_file_entries(source, kind)
 
 
 def singbox_entries(data: dict[str, Any], kind: str) -> Counter[RuleEntry]:
@@ -292,38 +294,148 @@ def parse_egern_yaml(path: Path, capability: Any, artifact_type: str) -> Counter
     return entries
 
 
-def canonical_binary_entries(
+def artifact_root_for(path: Path, artifact_type: str, platform: str) -> Path:
+    if path.parent.name != platform or path.parent.parent.name != artifact_type:
+        raise ValueError(
+            f"artifact path is outside the expected {artifact_type}/{platform} layout: {path}"
+        )
+    return path.parent.parent.parent
+
+
+def canonical_artifact_entries(
     root: Path,
     path: Path,
     artifact_type: str,
     platform: str,
     capabilities: Any,
-) -> tuple[Counter[RuleEntry] | None, str | None]:
+) -> tuple[Counter[RuleEntry], str]:
     target = getattr(capabilities.platforms[platform], artifact_type)
     supported_kinds = set(target.rule_mappings)
-    custom = canonical_source_entries(root, artifact_type, path.stem, supported_kinds)
-    if custom is not None:
-        return custom, f"sources/custom/{artifact_type}/{path.stem}.list"
+    artifact_root = artifact_root_for(path, artifact_type, platform)
+    canonical_path = artifact_root / ".canonical" / artifact_type / f"{path.stem}.list"
+    canonical = canonical_file_entries(canonical_path, artifact_type)
 
-    artifact_root = path.parents[2]
-    reference_platform = "surge"
-    if artifact_type == "domain" and platform == "sing-box":
-        reference_platform = "egern"
-    reference_capability = getattr(capabilities.platforms[reference_platform], artifact_type)
-    reference = artifact_root / artifact_type / reference_platform / f"{path.stem}.{reference_capability.extension}"
-    if not reference.is_file():
-        return None, None
-    if reference_capability.verifier.startswith("classical-"):
-        entries = verify_classical(reference, reference_capability, reference_platform, artifact_type)
-    elif reference_capability.verifier == "egern-yaml":
-        entries = parse_egern_yaml(reference, reference_capability, artifact_type)
-    else:
-        raise ValueError(f"unsupported canonical reference verifier: {reference_capability.verifier}")
-    filtered = Counter({entry: count for entry, count in entries.items() if entry[0] in supported_kinds})
-    return filtered, reference.relative_to(artifact_root).as_posix()
+    custom = canonical_source_entries(root, artifact_type, path.stem)
+    if custom is not None and normalized_semantic_entries(custom) != normalized_semantic_entries(canonical):
+        raise ValueError(
+            "internal canonical rules differ from custom source: "
+            f"canonical_sha256={semantic_digest(canonical)}, custom_sha256={semantic_digest(custom)}"
+        )
+
+    filtered = Counter(
+        {entry: count for entry, count in canonical.items() if entry[0] in supported_kinds}
+    )
+    if not filtered:
+        raise ValueError(
+            f"artifact exists although canonical rules contain no kinds supported by {platform}"
+        )
+    return filtered, canonical_path.relative_to(artifact_root).as_posix()
 
 
-def verify_one(root: Path, path: Path, artifact_type: str, platform: str) -> dict[str, Any]:
+def write_canonical_entries(path: Path, artifact_type: str, entries: Counter[RuleEntry]) -> None:
+    kind_order = {
+        "domain": ("DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"),
+        "ip": ("IP-CIDR", "IP-CIDR6"),
+    }[artifact_type]
+    order = {kind: index for index, kind in enumerate(kind_order)}
+    lines: list[str] = []
+    for (kind, value), count in sorted(entries.items(), key=lambda item: (order[item[0][0]], item[0][1])):
+        if count != 1:
+            raise ValueError(f"canonical seed contains duplicate rule: {kind},{value}")
+        lines.append(f"{kind},{value}")
+    if not lines:
+        raise ValueError(f"refusing to write empty canonical rule source: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def seed_canonical_from_egern(root: Path, artifact_root: Path, output: Path) -> None:
+    capabilities = load_platform_capabilities(root / "config" / "domain-platform-capabilities.json")
+    if output.exists():
+        raise ValueError(f"canonical seed output already exists: {output}")
+    seeded = 0
+    for artifact_type in ("domain", "ip"):
+        capability = getattr(capabilities.platforms["egern"], artifact_type)
+        source_dir = artifact_root / artifact_type / "egern"
+        if not source_dir.is_dir():
+            continue
+        for path in sorted(source_dir.glob(f"*.{capability.extension}")):
+            entries = parse_egern_yaml(path, capability, artifact_type)
+            write_canonical_entries(output / artifact_type / f"{path.stem}.list", artifact_type, entries)
+            seeded += 1
+    if seeded == 0:
+        raise ValueError(f"no Egern artifacts are available to seed canonical audit rules: {artifact_root}")
+
+
+def verify_canonical_inventory(root: Path, artifact_root: Path) -> None:
+    capabilities = load_platform_capabilities(root / "config" / "domain-platform-capabilities.json")
+    errors: list[str] = []
+    for artifact_type in ("domain", "ip"):
+        canonical_dir = artifact_root / ".canonical" / artifact_type
+        if not canonical_dir.is_dir():
+            errors.append(f"canonical {artifact_type} directory is missing: {canonical_dir}")
+            continue
+        canonical_paths = sorted(canonical_dir.glob("*.list"))
+        if not canonical_paths:
+            errors.append(f"canonical {artifact_type} directory is empty: {canonical_dir}")
+            continue
+        unexpected_canonical = sorted(
+            path.relative_to(canonical_dir).as_posix()
+            for path in canonical_dir.rglob("*")
+            if path.is_file() and (path.parent != canonical_dir or path.suffix != ".list")
+        )
+        if unexpected_canonical:
+            errors.extend(
+                f"unexpected canonical audit file: {artifact_type}/{relative}"
+                for relative in unexpected_canonical
+            )
+
+        canonical: dict[str, Counter[RuleEntry]] = {}
+        for path in canonical_paths:
+            try:
+                canonical[path.stem] = canonical_file_entries(path, artifact_type)
+            except ValueError as exc:
+                errors.append(str(exc))
+
+        for platform, details in capabilities.platforms.items():
+            capability = getattr(details, artifact_type)
+            supported_kinds = set(capability.rule_mappings)
+            platform_dir = artifact_root / artifact_type / platform
+            for stem, entries in canonical.items():
+                supported = Counter(
+                    {entry: count for entry, count in entries.items() if entry[0] in supported_kinds}
+                )
+                expected = bool(normalized_semantic_entries(supported))
+                artifact = platform_dir / f"{stem}.{capability.extension}"
+                if expected and not artifact.is_file():
+                    errors.append(
+                        f"canonical counterpart missing: {artifact_type}/{platform}/{artifact.name}"
+                    )
+                elif not expected and artifact.exists():
+                    errors.append(
+                        f"unsupported-only canonical rules must not publish: "
+                        f"{artifact_type}/{platform}/{artifact.name}"
+                    )
+
+            if platform_dir.is_dir():
+                for artifact in sorted(platform_dir.glob(f"*.{capability.extension}")):
+                    if artifact.stem not in canonical:
+                        errors.append(
+                            f"artifact has no canonical audit source: "
+                            f"{artifact_type}/{platform}/{artifact.name}"
+                        )
+    if errors:
+        raise ValueError("canonical artifact inventory failed: " + "; ".join(errors))
+
+
+def verify_one(
+    root: Path,
+    path: Path,
+    artifact_type: str,
+    platform: str,
+    *,
+    require_canonical_linkage: bool = True,
+) -> dict[str, Any]:
     capabilities = load_platform_capabilities(root / "config" / "domain-platform-capabilities.json")
     capability = getattr(capabilities.platforms[platform], artifact_type)
     verifier = capability.verifier
@@ -339,17 +451,18 @@ def verify_one(root: Path, path: Path, artifact_type: str, platform: str) -> dic
         raise ValueError(f"unsupported verifier implementation: {verifier}")
     canonical: Counter[RuleEntry] | None = None
     canonical_source: str | None = None
-    if verifier in {"sing-box", "mihomo"}:
-        canonical, canonical_source = canonical_binary_entries(
+    if require_canonical_linkage:
+        canonical, canonical_source = canonical_artifact_entries(
             root,
             path,
             artifact_type,
             platform,
             capabilities,
         )
-        if canonical is None or canonical_source is None:
-            raise ValueError("binary artifact has no canonical custom source or same-build text counterpart")
-    linkage: dict[str, Any] = {"status": "unavailable", "reason": "canonical binary compiler input is not retained or not applicable"}
+    linkage: dict[str, Any] = {
+        "status": "unavailable",
+        "reason": "syntax-only verification does not require canonical linkage",
+    }
     if canonical is not None:
         if normalized_semantic_entries(decoded) != normalized_semantic_entries(canonical):
             raise ValueError(
@@ -376,14 +489,52 @@ def verify_one(root: Path, path: Path, artifact_type: str, platform: str) -> dic
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--path", type=Path, required=True)
-    parser.add_argument("--type", choices=("domain", "ip"), required=True)
-    parser.add_argument("--platform", required=True)
+    parser.add_argument("--path", type=Path)
+    parser.add_argument("--type", choices=("domain", "ip"))
+    parser.add_argument("--platform")
+    parser.add_argument("--syntax-only", action="store_true")
+    parser.add_argument("--seed-canonical-from", type=Path)
+    parser.add_argument("--canonical-output", type=Path)
+    parser.add_argument("--verify-canonical-inventory", type=Path)
     args = parser.parse_args()
     try:
-        result = verify_one(args.root.resolve(), args.path.resolve(), args.type, args.platform)
+        if args.verify_canonical_inventory is not None:
+            if any(
+                value is not None
+                for value in (
+                    args.path,
+                    args.type,
+                    args.platform,
+                    args.seed_canonical_from,
+                    args.canonical_output,
+                )
+            ) or args.syntax_only:
+                parser.error("canonical inventory verification cannot be combined with other operations")
+            verify_canonical_inventory(args.root.resolve(), args.verify_canonical_inventory.resolve())
+            return
+        if args.seed_canonical_from is not None or args.canonical_output is not None:
+            if args.seed_canonical_from is None or args.canonical_output is None:
+                parser.error("--seed-canonical-from and --canonical-output must be used together")
+            if args.path is not None or args.type is not None or args.platform is not None or args.syntax_only:
+                parser.error("canonical seeding cannot be combined with artifact verification options")
+            seed_canonical_from_egern(
+                args.root.resolve(),
+                args.seed_canonical_from.resolve(),
+                args.canonical_output.resolve(),
+            )
+            return
+        if args.path is None or args.type is None or args.platform is None:
+            parser.error("--path, --type, and --platform are required for artifact verification")
+        result = verify_one(
+            args.root.resolve(),
+            args.path.resolve(),
+            args.type,
+            args.platform,
+            require_canonical_linkage=not args.syntax_only,
+        )
     except (OSError, ValueError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
-        raise SystemExit(f"artifact verification failed for {args.path}: {exc}")
+        operation = args.path or args.seed_canonical_from or args.verify_canonical_inventory
+        raise SystemExit(f"artifact verification failed for {operation}: {exc}")
     print(json.dumps(result, sort_keys=True))
 
 

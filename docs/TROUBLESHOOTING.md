@@ -5,10 +5,16 @@
 ## `make validate` 失败
 
 - `shellcheck not found`：本地默认可跳过，CI 强制要求；安装后重试。
-- Python 编译失败：确认 Python 3 环境并修复首个语法错误。
+- Python 编译失败：确认 `python3 --version` 为 3.11 或更高版本，再修复首个语法错误。
 - 配置失败：检查 HTTPS URL、正整数阈值、必需项和支持的枚举。
 - 自定义规则失败：处理非 canonical 类型/值、跨文件或同文件的 domain 精确项/后缀覆盖、IP 重复/包含、正则或 CIDR 规范问题。若涉及豁免，只能在 `config/custom-rule-conflicts.json` 逐条记录真实关系；不要添加文件对级宽泛关系，失效和重复关系也会失败。
-- 测试失败：直接运行对应 `scripts/tests/test-*.sh`，再检查夹具是否应有意更新。
+- 测试失败：运行 `bash scripts/tests/test-*.sh` 中对应的脚本，再检查夹具是否应有意更新。
+
+## `make check-runtime` 失败
+
+本地命令要求 `PATH` 解析到 Bash 5+ 和 Python 3.11+。macOS 应优先使用 Homebrew 安装的版本；若 `python@3.11` 已安装但仍解析到系统 Python，把 `$(brew --prefix python@3.11)/libexec/bin` 放到 `PATH` 前部。分别运行 `bash --version`、`python3 --version` 和 `command -v bash python3`，确认没有落回系统旧版本。
+
+若错误提示 `cross-device artifact promotion refused` 或 `cross-device rename refused`，应把 `RULES_LIVE_ARTIFACT_ROOT` 改到仓库所在文件系统。事务的预检与最终严格 rename 都不会通过跨设备复制模拟原子目录提升。若日志提示 `transaction recovery data preserved`，不要删除所示目录；其中的 `previous-output` 是自动恢复失败后保留的旧 live tree。
 
 ## 原生 Windows 构建失败
 
@@ -55,7 +61,7 @@ CI 的失败事务会把 `.artifacts/diagnostics/` 上传为保留 7 天的 diag
 
 ## 产物守卫（artifact guard）阻断
 
-检查最低文件数、冗余派生名、文本域名下降、Surge/Quantumult X 文本 IP 合法性和部分内置 IP 基线。随后 manifest 阶段会真实读回二进制并精确比较可关联的规范规则集合。只有在来源证据、测试和评审说明齐全时才调整阈值。
+检查最低文件数、冗余派生名、文本域名下降、Surge/Quantumult X 文本 IP 合法性和部分内置 IP 基线。随后 manifest 阶段会解析或真实读回五个平台产物，并与 `.output/.canonical/` 中的平台无关规范规则集合精确比较。只有在来源证据、测试和评审说明齐全时才调整阈值。
 
 ## 许可状态不明
 

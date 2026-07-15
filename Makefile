@@ -1,6 +1,5 @@
 SHELL := /usr/bin/env bash
 REQUIRE_SHELLCHECK ?= 0
-BASH_MIN_MAJOR := 5
 
 SHELL_SCRIPTS := $(shell find scripts -type f -name '*.sh' | sort)
 PYTHON_TOOLS := $(shell find scripts/tools -type f -name '*.py' | sort)
@@ -9,7 +8,7 @@ PYTHON_TOOLS := $(shell find scripts/tools -type f -name '*.py' | sort)
 
 help:
 	@echo "Available targets:"
-	@echo "  make check-runtime     Verify the supported Bash runtime"
+	@echo "  make check-runtime     Verify the supported Bash and Python runtimes"
 	@echo "  make lint              Run shell, Python, and custom rule lint checks"
 	@echo "  make test              Run all repository test scripts"
 	@echo "  make validate          Run lint and tests"
@@ -19,7 +18,7 @@ help:
 	@echo "  make clean             Remove generated artifacts and temporary files"
 
 check-runtime:
-	@bash -c 'if (( BASH_VERSINFO[0] < $(BASH_MIN_MAJOR) )); then echo "Bash $(BASH_MIN_MAJOR)+ is required (found $$BASH_VERSION)" >&2; exit 1; fi'
+	@./scripts/commands/check-runtime.sh
 
 lint: check-runtime lint-shell lint-python lint-config lint-rules
 

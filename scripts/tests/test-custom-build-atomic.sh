@@ -94,6 +94,7 @@ printf 'fake-mrs\n' > "$out"
 EOF
 chmod +x "$REPO/.bin/sing-box" "$REPO/.bin/mihomo"
 assert_injected_failure_preserves_output late-binary
+assert_injected_failure_preserves_output canonical-commit
 
 # A successful text-only commit updates only controlled text targets. Binary
 # targets and unrelated restored/upstream files remain untouched.

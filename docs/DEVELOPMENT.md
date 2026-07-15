@@ -4,7 +4,14 @@
 
 ## 环境支持
 
-CI 的受支持基准是 GitHub Actions `ubuntu-latest`、Bash 5+ 和 Python 3.11。本地验证与文本构建支持安装了 Bash 5+、GNU Make、Git、Python 3、curl、tar、gzip、find 的 Linux、WSL 和 macOS；macOS 应使用 Homebrew Bash，并确保 `/opt/homebrew/bin` 或 `/usr/local/bin` 位于 `/bin` 之前。`make check-runtime` 会在构建前拒绝旧版 Bash。
+CI 的受支持基准是 GitHub Actions `ubuntu-latest`、Bash 5+ 和 Python 3.11。本地验证与文本构建支持安装了 Bash 5+、Python 3.11+、GNU Make、Git、curl、tar、gzip、find 的 Linux、WSL 和 macOS；macOS 应使用 Homebrew Bash 与 Python，并确保 `/opt/homebrew/bin` 或 `/usr/local/bin` 位于系统路径之前。`make check-runtime` 会在构建前拒绝旧版 Bash 或 Python。
+
+Homebrew 的版本化 Python 将通用的 `python3` 链接放在 `libexec/bin`。macOS 可用以下配置验证当前终端，而无需为本地系统增加二进制规则编译支持：
+
+```bash
+export PATH="$(brew --prefix python@3.11)/libexec/bin:$(brew --prefix)/bin:$PATH"
+make check-runtime
+```
 
 二进制工具下载逻辑仅支持 Linux 的 `amd64`、`arm64` 锁定资产。原生 Windows 在需要下载 sing-box/mihomo 时会被 `require_non_windows_shell` 明确拒绝；macOS 也没有对应 lock 平台。请使用 Linux、WSL 或 GitHub Actions 完成二进制构建。
 
@@ -19,22 +26,20 @@ make test
 make validate
 make build-custom-text
 make build-custom
-ARTIFACT_GENERATION_ID=local-1 ARTIFACT_BUILD_SCOPE=full ./scripts/commands/generate-artifact-manifest.sh
-./scripts/commands/verify-artifact-manifest.sh
 make preflight
 make clean
 ```
 
 - `make validate`：Shell 语法、可用时的 ShellCheck、Python 编译、配置、自定义规则和测试。
-- `make check-runtime`：验证当前 `PATH` 解析到 Bash 5+。
+- `make check-runtime`：验证当前 `PATH` 解析到 Bash 5+ 和 Python 3.11+。
 - `make build-custom-text`：只生成自定义文本产物，不下载二进制编译器。
 - `make build-custom`：生成自定义文本和二进制产物。
 - `make preflight`：`make validate` 加文本自定义构建；不执行完整同步、产物守卫（artifact guard）或发布。
-- `build-artifacts-transaction.sh`：CI 的完整入口。它在 `.tmp/` 中以事务自有的 `RULES_ARTIFACT_ROOT` 组合上游同步或已发布分支恢复、自定义构建、守卫、摘要、manifest 生成与验证；调用方提供 `RULES_ARTIFACT_ROOT` 会被拒绝，测试或运维如需改变最终提升位置应使用 `RULES_LIVE_ARTIFACT_ROOT`。全部成功后才以目录替换提升为 `.output/`（或该显式 live root）。失败诊断写入非发布目录 `.artifacts/diagnostics/`，旧 live root 保持不变。`config/upstreams.json` 为每个源声明 parser、required/optional、原始字节、规范条目、地址族和 fallback policy；required 源在主 URL 与允许的回退均失败，或出现语义健康回归时阻断提升。每个 RIPE Stat ASN 响应和合并分组都使用 `ripe-stat` health policy，过小或无效响应会先写入诊断摘要再阻断事务。自定义恢复要求五个发布分支都存在且具有相同 generation/source 身份，并把分支 commit 写入 manifest restoration metadata；缺失或身份分裂时失败关闭，应执行 full 构建恢复发布 cohort。
-- `generate-artifact-manifest.sh`：在构建与守卫完成后、写 manifest 前，按能力配置中的 `verifier` 分派器验证每个产物；缺失或未验证的二进制会阻断生成。默认位于 `.output/`，事务内服从 `RULES_ARTIFACT_ROOT`。调用方应明确提供 generation id、build scope，CI 还将 source SHA 绑定到实际 checkout 的 `github.sha`：PR 验证记录被测试的合并提交，正式发布记录 `main` 提交。
-- `verify-artifact-manifest.sh`：严格重算所选 artifact root 内的可发布文件集合、路径、大小和 SHA-256，并重新执行产物验证、核对能力/lock 与可选 source SHA；发布 job 在恢复或安装锁定工具后强制执行同一验证。
+- `build-artifacts-transaction.sh`：CI 的完整入口。它在 `.tmp/` 中以事务自有的 `RULES_ARTIFACT_ROOT` 组合上游同步或已发布分支恢复、自定义构建、守卫、摘要、manifest 生成与验证；调用方提供 `RULES_ARTIFACT_ROOT` 会被拒绝，测试或运维如需改变最终提升位置应使用 `RULES_LIVE_ARTIFACT_ROOT`。该 live root 必须与仓库 `.tmp/` 位于同一文件系统，跨设备目标会在构建前被拒绝；最终 backup、promotion 和 rollback 均使用不允许复制回退的严格目录 rename，因此检查后的设备变化也会以 EXDEV 失败。全部成功后才提升为 `.output/`（或该显式 live root）。backup 后收到 HUP、INT 或 TERM，以及 promotion rename 失败时，都会通过同一幂等回滚恢复旧目录；恢复本身失败时事务目录保留唯一备份以供人工处理。失败诊断写入非发布目录 `.artifacts/diagnostics/`，并记录 failure reason、promotion state、rollback status 与可用的 signal。`config/upstreams.json` 为每个源声明 parser、required/optional、原始字节、规范条目、地址族和 fallback policy；required 源在主 URL 与允许的回退均失败，或出现语义健康回归时阻断提升。每个 RIPE Stat ASN 响应和合并分组都使用 `ripe-stat` health policy，过小或无效响应会先写入诊断摘要再阻断事务。自定义恢复要求五个发布分支都存在且具有相同 generation/source 身份，并把分支 commit 写入 manifest restoration metadata；缺失或身份分裂时失败关闭，应执行 full 构建恢复发布 cohort。
+- `generate-artifact-manifest.sh`：完整构建事务的内部阶段，不是独立的日常构建入口。它要求当前 artifact root 已有 canonical 输入、摘要、来源记录和发布基线；按能力配置验证五个平台后才写入 schema v4 manifest。缺失或未验证的产物会阻断生成。CI 将 source SHA 绑定到实际 checkout 的 `github.sha`：PR 验证记录被测试的合并提交，正式发布记录 `main` 提交。
+- `verify-artifact-manifest.sh`：严格重算所选 artifact root 内的可发布文件集合、路径、大小和 SHA-256，并重新执行五平台 canonical 验证、核对发布基线、能力/lock 与可选 source SHA；发布 job 在恢复或安装锁定工具后强制执行同一验证。需要单独调试时，应先保留完整事务生成的 artifact root，不要手工拼装 manifest 参数。
 
-二进制验证使用固定工具的真实读回接口：`.srs` 执行 `sing-box rule-set decompile` 并解析 JSON；`.mrs` 执行 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT`。读回结果与同名 custom 源或同一事务的 Egern/Surge 文本产物比较规范化语义集合：域名消除已被更宽后缀覆盖的冗余项，IP 合并为等价 CIDR 并集；值替换、范围扩大或范围丢失都会失败。manifest 记录验证方法、原始计数、读回语义 SHA-256，以及规范输入的语义 SHA-256。
+五平台验证以 `.output/.canonical/{domain,ip}/` 为共同基准。Surge、Quantumult X、Egern 解析各自文本/YAML，`.srs` 使用固定的 `sing-box rule-set decompile` 读回 JSON，`.mrs` 使用固定的 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT` 读回。每个平台先按能力矩阵过滤不支持的类型，再比较规范化语义集合：域名消除已被更宽后缀覆盖的冗余项，IP 合并为等价 CIDR 并集；值替换、范围扩大、范围丢失、缺少副本和没有 canonical 来源的额外文件都会失败。manifest 记录验证方法、原始计数、读回语义 SHA-256，以及规范输入的语义 SHA-256。
 - `make clean`：删除 `.tmp/`、`.output/`、`.artifacts/`、Python `__pycache__` 和未完成的 `.bin/*.new*`；保留已安装的 `.bin/sing-box`、`.bin/mihomo` 及 provenance sidecar。
 
 CI 设置 `REQUIRE_SHELLCHECK=1`，本地缺少 ShellCheck 时的跳过不代表 CI 会通过。
