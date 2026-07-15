@@ -16,18 +16,19 @@ from artifact_origins import ALLOWED_ORIGINS, load_origin_file
 from artifact_verifier import verify_one
 from platform_capabilities import load_platform_capabilities
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-TOP_KEYS = {"schema_version", "generation_id", "build_id", "build_scope", "source", "inputs", "tools", "summaries", "artifacts", "restoration"}
+GENERATION_RE = re.compile(r"^[0-9]+-[0-9]+$")
+TOP_KEYS = {"schema_version", "generation_id", "build_id", "build_scope", "source", "baseline", "inputs", "tools", "summaries", "artifacts", "restoration"}
 SOURCE_KEYS = {"commit", "tree"}
 INPUT_KEYS = {"capabilities", "tool_lock", "artifact_origins"}
 INPUT_VALUE_KEYS = {"path", "sha256"}
 TOOLS_KEYS = {"lock", "installed"}
 SUMMARY_KEYS = {"path", "sha256", "content"}
 ARTIFACT_KEYS = {"path", "platform", "type", "extension", "bytes", "sha256", "origin", "verification"}
-RESTORATION_KEYS = {"generation_id", "source_commit", "branches"}
-BRANCH_KEYS = {"commit"}
+RESTORATION_KEYS = {"status", "generation_id", "source_commit", "branches"}
+BRANCH_KEYS = {"commit", "generation_id", "source_commit"}
 PUBLISH_BRANCHES = {"surge", "quanx", "egern", "sing-box", "mihomo"}
 INTERNAL_ARTIFACT_FILES = {"domain/rule-manifest.json"}
 
@@ -170,6 +171,63 @@ def validate_tool_provenance(root: Path, tools: Any, lock: dict[str, Any], error
             errors.append(f"installed tool binary is not authenticated: {name}")
 
 
+def validate_publication_cohort(value: Any, location: str, errors: list[str]) -> bool:
+    if not require_exact(value, RESTORATION_KEYS, location, errors):
+        return False
+    status = value["status"]
+    if status not in {"consistent", "inconsistent"}:
+        errors.append(f"{location} status must be consistent or inconsistent")
+    branches = value["branches"]
+    if not isinstance(branches, dict) or set(branches) != PUBLISH_BRANCHES:
+        errors.append(f"{location} must record all publish branches")
+    else:
+        for branch, item in branches.items():
+            if (
+                not require_exact(item, BRANCH_KEYS, f"{location}.branches.{branch}", errors)
+                or not isinstance(item.get("commit"), str)
+                or not GIT_SHA_RE.fullmatch(item.get("commit", ""))
+            ):
+                errors.append(f"{location} branch commit invalid: {branch}")
+                continue
+            branch_generation = item["generation_id"]
+            branch_source = item["source_commit"]
+            if branch_generation is not None and (
+                not isinstance(branch_generation, str) or not GENERATION_RE.fullmatch(branch_generation)
+            ):
+                errors.append(f"{location} branch generation invalid: {branch}")
+            if branch_source is not None and (
+                not isinstance(branch_source, str) or not GIT_SHA_RE.fullmatch(branch_source)
+            ):
+                errors.append(f"{location} branch source invalid: {branch}")
+    if status == "consistent":
+        generation = value["generation_id"]
+        source = value["source_commit"]
+        if not isinstance(generation, str) or not GENERATION_RE.fullmatch(generation):
+            errors.append(f"{location} generation_id must use <run-id>-<attempt>")
+        if not isinstance(source, str) or not GIT_SHA_RE.fullmatch(source):
+            errors.append(f"{location} source_commit must be a Git commit")
+        if isinstance(branches, dict):
+            identities = {
+                (item.get("generation_id"), item.get("source_commit"))
+                for item in branches.values()
+                if isinstance(item, dict)
+            }
+            if identities != {(generation, source)}:
+                errors.append(f"{location} consistent branch identities disagree")
+    elif value["generation_id"] is not None or value["source_commit"] is not None:
+        errors.append(f"{location} inconsistent identity must be null")
+    return True
+
+
+def git_is_ancestor(root: Path, ancestor: str, descendant: str) -> bool:
+    return subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", ancestor, descendant],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    ).returncode == 0
+
+
 def generate(args: argparse.Namespace) -> None:
     root, output = args.root.resolve(), artifact_output(args.root.resolve())
     output.mkdir(parents=True, exist_ok=True)
@@ -185,10 +243,32 @@ def generate(args: argparse.Namespace) -> None:
         path = output / name
         if path.is_file():
             summaries[name.removesuffix(".json").replace("-", "_")] = {"path": name, "sha256": digest(path), "content": load_json(path)}
+    baseline_path = Path(os.environ.get("ARTIFACT_BASELINE_FILE", root / ".tmp" / "publication-baseline.json"))
+    try:
+        baseline = load_json(baseline_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"publication baseline unreadable: {exc}") from exc
+    baseline_errors: list[str] = []
+    validate_publication_cohort(baseline, "publication baseline", baseline_errors)
+    if baseline_errors:
+        raise SystemExit("invalid publication baseline: " + "; ".join(baseline_errors))
+    if baseline["status"] == "consistent" and source_commit and not git_is_ancestor(root, baseline["source_commit"], source_commit):
+        raise SystemExit(
+            f"stale source refused: publication baseline {baseline['source_commit']} "
+            f"is not an ancestor of candidate {source_commit}"
+        )
     restoration = load_json(output / "restoration-metadata.json") if (output / "restoration-metadata.json").is_file() else None
+    if args.build_scope == "custom":
+        if baseline["status"] != "consistent":
+            raise SystemExit("custom build requires a consistent publication baseline")
+        if restoration != baseline:
+            raise SystemExit("custom restoration metadata does not match the selected publication baseline")
+    if args.build_scope == "full" and restoration is not None:
+        raise SystemExit("full build must not contain restoration metadata")
     manifest = {"schema_version": SCHEMA_VERSION, "generation_id": args.generation_id,
                 "build_id": args.build_id or args.generation_id, "build_scope": args.build_scope,
                 "source": {"commit": source_commit, "tree": source_tree},
+                "baseline": baseline,
                 "inputs": {"capabilities": {"path": "config/domain-platform-capabilities.json", "sha256": digest(capabilities_path)},
                            "tool_lock": {"path": "config/tools-lock.json", "sha256": digest(lock_path)},
                            "artifact_origins": {"path": "artifact-origins.json", "sha256": digest(origins_path)}},
@@ -226,6 +306,23 @@ def verify(args: argparse.Namespace) -> None:
             if actual_tree is None: errors.append(f"source SHA is not a locally resolvable Git commit: {args.source_sha}")
             if source["commit"] != args.source_sha: errors.append(f"source commit mismatch: expected {args.source_sha}, got {source['commit']}")
             if actual_tree and source["tree"] != actual_tree: errors.append(f"source tree mismatch: expected {actual_tree}, got {source['tree']}")
+    baseline = manifest.get("baseline")
+    if validate_publication_cohort(baseline, "manifest baseline", errors):
+        source_commit = source.get("commit") if isinstance(source, dict) else None
+        baseline_source = baseline.get("source_commit")
+        if (
+            baseline.get("status") == "consistent"
+            and
+            isinstance(source_commit, str)
+            and GIT_SHA_RE.fullmatch(source_commit)
+            and isinstance(baseline_source, str)
+            and GIT_SHA_RE.fullmatch(baseline_source)
+            and not git_is_ancestor(root, baseline_source, source_commit)
+        ):
+            errors.append(
+                f"stale source refused: manifest baseline {baseline_source} "
+                f"is not an ancestor of candidate {source_commit}"
+            )
     capabilities_path, lock_path, origins_path = root / "config/domain-platform-capabilities.json", root / "config/tools-lock.json", output / "artifact-origins.json"
     try:
         matrix, lock, origins = capability_matrix(root), load_json(lock_path), load_origin_file(origins_path, require_nonempty=True)
@@ -254,14 +351,11 @@ def verify(args: argparse.Namespace) -> None:
             if item["content"] != content: errors.append(f"summary embedded content mismatch: {expected_path}")
     restoration = manifest.get("restoration")
     if manifest.get("build_scope") == "custom":
-        if require_exact(restoration, RESTORATION_KEYS, "manifest restoration", errors):
-            if not isinstance(restoration["generation_id"], str) or not restoration["generation_id"]: errors.append("restoration generation_id must be non-empty")
-            if not isinstance(restoration["source_commit"], str) or not GIT_SHA_RE.fullmatch(restoration["source_commit"]): errors.append("restoration source_commit must be a Git commit")
-            branches = restoration["branches"]
-            if not isinstance(branches, dict) or set(branches) != PUBLISH_BRANCHES: errors.append("restoration metadata must record all publish branches")
-            else:
-                for branch, item in branches.items():
-                    if not require_exact(item, BRANCH_KEYS, f"manifest restoration.branches.{branch}", errors) or not isinstance(item.get("commit"), str) or not GIT_SHA_RE.fullmatch(item.get("commit", "")): errors.append(f"restoration branch commit invalid: {branch}")
+        if validate_publication_cohort(restoration, "manifest restoration", errors):
+            if isinstance(baseline, dict) and baseline.get("status") != "consistent":
+                errors.append("custom manifest baseline must be consistent")
+            if restoration != baseline:
+                errors.append("manifest restoration must match the publication baseline")
     elif restoration is not None: errors.append("full manifest restoration must be null")
     entries = manifest.get("artifacts")
     if not isinstance(entries, list) or not entries: errors.append("manifest artifacts must be a non-empty array"); entries = []

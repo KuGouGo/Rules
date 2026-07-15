@@ -126,6 +126,23 @@ normalize_custom_domain_source() {
   python3 "$ROOT/scripts/tools/export-domain-rules.py" normalize-classical "$input_file" "$output_file"
 }
 
+stage_domain_canonical_rules() {
+  local rule_dir="$1"
+  local canonical_dir="$2"
+  local rule_file
+
+  rm -rf "$canonical_dir"
+  mkdir -p "$canonical_dir"
+  for rule_file in "$rule_dir"/*.list; do
+    [ -f "$rule_file" ] || continue
+    cp "$rule_file" "$canonical_dir/"
+  done
+  if ! compgen -G "$canonical_dir/*.list" >/dev/null; then
+    echo "canonical domain rule directory is empty: $rule_dir" >&2
+    return 1
+  fi
+}
+
 build_domain_json_from_rules() {
   local rule_list="$1"
   local json_out="$2"
@@ -321,6 +338,21 @@ render_ip_plain_to_surge_list() {
     args+=(--omit-no-resolve)
   fi
   python3 "$ROOT/scripts/tools/normalize-ip-rules.py" "${args[@]}"
+}
+
+render_ip_plain_to_canonical_list() {
+  local plain_list="$1"
+  local canonical_out="$2"
+
+  mkdir -p "$(dirname "$canonical_out")"
+  awk '
+    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
+    { printf "%s,%s\n", ($0 ~ /:/ ? "IP-CIDR6" : "IP-CIDR"), $0 }
+  ' "$plain_list" > "$canonical_out"
+  if [ ! -s "$canonical_out" ]; then
+    echo "canonical IP rule source is empty: $plain_list" >&2
+    return 1
+  fi
 }
 
 render_ip_plain_to_quanx_list() {

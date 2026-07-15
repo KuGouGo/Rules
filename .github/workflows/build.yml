@@ -85,6 +85,7 @@ jobs:
           ARTIFACT_GENERATION_ID: ${{ github.run_id }}-${{ github.run_attempt }}
           ARTIFACT_BUILD_ID: ${{ github.run_id }}
           ARTIFACT_SOURCE_SHA: ${{ github.sha }}
+          ARTIFACT_BASELINE_FILE: ${{ steps.scope.outputs.baseline_file }}
         run: ./scripts/commands/build-artifacts-transaction.sh
 
       - name: Show summary

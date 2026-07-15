@@ -8,7 +8,7 @@ python3 -m py_compile "$ROOT/scripts/tools/artifact_verifier.py"
 mkdir -p "$TMP/text-repo/config"
 cp "$ROOT/config/domain-platform-capabilities.json" "$TMP/text-repo/config/"
 printf 'DOMAIN,example.com\n' > "$TMP/good.list"
-PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/good.list" --type domain --platform surge >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/good.list" --type domain --platform surge --syntax-only >/dev/null
 printf 'UNKNOWN,example.com\n' > "$TMP/bad-kind.list"
 printf 'DOMAIN,example.com,extra\n' > "$TMP/bad-shape.list"
 printf "domain_set:\n  - 'example.com'\n" > "$TMP/good.yaml"
@@ -17,9 +17,9 @@ printf 'HOST-SUFFIX,example.com,quanx\n' > "$TMP/quanx.list"
 printf 'HOST-SUFFIX,example.com,reject\n' > "$TMP/quanx-bad.list"
 printf 'IP-CIDR,192.0.2.0/24,quanx-ip\n' > "$TMP/quanx-ip.list"
 printf 'IP-CIDR,192.0.2.0/24,reject\n' > "$TMP/quanx-ip-bad.list"
-PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/good.yaml" --type domain --platform egern >/dev/null
-PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/quanx.list" --type domain --platform quanx >/dev/null
-PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/quanx-ip.list" --type ip --platform quanx >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/good.yaml" --type domain --platform egern --syntax-only >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/quanx.list" --type domain --platform quanx --syntax-only >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/quanx-ip.list" --type ip --platform quanx --syntax-only >/dev/null
 for fixture in bad-kind.list bad-shape.list; do
   if PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/text-repo" --path "$TMP/$fixture" --type domain --platform surge >/dev/null 2>&1; then
     echo "text verifier accepted $fixture" >&2; exit 1
@@ -32,7 +32,7 @@ for fixture in quanx-bad.list quanx-ip-bad.list; do
   artifact_type=domain
   [[ "$fixture" == quanx-ip-* ]] && artifact_type=ip
   if PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" \
-    --root "$TMP/text-repo" --path "$TMP/$fixture" --type "$artifact_type" --platform quanx >/dev/null 2>&1; then
+    --root "$TMP/text-repo" --path "$TMP/$fixture" --type "$artifact_type" --platform quanx --syntax-only >/dev/null 2>&1; then
     echo "Quantumult X verifier accepted wrong policy in $fixture" >&2
     exit 1
   fi
@@ -85,9 +85,11 @@ mkdir -p \
   "$TMP/exact-repo/.bin" \
   "$TMP/exact-repo/.output/domain/sing-box" \
   "$TMP/exact-repo/.output/domain/mihomo" \
+  "$TMP/exact-repo/.output/.canonical/domain" \
   "$TMP/exact-repo/sources/custom/domain"
 cp "$ROOT/config/domain-platform-capabilities.json" "$TMP/exact-repo/config/"
 printf 'DOMAIN,fixture.example\nDOMAIN-SUFFIX,example.org\n' > "$TMP/exact-repo/sources/custom/domain/fixture.list"
+cp "$TMP/exact-repo/sources/custom/domain/fixture.list" "$TMP/exact-repo/.output/.canonical/domain/fixture.list"
 printf 'fixture\n' > "$TMP/exact-repo/.output/domain/sing-box/fixture.srs"
 printf 'fixture\n' > "$TMP/exact-repo/.output/domain/mihomo/fixture.mrs"
 cat > "$TMP/exact-repo/.bin/sing-box" <<'EOF'
@@ -139,6 +141,7 @@ fi
 
 printf 'DOMAIN-SUFFIX,example.com\nDOMAIN-SUFFIX,child.example.com\nDOMAIN,api.example.com\n' \
   > "$TMP/exact-repo/sources/custom/domain/reduction.list"
+cp "$TMP/exact-repo/sources/custom/domain/reduction.list" "$TMP/exact-repo/.output/.canonical/domain/reduction.list"
 printf 'reduction\n' > "$TMP/exact-repo/.output/domain/sing-box/reduction.srs"
 cat > "$TMP/exact-repo/.output/domain/sing-box/reduction.srs.json" <<'EOF'
 {"rules":[{"domain_suffix":["example.com"]}]}
@@ -180,16 +183,25 @@ sing-box rule-set compile "$TMP/domain.json" --output "$TMP/domain.srs"
 printf 'fixture.example\n+.example.org\n' > "$TMP/domain.txt"
 mihomo convert-ruleset domain text "$TMP/domain.txt" "$TMP/domain.mrs" >/dev/null
 
-mkdir -p "$TMP/repo/config" "$TMP/repo/.bin" "$TMP/repo/sources/custom/domain"
+mkdir -p \
+  "$TMP/repo/config" \
+  "$TMP/repo/.bin" \
+  "$TMP/repo/sources/custom/domain" \
+  "$TMP/repo/.output/.canonical/domain" \
+  "$TMP/repo/.output/domain/sing-box" \
+  "$TMP/repo/.output/domain/mihomo"
 cp "$ROOT/config/domain-platform-capabilities.json" "$TMP/repo/config/"
 cp "$TMP/domain.list" "$TMP/repo/sources/custom/domain/fixture.list"
+cp "$TMP/domain.list" "$TMP/repo/.output/.canonical/domain/fixture.list"
+cp "$TMP/domain.srs" "$TMP/repo/.output/domain/sing-box/fixture.srs"
+cp "$TMP/domain.mrs" "$TMP/repo/.output/domain/mihomo/fixture.mrs"
 ln -s "$(command -v sing-box)" "$TMP/repo/.bin/sing-box"
 ln -s "$(command -v mihomo)" "$TMP/repo/.bin/mihomo"
-PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/repo" --path "$TMP/domain.srs" --type domain --platform sing-box | grep -F '"status": "verified"' >/dev/null
-PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/repo" --path "$TMP/domain.mrs" --type domain --platform mihomo | grep -F '"status": "verified"' >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/repo" --path "$TMP/repo/.output/domain/sing-box/fixture.srs" --type domain --platform sing-box | grep -F '"status": "verified"' >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/repo" --path "$TMP/repo/.output/domain/mihomo/fixture.mrs" --type domain --platform mihomo | grep -F '"status": "verified"' >/dev/null
 
 printf CORRUPT > "$TMP/corrupt.srs"
-if PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/repo" --path "$TMP/corrupt.srs" --type domain --platform sing-box >/dev/null 2>&1; then
+if PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" --root "$TMP/repo" --path "$TMP/corrupt.srs" --type domain --platform sing-box --syntax-only >/dev/null 2>&1; then
   echo "sing-box accepted corrupted fixture" >&2; exit 1
 fi
 printf 'binary artifact verifier real-tool fixtures passed\n'

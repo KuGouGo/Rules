@@ -132,6 +132,22 @@ test_setup_tool_cache_creates_bin_and_updates_path_once() {
 path=present" "$probe_output" "setup_tool_cache is explicit and idempotent"
 }
 
+test_sha256_file_uses_python_fallback_without_sha256sum() {
+  local fallback_path="$TMP_DIR/no-sha256sum"
+  local input_file="$TMP_DIR/empty"
+  local actual
+
+  mkdir -p "$fallback_path"
+  ln -s "$(command -v python3)" "$fallback_path/python3"
+  : > "$input_file"
+
+  actual="$(PATH="$fallback_path" sha256_file "$input_file")"
+  assert_equals \
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" \
+    "$actual" \
+    "sha256_file Python fallback"
+}
+
 test_list_rule_files_sorts_lists_only
 test_list_rule_files_missing_dir_is_empty
 test_write_if_changed_replaces_different_file
@@ -140,5 +156,6 @@ test_write_if_nonempty_or_remove_moves_nonempty_source
 test_write_if_nonempty_or_remove_deletes_empty_output_and_stale_target
 test_common_source_has_no_tool_cache_side_effects
 test_setup_tool_cache_creates_bin_and_updates_path_once
+test_sha256_file_uses_python_fallback_without_sha256sum
 
 echo "shell utility tests passed"

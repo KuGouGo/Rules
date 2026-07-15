@@ -14,13 +14,14 @@
 | `scripts/tests/`、`tests/fixtures/` | 自动测试与稳定夹具 |
 | `templates/branch-readmes/` | 发布分支 README 模板及随发布树携带的 v2fly MIT 充分通知 |
 | `.output/` | 构建产物及部分审计摘要 |
+| `.output/.canonical/` | 事务内保留的 domain/IP 规范编译输入，只用于跨平台语义校验，不进入发布分支 |
 | `.tmp/` | 可清理临时工作区 |
 | `.bin/` | 外部工具及版本缓存 |
 | `.artifacts/` | 失败构建保留的诊断摘要；属于可清理的本地/CI 数据，不进入发布分支 |
 
 ## 构建范围
 
-完整范围依次同步主上游、构建自定义规则、执行产物守卫（artifact guard），再上传并发布。自定义范围从五个发布分支恢复既有产物，然后重建自定义规则。工作流没有独立的 Fake-IP 同步步骤。
+完整范围依次同步主上游、写入 `.output/.canonical/`、构建自定义规则、执行产物守卫（artifact guard），再上传并发布。自定义范围从五个发布分支恢复同一发布 cohort；旧 cohort 没有 canonical 状态时先从 Egern 文本产物重建，再用本次自定义源覆盖相应规范输入并重建产物。工作流没有独立的 Fake-IP 同步步骤。
 
 `fakeip-filter` 当前源为本仓库维护的 `sources/custom/domain/fakeip-filter.list`，由 `build-custom.sh` 与其他自定义规则一起生成五平台形式，不从网络下载预编译文件。`config/upstreams.json` 覆盖主上游网络输入；工具资产下载另由工具 lock 控制。
 
@@ -31,11 +32,14 @@
 - `.output/upstream-summary.json`：主同步在健康检查后记录名称、实际 URL、状态、回退、临时路径、原始与规范化内容的字节数、条目数和 SHA-256；DLC 另含检出的 commit。
 - `.output/domain/rule-manifest.json`：域名列表、区域集合和属性派生结构。
 - `.output/build-summary.json`：GitHub Actions 在产物守卫之后、规范发布清单之前扫描 `.output/` 生成。
-- `.output/artifact-manifest.json`：规范发布清单，包含 schema/generation/build/source/build scope、能力与工具 lock 摘要、工具 provenance metadata、可用的上游/构建摘要，以及每个可发布 domain/ip 文件的平台、类型、扩展名、字节数、SHA-256 和可判定来源。JSON 键与产物按稳定顺序输出；generation/build id 由调用方提供，因此相同输入和 id 可复现相同内容。
+- `.output/.canonical/{domain,ip}/`：规范化、去重后的平台无关规则集合。它是五个平台语义验证的唯一比较基准；manifest 记录验证结果，但不会将该目录列为发布产物。
+- `.output/artifact-manifest.json`：schema v4 规范发布清单，包含 generation/build/source/build scope、完整发布基线（整体状态以及各分支 commit/generation/source）、能力与工具 lock 摘要、工具 provenance metadata、可用的上游/构建摘要，以及每个可发布 domain/ip 文件的平台、类型、扩展名、字节数、SHA-256 和可判定来源。JSON 键与产物按稳定顺序输出；generation/build id 由调用方提供，因此相同输入和 id 可复现相同内容。
 - `.tmp/**/normalize-tasks.json`：批处理任务描述，属于临时数据。
 - `.artifacts/diagnostics/<generation-time>/`：失败事务保留的 `transaction-health.json` 及可用的构建/上游摘要；CI 日志只展示白名单内且大小受限的 JSON，完整诊断作为短期 Actions artifact 上传。
 
-`verify-artifact-manifest.sh` 严格重算能力矩阵允许的完整文件集合、路径层级与安全性、非零大小、字节数和 SHA-256，并核对能力/lock 摘要及可选的预期 source SHA。二进制读回规则与同名 custom 源或同一事务的文本产物比较等价语义集合：域名后缀覆盖和 CIDR 并集合并允许编译器消除冗余，但值替换、扩大或丢失范围会失败；清单同时记录语义 SHA-256。发布作业下载后再次验证；`publish-branches.sh` 自身也必须先验证清单，拒绝缺失、额外或被修改的产物。清单只作为流水线审计输入，不复制到发布分支。一次发布中五个分支提交携带共同 generation id 和 source SHA；任一平台 tree 改变时完整 cohort 原子推进并保留各分支父历史，全部 tree 不变时整体跳过。
+`verify-artifact-manifest.sh` 严格重算能力矩阵允许的完整文件集合、路径层级与安全性、非零大小、字节数和 SHA-256，并核对能力/lock 摘要及可选的预期 source SHA。Surge、Quantumult X、Egern、sing-box 和 Mihomo 都会按各自能力过滤规则类型，再与 `.output/.canonical/` 比较等价语义集合；域名后缀覆盖和 CIDR 并集合并允许编译器消除冗余，但值替换、扩大或丢失范围会失败。缺少任一应有平台副本、存在没有 canonical 来源的额外产物，或为只含该平台不支持规则的空集合生成文件，同样失败。清单同时记录读回方法、计数和语义 SHA-256。
+
+发布作业下载后再次验证；`publish-branches.sh` 自身也必须先验证清单，拒绝缺失、额外、被修改或重放的产物。清单只作为流水线审计输入，不复制到发布分支。一次发布中五个分支提交携带共同 generation id 和 source SHA；任一平台 tree 改变时完整 cohort 原子推进并保留各分支父历史，全部 tree 不变时在重新读取远端 cohort 后整体跳过。自定义范围以最近一次一致发布 cohort 的 source 为累计比较基准，而不是只比较 `HEAD^`，因此连续的文档提交不会掩盖此前未发布的规则改动。候选 source/generation 不得早于远端基线；准备前、推送前和推送后均检查远端 `main`，五个产物 ref 使用带预期 SHA lease 的原子推送。Git 协议无法把未变化的 `main` ref 纳入同一次 compare-and-swap；若推送产物后发现 `main` 已前进，本次运行会明确失败，由当前 `main` 的排队运行继续推进。
 
 `scripts/tools/artifact_origins.py` 是 `artifact-origins.json` 的唯一写入口：完整同步重置为 `generated-upstream`，发布分支恢复重置为 `restored-published-branch`，自定义构建只重标本次控制且实际存在的目标，并清除对应平台已经删除或降级省略的旧记录。
 
@@ -62,7 +66,7 @@
 - 两个平台部分内置 IP 集的总数与 IPv4/IPv6 最低值；
 - Surge 上部分内置 IP 集相对基线的增长或删除检查。
 
-artifact guard 本身不解析 `.srs` / `.mrs`，二进制读回与精确语义关联由随后生成和复验 manifest 的阶段执行；两者都不审查许可。发布脚本另行检查发布树、扩展名和本地产物完整性。
+artifact guard 本身不执行五平台 canonical 语义比较；该检查由随后生成和复验 manifest 的阶段执行，其中 `.srs` / `.mrs` 使用锁定工具真实读回。两者都不审查许可。发布脚本另行检查发布树、扩展名和本地产物完整性。
 
 ## 工具缓存与清理
 

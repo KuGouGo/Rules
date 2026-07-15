@@ -4,19 +4,137 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=/dev/null
+source "$ROOT/scripts/commands/check-runtime.sh"
+
 DRY_RUN="${PUBLISH_DRY_RUN:-0}"
 ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
 MANIFEST_FILE="$ARTIFACT_ROOT/artifact-manifest.json"
 CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" shell-registry)"
+PUBLISH_BRANCH_NAMES=(surge quanx egern sing-box mihomo)
 
 ARTIFACT_SOURCE_SHA="${ARTIFACT_SOURCE_SHA:-}" "$ROOT/scripts/commands/verify-artifact-manifest.sh"
-read -r MANIFEST_GENERATION_ID MANIFEST_SOURCE_SHA < <(
+read -r MANIFEST_GENERATION_ID MANIFEST_SOURCE_SHA MANIFEST_BASELINE_STATUS MANIFEST_BASELINE_SOURCE < <(
   python3 - <<'PY' "$MANIFEST_FILE"
 import json, sys
 manifest = json.load(open(sys.argv[1], encoding="utf-8"))
-print(manifest["generation_id"], manifest["source"]["commit"] or "unknown")
+print(
+    manifest["generation_id"],
+    manifest["source"]["commit"] or "unknown",
+    manifest["baseline"]["status"],
+    manifest["baseline"]["source_commit"] or "-",
+)
 PY
 )
+
+refresh_and_validate_remote_baseline() {
+  local metadata_file branch commit subject generation source
+  metadata_file="$(mktemp)"
+  : > "$metadata_file"
+
+  for branch in "${PUBLISH_BRANCH_NAMES[@]}"; do
+    if ! git -C "$ROOT" fetch --quiet --no-tags --depth=1 origin \
+      "+refs/heads/$branch:refs/remotes/origin/$branch"; then
+      echo "required remote publication branch origin/$branch is unavailable" >&2
+      rm -f "$metadata_file"
+      return 1
+    fi
+    commit="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}")"
+    subject="$(git -C "$ROOT" log -1 --format=%s "origin/$branch")"
+    if [[ "$subject" =~ ^chore:\ publish\ ${branch}\ artifacts\ \[generation\ ([0-9]+-[0-9]+)\ source\ ([0-9a-f]{40})\]$ ]]; then
+      generation="${BASH_REMATCH[1]}"
+      source="${BASH_REMATCH[2]}"
+    else
+      generation="-"
+      source="-"
+    fi
+    printf '%s\t%s\t%s\t%s\n' "$branch" "$commit" "$generation" "$source" >> "$metadata_file"
+  done
+
+  if ! python3 - "$MANIFEST_FILE" "$metadata_file" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+baseline = manifest["baseline"]
+rows = [line.split("\t") for line in Path(sys.argv[2]).read_text(encoding="utf-8").splitlines() if line]
+if len(rows) != 5:
+    raise SystemExit(f"remote publication cohort is incomplete: branches={len(rows)}")
+valid_identities = {(row[2], row[3]) for row in rows if row[2] != "-" and row[3] != "-"}
+consistent = len(valid_identities) == 1 and all(row[2] != "-" and row[3] != "-" for row in rows)
+generation, source = next(iter(valid_identities)) if consistent else (None, None)
+remote = {
+    "status": "consistent" if consistent else "inconsistent",
+    "generation_id": generation,
+    "source_commit": source,
+    "branches": {
+        row[0]: {
+            "commit": row[1],
+            "generation_id": None if row[2] == "-" else row[2],
+            "source_commit": None if row[3] == "-" else row[3],
+        }
+        for row in rows
+    },
+}
+if remote != baseline:
+    raise SystemExit(
+        "publication baseline is stale: the remote cohort changed after this build started"
+    )
+PY
+  then
+    rm -f "$metadata_file"
+    return 1
+  fi
+  rm -f "$metadata_file"
+}
+
+assert_candidate_advances_baseline() {
+  if [ "$MANIFEST_BASELINE_STATUS" = "consistent" ] && ! git -C "$ROOT" merge-base --is-ancestor \
+    "$MANIFEST_BASELINE_SOURCE" "$MANIFEST_SOURCE_SHA"; then
+    echo "stale publication source refused: candidate $MANIFEST_SOURCE_SHA does not descend from baseline $MANIFEST_BASELINE_SOURCE" >&2
+    return 1
+  fi
+
+  python3 - "$MANIFEST_FILE" <<'PY'
+import json
+import re
+import sys
+
+manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+candidate = manifest["generation_id"]
+pattern = re.compile(r"([0-9]+)-([0-9]+)")
+candidate_match = pattern.fullmatch(candidate)
+if candidate_match is None:
+    raise SystemExit("candidate publication generation must use <run-id>-<attempt>")
+candidate_order = tuple(map(int, candidate_match.groups()))
+for branch, item in manifest["baseline"]["branches"].items():
+    baseline = item["generation_id"]
+    if baseline is None:
+        continue
+    baseline_match = pattern.fullmatch(baseline)
+    if baseline_match is None:
+        raise SystemExit(f"baseline generation is invalid for {branch}: {baseline}")
+    if candidate_order <= tuple(map(int, baseline_match.groups())):
+        raise SystemExit(
+            f"stale publication generation refused: candidate {candidate} "
+            f"is not newer than {branch} baseline {baseline}"
+        )
+PY
+}
+
+assert_remote_main_tip() {
+  local remote_main
+  remote_main="$(git -C "$ROOT" ls-remote --exit-code origin refs/heads/main | awk 'NR == 1 {print $1}')"
+  if [ "$remote_main" != "$MANIFEST_SOURCE_SHA" ]; then
+    echo "stale publication source refused: remote main is $remote_main, candidate is $MANIFEST_SOURCE_SHA" >&2
+    return 1
+  fi
+}
+
+assert_remote_main_tip
+refresh_and_validate_remote_baseline
+assert_candidate_advances_baseline
 
 branch_readme() {
   local branch="$1"
@@ -217,6 +335,11 @@ publish_queued_refs() {
     return 0
   fi
 
+  # Close the source race after all branch trees have been prepared. The
+  # expected-SHA leases below independently close artifact-branch races.
+  assert_remote_main_tip
+  refresh_and_validate_remote_baseline
+
   if [ "$PUBLISH_COHORT_CHANGED" -eq 0 ]; then
     echo "all publish branches unchanged, skip push"
     return 0
@@ -250,6 +373,10 @@ publish_queued_refs() {
 
   echo "publishing branches atomically: ${names[*]}"
   git push --atomic "${leases[@]}" origin "${refspecs[@]}"
+  if ! assert_remote_main_tip; then
+    echo "artifact cohort was published while main advanced; this run is failed intentionally and the queued current-main run must roll forward" >&2
+    return 1
+  fi
 }
 
 PUBLISH_TMPDIR="$(mktemp -d)"
@@ -265,7 +392,13 @@ git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 mkdir -p .git/objects/info
 git -C "$ROOT" rev-parse --path-format=absolute --git-path objects > .git/objects/info/alternates
 
-PUBLISH_COHORT_CHANGED=0
+if [ "$MANIFEST_BASELINE_STATUS" = "consistent" ]; then
+  PUBLISH_COHORT_CHANGED=0
+else
+  # A full recovery must repair split/invalid cohort metadata even when every
+  # artifact tree is byte-for-byte unchanged.
+  PUBLISH_COHORT_CHANGED=1
+fi
 
 declare -A PUBLISH_BRANCH PUBLISH_DOMAIN_EXTENSION PUBLISH_IP_EXTENSION
 while IFS=$'\t' read -r platform _public_name branch section extension _format _empty _compiler _verifier; do

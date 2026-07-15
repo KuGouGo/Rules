@@ -11,6 +11,7 @@ fi
 ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
 TMP_ROOT="$ROOT/.tmp/restore-published"
 RESTORE_METADATA_FILE="$TMP_ROOT/restored-branches.tsv"
+BASELINE_FILE="${ARTIFACT_BASELINE_FILE:-$ROOT/.tmp/publication-baseline.json}"
 
 inject_restore_failure() {
   local point="$1"
@@ -57,10 +58,11 @@ restore_branch_artifacts() {
   local commit subject generation source
   commit="$(git rev-parse "origin/$branch^{commit}")"
   subject="$(git log -1 --format=%s "origin/$branch")"
-  generation="$(printf '%s' "$subject" | grep -oE '\[generation [^ ]+' | cut -d' ' -f2 || true)"
-  source="$(printf '%s' "$subject" | grep -oE 'source [0-9a-f]{40}\]' | cut -d' ' -f2 | tr -d ']' || true)"
-  if [ -z "$generation" ] || [ -z "$source" ]; then
-    echo "origin/$branch lacks required generation/source publication metadata" >&2
+  if [[ "$subject" =~ ^chore:\ publish\ ${branch}\ artifacts\ \[generation\ ([0-9]+-[0-9]+)\ source\ ([0-9a-f]{40})\]$ ]]; then
+    generation="${BASH_REMATCH[1]}"
+    source="${BASH_REMATCH[2]}"
+  else
+    echo "origin/$branch lacks valid generation/source publication metadata" >&2
     return 1
   fi
   printf '%s\t%s\t%s\t%s\n' "$branch" "$commit" "$generation" "$source" >> "$RESTORE_METADATA_FILE"
@@ -86,10 +88,41 @@ if len(rows) != 5:
 generations = {row[2] for row in rows}; sources = {row[3] for row in rows}
 if len(generations) != 1 or len(sources) != 1:
     raise SystemExit(f"restored branches are from inconsistent publications: generations={sorted(generations)}, sources={sorted(sources)}")
-payload = {"generation_id": next(iter(generations)), "source_commit": next(iter(sources)),
-           "branches": {row[0]: {"commit": row[1]} for row in rows}}
+generation = next(iter(generations)); source = next(iter(sources))
+payload = {
+    "status": "consistent",
+    "generation_id": generation,
+    "source_commit": source,
+    "branches": {
+        row[0]: {
+            "commit": row[1],
+            "generation_id": generation,
+            "source_commit": source,
+        }
+        for row in rows
+    },
+}
 Path(sys.argv[2]).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
+
+if [ -f "$BASELINE_FILE" ]; then
+  python3 - "$BASELINE_FILE" "$ARTIFACT_ROOT/restoration-metadata.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+baseline = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+restored = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+if restored != baseline:
+    raise SystemExit(
+        "restored publication cohort differs from the selected build baseline; "
+        "refusing a mixed custom build"
+    )
+PY
+else
+  mkdir -p "$(dirname "$BASELINE_FILE")"
+  cp "$ARTIFACT_ROOT/restoration-metadata.json" "$BASELINE_FILE"
+fi
 
 python3 "$ROOT/scripts/tools/artifact_origins.py" reset \
   "$ARTIFACT_ROOT" \
