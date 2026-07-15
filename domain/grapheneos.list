@@ -1,0 +1,16 @@
+HOST-SUFFIX,attestation.app,grapheneos
+HOST-SUFFIX,grapheneos.app,grapheneos
+HOST-SUFFIX,grapheneos.ca,grapheneos
+HOST-SUFFIX,grapheneos.com,grapheneos
+HOST-SUFFIX,grapheneos.dev,grapheneos
+HOST-SUFFIX,grapheneos.foundation,grapheneos
+HOST-SUFFIX,grapheneos.info,grapheneos
+HOST-SUFFIX,grapheneos.net,grapheneos
+HOST-SUFFIX,grapheneos.network,grapheneos
+HOST-SUFFIX,grapheneos.online,grapheneos
+HOST-SUFFIX,grapheneos.org,grapheneos
+HOST-SUFFIX,grapheneos.ovh,grapheneos
+HOST-SUFFIX,grapheneos.page,grapheneos
+HOST-SUFFIX,grapheneos.social,grapheneos
+HOST-SUFFIX,seamlessupdate.app,grapheneos
+HOST-SUFFIX,vanadium.app,grapheneos

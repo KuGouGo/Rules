@@ -1,0 +1,4 @@
+HOST-SUFFIX,getsentry.com,sentry
+HOST-SUFFIX,sentry.dev,sentry
+HOST-SUFFIX,sentry.io,sentry
+HOST-SUFFIX,sentry-cdn.com,sentry

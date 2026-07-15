@@ -1,0 +1,7 @@
+HOST-SUFFIX,analytics.facebook.com,meta@ads
+HOST-SUFFIX,facebookads.com,meta@ads
+HOST-SUFFIX,pixel.facebook.com,meta@ads
+HOST-SUFFIX,graph.instagram.com,meta@ads
+HOST-SUFFIX,graph-fallback.instagram.com,meta@ads
+HOST-SUFFIX,graph.whatsapp.com,meta@ads
+HOST-SUFFIX,graph.whatsapp.net,meta@ads
