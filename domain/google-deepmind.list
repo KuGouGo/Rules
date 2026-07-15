@@ -27,6 +27,7 @@ HOST-SUFFIX,jules.google,google-deepmind
 HOST-SUFFIX,jules.google.com,google-deepmind
 HOST-SUFFIX,labs.google,google-deepmind
 HOST-SUFFIX,labs.google.com,google-deepmind
+HOST-SUFFIX,flow.google,google-deepmind
 HOST-SUFFIX,aisandbox-pa.googleapis.com,google-deepmind
 HOST-SUFFIX,aicode.googleapis.com,google-deepmind
 HOST-SUFFIX,aida.googleapis.com,google-deepmind

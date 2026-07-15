@@ -784,6 +784,7 @@ HOST-SUFFIX,jules.google,google
 HOST-SUFFIX,jules.google.com,google
 HOST-SUFFIX,labs.google,google
 HOST-SUFFIX,labs.google.com,google
+HOST-SUFFIX,flow.google,google
 HOST-SUFFIX,aisandbox-pa.googleapis.com,google
 HOST-SUFFIX,aicode.googleapis.com,google
 HOST-SUFFIX,aida.googleapis.com,google

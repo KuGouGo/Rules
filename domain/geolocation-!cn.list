@@ -142,6 +142,7 @@ HOST-SUFFIX,jules.google,geolocation-!cn
 HOST-SUFFIX,jules.google.com,geolocation-!cn
 HOST-SUFFIX,labs.google,geolocation-!cn
 HOST-SUFFIX,labs.google.com,geolocation-!cn
+HOST-SUFFIX,flow.google,geolocation-!cn
 HOST-SUFFIX,aisandbox-pa.googleapis.com,geolocation-!cn
 HOST-SUFFIX,aicode.googleapis.com,geolocation-!cn
 HOST-SUFFIX,aida.googleapis.com,geolocation-!cn

@@ -27,6 +27,7 @@ HOST-SUFFIX,jules.google,google-gemini
 HOST-SUFFIX,jules.google.com,google-gemini
 HOST-SUFFIX,labs.google,google-gemini
 HOST-SUFFIX,labs.google.com,google-gemini
+HOST-SUFFIX,flow.google,google-gemini
 HOST-SUFFIX,aisandbox-pa.googleapis.com,google-gemini
 HOST-SUFFIX,aicode.googleapis.com,google-gemini
 HOST-SUFFIX,aida.googleapis.com,google-gemini
