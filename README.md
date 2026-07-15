@@ -93,9 +93,9 @@ make clean
 ## 仓库边界
 
 - 长期分支只保留 `main` 与 `surge`、`quanx`、`egern`、`sing-box`、`mihomo` 五个产物分支。
-- 变更通过临时分支向 `main` 提交 Pull Request；PR 运行静态检查和不发布的完整候选构建，临时分支在合并后删除。
+- 变更通过临时分支向 `main` 提交 Pull Request；PR 始终运行静态检查，并按改动路径选择跳过、custom 或 full 候选构建，临时分支在合并后删除。
 - `main` 在构建相关路径变化、定时任务运行或人工触发时执行发布工作流；产物内容没有变化时不会创建新的产物分支提交。
-- Dependabot 每月向 `main` 集中提交一个 GitHub Actions minor/patch 更新 PR；major 与安全告警单独人工评估。
+- Dependabot 每周向 `main` 集中提交一个 GitHub Actions minor/patch 更新 PR；major 与安全更新保持独立，逐项评估。
 - `fakeip-filter` 是本仓库维护的文本源，不下载第三方预编译文件。
 - 构建摘要、manifest 和 CI 通过都不是第三方许可证明。
 - 规则按现状提供。使用者需自行判断策略、顺序和更新带来的影响，并保留可回退版本。

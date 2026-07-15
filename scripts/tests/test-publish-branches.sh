@@ -76,8 +76,8 @@ mkdir -p \
 
 printf 'DOMAIN-SUFFIX,example.com\n' > "$REPO/.output/domain/surge/test.list"
 printf 'IP-CIDR,192.0.2.0/24,no-resolve\n' > "$REPO/.output/ip/surge/test.list"
-printf 'HOST-SUFFIX,example.com,direct\n' > "$REPO/.output/domain/quanx/test.list"
-printf 'IP-CIDR,192.0.2.0/24,direct\n' > "$REPO/.output/ip/quanx/test.list"
+printf 'HOST-SUFFIX,example.com,test\n' > "$REPO/.output/domain/quanx/test.list"
+printf 'IP-CIDR,192.0.2.0/24,test\n' > "$REPO/.output/ip/quanx/test.list"
 printf "domain_suffix_set:\n  - 'example.com'\n" > "$REPO/.output/domain/egern/test.yaml"
 printf "no_resolve: true\nip_cidr_set:\n  - '192.0.2.0/24'\n" > "$REPO/.output/ip/egern/test.yaml"
 printf 'srs-domain\n' > "$REPO/.output/domain/sing-box/test.srs"
@@ -93,18 +93,23 @@ output="$5"
 if [[ "$input" == */ip/* ]]; then
   printf '{"version":4,"rules":[{"ip_cidr":["192.0.2.0/24"]}]}\n' > "$output"
 else
-  printf '{"version":4,"rules":[{"domain_suffix":["example.com"]}]}\n' > "$output"
+  value=example.com
+  grep -q '^updated-' "$input" && value=updated.example
+  printf '{"version":4,"rules":[{"domain_suffix":["%s"]}]}\n' "$value" > "$output"
 fi
 EOF
 cat > "$REPO/.bin/mihomo" <<'EOF'
 #!/usr/bin/env bash
 set -eu
+behavior="$2"
 input="$4"
 output="$5"
-if [[ "$input" == */ip/* ]]; then
+if [ "$behavior" = ipcidr ]; then
   printf '192.0.2.0/24\n' > "$output"
 else
-  printf '+.example.com\n' > "$output"
+  value=example.com
+  grep -q '^updated-' "$input" && value=updated.example
+  printf '+.%s\n' "$value" > "$output"
 fi
 EOF
 chmod +x "$REPO/.bin/sing-box" "$REPO/.bin/mihomo"
@@ -191,7 +196,7 @@ if git --git-dir="$REMOTE" show quanx:README.md | grep -F 'QuanX' >/dev/null; th
 fi
 
 git --git-dir="$REMOTE" show surge:domain/test.list | grep -Fx 'DOMAIN-SUFFIX,example.com' >/dev/null
-git --git-dir="$REMOTE" show quanx:ip/test.list | grep -Fx 'IP-CIDR,192.0.2.0/24,direct' >/dev/null
+git --git-dir="$REMOTE" show quanx:ip/test.list | grep -Fx 'IP-CIDR,192.0.2.0/24,test' >/dev/null
 
 before_idempotent="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
 git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
@@ -199,6 +204,52 @@ second_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publi
 after_idempotent="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
 [ "$before_idempotent" = "$after_idempotent" ]
 grep -F "all publish branches unchanged, skip push" <<< "$second_output" >/dev/null
+
+# A change to one platform must advance the complete publication cohort. The
+# four unchanged trees receive metadata-only commits so a later custom restore
+# observes one generation/source identity across all five branches.
+declare -A before_partial_commit before_partial_tree
+for branch in "${BRANCHES[@]}"; do
+  before_partial_commit["$branch"]="$(git --git-dir="$REMOTE" rev-parse "$branch")"
+  before_partial_tree["$branch"]="$(git --git-dir="$REMOTE" rev-parse "$branch^{tree}")"
+done
+cp "$REPO/templates/branch-readmes/surge.md" "$REPO/templates/branch-readmes/surge.md.partial-original"
+printf '\npartial cohort fixture\n' >> "$REPO/templates/branch-readmes/surge.md"
+git -C "$REPO" fetch origin '+refs/heads/*:refs/remotes/origin/*' >/dev/null 2>&1
+ARTIFACT_GENERATION_ID=test-generation-partial ARTIFACT_BUILD_SCOPE=full ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/generate-artifact-manifest.sh" >/dev/null
+partial_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
+grep -F "publishing branches atomically: surge quanx egern sing-box mihomo" <<< "$partial_output" >/dev/null
+
+for branch in "${BRANCHES[@]}"; do
+  after_commit="$(git --git-dir="$REMOTE" rev-parse "$branch")"
+  after_tree="$(git --git-dir="$REMOTE" rev-parse "$branch^{tree}")"
+  parent_commit="$(git --git-dir="$REMOTE" rev-parse "$branch^")"
+  subject="$(git --git-dir="$REMOTE" log -1 --format=%s "$branch")"
+  [ "$after_commit" != "${before_partial_commit[$branch]}" ] || {
+    echo "test failed: partial cohort did not advance $branch" >&2
+    exit 1
+  }
+  [ "$parent_commit" = "${before_partial_commit[$branch]}" ] || {
+    echo "test failed: $branch publication commit did not preserve parent history" >&2
+    exit 1
+  }
+  [ "$subject" = "chore: publish ${branch} artifacts [generation test-generation-partial source ${SOURCE_SHA}]" ] || {
+    echo "test failed: $branch publication identity differs from partial cohort" >&2
+    exit 1
+  }
+  if [ "$branch" = surge ]; then
+    [ "$after_tree" != "${before_partial_tree[$branch]}" ] || {
+      echo "test failed: surge fixture did not change its tree" >&2
+      exit 1
+    }
+  else
+    [ "$after_tree" = "${before_partial_tree[$branch]}" ] || {
+      echo "test failed: metadata-only cohort commit changed $branch tree" >&2
+      exit 1
+    }
+  fi
+done
+mv "$REPO/templates/branch-readmes/surge.md.partial-original" "$REPO/templates/branch-readmes/surge.md"
 
 # A missing template must fail before the queued batch is pushed.
 before_missing_template="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
@@ -232,7 +283,7 @@ for branch in "${BRANCHES[@]}"; do
       ;;
     quanx)
       extension=list
-      printf 'HOST-SUFFIX,updated.example,direct\n' > "$REPO/.output/domain/$branch/test.$extension"
+      printf 'HOST-SUFFIX,updated.example,test\n' > "$REPO/.output/domain/$branch/test.$extension"
       ;;
     egern)
       extension=yaml

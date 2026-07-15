@@ -37,9 +37,9 @@ collect_changed_files() {
   fi
 
   if [ -n "$before" ]; then
-    git diff --name-only "$before" "$current"
+    git diff --no-renames --name-only "$before" "$current"
   else
-    git diff-tree --no-commit-id --name-only -r "$current"
+    git diff-tree --no-renames --no-commit-id --name-only -r "$current"
   fi
 }
 
@@ -57,10 +57,18 @@ collect_deleted_custom_files() {
   fi
 
   if [ -n "$before" ]; then
-    git diff --name-only --diff-filter=D "$before" "$current" -- 'sources/custom/**'
+    git diff --no-renames --name-only --diff-filter=D "$before" "$current" -- 'sources/custom/**'
   else
-    git diff-tree --no-commit-id --name-only --diff-filter=D -r "$current" -- 'sources/custom/**'
+    git diff-tree --no-renames --no-commit-id --name-only --diff-filter=D -r "$current" -- 'sources/custom/**'
   fi
+}
+
+has_build_relevant_changes() {
+  grep -Eq '^(\.github/workflows/|Makefile$|config/|scripts/|sources/custom/|templates/|tests/)'
+}
+
+has_only_non_build_changes() {
+  ! grep -Eqv '^(\.github/(CODEOWNERS$|ISSUE_TEMPLATE/|dependabot\.yml$|pull_request_template\.md$)|\.gitignore$|CONTRIBUTING\.md$|LICENSE$|NOTICE$|README\.md$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$|docs/)'
 }
 
 if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
@@ -99,9 +107,9 @@ if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
       exit 1
       ;;
   esac
-elif [ "$EVENT_NAME" = "push" ]; then
+elif [ "$EVENT_NAME" = "push" ] || [ "$EVENT_NAME" = "pull_request" ]; then
   before="$BEFORE_SHA"
-  if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+  if [ "$EVENT_NAME" = "push" ] && { [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; }; then
     before="$(git rev-parse "${CURRENT_SHA}^" 2>/dev/null || true)"
   fi
   base_sha="$before"
@@ -112,17 +120,17 @@ elif [ "$EVENT_NAME" = "push" ]; then
     ! git cat-file -e "${CURRENT_SHA}^{commit}" 2>/dev/null
   }; then
     scope="full"
-    reason="push base unavailable; using full sync"
+    reason="$EVENT_NAME base unavailable; using full sync"
     base_sha=""
   else
     if ! changed_files="$(collect_changed_files "$before" "$CURRENT_SHA")"; then
       scope="full"
-      reason="push diff unavailable; using full sync"
+      reason="$EVENT_NAME diff unavailable; using full sync"
       base_sha=""
       changed_files=""
     elif ! deleted_custom_files="$(collect_deleted_custom_files "$before" "$CURRENT_SHA")"; then
       scope="full"
-      reason="push diff unavailable; using full sync"
+      reason="$EVENT_NAME diff unavailable; using full sync"
       base_sha=""
       deleted_custom_files=""
     else
@@ -131,16 +139,28 @@ elif [ "$EVENT_NAME" = "push" ]; then
 
       if [ -z "$changed_files" ]; then
         scope="full"
-        reason="push diff empty; using full sync"
+        reason="$EVENT_NAME diff empty; using full sync"
       elif [ -n "$deleted_custom_files" ]; then
         scope="full"
         reason="custom deletions require full sync"
+      elif ! printf '%s\n' "$changed_files" | has_build_relevant_changes; then
+        if [ "$EVENT_NAME" = "pull_request" ] \
+          && printf '%s\n' "$changed_files" | has_only_non_build_changes; then
+          scope="none"
+          reason="pull_request has no build-relevant changes"
+        elif [ "$EVENT_NAME" = "pull_request" ]; then
+          scope="full"
+          reason="pull_request includes unclassified changes"
+        else
+          scope="full"
+          reason="push includes non-custom changes"
+        fi
       elif printf '%s\n' "$changed_files" | grep -Eqv '^sources/custom/'; then
         scope="full"
-        reason="push includes non-custom changes"
+        reason="$EVENT_NAME includes changes outside custom sources"
       else
         scope="custom"
-        reason="push only updates custom sources"
+        reason="$EVENT_NAME only updates custom sources"
       fi
     fi
   fi

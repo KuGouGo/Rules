@@ -99,8 +99,43 @@ jobs:
               cat .output/upstream-summary.json
             fi
           fi
+          if [ -d .artifacts/diagnostics ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          diagnostics = Path(".artifacts/diagnostics")
+          allowed_names = {
+              "build-summary.json",
+              "transaction-health.json",
+              "upstream-summary.json",
+          }
+          max_bytes = 256 * 1024
+
+          for path in sorted(diagnostics.rglob("*.json")):
+              if path.name not in allowed_names or path.stat().st_size > max_bytes:
+                  continue
+              try:
+                  payload = json.loads(path.read_text(encoding="utf-8"))
+              except (OSError, json.JSONDecodeError) as exc:
+                  print(f"diagnostic summary unreadable: {path}: {exc}")
+                  continue
+              print(f"Failure diagnostic summary: {path}")
+              print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+          PY
+          fi
           echo "Changed files summary:"
           git status --short
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/diagnostics/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload publish artifacts
         if: success()
@@ -114,6 +149,7 @@ jobs:
 
   publish:
     needs: build
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

@@ -16,30 +16,32 @@
 | `.output/` | 构建产物及部分审计摘要 |
 | `.tmp/` | 可清理临时工作区 |
 | `.bin/` | 外部工具及版本缓存 |
+| `.artifacts/` | 失败构建保留的诊断摘要；属于可清理的本地/CI 数据，不进入发布分支 |
 
 ## 构建范围
 
 完整范围依次同步主上游、构建自定义规则、执行产物守卫（artifact guard），再上传并发布。自定义范围从五个发布分支恢复既有产物，然后重建自定义规则。工作流没有独立的 Fake-IP 同步步骤。
 
-`fakeip-filter` 当前源为本仓库维护的 `sources/custom/domain/fakeip-filter.list`，由 `build-custom.sh` 与其他自定义规则一起生成五平台形式，不从网络下载预编译文件。过去采用 `wwqgtxx/clash-rules` 的 `fakeip-filter.mrs` 仅是历史迁移背景，不属于当前输入。`config/upstreams.json` 覆盖主上游网络输入；工具资产下载另由工具 lock 控制。
+`fakeip-filter` 当前源为本仓库维护的 `sources/custom/domain/fakeip-filter.list`，由 `build-custom.sh` 与其他自定义规则一起生成五平台形式，不从网络下载预编译文件。`config/upstreams.json` 覆盖主上游网络输入；工具资产下载另由工具 lock 控制。
 
 `main` 是唯一长期源码与发布源分支，开发使用合并后删除的临时分支。发布分支为 `surge`、`quanx`、`egern`、`sing-box`、`mihomo`，只允许生成的 `README.md`、`domain/`、`ip/` 及平台对应扩展名。各分支 `README.md` 由 `templates/branch-readmes/` 生成，并直接包含 v2fly/domain-list-community 的完整 MIT 版权与许可通知；因此发布树无需新增独立许可证文件。模板变更属于构建触发路径。
 
 ## 审计文件
 
-- `.output/upstream-summary.json`：主同步记录的名称、URL、状态、回退、临时路径、字节数和按非注释行估算的条目数。
+- `.output/upstream-summary.json`：主同步在健康检查后记录名称、实际 URL、状态、回退、临时路径、原始与规范化内容的字节数、条目数和 SHA-256；DLC 另含检出的 commit。
 - `.output/domain/rule-manifest.json`：域名列表、区域集合和属性派生结构。
 - `.output/build-summary.json`：GitHub Actions 在产物守卫之后、规范发布清单之前扫描 `.output/` 生成。
 - `.output/artifact-manifest.json`：规范发布清单，包含 schema/generation/build/source/build scope、能力与工具 lock 摘要、工具 provenance metadata、可用的上游/构建摘要，以及每个可发布 domain/ip 文件的平台、类型、扩展名、字节数、SHA-256 和可判定来源。JSON 键与产物按稳定顺序输出；generation/build id 由调用方提供，因此相同输入和 id 可复现相同内容。
 - `.tmp/**/normalize-tasks.json`：批处理任务描述，属于临时数据。
+- `.artifacts/diagnostics/<generation-time>/`：失败事务保留的 `transaction-health.json` 及可用的构建/上游摘要；CI 日志只展示白名单内且大小受限的 JSON，完整诊断作为短期 Actions artifact 上传。
 
-`verify-artifact-manifest.sh` 严格重算能力矩阵允许的完整文件集合、路径层级与安全性、非零大小、字节数和 SHA-256，并核对能力/lock 摘要及可选的预期 source SHA。发布作业下载后再次验证；`publish-branches.sh` 自身也必须先验证清单，拒绝缺失、额外或被修改的产物。清单只作为流水线审计输入，不复制到发布分支。分支提交消息携带共同 generation id 和 source SHA。
+`verify-artifact-manifest.sh` 严格重算能力矩阵允许的完整文件集合、路径层级与安全性、非零大小、字节数和 SHA-256，并核对能力/lock 摘要及可选的预期 source SHA。二进制读回规则与同名 custom 源或同一事务的文本产物按类型和值精确比较，并记录语义 SHA-256。发布作业下载后再次验证；`publish-branches.sh` 自身也必须先验证清单，拒绝缺失、额外或被修改的产物。清单只作为流水线审计输入，不复制到发布分支。一次发布中五个分支提交携带共同 generation id 和 source SHA；任一平台 tree 改变时完整 cohort 原子推进并保留各分支父历史，全部 tree 不变时整体跳过。
 
 `scripts/tools/artifact_origins.py` 是 `artifact-origins.json` 的唯一写入口：完整同步重置为 `generated-upstream`，发布分支恢复重置为 `restored-published-branch`，自定义构建只重标本次控制且实际存在的目标，并清除对应平台已经删除或降级省略的旧记录。
 
 `config/domain-platform-capabilities.json` 是平台 branch、extension、format、rule mapping、empty policy、compiler 与 verifier 的唯一结构化来源。`scripts/tools/platform_capabilities.py` 严格加载并校验实现标识，同时向 Python 消费者提供查询对象、向 shell 消费者生成稳定的 tab-separated registry。IP 渲染、构建/守卫的安全循环、摘要和发布均查询该 registry；声明未知实现时构建会 fail closed。公开分支名仍由能力文件中的 `branch` 字段固定。
 
-`upstream-summary.json` 不是完整来源追溯记录：它不覆盖自定义源（包括 `fakeip-filter`）、全部转换步骤、上游提交身份或内容校验和。上述文件也都不是许可证证明。
+`upstream-summary.json` 不是完整来源追溯记录：它不覆盖自定义源（包括 `fakeip-filter`）、全部转换步骤或 HTTP 响应身份。上述文件也都不是许可证证明。
 
 ## 名称冲突检查
 
@@ -60,7 +62,7 @@
 - 两个平台部分内置 IP 集的总数与 IPv4/IPv6 最低值；
 - Surge 上部分内置 IP 集相对基线的增长或删除检查。
 
-它不对所有 `.srs` / `.mrs` 执行等价语义检查，也不审查许可。发布脚本另行检查发布树、扩展名和本地产物完整性。
+artifact guard 本身不解析 `.srs` / `.mrs`，二进制读回与精确语义关联由随后生成和复验 manifest 的阶段执行；两者都不审查许可。发布脚本另行检查发布树、扩展名和本地产物完整性。
 
 ## 工具缓存与清理
 

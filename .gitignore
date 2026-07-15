@@ -2,6 +2,7 @@
 .output/
 .tmp/
 .bin/
+.artifacts/
 
 # Python
 __pycache__/

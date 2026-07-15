@@ -30,16 +30,16 @@ make clean
 - `make build-custom-text`：只生成自定义文本产物，不下载二进制编译器。
 - `make build-custom`：生成自定义文本和二进制产物。
 - `make preflight`：`make validate` 加文本自定义构建；不执行完整同步、产物守卫（artifact guard）或发布。
-- `build-artifacts-transaction.sh`：CI 的完整入口。它在 `.tmp/` 中以事务自有的 `RULES_ARTIFACT_ROOT` 组合上游同步或已发布分支恢复、自定义构建、守卫、摘要、manifest 生成与验证；调用方提供 `RULES_ARTIFACT_ROOT` 会被拒绝，测试或运维如需改变最终提升位置应使用 `RULES_LIVE_ARTIFACT_ROOT`。全部成功后才以目录替换提升为 `.output/`（或该显式 live root）。失败诊断写入非发布目录 `.artifacts/diagnostics/`，旧 live root 保持不变。`config/upstreams.json` 为每个源声明 parser、required/optional、原始字节、规范条目、地址族和 fallback policy；required 源的传输、fallback 或语义健康回归都会在提升前失败。每个 RIPE Stat ASN 响应和合并分组都使用 `ripe-stat` health policy，过小或无效响应会先写入诊断摘要再阻断事务。自定义恢复要求五个发布分支具有相同 generation/source 身份，并把分支 commit 写入 manifest restoration metadata。缺失分支的跨平台有损转换默认禁用，仅可用 `RULES_ALLOW_LOSSY_RESTORE_FALLBACK=1` 显式开启。
+- `build-artifacts-transaction.sh`：CI 的完整入口。它在 `.tmp/` 中以事务自有的 `RULES_ARTIFACT_ROOT` 组合上游同步或已发布分支恢复、自定义构建、守卫、摘要、manifest 生成与验证；调用方提供 `RULES_ARTIFACT_ROOT` 会被拒绝，测试或运维如需改变最终提升位置应使用 `RULES_LIVE_ARTIFACT_ROOT`。全部成功后才以目录替换提升为 `.output/`（或该显式 live root）。失败诊断写入非发布目录 `.artifacts/diagnostics/`，旧 live root 保持不变。`config/upstreams.json` 为每个源声明 parser、required/optional、原始字节、规范条目、地址族和 fallback policy；required 源在主 URL 与允许的回退均失败，或出现语义健康回归时阻断提升。每个 RIPE Stat ASN 响应和合并分组都使用 `ripe-stat` health policy，过小或无效响应会先写入诊断摘要再阻断事务。自定义恢复要求五个发布分支都存在且具有相同 generation/source 身份，并把分支 commit 写入 manifest restoration metadata；缺失或身份分裂时失败关闭，应执行 full 构建恢复发布 cohort。
 - `generate-artifact-manifest.sh`：在构建与守卫完成后、写 manifest 前，按能力配置中的 `verifier` 分派器验证每个产物；缺失或未验证的二进制会阻断生成。默认位于 `.output/`，事务内服从 `RULES_ARTIFACT_ROOT`。调用方应明确提供 generation id、build scope，CI 还将 source SHA 绑定到实际 checkout 的 `github.sha`：PR 验证记录被测试的合并提交，正式发布记录 `main` 提交。
 - `verify-artifact-manifest.sh`：严格重算所选 artifact root 内的可发布文件集合、路径、大小和 SHA-256，并重新执行产物验证、核对能力/lock 与可选 source SHA；发布 job 在恢复或安装锁定工具后强制执行同一验证。
 
-二进制验证使用固定工具的真实读回接口：`.srs` 执行 `sing-box rule-set decompile` 并解析 JSON；`.mrs` 执行 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT`。对仍有规范自定义源的二进制，读回规则总数和类型计数必须匹配 compiler 输入。恢复分支和上游二进制没有保留逐产物规范 compiler 输入，因此仅记录真实读回计数及 `canonical_linkage.status=unavailable`，不宣称语义 round-trip。manifest 每个产物记录验证状态、方法、读回计数和规范计数关联。
-- `make clean`：删除 `.tmp/`、`.output/`、Python `__pycache__` 和未完成的 `.bin/*.new*`；保留已安装的 `.bin/sing-box`、`.bin/mihomo` 及 provenance sidecar。
+二进制验证使用固定工具的真实读回接口：`.srs` 执行 `sing-box rule-set decompile` 并解析 JSON；`.mrs` 执行 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT`。读回结果规范化为 `(规则类型, 规则值)` 多重集合，并与同名 custom 源或同一事务的 Egern/Surge 文本产物精确比较；类型计数相同但值不同也会失败。manifest 记录验证方法、计数、读回语义 SHA-256，以及可关联规范输入时的语义 SHA-256。
+- `make clean`：删除 `.tmp/`、`.output/`、`.artifacts/`、Python `__pycache__` 和未完成的 `.bin/*.new*`；保留已安装的 `.bin/sing-box`、`.bin/mihomo` 及 provenance sidecar。
 
 CI 设置 `REQUIRE_SHELLCHECK=1`，本地缺少 ShellCheck 时的跳过不代表 CI 会通过。
 
-GitHub Actions 使用完整 commit SHA 固定版本。Dependabot 每月把 GitHub Actions 的 minor/patch 更新组合为一个以 `main` 为目标的 PR，减少临时分支和重复 CI；major 更新单独评估，避免阻塞常规更新。GitHub 漏洞告警保持启用，自动安全修复分支关闭；安全更新由维护者确认影响后通过临时分支提交。合并后的临时分支由 GitHub 自动删除。
+GitHub Actions 使用完整 commit SHA 固定版本，仓库测试拒绝 tag 或非完整 SHA 的 `uses:`。Dependabot 每周把 GitHub Actions 的 minor/patch 更新组合为一个以 `main` 为目标的 PR；major 与安全更新保持独立并逐项评估。合并后的临时分支由 GitHub 自动删除。
 
 ## 开发流程
 
@@ -47,7 +47,7 @@ GitHub Actions 使用完整 commit SHA 固定版本。Dependabot 每月把 GitHu
 2. 修改自定义源、配置、实现或测试夹具。
 3. 运行 `make preflight` 和适用的完整构建命令。
 4. 检查差异中没有 `.output/`、`.tmp/`、`.bin/`、凭据或无关格式化。
-5. 通过 Pull Request 合并到 `main`；PR 必须完成预检和不发布的完整构建，合并后由 `main` 工作流更新五个平台分支。
+5. 通过 Pull Request 合并到 `main`；PR 必须完成预检。候选构建按路径选择范围：仅文档和治理文件为 `none`，仅修改且不删除自定义源为 `custom`，构建脚本、配置、模板、测试或自定义源删除为 `full`。合并后的构建相关变更由 `main` 工作流更新五个平台分支。
 6. 按 [贡献指南](../CONTRIBUTING.md) 说明来源、人工许可评审状态、测试和产物影响。
 
 ## 自定义规则与名称
@@ -60,7 +60,7 @@ GitHub Actions 使用完整 commit SHA 固定版本。Dependabot 每月把 GitHu
 
 ## 摘要与许可评审
 
-主上游完整同步生成的 `upstream-summary.json` 是部分采集摘要，不包含本仓库维护的自定义源（包括 `sources/custom/domain/fakeip-filter.list`），也不记录完整转换链、提交身份或内容校验和。`fakeip-filter` 与其他自定义规则一起构建为各平台文本和二进制产物；过去采用的 `wwqgtxx/clash-rules` 预编译文件仅属历史，当前没有独立下载步骤。
+主上游完整同步生成的 `upstream-summary.json` 记录健康检查后的状态、实际 URL、回退、原始与规范化输入的字节数、条目数和 SHA-256；DLC 另记录检出的 commit。它不包含本仓库维护的自定义源（包括 `sources/custom/domain/fakeip-filter.list`），也不覆盖完整转换链或 HTTP 响应身份，因此仍不是完整来源证明。`fakeip-filter` 与其他自定义规则共用同一构建入口，没有独立下载步骤。
 
 `build-summary.json` 是成功构建事务的固有输出：产物守卫通过后、manifest 生成前，由 `build-artifacts-transaction.sh` 在事务 artifact root 中生成。manifest 同时记录摘要文件 SHA-256 与解析后的嵌入内容，发布前验证两者。工作流的 `Show summary` 步骤只负责显示成功输出，或在失败诊断场景中临时生成可读摘要，不定义成功产物。
 

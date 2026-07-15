@@ -14,7 +14,7 @@
 - `domain/` 与 `ip/` 均使用二进制 `.mrs` 扩展名。
 - 域名产物仅保留精确域名和域名后缀；域名关键词与正则会降级丢弃，仅含这些类型的列表不会发布。
 - IP CIDR 保留；`.mrs` 仅供 mihomo 使用，不能假定与其他客户端的二进制规则格式兼容。
-- `domain/fakeip-filter.mrs` 由 KuGouGo 在主分支维护的 `sources/custom/domain/fakeip-filter.list` 编译生成；它不是第三方预编译下载。过去采用 `wwqgtxx/clash-rules` 二进制仅属历史。
+- `domain/fakeip-filter.mrs` 由 KuGouGo 在主分支维护的 `sources/custom/domain/fakeip-filter.list` 编译生成，不是第三方预编译下载。
 
 ## 最小示例
 

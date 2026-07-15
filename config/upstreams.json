@@ -45,6 +45,10 @@
       "kind": "json", "trust": "official", "parser": "aws-json", "url": "https://ip-ranges.amazonaws.com/ip-ranges.json",
       "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 100, "family": "dual", "fallback_policy": "none" }
     },
+    "cloudfront": {
+      "kind": "json", "trust": "official", "parser": "aws-cloudfront-json", "url": "https://ip-ranges.amazonaws.com/ip-ranges.json",
+      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 150, "family": "dual", "fallback_policy": "none" }
+    },
     "fastly": {
       "kind": "json", "trust": "official", "parser": "fastly-json", "url": "https://api.fastly.com/public-ip-list",
       "health": { "requirement": "required", "min_raw_bytes": 50, "min_entries": 12, "family": "any", "fallback_policy": "none" }

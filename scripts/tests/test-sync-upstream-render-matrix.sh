@@ -57,10 +57,9 @@ loyalsoldier_required_snippets = [
     'download_file "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL" "$IP_BUILD_TMP_DIR/private.raw.txt"',
     'text "$tmp_dir/loyalsoldier_geoip_cn.raw.txt" "$tmp_dir/loyalsoldier_geoip_cn.cidr.txt"',
     'text "$tmp_dir/private.raw.txt" "$tmp_dir/private.cidr.txt"',
-    'record_upstream_summary ip loyalsoldier-geoip-cn ok "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL"',
-    'record_upstream_summary ip loyalsoldier-geoip-private ok "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL"',
-    '"loyalsoldier-geoip-cn loyalsoldier_geoip_cn.raw.txt loyalsoldier_geoip_cn.cidr.txt"',
-    '"loyalsoldier-geoip-private private.raw.txt private.cidr.txt"',
+    'verify_and_record_upstream_health',
+    'loyalsoldier-geoip-cn|$LOYALSOLDIER_GEOIP_CN_SOURCE_URL|loyalsoldier_geoip_cn.raw.txt|loyalsoldier_geoip_cn.cidr.txt|0',
+    'loyalsoldier-geoip-private|$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL|private.raw.txt|private.cidr.txt|0',
     '"$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"',
 ]
 for snippet in loyalsoldier_required_snippets:
