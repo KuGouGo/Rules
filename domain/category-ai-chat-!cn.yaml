@@ -33,6 +33,7 @@ domain_suffix_set:
   - 'coderabbit.gallery.vsassets.io'
   - 'cohere.ai'
   - 'cohere.com'
+  - 'copilot-stg.com'
   - 'copilot.cloud.microsoft'
   - 'copilot.com'
   - 'copilot.microsoft.com'

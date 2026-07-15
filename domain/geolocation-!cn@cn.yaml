@@ -1,5 +1,4 @@
 domain_set:
-  - 'tesla-cdn.thron.cn'
   - 'certs-lb.apple.com.akadns.net'
   - 'certs.apple.com'
   - 'crl-lb.apple.com.akadns.net'
