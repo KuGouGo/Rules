@@ -1,4 +1,6 @@
+domain_set:
+  - 'init-p01md.apple.com'
+
 domain_suffix_set:
   - 'push.apple.com'
-  - 'akadns.net'
-  - 'apple.com.edgekey.net'
+  - 'push-apple.com.akadns.net'
