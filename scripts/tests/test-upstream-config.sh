@@ -78,6 +78,54 @@ assert_lint_fails_with \
   "upstreams.ip.github.parser: unsupported or missing parser 'unknown-json'" \
   --upstreams "$TMP_DIR/upstreams.invalid-parser.json"
 
+cp config/upstreams.json "$TMP_DIR/upstreams.wrong-parser.json"
+python3 - <<'PY' "$TMP_DIR/upstreams.wrong-parser.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["ip"]["github"]["parser"] = "google-json"
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "wrong-parser" \
+  "upstreams.ip.github.parser: must equal 'github-json' for source 'github', got 'google-json'" \
+  --upstreams "$TMP_DIR/upstreams.wrong-parser.json"
+
+cp config/upstreams.json "$TMP_DIR/upstreams.wrong-kind.json"
+python3 - <<'PY' "$TMP_DIR/upstreams.wrong-kind.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["ip"]["github"]["kind"] = "text"
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "wrong-kind" \
+  "upstreams.ip.github.kind: must equal 'json' for source 'github', got 'text'" \
+  --upstreams "$TMP_DIR/upstreams.wrong-kind.json"
+
+cp config/upstreams.json "$TMP_DIR/upstreams.cloudfront-url.json"
+python3 - <<'PY' "$TMP_DIR/upstreams.cloudfront-url.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["ip"]["cloudfront"]["url"] = "https://example.com/ip-ranges.json"
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "cloudfront-url" \
+  "upstreams.ip.cloudfront.url: must equal upstreams.ip.aws.url" \
+  --upstreams "$TMP_DIR/upstreams.cloudfront-url.json"
+
 cp config/upstream-first-batch-baselines.json "$TMP_DIR/baselines.invalid.json"
 python3 - <<'PY' "$TMP_DIR/baselines.invalid.json"
 import json

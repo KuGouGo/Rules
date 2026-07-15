@@ -13,27 +13,34 @@ from platform_capabilities import load_platform_capabilities
 
 ROOT = Path(__file__).resolve().parents[2]
 
-REQUIRED_DOMAIN_SOURCES = {"dlc"}
-REQUIRED_IP_SOURCES = {
-    "cn-ipv46",
-    "cn-ipv46-apnic",
-    "loyalsoldier-geoip-cn",
-    "loyalsoldier-geoip-private",
-    "google",
-    "telegram",
-    "cloudflare-ipv4",
-    "cloudflare-ipv6",
-    "aws",
-    "fastly",
-    "github",
-    "apple",
-    "ripe-stat",
+SOURCE_IMPLEMENTATIONS = {
+    "domain": {
+        "dlc": ("git", "git-tree"),
+    },
+    "ip": {
+        "cn-ipv46": ("text", "cidr-text"),
+        "cn-ipv46-apnic": ("text", "cidr-text"),
+        "loyalsoldier-geoip-cn": ("text", "cidr-text"),
+        "loyalsoldier-geoip-private": ("text", "cidr-text"),
+        "google": ("json", "google-json"),
+        "telegram": ("text", "telegram"),
+        "cloudflare-ipv4": ("text", "cidr-text"),
+        "cloudflare-ipv6": ("text", "cidr-text"),
+        "aws": ("json", "aws-json"),
+        "cloudfront": ("json", "aws-cloudfront-json"),
+        "fastly": ("json", "fastly-json"),
+        "github": ("json", "github-json"),
+        "apple": ("html", "html-cidr"),
+        "ripe-stat": ("json-api", "ripe-stat-json"),
+    },
 }
+REQUIRED_DOMAIN_SOURCES = set(SOURCE_IMPLEMENTATIONS["domain"])
+REQUIRED_IP_SOURCES = set(SOURCE_IMPLEMENTATIONS["ip"])
 REQUIRED_ASN_GROUPS = {"telegram", "netflix", "spotify", "disney"}
 REQUIRED_FIRST_BATCH_SOURCES = {"google-json", "github-json", "telegram"}
 SUPPORTED_PARSERS = {
     "git-tree", "cidr-text", "google-json", "github-json", "telegram",
-    "aws-json", "fastly-json", "html-cidr", "ripe-stat-json",
+    "aws-json", "aws-cloudfront-json", "fastly-json", "html-cidr", "ripe-stat-json",
 }
 ALLOWED_REQUIREMENTS = {"required", "optional"}
 ALLOWED_FAMILIES = {"any", "ipv4", "ipv6", "dual"}
@@ -141,6 +148,20 @@ def validate_source(section: str, name: str, item: object, reporter: Reporter) -
     if parser not in SUPPORTED_PARSERS:
         reporter.error(f"{location}.parser", f"unsupported or missing parser {parser!r}")
 
+    expected_implementation = SOURCE_IMPLEMENTATIONS.get(section, {}).get(name)
+    if expected_implementation is not None:
+        expected_kind, expected_parser = expected_implementation
+        if kind in ALLOWED_KINDS[section] and kind != expected_kind:
+            reporter.error(
+                f"{location}.kind",
+                f"must equal {expected_kind!r} for source {name!r}, got {kind!r}",
+            )
+        if parser in SUPPORTED_PARSERS and parser != expected_parser:
+            reporter.error(
+                f"{location}.parser",
+                f"must equal {expected_parser!r} for source {name!r}, got {parser!r}",
+            )
+
     health = item.get("health")
     if not isinstance(health, dict):
         reporter.error(f"{location}.health", "must be an object")
@@ -198,6 +219,14 @@ def validate_upstreams(data: dict, reporter: Reporter) -> None:
         validate_source("domain", name, item, reporter)
     for name, item in sorted(ip.items()):
         validate_source("ip", name, item, reporter)
+
+    aws = ip.get("aws")
+    cloudfront = ip.get("cloudfront")
+    if isinstance(aws, dict) and isinstance(cloudfront, dict) and aws.get("url") != cloudfront.get("url"):
+        reporter.error(
+            "upstreams.ip.cloudfront.url",
+            "must equal upstreams.ip.aws.url because both parsers consume one downloaded AWS payload",
+        )
 
     for name, values in sorted(asn_groups.items()):
         location = f"upstreams.asn_groups.{name}"

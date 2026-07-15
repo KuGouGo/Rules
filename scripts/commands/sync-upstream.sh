@@ -59,6 +59,7 @@ TELEGRAM_IP_SOURCE_URL="$(upstream_value ip telegram url)"
 CLOUDFLARE_IPV4_SOURCE_URL="$(upstream_value ip cloudflare-ipv4 url)"
 CLOUDFLARE_IPV6_SOURCE_URL="$(upstream_value ip cloudflare-ipv6 url)"
 AWS_IP_SOURCE_URL="$(upstream_value ip aws url)"
+CLOUDFRONT_IP_SOURCE_URL="$(upstream_value ip cloudfront url)"
 FASTLY_IP_SOURCE_URL="$(upstream_value ip fastly url)"
 GITHUB_IP_SOURCE_URL="$(upstream_value ip github url)"
 APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
@@ -118,7 +119,7 @@ record_upstream_summary() {
   local detail="${8:-}"
 
   python3 - <<'PY' "$UPSTREAMS_CONFIG_FILE" "$UPSTREAM_SUMMARY_FILE" "$category" "$name" "$status" "$url" "$raw_file" "$normalized_file" "$fallback_used" "$detail"
-import json, sys
+import hashlib, json, sys
 from pathlib import Path
 config_file, summary_file, category, name, status, url, raw_file, normalized_file, fallback_used, detail = sys.argv[1:]
 config = json.load(open(config_file, encoding="utf-8"))
@@ -139,16 +140,71 @@ for key, file_name in (("raw", raw_file), ("normalized", normalized_file)):
         continue
     path = Path(file_name)
     info = {"path": str(path)}
-    if path.exists():
-        info["bytes"] = path.stat().st_size
-        if path.is_file():
-            lines = [line for line in path.read_text(encoding="utf-8", errors="ignore").splitlines() if line.strip() and not line.lstrip().startswith("#")]
-            info["entries"] = len(lines)
+    if path.is_file():
+        content = path.read_bytes()
+        info["bytes"] = len(content)
+        info["sha256"] = hashlib.sha256(content).hexdigest()
+        lines = [line for line in content.decode("utf-8", errors="ignore").splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        info["entries"] = len(lines)
+    elif path.is_dir():
+        files = sorted(candidate for candidate in path.rglob("*") if candidate.is_file())
+        digest = hashlib.sha256()
+        total_bytes = 0
+        for candidate in files:
+            relative = candidate.relative_to(path).as_posix().encode()
+            content = candidate.read_bytes()
+            digest.update(relative + b"\0" + content + b"\0")
+            total_bytes += len(content)
+        info["bytes"] = total_bytes
+        info["entries"] = len(files)
+        info["sha256"] = digest.hexdigest()
     payload[key] = info
 Path(summary_file).parent.mkdir(parents=True, exist_ok=True)
 with open(summary_file, "a", encoding="utf-8") as fh:
     fh.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
 PY
+}
+
+verify_and_record_upstream_health() {
+  local category="$1"
+  local name="$2"
+  local url="$3"
+  local raw_file="$4"
+  local normalized_file="$5"
+  local fallback_used="${6:-0}"
+  local context="${7:-}"
+  local health_json status detail health_detail verifier_failed=0
+
+  if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" \
+    "$UPSTREAMS_CONFIG_FILE" "$category" "$name" "$raw_file" "$normalized_file")"; then
+    :
+  else
+    verifier_failed=1
+  fi
+  if ! status="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])' 2>/dev/null)"; then
+    status=semantic_regression
+    verifier_failed=1
+  fi
+  case "$status" in
+    ok|semantic_regression) ;;
+    *) status=semantic_regression; verifier_failed=1 ;;
+  esac
+  if [ "$status" = "semantic_regression" ] && [ "$verifier_failed" -eq 0 ]; then
+    detail="optional source failed health policy"
+  else
+    detail=""
+  fi
+  health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
+  detail="${health_detail:-$detail}"
+  if [ -n "$context" ]; then
+    detail="${context}${detail:+; $detail}"
+  fi
+  record_upstream_summary \
+    "$category" "$name" "$status" "$url" "$raw_file" "$normalized_file" "$fallback_used" "$detail"
+  if [ "$verifier_failed" -ne 0 ]; then
+    echo "required upstream $name failed configured health policy: $detail" >&2
+    return 1
+  fi
 }
 
 write_upstream_summary_json() {
@@ -495,6 +551,24 @@ first_batch_source_type() {
   esac
 }
 
+first_batch_config_name() {
+  case "$1" in
+    google-json) printf '%s' google ;;
+    github-json) printf '%s' github ;;
+    telegram) printf '%s' telegram ;;
+    *) echo "unsupported first-batch source: $1" >&2; return 1 ;;
+  esac
+}
+
+first_batch_source_url() {
+  case "$1" in
+    google-json) printf '%s' "$GOOGLE_IP_SOURCE_URL" ;;
+    github-json) printf '%s' "$GITHUB_IP_SOURCE_URL" ;;
+    telegram) printf '%s' "$TELEGRAM_IP_SOURCE_URL" ;;
+    *) echo "unsupported first-batch source: $1" >&2; return 1 ;;
+  esac
+}
+
 classify_first_batch_source() {
   local source="$1"
   local raw_file result_json status reason
@@ -511,7 +585,17 @@ classify_first_batch_source() {
   reason="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["reason"])')"
 
   set_first_batch_result "$source" "$status" "$reason"
-  record_upstream_summary ip "$source" "$status" "" "$raw_file" "" 0 "$reason"
+  if [ "$status" != "ok" ]; then
+    record_upstream_summary \
+      ip \
+      "$(first_batch_config_name "$source")" \
+      "$status" \
+      "$(first_batch_source_url "$source")" \
+      "$raw_file" \
+      "" \
+      0 \
+      "$reason"
+  fi
 }
 
 download_and_classify_first_batch_source() {
@@ -548,7 +632,18 @@ normalize_first_batch_source() {
       ;;
   esac
 
-  python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" single "$source_type" "$raw_file" "$output_file"
+  if ! python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" single "$source_type" "$raw_file" "$output_file"; then
+    record_upstream_summary \
+      ip \
+      "$(first_batch_config_name "$source")" \
+      semantic_regression \
+      "$(first_batch_source_url "$source")" \
+      "$raw_file" \
+      "$output_file" \
+      0 \
+      "normalization failed"
+    return 1
+  fi
 }
 
 summarize_first_batch_checks() {
@@ -697,13 +792,18 @@ clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-co
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
   "$DOMAIN_RULE_TMP_DIR"
-record_upstream_summary domain dlc ok "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community/data" "$DOMAIN_RULE_TMP_DIR"
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
   "$DOMAIN_RULE_TMP_DIR" \
   "$DOMAIN_RULE_MANIFEST_FILE"
 assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"
-python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" domain dlc \
-  "$WORK_TMP_DIR/domain-list-community/data" "$DOMAIN_RULE_TMP_DIR"
+verify_and_record_upstream_health \
+  domain \
+  dlc \
+  "$DOMAIN_SOURCE_REPO_URL" \
+  "$WORK_TMP_DIR/domain-list-community/data" \
+  "$DOMAIN_RULE_TMP_DIR" \
+  0 \
+  "commit=$(git -C "$WORK_TMP_DIR/domain-list-community" rev-parse HEAD)"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
 render_domain_rule_dir_to_text_platform_dirs \
   "$DOMAIN_RULE_TMP_DIR" \
@@ -743,42 +843,40 @@ download_file_with_fallback \
   "$IP_BUILD_TMP_DIR/apple.raw.html" \
   "$APPLE_IP_SOURCE_URL" \
   "$APPLE_IP_SOURCE_FALLBACK_URL"
+APPLE_RESOLVED_URL="${UPSTREAM_LAST_URL:-$APPLE_IP_SOURCE_URL}"
+APPLE_FALLBACK_USED="${UPSTREAM_LAST_FALLBACK_USED:-0}"
 
 IP_NORMALIZE_MANIFEST="$IP_BUILD_TMP_DIR/normalize-tasks.json"
 
 generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$IP_NORMALIZE_MANIFEST"
-record_upstream_summary ip cn-ipv46 ok "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt"
-record_upstream_summary ip cn-ipv46-apnic ok "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"
-record_upstream_summary ip loyalsoldier-geoip-cn ok "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.raw.txt" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"
-record_upstream_summary ip loyalsoldier-geoip-private ok "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL" "$IP_BUILD_TMP_DIR/private.raw.txt" "$IP_BUILD_TMP_DIR/private.cidr.txt"
-record_upstream_summary ip cloudflare-ipv4 ok "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt"
-record_upstream_summary ip cloudflare-ipv6 ok "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
-record_upstream_summary ip aws ok "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" "$IP_BUILD_TMP_DIR/aws.cidr.txt"
-record_upstream_summary ip cloudfront ok "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" "$IP_BUILD_TMP_DIR/cloudfront.cidr.txt"
-record_upstream_summary ip fastly ok "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json" "$IP_BUILD_TMP_DIR/fastly.cidr.txt"
-record_upstream_summary ip apple ok "${UPSTREAM_LAST_URL:-$APPLE_IP_SOURCE_URL}" "$IP_BUILD_TMP_DIR/apple.raw.html" "$IP_BUILD_TMP_DIR/apple.cidr.txt" "${UPSTREAM_LAST_FALLBACK_USED:-0}"
 summarize_first_batch_checks
 normalize_first_batch_source "google-json"
 normalize_first_batch_source "github-json"
 normalize_first_batch_source "telegram"
-for health_spec in \
-  "cn-ipv46 cn_ipv46.raw.txt cn_ipv46.cidr.txt" \
-  "cn-ipv46-apnic cn_ipv46_apnic.raw.txt cn_ipv46_apnic.cidr.txt" \
-  "loyalsoldier-geoip-cn loyalsoldier_geoip_cn.raw.txt loyalsoldier_geoip_cn.cidr.txt" \
-  "loyalsoldier-geoip-private private.raw.txt private.cidr.txt" \
-  "google google.raw.json google.cidr.txt" \
-  "telegram telegram.raw.txt telegram.cidr.txt" \
-  "cloudflare-ipv4 cloudflare_ipv4.raw.txt cloudflare_ipv4.cidr.txt" \
-  "cloudflare-ipv6 cloudflare_ipv6.raw.txt cloudflare_ipv6.cidr.txt" \
-  "aws aws.raw.json aws.cidr.txt" \
-  "fastly fastly.raw.json fastly.cidr.txt" \
-  "github github.raw.json github.cidr.txt" \
-  "apple apple.raw.html apple.cidr.txt"; do
-  read -r health_name health_raw health_normalized <<< "$health_spec"
-  python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip "$health_name" \
-    "$IP_BUILD_TMP_DIR/$health_raw" "$IP_BUILD_TMP_DIR/$health_normalized"
-done
+while IFS='|' read -r health_name health_url health_raw health_normalized fallback_used; do
+  verify_and_record_upstream_health \
+    ip \
+    "$health_name" \
+    "$health_url" \
+    "$IP_BUILD_TMP_DIR/$health_raw" \
+    "$IP_BUILD_TMP_DIR/$health_normalized" \
+    "$fallback_used"
+done <<EOF
+cn-ipv46|$CN_IPV46_SOURCE_URL|cn_ipv46.raw.txt|cn_ipv46.cidr.txt|0
+cn-ipv46-apnic|$CN_IPV46_APNIC_SOURCE_URL|cn_ipv46_apnic.raw.txt|cn_ipv46_apnic.cidr.txt|0
+loyalsoldier-geoip-cn|$LOYALSOLDIER_GEOIP_CN_SOURCE_URL|loyalsoldier_geoip_cn.raw.txt|loyalsoldier_geoip_cn.cidr.txt|0
+loyalsoldier-geoip-private|$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL|private.raw.txt|private.cidr.txt|0
+google|$GOOGLE_IP_SOURCE_URL|google.raw.json|google.cidr.txt|0
+telegram|$TELEGRAM_IP_SOURCE_URL|telegram.raw.txt|telegram.cidr.txt|0
+cloudflare-ipv4|$CLOUDFLARE_IPV4_SOURCE_URL|cloudflare_ipv4.raw.txt|cloudflare_ipv4.cidr.txt|0
+cloudflare-ipv6|$CLOUDFLARE_IPV6_SOURCE_URL|cloudflare_ipv6.raw.txt|cloudflare_ipv6.cidr.txt|0
+aws|$AWS_IP_SOURCE_URL|aws.raw.json|aws.cidr.txt|0
+cloudfront|$CLOUDFRONT_IP_SOURCE_URL|aws.raw.json|cloudfront.cidr.txt|0
+fastly|$FASTLY_IP_SOURCE_URL|fastly.raw.json|fastly.cidr.txt|0
+github|$GITHUB_IP_SOURCE_URL|github.raw.json|github.cidr.txt|0
+apple|$APPLE_RESOLVED_URL|apple.raw.html|apple.cidr.txt|$APPLE_FALLBACK_USED
+EOF
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt" \

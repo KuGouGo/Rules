@@ -118,27 +118,12 @@ artifact_was_generated_custom() {
   printf '%s\n' "$GENERATED_CUSTOM_ARTIFACTS" | grep -Fxq "$relative_path"
 }
 
-historical_fakeip_migration_collision() {
-  local base_ref="$1"
-  local custom_rel_path="$2"
-  local tracked_path="$3"
-
-  # This exception is available only while migrating a base commit that
-  # actually tracked the old binary but did not yet track the maintained source.
-  # Once the source exists in the base, the normal existing-source path applies.
-  [ -n "$base_ref" ] \
-    && [ "$custom_rel_path" = "sources/custom/domain/fakeip-filter.list" ] \
-    && [ "$tracked_path" = ".output/domain/mihomo/fakeip-filter.mrs" ] \
-    && git cat-file -e "$base_ref:$tracked_path" 2>/dev/null
-}
-
 assert_no_name_conflict() {
   local base="$1"
   local custom_rel_path="$2"
   local custom_dir="$3"
-  local base_ref="$4"
-  local base_custom_sources="$5"
-  shift 5
+  local base_custom_sources="$4"
+  shift 4
   local conflicts=()
   local tracked_path
 
@@ -147,9 +132,6 @@ assert_no_name_conflict() {
   fi
 
   for tracked_path in "$@"; do
-    if historical_fakeip_migration_collision "$base_ref" "$custom_rel_path" "$tracked_path"; then
-      continue
-    fi
     if [ -e "$ARTIFACT_ROOT/${tracked_path#.output/}" ] \
       && ! artifact_was_generated_custom "${tracked_path#.output/}"; then
       conflicts+=("$tracked_path")
@@ -267,7 +249,6 @@ while IFS= read -r list_file; do
     "$base" \
     "sources/custom/domain/$base.list" \
     "$CUSTOM_DOMAIN_DIR" \
-    "$CONFLICT_BASE_REF" \
     "$BASE_CUSTOM_SOURCES" \
     ".output/domain/surge/$base.list" \
     ".output/domain/quanx/$base.list" \
@@ -284,7 +265,6 @@ while IFS= read -r list_file; do
     "$base" \
     "sources/custom/ip/$base.list" \
     "$CUSTOM_IP_DIR" \
-    "$CONFLICT_BASE_REF" \
     "$BASE_CUSTOM_SOURCES" \
     ".output/ip/surge/$base.list" \
     ".output/ip/quanx/$base.list" \

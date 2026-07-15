@@ -1,6 +1,6 @@
 # 第三方声明
 
-本文件记录当前已知第三方输入及截至 **2026-07-14** 的人工核对状态。它不是自动生成清单，也不是法律意见。`trust` 只表示采集来源分类；公开可访问、官方托管、注册机构提供或 CI 成功都不等于获得复制、修改或再分发授权。
+本文件记录当前已知第三方输入及截至 **2026-07-15** 的人工核对状态。它不是自动生成清单，也不是法律意见。`trust` 只表示采集来源分类；公开可访问、官方托管、注册机构提供或 CI 成功都不等于获得复制、修改或再分发授权。
 
 标准 MIT License 位于 [`LICENSE`](LICENSE)，适用范围见 [`NOTICE`](NOTICE)。第三方材料不会因下载、规范化、合并、转换或编译而变为本仓库的 MIT 内容。
 
@@ -24,7 +24,7 @@
 | `ip.google` | <https://www.gstatic.com/ipranges/goog.json> | `official` | 未知；响应中未见独立数据许可证。 |
 | `ip.telegram` | <https://core.telegram.org/resources/cidr.txt> | `official` | 未知；响应中未见独立数据许可证。 |
 | `ip.cloudflare-ipv4`、`ip.cloudflare-ipv6` | <https://www.cloudflare.com/ips-v4>、<https://www.cloudflare.com/ips-v6> | `official` | 未知；未确认独立数据许可证。 |
-| `ip.aws`（也生成 `cloudfront`） | <https://ip-ranges.amazonaws.com/ip-ranges.json> | `official` | 未知；响应中未见独立数据许可证。 |
+| `ip.aws`、`ip.cloudfront` | <https://ip-ranges.amazonaws.com/ip-ranges.json> | `official` | 未知；两个解析器复用同一官方响应，未见独立数据许可证。 |
 | `ip.fastly` | <https://api.fastly.com/public-ip-list> | `official` | 未知；响应中未见独立数据许可证。 |
 | `ip.github` | <https://api.github.com/meta> | `official` | 未知；未确认 Meta API 数据的独立再分发许可证。 |
 | `ip.apple` | <https://support.apple.com/en-us/101555>（回退：<https://support.apple.com/zh-cn/101555>） | `official` | 未知；未确认页面中网络范围数据的独立再分发许可证。 |
@@ -32,16 +32,14 @@
 
 `asn_groups.telegram`、`asn_groups.netflix`、`asn_groups.spotify` 和 `asn_groups.disney` 只是 RIPEstat 查询参数分组，不是独立许可声明；所得结果沿用 `ip.ripe-stat` 的“未知”状态。组织名称和商标归各自权利人所有。
 
-## Fake-IP 迁移说明
+## Fake-IP
 
 当前 `fakeip-filter` 是 KuGouGo 在 `sources/custom/domain/fakeip-filter.list` 维护的仓库源码，由自定义构建生成各平台文本产物以及 sing-box、mihomo 二进制产物；它不属于第三方输入，也不下载第三方预编译文件。
-
-本仓库过去曾直接采用 `wwqgtxx/clash-rules` 的预编译 `release/fakeip-filter.mrs`。该来源仅记录历史迁移背景，不是当前网络输入、构建步骤或发布材料；当前产物不得据此归因于该项目。
 
 ## 审计与评审边界
 
 - `config/upstreams.json` 覆盖主上游规则网络输入；工具资产下载另由工具 lock 控制。当前没有 Fake-IP 网络输入或独立同步步骤。
-- `.output/upstream-summary.json` 只覆盖主同步记录，不覆盖本仓库自定义源（包括 `fakeip-filter`）、完整转换链、提交身份或内容校验和，因此不是完整来源追溯记录。
+- `.output/upstream-summary.json` 只覆盖主同步记录，不覆盖本仓库自定义源（包括 `fakeip-filter`）、完整转换链或 HTTP 响应身份，因此不是完整来源追溯记录。
 - `.output/build-summary.json` 由成功构建事务在产物守卫后生成并受 manifest 摘要绑定；它只说明事务产物统计，不证明来源或授权。
 - 当前自动化不解析 `NOTICE` 或本文件，不验证第三方许可，也不会因“未知”状态自动失败。
 - 新增、更换或改变第三方输入时，应同步更新本文件并提供可核验依据；无法确认时保持“未知”，由维护者人工决定停止、替换、取得授权或满足适用义务后再发布。

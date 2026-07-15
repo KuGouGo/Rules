@@ -16,7 +16,7 @@ from artifact_origins import ALLOWED_ORIGINS, load_origin_file
 from artifact_verifier import verify_one
 from platform_capabilities import load_platform_capabilities
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 TOP_KEYS = {"schema_version", "generation_id", "build_id", "build_scope", "source", "inputs", "tools", "summaries", "artifacts", "restoration"}
@@ -112,7 +112,7 @@ def provenance_metadata(root: Path, lock: dict[str, Any]) -> dict[str, Any]:
 
 
 def validate_verification(value: Any, location: str, errors: list[str]) -> None:
-    keys = {"status", "method", "decoded_counts", "decoded_count", "canonical_linkage"}
+    keys = {"status", "method", "decoded_counts", "decoded_count", "decoded_semantic_sha256", "canonical_linkage"}
     if not require_exact(value, keys, location, errors):
         return
     if value["status"] != "verified" or not isinstance(value["method"], str) or not value["method"]:
@@ -122,11 +122,13 @@ def validate_verification(value: Any, location: str, errors: list[str]) -> None:
         errors.append(f"{location}.decoded_counts must map strings to non-negative integers")
     elif type(value["decoded_count"]) is not int or value["decoded_count"] != sum(counts.values()) or value["decoded_count"] <= 0:
         errors.append(f"{location}.decoded_count is invalid")
+    if not isinstance(value["decoded_semantic_sha256"], str) or not SHA256_RE.fullmatch(value["decoded_semantic_sha256"]):
+        errors.append(f"{location}.decoded_semantic_sha256 is invalid")
     linkage = value["canonical_linkage"]
     if not isinstance(linkage, dict) or linkage.get("status") not in {"matched", "unavailable"}:
         errors.append(f"{location}.canonical_linkage is invalid")
     elif linkage["status"] == "matched":
-        if set(linkage) != {"status", "source", "counts"} or not isinstance(linkage.get("source"), str) or not isinstance(linkage.get("counts"), dict):
+        if set(linkage) != {"status", "source", "counts", "semantic_sha256"} or not isinstance(linkage.get("source"), str) or not isinstance(linkage.get("counts"), dict) or not isinstance(linkage.get("semantic_sha256"), str) or not SHA256_RE.fullmatch(linkage["semantic_sha256"]):
             errors.append(f"{location}.canonical_linkage matched schema is invalid")
     elif set(linkage) != {"status", "reason"} or not isinstance(linkage.get("reason"), str) or not linkage["reason"]:
         errors.append(f"{location}.canonical_linkage unavailable schema is invalid")

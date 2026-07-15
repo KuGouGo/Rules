@@ -26,7 +26,7 @@ make build-custom
 
 ## `make clean` 后工具仍存在
 
-这是预期行为。清理会删除 `.tmp/`、`.output/`、Python 缓存及 `.bin/*.new*`，但保留已缓存的 sing-box、mihomo 和 provenance sidecar。若需要强制重新下载，应人工删除对应二进制及其 `.provenance.json`；不要提交 `.bin/`。
+这是预期行为。清理会删除 `.tmp/`、`.output/`、`.artifacts/`、Python 缓存及 `.bin/*.new*`，但保留已缓存的 sing-box、mihomo 和 provenance sidecar。若需要强制重新下载，应人工删除对应二进制及其 `.provenance.json`；不要提交 `.bin/`。
 
 ## 自定义名称冲突
 
@@ -45,7 +45,9 @@ make build-custom
 3. 成功后查看 `.output/domain/rule-manifest.json` 定位属性派生。
 4. 对照基线和发布分支判断变化是否预期。
 
-该摘要不包括本仓库维护的自定义源（包括 `sources/custom/domain/fakeip-filter.list`），也没有完整转换链、提交身份或内容校验和，不能单独作为完整来源追溯记录或许可依据。`fakeip-filter` 应由 `build-custom.sh` 生成；若日志出现第三方 URL、独立同步或预编译下载，应视为迁移回归。过去的 `wwqgtxx/clash-rules` 二进制仅属历史。
+CI 的失败事务会把 `.artifacts/diagnostics/` 上传为保留 7 天的 diagnostics artifact。若日志被截断，优先下载对应 artifact；仅文档或治理文件的 PR 不运行外部上游同步。
+
+该摘要不包括本仓库维护的自定义源（包括 `sources/custom/domain/fakeip-filter.list`），也没有完整转换链或 HTTP 响应身份，不能单独作为完整来源追溯记录或许可依据。`fakeip-filter` 应由 `build-custom.sh` 生成；若日志出现独立同步或预编译下载，应视为回归。
 
 ## 找不到 `build-summary.json`
 
@@ -53,7 +55,7 @@ make build-custom
 
 ## 产物守卫（artifact guard）阻断
 
-检查最低文件数、冗余派生名、文本域名下降、Surge/Quantumult X 文本 IP 合法性和部分内置 IP 基线。二进制格式没有全部执行等价语义检查。只有在来源证据、测试和评审说明齐全时才调整阈值。
+检查最低文件数、冗余派生名、文本域名下降、Surge/Quantumult X 文本 IP 合法性和部分内置 IP 基线。随后 manifest 阶段会真实读回二进制并精确比较可关联的规范规则集合。只有在来源证据、测试和评审说明齐全时才调整阈值。
 
 ## 许可状态不明
 

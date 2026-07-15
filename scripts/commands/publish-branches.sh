@@ -5,7 +5,6 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 DRY_RUN="${PUBLISH_DRY_RUN:-0}"
-ALLOW_REMOTE_FALLBACK="${PUBLISH_ALLOW_REMOTE_FALLBACK:-0}"
 ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
 MANIFEST_FILE="$ARTIFACT_ROOT/artifact-manifest.json"
 CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" shell-registry)"
@@ -72,70 +71,18 @@ copy_artifacts() {
   fi
 }
 
-restore_remote_publish_side() {
-  local branch="$1"
-  local side="$2"
-  local extensions_csv="$3"
-  local dest_dir="$4"
-  local tree_path="$side"
-  local -a extensions=()
-  local extension restored=0
-  local file_path rel_name
-
-  IFS=',' read -r -a extensions <<< "$extensions_csv"
-  mkdir -p "$dest_dir"
-
-  if ! git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}" >/dev/null 2>&1; then
-    return 1
-  fi
-
-  while IFS= read -r file_path; do
-    [ -n "$file_path" ] || continue
-    rel_name="${file_path#"${tree_path}"/}"
-    mkdir -p "$dest_dir/$(dirname "$rel_name")"
-    if git -C "$ROOT" show "origin/$branch:$file_path" > "$dest_dir/$rel_name"; then
-      restored=1
-    else
-      rm -f "$dest_dir/$rel_name"
-      return 1
-    fi
-  done < <(
-    for extension in "${extensions[@]}"; do
-      git -C "$ROOT" ls-tree -r --name-only "origin/$branch" -- "$tree_path" 2>/dev/null | grep -E "\\.${extension}$" || true
-    done
-  )
-
-  [ "$restored" -eq 1 ]
-}
-
 prepare_publish_side() {
-  local branch="$1"
-  local src_dir="$2"
-  local side="$3"
-  local extensions_csv="$4"
-  local dest_dir="$5"
+  local src_dir="$1"
+  local extensions_csv="$2"
+  local dest_dir="$3"
 
   if has_publish_source_artifacts "$src_dir" "$extensions_csv"; then
     copy_artifacts "$src_dir" "$dest_dir" "$extensions_csv"
     return 0
   fi
 
-  if [ "$ALLOW_REMOTE_FALLBACK" != "1" ]; then
-    echo "publish source missing artifacts: $ARTIFACT_ROOT/$src_dir (expected: $extensions_csv)" >&2
-    echo "hint: run the build pipeline first to populate .output before publishing" >&2
-    echo "hint: set PUBLISH_ALLOW_REMOTE_FALLBACK=1 to explicitly allow origin/$branch:$side fallback" >&2
-    exit 1
-  fi
-
-  echo "publish source missing local artifacts for $src_dir; attempting fallback from origin/$branch:$side" >&2
-  if restore_remote_publish_side "$branch" "$side" "$extensions_csv" "$dest_dir"; then
-    echo "restored $side artifacts from origin/$branch baseline" >&2
-    return 0
-  fi
-
   echo "publish source missing artifacts: $ARTIFACT_ROOT/$src_dir (expected: $extensions_csv)" >&2
   echo "hint: run the build pipeline first to populate .output before publishing" >&2
-  echo "hint: or ensure origin/$branch contains baseline $side artifacts for fallback restore" >&2
   exit 1
 }
 
@@ -205,6 +152,24 @@ queue_publish_ref() {
   printf '%s\t%s\t%s\n' "$branch" "$commit" "$remote_commit" >> "$PUBLISH_QUEUE_FILE"
 }
 
+create_publish_commit() {
+  local branch="$1"
+  local tree="$2"
+  local remote_commit="$3"
+  local message commit
+  local -a parent_args=()
+
+  message="chore: publish ${branch} artifacts [generation ${MANIFEST_GENERATION_ID} source ${MANIFEST_SOURCE_SHA}]"
+  if [ -n "$remote_commit" ]; then
+    git cat-file -e "${remote_commit}^{commit}"
+    parent_args=(-p "$remote_commit")
+  fi
+
+  commit="$(git commit-tree "$tree" "${parent_args[@]}" -m "$message")"
+  git update-ref "refs/heads/$branch" "$commit"
+  printf '%s' "$commit"
+}
+
 prepare_branch() {
   local branch="$1"
   local domain_dir="$2"
@@ -214,23 +179,25 @@ prepare_branch() {
   local local_tree remote_tree remote_commit commit
 
   reset_publish_worktree "$branch"
-  prepare_publish_side "$branch" "$domain_dir" domain "$domain_extensions" domain
-  prepare_publish_side "$branch" "$ip_dir" ip "$ip_extensions" ip
+  prepare_publish_side "$domain_dir" "$domain_extensions" domain
+  prepare_publish_side "$ip_dir" "$ip_extensions" ip
   branch_readme "$branch"
   assert_branch_layout "$domain_extensions" "$ip_extensions"
 
   git add README.md domain ip
   local_tree="$(git write-tree)"
   remote_tree="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{tree}" 2>/dev/null || true)"
+  remote_commit="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}" 2>/dev/null || true)"
 
-  if [ -n "$remote_tree" ] && [ "$local_tree" = "$remote_tree" ]; then
-    echo "$branch artifacts unchanged, skip publish"
-    return 0
+  if [ -z "$remote_tree" ] || [ "$local_tree" != "$remote_tree" ]; then
+    PUBLISH_COHORT_CHANGED=1
+    echo "$branch artifact tree changed"
+  else
+    echo "$branch artifact tree unchanged; cohort metadata commit prepared"
   fi
 
-  git commit -m "chore: publish ${branch} artifacts [generation ${MANIFEST_GENERATION_ID} source ${MANIFEST_SOURCE_SHA}]" >/dev/null
-  commit="$(git rev-parse HEAD)"
-  remote_commit="$(git -C "$ROOT" rev-parse --verify "origin/$branch^{commit}" 2>/dev/null || true)"
+  commit="$(create_publish_commit "$branch" "$local_tree" "$remote_commit")"
+  queue_publish_ref "$branch" "$commit" "$remote_commit"
 
   if [ "$DRY_RUN" = "1" ]; then
     echo "=== ${branch} publish dry-run ==="
@@ -238,8 +205,6 @@ prepare_branch() {
     echo "ip files: $(find ip -maxdepth 1 -type f | wc -l | tr -d ' ')"
     return 0
   fi
-
-  queue_publish_ref "$branch" "$commit" "$remote_commit"
 }
 
 publish_queued_refs() {
@@ -252,9 +217,14 @@ publish_queued_refs() {
     return 0
   fi
 
-  if [ ! -s "$PUBLISH_QUEUE_FILE" ]; then
+  if [ "$PUBLISH_COHORT_CHANGED" -eq 0 ]; then
     echo "all publish branches unchanged, skip push"
     return 0
+  fi
+
+  if [ ! -s "$PUBLISH_QUEUE_FILE" ]; then
+    echo "publish cohort changed but no refs were prepared" >&2
+    return 1
   fi
 
   remote_url="$(git -C "$ROOT" remote get-url origin)"
@@ -292,6 +262,10 @@ cd "$PUBLISH_WORKTREE"
 git init -q
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+mkdir -p .git/objects/info
+git -C "$ROOT" rev-parse --path-format=absolute --git-path objects > .git/objects/info/alternates
+
+PUBLISH_COHORT_CHANGED=0
 
 declare -A PUBLISH_BRANCH PUBLISH_DOMAIN_EXTENSION PUBLISH_IP_EXTENSION
 while IFS=$'\t' read -r platform _public_name branch section extension _format _empty _compiler _verifier; do

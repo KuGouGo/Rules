@@ -9,6 +9,8 @@ cp \
   "$ROOT/scripts/tools/artifact_manifest.py" \
   "$ROOT/scripts/tools/artifact_origins.py" \
   "$ROOT/scripts/tools/artifact_verifier.py" \
+  "$ROOT/scripts/tools/domain_rules.py" \
+  "$ROOT/scripts/tools/ip_rules.py" \
   "$ROOT/scripts/tools/platform_capabilities.py" \
   "$REPO/scripts/tools/"
 cat > "$REPO/.bin/sing-box" <<'EOF'
