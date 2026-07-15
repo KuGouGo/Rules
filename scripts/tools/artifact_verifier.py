@@ -47,13 +47,20 @@ def normalized_semantic_entries(entries: Counter[RuleEntry]) -> Counter[RuleEntr
 
     suffixes = {value for (kind, value) in entries if kind == "DOMAIN-SUFFIX"}
 
+    def has_suffix_ancestor(value: str, candidates: set[str]) -> bool:
+        while "." in value:
+            value = value.split(".", 1)[1]
+            if value in candidates:
+                return True
+        return False
+
     def covered_by_suffix(value: str, candidates: set[str]) -> bool:
-        return any(value == suffix or value.endswith("." + suffix) for suffix in candidates)
+        return value in candidates or has_suffix_ancestor(value, candidates)
 
     minimal_suffixes = {
         suffix
         for suffix in suffixes
-        if not covered_by_suffix(suffix, suffixes - {suffix})
+        if not has_suffix_ancestor(suffix, suffixes)
     }
     result = Counter({("DOMAIN-SUFFIX", suffix): 1 for suffix in minimal_suffixes})
     for (kind, value), count in entries.items():
