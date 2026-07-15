@@ -30,8 +30,44 @@ def summarize_entries(entries: Counter[RuleEntry]) -> Counter[str]:
                     for kind in sorted({entry_kind for entry_kind, _ in entries})})
 
 
+def normalized_semantic_entries(entries: Counter[RuleEntry]) -> Counter[RuleEntry]:
+    kinds = {kind for kind, _ in entries}
+    if kinds and kinds <= {"IP-CIDR", "IP-CIDR6"}:
+        result: Counter[RuleEntry] = Counter()
+        for version in (4, 6):
+            networks = [
+                ipaddress.ip_network(value)
+                for (kind, value) in entries
+                if (kind == "IP-CIDR6") == (version == 6)
+            ]
+            for network in ipaddress.collapse_addresses(networks):
+                kind = "IP-CIDR6" if network.version == 6 else "IP-CIDR"
+                result[(kind, str(network))] = 1
+        return result
+
+    suffixes = {value for (kind, value) in entries if kind == "DOMAIN-SUFFIX"}
+
+    def covered_by_suffix(value: str, candidates: set[str]) -> bool:
+        return any(value == suffix or value.endswith("." + suffix) for suffix in candidates)
+
+    minimal_suffixes = {
+        suffix
+        for suffix in suffixes
+        if not covered_by_suffix(suffix, suffixes - {suffix})
+    }
+    result = Counter({("DOMAIN-SUFFIX", suffix): 1 for suffix in minimal_suffixes})
+    for (kind, value), count in entries.items():
+        if kind == "DOMAIN-SUFFIX":
+            continue
+        if kind == "DOMAIN" and covered_by_suffix(value, minimal_suffixes):
+            continue
+        result[(kind, value)] = 1 if count else 0
+    return +result
+
+
 def semantic_digest(entries: Counter[RuleEntry]) -> str:
-    payload = [[kind, value, count] for (kind, value), count in sorted(entries.items())]
+    normalized = normalized_semantic_entries(entries)
+    payload = [[kind, value, count] for (kind, value), count in sorted(normalized.items())]
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
 
 
@@ -308,7 +344,7 @@ def verify_one(root: Path, path: Path, artifact_type: str, platform: str) -> dic
             raise ValueError("binary artifact has no canonical custom source or same-build text counterpart")
     linkage: dict[str, Any] = {"status": "unavailable", "reason": "canonical binary compiler input is not retained or not applicable"}
     if canonical is not None:
-        if decoded != canonical:
+        if normalized_semantic_entries(decoded) != normalized_semantic_entries(canonical):
             raise ValueError(
                 "decoded rule values differ from canonical source: "
                 f"decoded_sha256={semantic_digest(decoded)}, canonical_sha256={semantic_digest(canonical)}"

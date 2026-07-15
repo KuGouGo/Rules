@@ -34,7 +34,7 @@ make clean
 - `generate-artifact-manifest.sh`：在构建与守卫完成后、写 manifest 前，按能力配置中的 `verifier` 分派器验证每个产物；缺失或未验证的二进制会阻断生成。默认位于 `.output/`，事务内服从 `RULES_ARTIFACT_ROOT`。调用方应明确提供 generation id、build scope，CI 还将 source SHA 绑定到实际 checkout 的 `github.sha`：PR 验证记录被测试的合并提交，正式发布记录 `main` 提交。
 - `verify-artifact-manifest.sh`：严格重算所选 artifact root 内的可发布文件集合、路径、大小和 SHA-256，并重新执行产物验证、核对能力/lock 与可选 source SHA；发布 job 在恢复或安装锁定工具后强制执行同一验证。
 
-二进制验证使用固定工具的真实读回接口：`.srs` 执行 `sing-box rule-set decompile` 并解析 JSON；`.mrs` 执行 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT`。读回结果规范化为 `(规则类型, 规则值)` 多重集合，并与同名 custom 源或同一事务的 Egern/Surge 文本产物精确比较；类型计数相同但值不同也会失败。manifest 记录验证方法、计数、读回语义 SHA-256，以及可关联规范输入时的语义 SHA-256。
+二进制验证使用固定工具的真实读回接口：`.srs` 执行 `sing-box rule-set decompile` 并解析 JSON；`.mrs` 执行 `mihomo convert-ruleset <domain|ipcidr> mrs INPUT OUTPUT`。读回结果与同名 custom 源或同一事务的 Egern/Surge 文本产物比较规范化语义集合：域名消除已被更宽后缀覆盖的冗余项，IP 合并为等价 CIDR 并集；值替换、范围扩大或范围丢失都会失败。manifest 记录验证方法、原始计数、读回语义 SHA-256，以及规范输入的语义 SHA-256。
 - `make clean`：删除 `.tmp/`、`.output/`、`.artifacts/`、Python `__pycache__` 和未完成的 `.bin/*.new*`；保留已安装的 `.bin/sing-box`、`.bin/mihomo` 及 provenance sidecar。
 
 CI 设置 `REQUIRE_SHELLCHECK=1`，本地缺少 ShellCheck 时的跳过不代表 CI 会通过。

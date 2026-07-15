@@ -40,7 +40,7 @@ done
 
 PYTHONPATH="$ROOT/scripts/tools" python3 - <<'PY'
 from collections import Counter
-from artifact_verifier import semantic_digest, singbox_counts, singbox_entries
+from artifact_verifier import normalized_semantic_entries, semantic_digest, singbox_counts, singbox_entries
 
 domain = {"rules": [{"domain": "one.example", "domain_suffix": ["a.example", "b.example"], "domain_keyword": "emby"}]}
 assert singbox_counts(domain, "domain") == Counter({"DOMAIN-SUFFIX": 2, "DOMAIN": 1, "DOMAIN-KEYWORD": 1})
@@ -55,6 +55,18 @@ assert singbox_counts(ip, "ip") == Counter({"IP-CIDR": 1, "IP-CIDR6": 1})
 assert semantic_digest(Counter({("DOMAIN", "one.example"): 1})) != semantic_digest(
     Counter({("DOMAIN", "two.example"): 1})
 )
+assert normalized_semantic_entries(Counter({
+    ("DOMAIN-SUFFIX", "example.com"): 1,
+    ("DOMAIN-SUFFIX", "child.example.com"): 1,
+    ("DOMAIN", "api.example.com"): 1,
+})) == Counter({("DOMAIN-SUFFIX", "example.com"): 1})
+assert normalized_semantic_entries(Counter({
+    ("DOMAIN-SUFFIX", "child.example.com"): 1,
+})) != Counter({("DOMAIN-SUFFIX", "example.com"): 1})
+assert normalized_semantic_entries(Counter({
+    ("IP-CIDR", "192.0.2.0/25"): 1,
+    ("IP-CIDR", "192.0.2.128/25"): 1,
+})) == Counter({("IP-CIDR", "192.0.2.0/24"): 1})
 for invalid in (
     {"rules": [{"domain": ["one.example"], "port": [443]}]},
     {"rules": [{"ip_cidr": ["192.0.2.0/24"]}]},
@@ -124,6 +136,25 @@ if PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifi
   echo "mihomo verifier accepted equal-count rule substitution" >&2
   exit 1
 fi
+
+printf 'DOMAIN-SUFFIX,example.com\nDOMAIN-SUFFIX,child.example.com\nDOMAIN,api.example.com\n' \
+  > "$TMP/exact-repo/sources/custom/domain/reduction.list"
+printf 'reduction\n' > "$TMP/exact-repo/.output/domain/sing-box/reduction.srs"
+cat > "$TMP/exact-repo/.output/domain/sing-box/reduction.srs.json" <<'EOF'
+{"rules":[{"domain_suffix":["example.com"]}]}
+EOF
+printf 'reduction\n' > "$TMP/exact-repo/.output/domain/mihomo/reduction.mrs"
+printf '+.example.com\n' > "$TMP/exact-repo/.output/domain/mihomo/reduction.mrs.txt"
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" \
+  --root "$TMP/exact-repo" \
+  --path "$TMP/exact-repo/.output/domain/sing-box/reduction.srs" \
+  --type domain \
+  --platform sing-box >/dev/null
+PYTHONPATH="$ROOT/scripts/tools" python3 "$ROOT/scripts/tools/artifact_verifier.py" \
+  --root "$TMP/exact-repo" \
+  --path "$TMP/exact-repo/.output/domain/mihomo/reduction.mrs" \
+  --type domain \
+  --platform mihomo >/dev/null
 
 printf 'orphan\n' > "$TMP/exact-repo/.output/domain/sing-box/orphan.srs"
 cat > "$TMP/exact-repo/.output/domain/sing-box/orphan.srs.json" <<'EOF'

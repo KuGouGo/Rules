@@ -35,7 +35,7 @@
 - `.tmp/**/normalize-tasks.json`：批处理任务描述，属于临时数据。
 - `.artifacts/diagnostics/<generation-time>/`：失败事务保留的 `transaction-health.json` 及可用的构建/上游摘要；CI 日志只展示白名单内且大小受限的 JSON，完整诊断作为短期 Actions artifact 上传。
 
-`verify-artifact-manifest.sh` 严格重算能力矩阵允许的完整文件集合、路径层级与安全性、非零大小、字节数和 SHA-256，并核对能力/lock 摘要及可选的预期 source SHA。二进制读回规则与同名 custom 源或同一事务的文本产物按类型和值精确比较，并记录语义 SHA-256。发布作业下载后再次验证；`publish-branches.sh` 自身也必须先验证清单，拒绝缺失、额外或被修改的产物。清单只作为流水线审计输入，不复制到发布分支。一次发布中五个分支提交携带共同 generation id 和 source SHA；任一平台 tree 改变时完整 cohort 原子推进并保留各分支父历史，全部 tree 不变时整体跳过。
+`verify-artifact-manifest.sh` 严格重算能力矩阵允许的完整文件集合、路径层级与安全性、非零大小、字节数和 SHA-256，并核对能力/lock 摘要及可选的预期 source SHA。二进制读回规则与同名 custom 源或同一事务的文本产物比较等价语义集合：域名后缀覆盖和 CIDR 并集合并允许编译器消除冗余，但值替换、扩大或丢失范围会失败；清单同时记录语义 SHA-256。发布作业下载后再次验证；`publish-branches.sh` 自身也必须先验证清单，拒绝缺失、额外或被修改的产物。清单只作为流水线审计输入，不复制到发布分支。一次发布中五个分支提交携带共同 generation id 和 source SHA；任一平台 tree 改变时完整 cohort 原子推进并保留各分支父历史，全部 tree 不变时整体跳过。
 
 `scripts/tools/artifact_origins.py` 是 `artifact-origins.json` 的唯一写入口：完整同步重置为 `generated-upstream`，发布分支恢复重置为 `restored-published-branch`，自定义构建只重标本次控制且实际存在的目标，并清除对应平台已经删除或降级省略的旧记录。
 
