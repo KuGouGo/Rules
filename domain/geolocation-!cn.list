@@ -39,6 +39,7 @@ HOST-SUFFIX,coderabbit.ai,geolocation-!cn
 HOST-SUFFIX,coderabbit.gallery.vsassets.io,geolocation-!cn
 HOST-SUFFIX,cohere.ai,geolocation-!cn
 HOST-SUFFIX,cohere.com,geolocation-!cn
+HOST-SUFFIX,copilot-stg.com,geolocation-!cn
 HOST-SUFFIX,copilot.cloud.microsoft,geolocation-!cn
 HOST-SUFFIX,copilot.com,geolocation-!cn
 HOST-SUFFIX,copilot.microsoft.com,geolocation-!cn
@@ -1270,8 +1271,6 @@ HOST-SUFFIX,teslamotors.com,geolocation-!cn
 HOST-SUFFIX,teslamotors.com.cn,geolocation-!cn
 HOST-SUFFIX,teslazta.net,geolocation-!cn
 HOST-SUFFIX,ts.la,geolocation-!cn
-HOST,tesla-cdn.thron.cn,geolocation-!cn
-HOST,tesla-cdn.thron.com,geolocation-!cn
 HOST-SUFFIX,volvo,geolocation-!cn
 HOST-SUFFIX,dynafleetonline.com,geolocation-!cn
 HOST-SUFFIX,escandinavia-arg.com,geolocation-!cn
@@ -7075,6 +7074,7 @@ HOST,nbbb1bb7.pmhcjk.com,geolocation-!cn
 HOST,q676790b.pmhcjk.com,geolocation-!cn
 HOST,agb9r0ad.qllfkl.com,geolocation-!cn
 HOST-SUFFIX,manhuagui.com,geolocation-!cn
+HOST-SUFFIX,mhgui.com,geolocation-!cn
 HOST-SUFFIX,metacritic.com,geolocation-!cn
 HOST-SUFFIX,mubi.com,geolocation-!cn
 HOST-SUFFIX,mubicdn.net,geolocation-!cn
@@ -23621,6 +23621,7 @@ HOST-SUFFIX,azuredns-prd.info,geolocation-!cn
 HOST-SUFFIX,azuredns-prd.org,geolocation-!cn
 HOST-SUFFIX,azureedge-test.net,geolocation-!cn
 HOST-SUFFIX,azureedge.net,geolocation-!cn
+HOST-SUFFIX,azureedge.us,geolocation-!cn
 HOST-SUFFIX,azurefd.net,geolocation-!cn
 HOST-SUFFIX,azurehdinsight.cn,geolocation-!cn
 HOST-SUFFIX,azureiotcentral.com,geolocation-!cn
@@ -24354,6 +24355,7 @@ HOST-SUFFIX,sonytc.co.jp,geolocation-!cn
 HOST-SUFFIX,sovec.net,geolocation-!cn
 HOST-SUFFIX,so-net.net.tw,geolocation-!cn
 HOST-SUFFIX,spacex.com,geolocation-!cn
+HOST-SUFFIX,starlink.com,geolocation-!cn
 HOST-SUFFIX,spaceship.com,geolocation-!cn
 HOST-SUFFIX,spacemail.com,geolocation-!cn
 HOST-SUFFIX,st.com,geolocation-!cn

@@ -7143,6 +7143,7 @@ HOST-SUFFIX,azuredns-prd.info,category-companies
 HOST-SUFFIX,azuredns-prd.org,category-companies
 HOST-SUFFIX,azureedge-test.net,category-companies
 HOST-SUFFIX,azureedge.net,category-companies
+HOST-SUFFIX,azureedge.us,category-companies
 HOST-SUFFIX,azurefd.net,category-companies
 HOST-SUFFIX,azurehdinsight.cn,category-companies
 HOST-SUFFIX,azureiotcentral.com,category-companies
@@ -7272,6 +7273,7 @@ HOST-SUFFIX,office365love.com,category-companies
 HOST-SUFFIX,office365tw.com,category-companies
 HOST-SUFFIX,renovacionoffice.com,category-companies
 HOST-SUFFIX,sprinklesapp.com,category-companies
+HOST-SUFFIX,copilot-stg.com,category-companies
 HOST-SUFFIX,copilot.cloud.microsoft,category-companies
 HOST-SUFFIX,copilot.com,category-companies
 HOST-SUFFIX,copilot.microsoft.com,category-companies
@@ -8195,6 +8197,7 @@ HOST-SUFFIX,wheelpop.com,category-companies
 HOST-SUFFIX,wwtbam.com,category-companies
 HOST-SUFFIX,yourfantasybeginsnow.com,category-companies
 HOST-SUFFIX,spacex.com,category-companies
+HOST-SUFFIX,starlink.com,category-companies
 HOST-SUFFIX,spaceship.com,category-companies
 HOST-SUFFIX,spacemail.com,category-companies
 HOST-SUFFIX,st.com,category-companies

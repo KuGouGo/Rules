@@ -8,7 +8,6 @@ HOST-SUFFIX,tesla.cn,geolocation-!cn@cn
 HOST-SUFFIX,tesla.com.cn,geolocation-!cn@cn
 HOST-SUFFIX,teslamotors.cn,geolocation-!cn@cn
 HOST-SUFFIX,teslamotors.com.cn,geolocation-!cn@cn
-HOST,tesla-cdn.thron.cn,geolocation-!cn@cn
 HOST-SUFFIX,vfsco.com.cn,geolocation-!cn@cn
 HOST-SUFFIX,volvo.cn,geolocation-!cn@cn
 HOST-SUFFIX,volvo.com.cn,geolocation-!cn@cn

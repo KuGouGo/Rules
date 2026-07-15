@@ -47,6 +47,7 @@ HOST-SUFFIX,azuredns-prd.info,azure
 HOST-SUFFIX,azuredns-prd.org,azure
 HOST-SUFFIX,azureedge-test.net,azure
 HOST-SUFFIX,azureedge.net,azure
+HOST-SUFFIX,azureedge.us,azure
 HOST-SUFFIX,azurefd.net,azure
 HOST-SUFFIX,azurehdinsight.cn,azure
 HOST-SUFFIX,azureiotcentral.com,azure
