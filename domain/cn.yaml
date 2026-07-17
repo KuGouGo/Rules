@@ -1,4 +1,5 @@
 domain_set:
+  - 'api.blipsandchitz.me'
   - 'p1-juejin.byteimg.com'
   - 'p2-juejin.byteimg.com'
   - 'p3-juejin.byteimg.com'
@@ -1497,6 +1498,7 @@ domain_suffix_set:
   - 'vhengdata.com'
   - 'wanji.net.cn'
   - 'yebinnet.com'
+  - 'hrsecn.com'
   - '12365auto.com'
   - 'autohome.com'
   - 'autohome.com.cn'

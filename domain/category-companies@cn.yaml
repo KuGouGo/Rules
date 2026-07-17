@@ -832,6 +832,7 @@ domain_suffix_set:
   - 'gputechconf.cn'
   - 'nvidia.cn'
   - 'panasonic.cn'
+  - 'mycloudnas.com'
   - 'myqnapcloud.cn'
   - 'qlinkto.cn'
   - 'qnap.com.cn'
