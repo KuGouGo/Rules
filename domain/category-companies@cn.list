@@ -829,6 +829,7 @@ HOST-SUFFIX,gputechconf.cn,category-companies@cn
 HOST-SUFFIX,nvidia.cn,category-companies@cn
 HOST,cn.download.nvidia.com,category-companies@cn
 HOST-SUFFIX,panasonic.cn,category-companies@cn
+HOST-SUFFIX,mycloudnas.com,category-companies@cn
 HOST-SUFFIX,myqnapcloud.cn,category-companies@cn
 HOST-SUFFIX,qlinkto.cn,category-companies@cn
 HOST-SUFFIX,qnap.com.cn,category-companies@cn

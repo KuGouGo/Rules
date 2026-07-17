@@ -237,6 +237,7 @@ HOST-SUFFIX,zyh365.com,geolocation-cn
 HOST-SUFFIX,7moor-fs1.com,geolocation-cn
 HOST-SUFFIX,7moor.com,geolocation-cn
 HOST-SUFFIX,air-matters.com,geolocation-cn
+HOST,api.blipsandchitz.me,geolocation-cn
 HOST-SUFFIX,alookweb.com,geolocation-cn
 HOST-SUFFIX,anixplayer.net,geolocation-cn
 HOST-SUFFIX,antutu.com,geolocation-cn
@@ -1380,6 +1381,7 @@ HOST-SUFFIX,taichuan.net,geolocation-cn
 HOST-SUFFIX,vhengdata.com,geolocation-cn
 HOST-SUFFIX,wanji.net.cn,geolocation-cn
 HOST-SUFFIX,yebinnet.com,geolocation-cn
+HOST-SUFFIX,hrsecn.com,geolocation-cn
 HOST-SUFFIX,12365auto.com,geolocation-cn
 HOST-SUFFIX,autohome.com,geolocation-cn
 HOST-SUFFIX,autohome.com.cn,geolocation-cn

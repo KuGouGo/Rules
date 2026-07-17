@@ -1073,6 +1073,7 @@ HOST-SUFFIX,gputechconf.cn,geolocation-!cn@cn
 HOST-SUFFIX,nvidia.cn,geolocation-!cn@cn
 HOST,cn.download.nvidia.com,geolocation-!cn@cn
 HOST-SUFFIX,panasonic.cn,geolocation-!cn@cn
+HOST-SUFFIX,mycloudnas.com,geolocation-!cn@cn
 HOST-SUFFIX,myqnapcloud.cn,geolocation-!cn@cn
 HOST-SUFFIX,qlinkto.cn,geolocation-!cn@cn
 HOST-SUFFIX,qnap.com.cn,geolocation-!cn@cn
