@@ -1691,6 +1691,7 @@ HOST-SUFFIX,bank-arzamas.ru,geolocation-!cn
 HOST-SUFFIX,bank-credit-suisse-moscow.ru,geolocation-!cn
 HOST-SUFFIX,bank131.com,geolocation-!cn
 HOST-SUFFIX,bankermak.ru,geolocation-!cn
+HOST-SUFFIX,best2pay.net,geolocation-!cn
 HOST-SUFFIX,bfa.ru,geolocation-!cn
 HOST-SUFFIX,blanc.ru,geolocation-!cn
 HOST-SUFFIX,bm-bank.ru,geolocation-!cn
@@ -1699,6 +1700,7 @@ HOST-SUFFIX,commerzbank.ru,geolocation-!cn
 HOST-SUFFIX,finambank.ru,geolocation-!cn
 HOST-SUFFIX,forshtadt.ru,geolocation-!cn
 HOST-SUFFIX,homecredit.ru,geolocation-!cn
+HOST-SUFFIX,hva.im,geolocation-!cn
 HOST-SUFFIX,ibamoscow.ru,geolocation-!cn
 HOST-SUFFIX,jpmorgan.ru,geolocation-!cn
 HOST-SUFFIX,korona.com,geolocation-!cn
@@ -1710,6 +1712,8 @@ HOST-SUFFIX,primbank.ru,geolocation-!cn
 HOST-SUFFIX,prvbank.ru,geolocation-!cn
 HOST-SUFFIX,pskb.ru,geolocation-!cn
 HOST-SUFFIX,pvubank.com,geolocation-!cn
+HOST-SUFFIX,rbsgate.com,geolocation-!cn
+HOST-SUFFIX,rbsuat.com,geolocation-!cn
 HOST-SUFFIX,rencapbank.ru,geolocation-!cn
 HOST-SUFFIX,rencredit.ru,geolocation-!cn
 HOST-SUFFIX,rncoluminis.ru,geolocation-!cn
@@ -6773,6 +6777,9 @@ HOST-SUFFIX,ficador.com,geolocation-!cn
 HOST-SUFFIX,ficbook.net,geolocation-!cn
 HOST-SUFFIX,ficmania.com,geolocation-!cn
 HOST-SUFFIX,teinon.net,geolocation-!cn
+HOST-SUFFIX,formula1.com,geolocation-!cn
+HOST-SUFFIX,f1.com,geolocation-!cn
+HOST-SUFFIX,f1tv.com,geolocation-!cn
 HOST-SUFFIX,gimy.cc,geolocation-!cn
 HOST-SUFFIX,gimy.co,geolocation-!cn
 HOST-SUFFIX,gimy.to,geolocation-!cn
