@@ -204,11 +204,14 @@ HOST-SUFFIX,youmind.site,geolocation-!cn
 HOST-SUFFIX,pubmatic.com,geolocation-!cn
 HOST-SUFFIX,pubmatic.co.jp,geolocation-!cn
 HOST-SUFFIX,taboola.com,geolocation-!cn
+HOST,trojan-gfw.github.io,geolocation-!cn
+HOST,xtls.github.io,geolocation-!cn
 HOST-SUFFIX,ahmia.fi,geolocation-!cn
 HOST-SUFFIX,akasha.world,geolocation-!cn
 HOST-SUFFIX,browserleaks.com,geolocation-!cn
 HOST-SUFFIX,bypasscensorship.org,geolocation-!cn
 HOST-SUFFIX,censorship.ai,geolocation-!cn
+HOST-SUFFIX,clashyun.com,geolocation-!cn
 HOST-SUFFIX,dat.foundation,geolocation-!cn
 HOST-SUFFIX,democracy.earth,geolocation-!cn
 HOST-SUFFIX,eff.org,geolocation-!cn
@@ -224,6 +227,7 @@ HOST-SUFFIX,happ.su,geolocation-!cn
 HOST-SUFFIX,hiddify.com,geolocation-!cn
 HOST-SUFFIX,jitsi.org,geolocation-!cn
 HOST-SUFFIX,lokinet.org,geolocation-!cn
+HOST-SUFFIX,metacubex.one,geolocation-!cn
 HOST-SUFFIX,ntc.party,geolocation-!cn
 HOST-SUFFIX,onionshare.org,geolocation-!cn
 HOST-SUFFIX,ooni.org,geolocation-!cn
@@ -233,8 +237,8 @@ HOST-SUFFIX,proxifier.com,geolocation-!cn
 HOST-SUFFIX,psiphon.ca,geolocation-!cn
 HOST-SUFFIX,psiphon3.com,geolocation-!cn
 HOST-SUFFIX,sagernet.org,geolocation-!cn
-HOST-SUFFIX,sing-box.app,geolocation-!cn
 HOST-SUFFIX,shadowsocks.org,geolocation-!cn
+HOST-SUFFIX,sing-box.app,geolocation-!cn
 HOST-SUFFIX,sspanel.net,geolocation-!cn
 HOST-SUFFIX,stunnel.org,geolocation-!cn
 HOST-SUFFIX,telex.cc,geolocation-!cn
@@ -248,10 +252,7 @@ HOST-SUFFIX,vuvuzela.io,geolocation-!cn
 HOST-SUFFIX,whonix.org,geolocation-!cn
 HOST-SUFFIX,wikileaks.org,geolocation-!cn
 HOST-SUFFIX,wireguard.com,geolocation-!cn
-HOST-SUFFIX,xtls.github.io,geolocation-!cn
-HOST-SUFFIX,trojan-gfw.github.io,geolocation-!cn
 HOST-SUFFIX,zeronet.io,geolocation-!cn
-HOST-SUFFIX,metacubex.one,geolocation-!cn
 HOST-SUFFIX,4everland.io,geolocation-!cn
 HOST-SUFFIX,c4rex.co,geolocation-!cn
 HOST-SUFFIX,crustwebsites.net,geolocation-!cn

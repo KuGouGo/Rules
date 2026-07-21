@@ -1,8 +1,11 @@
+HOST,trojan-gfw.github.io,category-anticensorship
+HOST,xtls.github.io,category-anticensorship
 HOST-SUFFIX,ahmia.fi,category-anticensorship
 HOST-SUFFIX,akasha.world,category-anticensorship
 HOST-SUFFIX,browserleaks.com,category-anticensorship
 HOST-SUFFIX,bypasscensorship.org,category-anticensorship
 HOST-SUFFIX,censorship.ai,category-anticensorship
+HOST-SUFFIX,clashyun.com,category-anticensorship
 HOST-SUFFIX,dat.foundation,category-anticensorship
 HOST-SUFFIX,democracy.earth,category-anticensorship
 HOST-SUFFIX,eff.org,category-anticensorship
@@ -18,6 +21,7 @@ HOST-SUFFIX,happ.su,category-anticensorship
 HOST-SUFFIX,hiddify.com,category-anticensorship
 HOST-SUFFIX,jitsi.org,category-anticensorship
 HOST-SUFFIX,lokinet.org,category-anticensorship
+HOST-SUFFIX,metacubex.one,category-anticensorship
 HOST-SUFFIX,ntc.party,category-anticensorship
 HOST-SUFFIX,onionshare.org,category-anticensorship
 HOST-SUFFIX,ooni.org,category-anticensorship
@@ -27,8 +31,8 @@ HOST-SUFFIX,proxifier.com,category-anticensorship
 HOST-SUFFIX,psiphon.ca,category-anticensorship
 HOST-SUFFIX,psiphon3.com,category-anticensorship
 HOST-SUFFIX,sagernet.org,category-anticensorship
-HOST-SUFFIX,sing-box.app,category-anticensorship
 HOST-SUFFIX,shadowsocks.org,category-anticensorship
+HOST-SUFFIX,sing-box.app,category-anticensorship
 HOST-SUFFIX,sspanel.net,category-anticensorship
 HOST-SUFFIX,stunnel.org,category-anticensorship
 HOST-SUFFIX,telex.cc,category-anticensorship
@@ -42,10 +46,7 @@ HOST-SUFFIX,vuvuzela.io,category-anticensorship
 HOST-SUFFIX,whonix.org,category-anticensorship
 HOST-SUFFIX,wikileaks.org,category-anticensorship
 HOST-SUFFIX,wireguard.com,category-anticensorship
-HOST-SUFFIX,xtls.github.io,category-anticensorship
-HOST-SUFFIX,trojan-gfw.github.io,category-anticensorship
 HOST-SUFFIX,zeronet.io,category-anticensorship
-HOST-SUFFIX,metacubex.one,category-anticensorship
 HOST-SUFFIX,4everland.io,category-anticensorship
 HOST-SUFFIX,c4rex.co,category-anticensorship
 HOST-SUFFIX,crustwebsites.net,category-anticensorship
