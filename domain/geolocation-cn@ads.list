@@ -156,6 +156,7 @@ HOST-SUFFIX,doh.iqiyi.com,geolocation-cn@ads
 HOST-SUFFIX,hdns.ksyun.com,geolocation-cn@ads
 HOST-SUFFIX,kuaishou.httpdns.pro,geolocation-cn@ads
 HOST-SUFFIX,httpdns.meituan.com,geolocation-cn@ads
+HOST-SUFFIX,httpdnsmultiapivip.meituan.com,geolocation-cn@ads
 HOST-SUFFIX,httpdnsvip.meituan.com,geolocation-cn@ads
 HOST-SUFFIX,httpdns-sdk.n.netease.com,geolocation-cn@ads
 HOST-SUFFIX,httpdns.music.163.com,geolocation-cn@ads
