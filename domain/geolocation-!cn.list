@@ -302,6 +302,9 @@ HOST-SUFFIX,v2fly.org,geolocation-!cn
 HOST-SUFFIX,opengw.net,geolocation-!cn
 HOST-SUFFIX,vpngate.jp,geolocation-!cn
 HOST-SUFFIX,vpngate.net,geolocation-!cn
+HOST-SUFFIX,docs.rw,geolocation-!cn
+HOST-SUFFIX,log.rw,geolocation-!cn
+HOST-SUFFIX,try.rw,geolocation-!cn
 HOST-SUFFIX,equinox.io,geolocation-!cn
 HOST-SUFFIX,ngrok-agent.com,geolocation-!cn
 HOST-SUFFIX,ngrok-free.app,geolocation-!cn
