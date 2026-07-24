@@ -1,0 +1,4 @@
+domain_suffix_set:
+  - 'docs.rw'
+  - 'log.rw'
+  - 'try.rw'

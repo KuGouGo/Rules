@@ -99,3 +99,6 @@ domain_suffix_set:
   - 'opengw.net'
   - 'vpngate.jp'
   - 'vpngate.net'
+  - 'docs.rw'
+  - 'log.rw'
+  - 'try.rw'
