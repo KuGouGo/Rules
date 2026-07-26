@@ -25,7 +25,7 @@
 
 `fakeip-filter` 当前源为本仓库维护的 `sources/custom/domain/fakeip-filter.list`，由 `build-custom.sh` 与其他自定义规则一起生成五平台形式，不从网络下载预编译文件。`config/upstreams.json` 覆盖主上游网络输入；工具资产下载另由工具 lock 控制。
 
-`main` 是唯一长期源码与发布源分支，开发使用合并后删除的临时分支。发布分支为 `surge`、`quanx`、`egern`、`sing-box`、`mihomo`，只允许生成的 `README.md`、`domain/`、`ip/` 及平台对应扩展名。各分支 `README.md` 由 `templates/branch-readmes/` 生成，并直接包含 v2fly/domain-list-community 的完整 MIT 版权与许可通知；因此发布树无需新增独立许可证文件。模板变更属于构建触发路径。
+`main` 是唯一长期源码与发布源分支；日常修改可直接提交或使用临时分支。发布分支为 `surge`、`quanx`、`egern`、`sing-box`、`mihomo`，只允许生成的 `README.md`、`domain/`、`ip/` 及平台对应扩展名。各分支 `README.md` 由 `templates/branch-readmes/` 生成，并直接包含 v2fly/domain-list-community 的完整 MIT 版权与许可通知；因此发布树无需新增独立许可证文件。模板变更属于构建触发路径。
 
 ## 审计文件
 
@@ -53,7 +53,7 @@
 
 因此该检查不覆盖既有自定义源修改、未出现在当前 `.output/` 的潜在未来上游名称，也不禁止 domain 与 ip 使用同一名称。它是防覆盖措施，不是全局命名守卫。
 
-这与源码语义冲突阶段相互独立：严格共享解析器先验证 canonical 类型和值，再把所有 custom domain 文件合并检查精确项/后缀覆盖，把所有 custom IP 文件合并检查重复/包含。`config/custom-rule-conflicts.json` 只能逐条描述真实覆盖关系；失效、重复或文件对级宽泛关系会失败。当前仅列出三条经审核的 `emby-cn` / `emby` 关系。`build-custom.sh` 在创建构建目录、读取已有产物或准备工具前运行该阶段。
+共享解析器先验证 canonical 类型和值，并检查同一自定义文件内的重复或覆盖关系。不同文件允许按策略需要有意重叠。`build-custom.sh` 在生成产物前运行该阶段。
 
 ## 产物守卫（artifact guard）范围
 
@@ -75,7 +75,7 @@ sing-box 和 mihomo 只按 `config/tools-lock.json` 固定版本、tag commit �
 ## 文档导航
 
 - [`README.md`](../README.md)：用户入口、平台示例和关键边界
-- [`CONTRIBUTING.md`](../CONTRIBUTING.md)：贡献规则与人工评审清单
+- [`CONTRIBUTING.md`](../CONTRIBUTING.md)：自定义规则格式与修改说明
 - [`docs/README.md`](README.md)：文档职责与阅读路径
 - [`docs/DEVELOPMENT.md`](DEVELOPMENT.md)：环境、命令和开发流程
 - [`docs/STRUCTURE.md`](STRUCTURE.md)：构建、产物、守卫和发布结构

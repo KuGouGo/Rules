@@ -7,7 +7,7 @@
 - `shellcheck not found`：本地默认可跳过，CI 强制要求；安装后重试。
 - Python 编译失败：确认 `python3 --version` 为 3.11 或更高版本，再修复首个语法错误。
 - 配置失败：检查 HTTPS URL、正整数阈值、必需项和支持的枚举。
-- 自定义规则失败：处理非 canonical 类型/值、跨文件或同文件的 domain 精确项/后缀覆盖、IP 重复/包含、正则或 CIDR 规范问题。若涉及豁免，只能在 `config/custom-rule-conflicts.json` 逐条记录真实关系；不要添加文件对级宽泛关系，失效和重复关系也会失败。
+- 自定义规则失败：处理非 canonical 类型/值、同文件内的 domain 精确项/后缀覆盖、IP 重复/包含、正则或 CIDR 规范问题。不同文件之间允许按策略需要重叠。
 - 测试失败：运行 `bash scripts/tests/test-*.sh` 中对应的脚本，再检查夹具是否应有意更新。
 
 ## `make check-runtime` 失败
@@ -42,7 +42,7 @@ make build-custom
 
 ## `emby-cn` 未按预期命中
 
-确认 `emby-cn` 位于 `emby` 之前，并绑定不同策略。两份规则当前有三条在 `config/custom-rule-conflicts.json` 逐条记录的精确覆盖关系；反向加载会让宽泛规则先命中。若 lint 报告该配置失效或出现新冲突，应核对具体双方规则，不要扩大为文件对级豁免。
+确认 `emby-cn` 位于 `emby` 之前，并绑定不同策略；反向加载会让宽泛规则先命中。
 
 ## 上游同步或条目异常
 
@@ -77,7 +77,7 @@ CI 的失败事务会把 `.artifacts/diagnostics/` 上传为保留 7 天的 diag
 ## 文档导航
 
 - [`README.md`](../README.md)：用户入口、平台示例和关键边界
-- [`CONTRIBUTING.md`](../CONTRIBUTING.md)：贡献规则与人工评审清单
+- [`CONTRIBUTING.md`](../CONTRIBUTING.md)：自定义规则格式与修改说明
 - [`docs/README.md`](README.md)：文档职责与阅读路径
 - [`docs/DEVELOPMENT.md`](DEVELOPMENT.md)：环境、命令和开发流程
 - [`docs/STRUCTURE.md`](STRUCTURE.md)：构建、产物、守卫和发布结构

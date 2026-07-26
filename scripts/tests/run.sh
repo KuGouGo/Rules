@@ -20,9 +20,10 @@ if ! [[ "$TEST_TIMEOUT_SECONDS" =~ ^[0-9]+([.][0-9]+)?$ ]] || [ "$TEST_TIMEOUT_S
   exit 2
 fi
 
-while IFS= read -r test_script; do
+for test_script in "$TEST_DIR"/test-*.sh; do
+  [ -f "$test_script" ] || continue
   test_scripts+=("$test_script")
-done < <(find "$TEST_DIR" -maxdepth 1 -type f -name 'test-*.sh' | sort)
+done
 
 if [ "${#test_scripts[@]}" -eq 0 ]; then
   echo "no test scripts found in $TEST_DIR" >&2

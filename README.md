@@ -7,7 +7,7 @@
   <img alt="Repository code license" src="https://img.shields.io/badge/repository%20code-MIT-4b5563">
 </p>
 
-本仓库从配置的上游和本地维护源生成 Surge、Quantumult X、Egern、sing-box 与 mihomo 规则。`main` 保存构建源码、配置和工作流；可直接使用的文件位于对应平台分支。
+本仓库用于个人维护自定义规则并整合上游数据，生成 Surge、Quantumult X、Egern、sing-box 与 mihomo 规则。`main` 保存源码、配置和工作流；可直接使用的文件位于对应平台分支。
 
 > [!IMPORTANT]
 > 客户端不要引用 `main`。规则名称和区域分类沿用上游定义，不构成准确性、完整性或适用性保证。第三方内容不因格式转换而自动适用本仓库的 MIT 许可，详见 [`NOTICE`](NOTICE) 与 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
@@ -76,14 +76,15 @@ https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/google.mrs
 本地命令要求 Bash 5+、Python 3.11+、GNU Make 和 Git。macOS 可使用 Homebrew Bash 与 Python 运行检查和文本构建；需要下载 sing-box 或 mihomo 的二进制构建只支持 lock 文件声明的 Linux 平台。
 
 ```bash
-make check-runtime
+make check
 make validate
 make build-custom-text
 make preflight
 make clean
 ```
 
-- `make validate`：运行 Shell、Python、配置、自定义规则和测试检查。
+- `make check`：快速检查脚本语法、配置和自定义规则，适合日常改规则。
+- `make validate`：在快速检查基础上运行完整测试。
 - `make build-custom-text`：生成自定义文本产物，不下载二进制工具。
 - `make preflight`：执行 `make validate` 和自定义文本构建；不执行上游完整同步、二进制构建或发布。
 - `make clean`：删除生成产物和临时文件，保留已校验的工具缓存。
@@ -93,9 +94,9 @@ make clean
 ## 仓库边界
 
 - 长期分支只保留 `main` 与 `surge`、`quanx`、`egern`、`sing-box`、`mihomo` 五个产物分支。
-- 变更通过临时分支向 `main` 提交 Pull Request；PR 始终运行静态检查，并按改动路径选择跳过、custom 或 full 候选构建，临时分支在合并后删除。
+- 日常变更可直接提交，也可通过 Pull Request；PR 只运行基础校验，完整生成和发布由 `main` 工作流负责。
 - `main` 在构建相关路径变化、定时任务运行或人工触发时执行发布工作流；产物内容没有变化时不会创建新的产物分支提交。
-- Dependabot 每周向 `main` 集中提交一个 GitHub Actions minor/patch 更新 PR；major 与安全更新保持独立，逐项评估。
+- 不启用自动依赖 PR；GitHub Actions 版本按需手工更新。
 - `fakeip-filter` 是本仓库维护的文本源，不下载第三方预编译文件。
 - 构建摘要、manifest 和 CI 通过都不是第三方许可证明。
 - 规则按现状提供。使用者需自行判断策略、顺序和更新带来的影响，并保留可回退版本。
