@@ -14,8 +14,7 @@ CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" sh
 PUBLISH_BRANCH_NAMES=(surge quanx egern sing-box mihomo)
 
 ARTIFACT_SOURCE_SHA="${ARTIFACT_SOURCE_SHA:-}" "$ROOT/scripts/commands/verify-artifact-manifest.sh"
-read -r MANIFEST_GENERATION_ID MANIFEST_SOURCE_SHA MANIFEST_BASELINE_STATUS MANIFEST_BASELINE_SOURCE < <(
-  python3 - <<'PY' "$MANIFEST_FILE"
+manifest_identity="$(python3 - <<'PY' "$MANIFEST_FILE"
 import json, sys
 manifest = json.load(open(sys.argv[1], encoding="utf-8"))
 print(
@@ -25,7 +24,8 @@ print(
     manifest["baseline"]["source_commit"] or "-",
 )
 PY
-)
+)"
+read -r MANIFEST_GENERATION_ID MANIFEST_SOURCE_SHA MANIFEST_BASELINE_STATUS MANIFEST_BASELINE_SOURCE <<< "$manifest_identity"
 
 refresh_and_validate_remote_baseline() {
   local metadata_file branch commit subject generation source
@@ -221,7 +221,9 @@ has_allowed_extension() {
 assert_branch_layout() {
   local domain_extensions="$1"
   local ip_extensions="$2"
-  local file rel
+  local file rel file_list
+  file_list="$(mktemp)"
+  find domain ip -type f -print0 > "$file_list"
 
   [ -f "README.md" ] || {
     echo "missing publish file: README.md" >&2
@@ -246,7 +248,8 @@ assert_branch_layout() {
     fi
     echo "unexpected file in publish tree: $rel" >&2
     exit 1
-  done < <(find domain ip -type f -print0)
+  done < "$file_list"
+  rm -f "$file_list"
 }
 
 cleanup_tempdir() {

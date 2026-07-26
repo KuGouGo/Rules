@@ -199,8 +199,8 @@ tool_cache_is_trusted() {
   archive_sha="$(tool_lock_value "$tool" sha256 "$platform")"
   locked_binary_sha="$(tool_lock_value "$tool" binary_sha256 "$platform")" || return 1
 
-  if ! IFS=$'\t' read -r binary_sha recorded_probe < <(
-    python3 - "$sidecar" "$tool" "$version" "$tag_commit" "$platform" "$asset" "$archive_sha" <<'PY'
+  local provenance_values
+  if ! provenance_values="$(python3 - "$sidecar" "$tool" "$version" "$tag_commit" "$platform" "$asset" "$archive_sha" <<'PY'
 import json
 import re
 import sys
@@ -232,9 +232,10 @@ try:
 except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
     raise SystemExit(1)
 PY
-  ); then
+  )"; then
     return 1
   fi
+  IFS=$'\t' read -r binary_sha recorded_probe <<< "$provenance_values"
 
   actual_sha="$(sha256_file "$binary")"
   [ "$actual_sha" = "$locked_binary_sha" ] || return 1

@@ -156,7 +156,7 @@ check_no_redundant_attr_filter_artifacts() {
   while IFS=$'\t' read -r platform _public _branch section _extension _format _empty _compiler _verifier; do
     [ "$section" = domain ] || continue
     check_no_redundant_attr_filter_artifacts_in_dir "$ARTIFACT_ROOT/domain/$platform" "domain/$platform"
-  done < <(capability_registry)
+  done <<< "$CAPABILITY_REGISTRY"
 }
 
 count_domain_rules_from_file() {
@@ -538,7 +538,7 @@ main() {
   while IFS=$'\t' read -r platform _public _branch section extension _format _empty _compiler _verifier; do
     if [ "$section" = domain ]; then min_expected=1000; else min_expected=10; fi
     check_min_files "$ARTIFACT_ROOT/$section/$platform" "$ARTIFACT_ROOT/$section/$platform/*.${extension}" "$min_expected"
-  done < <(capability_registry)
+  done <<< "$CAPABILITY_REGISTRY"
   # Minimum 10 covers the guaranteed sources:
   # cn, private, google, telegram, cloudflare, cloudfront, aws, fastly, github, apple.
   # Streaming services (netflix, spotify, disney) are best-effort via RIPE NCC

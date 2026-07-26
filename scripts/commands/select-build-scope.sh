@@ -159,13 +159,13 @@ load_publication_baseline() {
   if [ "$baseline_loaded" -eq 1 ]; then
     return 0
   fi
+  local baseline_values
   if [ -n "$BASELINE_INPUT_FILE" ]; then
-    read -r baseline_status baseline_generation baseline_source < <(
-      validate_and_write_baseline "$BASELINE_INPUT_FILE" "$BASELINE_FILE"
-    )
+    baseline_values="$(validate_and_write_baseline "$BASELINE_INPUT_FILE" "$BASELINE_FILE")"
   else
-    read -r baseline_status baseline_generation baseline_source < <(resolve_remote_baseline)
+    baseline_values="$(resolve_remote_baseline)"
   fi
+  read -r baseline_status baseline_generation baseline_source <<< "$baseline_values"
   baseline_loaded=1
   echo "Publication baseline: status $baseline_status, generation $baseline_generation, source $baseline_source"
 
@@ -222,7 +222,7 @@ has_build_relevant_changes() {
 }
 
 has_only_non_build_changes() {
-  ! grep -Eqv '^(\.github/(CODEOWNERS$|ISSUE_TEMPLATE/|dependabot\.yml$|pull_request_template\.md$)|\.gitignore$|CONTRIBUTING\.md$|LICENSE$|NOTICE$|README\.md$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$|docs/)'
+  ! grep -Eqv '^(\.gitignore$|LICENSE$|NOTICE$|README\.md$|THIRD_PARTY_NOTICES\.md$|docs/)'
 }
 
 if [ "$EVENT_NAME" != "pull_request" ]; then
