@@ -4,10 +4,11 @@ REQUIRE_SHELLCHECK ?= 0
 SHELL_SCRIPTS := $(shell find scripts -type f -name '*.sh' | sort)
 PYTHON_TOOLS := $(shell find scripts/tools -type f -name '*.py' | sort)
 
-.PHONY: help check-runtime lint lint-shell lint-python lint-config lint-rules test validate preflight build-custom build-custom-text clean
+.PHONY: help check check-runtime lint lint-shell lint-python lint-config lint-rules test validate preflight build-custom build-custom-text clean
 
 help:
 	@echo "Available targets:"
+	@echo "  make check             Quick syntax, config, and rule checks"
 	@echo "  make check-runtime     Verify the supported Bash and Python runtimes"
 	@echo "  make lint              Run shell, Python, and custom rule lint checks"
 	@echo "  make test              Run all repository test scripts"
@@ -16,6 +17,8 @@ help:
 	@echo "  make build-custom      Build custom rules and binary artifacts"
 	@echo "  make build-custom-text Build custom text artifacts without downloading binary compilers"
 	@echo "  make clean             Remove generated artifacts and temporary files"
+
+check: lint
 
 check-runtime:
 	@./scripts/commands/check-runtime.sh

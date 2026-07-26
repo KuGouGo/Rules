@@ -6,7 +6,6 @@ cd "$ROOT"
 
 python3 "$ROOT/scripts/tools/lint-custom-rules.py" \
   --domain-dir "$ROOT/sources/custom/domain" \
-  --ip-dir "$ROOT/sources/custom/ip" \
-  --conflicts "$ROOT/config/custom-rule-conflicts.json"
+  --ip-dir "$ROOT/sources/custom/ip"
 
 echo "custom rule lint passed"

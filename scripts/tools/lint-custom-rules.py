@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import sys
 from dataclasses import dataclass
@@ -115,6 +114,8 @@ def find_domain_conflicts(rules: list[LocatedRule]) -> list[Conflict]:
     conflicts: list[Conflict] = []
     for index, covered in enumerate(rules):
         for covering in rules[:index]:
+            if covered.file != covering.file:
+                continue
             if covered.text == covering.text:
                 conflicts.append(Conflict("domain", covered, covering))
             elif domain_covers(covering, covered):
@@ -128,6 +129,8 @@ def find_ip_conflicts(rules: list[LocatedRule]) -> list[Conflict]:
     conflicts: list[Conflict] = []
     for index, right in enumerate(rules):
         for left in rules[:index]:
+            if right.file != left.file:
+                continue
             if left.network == right.network:
                 conflicts.append(Conflict("ip", right, left))
             elif left.network.version == right.network.version and right.network.subnet_of(left.network):
@@ -147,103 +150,30 @@ def unique_conflicts(conflicts: list[Conflict]) -> list[Conflict]:
     return result
 
 
-def parse_endpoint(value: object, location: str, reporter: Reporter) -> tuple[str, str] | None:
-    if not isinstance(value, dict) or set(value) != {"file", "rule"}:
-        reporter.error(f"{location} must contain exactly 'file' and 'rule'")
-        return None
-    file = value.get("file")
-    rule = value.get("rule")
-    if (
-        not isinstance(file, str)
-        or not file.endswith(".list")
-        or "/" in file
-        or "\\" in file
-        or Path(file).name != file
-        or not RULE_FILE_NAME_RE.fullmatch(Path(file).stem)
-    ):
-        reporter.error(f"{location}.file must be a bare .list filename")
-        return None
-    if not isinstance(rule, str) or not rule or rule != rule.strip():
-        reporter.error(f"{location}.rule must be a non-empty canonical rule string")
-        return None
-    return file, rule
-
-
-def load_allowlist(path: Path, reporter: Reporter) -> set[tuple[str, str, str, str, str]]:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        reporter.error(f"{path} conflict allowlist does not exist")
-        return set()
-    except json.JSONDecodeError as exc:
-        reporter.error(f"{path} invalid JSON: {exc.msg}")
-        return set()
-    if (
-        not isinstance(data, dict)
-        or set(data) != {"version", "relations"}
-        or type(data.get("version")) is not int
-        or data.get("version") != 1
-    ):
-        reporter.error(f"{path} must be an object with version 1 and relations only; broad pair-wide allowlists are forbidden")
-        return set()
-    relations = data.get("relations")
-    if not isinstance(relations, list):
-        reporter.error(f"{path}.relations must be an array")
-        return set()
-
-    result: set[tuple[str, str, str, str, str]] = set()
-    for index, item in enumerate(relations):
-        location = f"{path}.relations[{index}]"
-        if not isinstance(item, dict) or set(item) != {"family", "covered", "covering"}:
-            reporter.error(f"{location} must contain exactly family, covered, and covering")
-            continue
-        family = item.get("family")
-        if family not in {"domain", "ip"}:
-            reporter.error(f"{location}.family must be domain or ip")
-            continue
-        covered = parse_endpoint(item.get("covered"), f"{location}.covered", reporter)
-        covering = parse_endpoint(item.get("covering"), f"{location}.covering", reporter)
-        if covered is None or covering is None:
-            continue
-        key = (family, covered[0], covered[1], covering[0], covering[1])
-        if key in result:
-            reporter.error(f"{location} duplicates an earlier allowlisted relation")
-            continue
-        result.add(key)
-    return result
-
-
-def report_conflicts(conflicts: list[Conflict], allowlist: set[tuple[str, str, str, str, str]], reporter: Reporter) -> None:
-    actual = {conflict.key for conflict in conflicts}
+def report_conflicts(conflicts: list[Conflict], reporter: Reporter) -> None:
+    # Different files may intentionally overlap because they can be assigned to
+    # different policies. Only reject redundancy inside one source file.
     for conflict in conflicts:
-        if conflict.key in allowlist:
+        if conflict.covered.file != conflict.covering.file:
             continue
         if conflict.covered.text == conflict.covering.text:
             message = f"duplicate {conflict.family} rule; first seen at {conflict.covering.location}: {conflict.covered.text}"
         else:
             message = f"{conflict.covered.text} is covered by {conflict.covering.text} at {conflict.covering.location}"
         reporter.error(f"{conflict.covered.location} {message}")
-    for stale in sorted(allowlist - actual):
-        family, covered_file, covered_rule, covering_file, covering_rule = stale
-        reporter.error(
-            f"stale conflict allowlist relation: {family} {covered_file}:{covered_rule} covered by "
-            f"{covering_file}:{covering_rule}"
-        )
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Strictly lint all custom rule sources and global conflicts.")
+    parser = argparse.ArgumentParser(description="Lint custom rule syntax and within-file redundancy.")
     parser.add_argument("--domain-dir", default=str(ROOT / "sources" / "custom" / "domain"))
     parser.add_argument("--ip-dir", default=str(ROOT / "sources" / "custom" / "ip"))
-    parser.add_argument("--conflicts", default=str(ROOT / "config" / "custom-rule-conflicts.json"))
     args = parser.parse_args()
 
     reporter = Reporter()
     domain_rules = load_domain_rules(Path(args.domain_dir), reporter)
     ip_rules = load_ip_rules(Path(args.ip_dir), reporter)
-    allowlist = load_allowlist(Path(args.conflicts), reporter)
     conflicts = find_domain_conflicts(domain_rules) + find_ip_conflicts(ip_rules)
-    report_conflicts(conflicts, allowlist, reporter)
+    report_conflicts(conflicts, reporter)
 
     if not reporter.ok:
         reporter.emit()

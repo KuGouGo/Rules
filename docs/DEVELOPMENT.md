@@ -21,6 +21,7 @@ make check-runtime
 
 ```bash
 make help
+make check
 make lint
 make test
 make validate
@@ -30,7 +31,8 @@ make preflight
 make clean
 ```
 
-- `make validate`：Shell 语法、可用时的 ShellCheck、Python 编译、配置、自定义规则和测试。
+- `make check` / `make lint`：快速检查 Shell、Python、配置和自定义规则。
+- `make validate`：快速检查后再运行完整测试。
 - `make check-runtime`：验证当前 `PATH` 解析到 Bash 5+ 和 Python 3.11+。
 - `make build-custom-text`：只生成自定义文本产物，不下载二进制编译器。
 - `make build-custom`：生成自定义文本和二进制产物。
@@ -44,16 +46,16 @@ make clean
 
 CI 设置 `REQUIRE_SHELLCHECK=1`，本地缺少 ShellCheck 时的跳过不代表 CI 会通过。
 
-GitHub Actions 使用完整 commit SHA 固定版本，仓库测试拒绝 tag 或非完整 SHA 的 `uses:`。Dependabot 每周把 GitHub Actions 的 minor/patch 更新组合为一个以 `main` 为目标的 PR；major 与安全更新保持独立并逐项评估。合并后的临时分支由 GitHub 自动删除。
+GitHub Actions 使用完整 commit SHA 固定版本，按需手工更新。
 
 ## 开发流程
 
-1. 从 `main` 创建临时分支，不手工编辑生成目录。
+1. 直接修改 `main` 或使用临时分支，不手工编辑生成目录。
 2. 修改自定义源、配置、实现或测试夹具。
-3. 运行 `make preflight` 和适用的完整构建命令。
+3. 日常规则变更运行 `make check`；修改生成逻辑时再运行 `make validate` 或适用的构建命令。
 4. 检查差异中没有 `.output/`、`.tmp/`、`.bin/`、凭据或无关格式化。
-5. 通过 Pull Request 合并到 `main`；PR 必须完成预检。候选构建按路径选择范围：仅文档和治理文件为 `none`，仅修改且不删除自定义源为 `custom`，构建脚本、配置、模板、测试或自定义源删除为 `full`。合并后的构建相关变更由 `main` 工作流更新五个平台分支。
-6. 按 [贡献指南](../CONTRIBUTING.md) 说明来源、人工许可评审状态、测试和产物影响。
+5. 可直接提交到 `main`，也可通过 Pull Request 合并。PR 只运行基础校验；完整候选构建不再重复执行。
+6. `main` 的发布工作流按变更范围生成并更新五个平台分支。
 
 ## 自定义规则与名称
 
@@ -61,7 +63,7 @@ GitHub Actions 使用完整 commit SHA 固定版本，仓库测试拒绝 tag 或
 
 新增名称冲突检查仅针对相对基准提交新加入的自定义源，且 domain 与 ip 分开检查五个平台的当前 `.output/` 目标路径。它不是全仓库名称注册表，也不覆盖既有自定义源修改。
 
-自定义源在全局范围检查 domain 精确项/后缀覆盖及 IP 重复/包含；类型和值必须已是规范形式。唯一允许的三条 `emby-cn` / `emby` 精确关系记录在 `config/custom-rule-conflicts.json`，失效、重复或文件对级宽泛豁免会失败。首条命中客户端必须先加载 `emby-cn`，再加载 `emby`。自定义构建会在创建构建目录和准备工具前执行该严格校验。
+自定义源会检查类型、值和同一文件内的重复/覆盖关系。不同文件允许有意重叠，以便绑定不同策略，不再维护逐条冲突审批清单。首条命中客户端应先加载细分规则，例如先加载 `emby-cn`，再加载 `emby`。
 
 ## 摘要与许可评审
 
@@ -78,7 +80,7 @@ GitHub Actions 使用完整 commit SHA 固定版本，仓库测试拒绝 tag 或
 ## 文档导航
 
 - [`README.md`](../README.md)：用户入口、平台示例和关键边界
-- [`CONTRIBUTING.md`](../CONTRIBUTING.md)：贡献规则与人工评审清单
+- [`CONTRIBUTING.md`](../CONTRIBUTING.md)：自定义规则格式与修改说明
 - [`docs/README.md`](README.md)：文档职责与阅读路径
 - [`docs/DEVELOPMENT.md`](DEVELOPMENT.md)：环境、命令和开发流程
 - [`docs/STRUCTURE.md`](STRUCTURE.md)：构建、产物、守卫和发布结构

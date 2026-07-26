@@ -466,7 +466,8 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
   # This point is after the last binary compile but before the controlled commit.
   inject_custom_build_failure late-binary
 fi
-mapfile -t CONTROLLED_ARTIFACTS < <(controlled_artifact_paths)
+controlled_artifact_paths > "$TMP_DIR/controlled-artifacts.list"
+mapfile -t CONTROLLED_ARTIFACTS < "$TMP_DIR/controlled-artifacts.list"
 origin_args=(mark-custom "$ARTIFACT_ROOT" "$CUSTOM_DOMAIN_DIR" "$CUSTOM_IP_DIR")
 if [ "$TEXT_ONLY_MODE" -eq 1 ]; then
   origin_args+=(--text-only)
