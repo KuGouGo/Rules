@@ -150,6 +150,8 @@ def singbox_counts(data: dict[str, Any], kind: str) -> Counter[str]:
 
 
 def verify_singbox(path: Path, kind: str, tool: Path) -> tuple[str, Counter[RuleEntry]]:
+    if not path.exists() or path.stat().st_size == 0:
+        raise ValueError(f"sing-box rule-set artifact is missing or empty: {path}")
     with tempfile.TemporaryDirectory() as temporary:
         decoded = Path(temporary) / "decoded.json"
         subprocess.run([str(tool), "rule-set", "decompile", str(path), "--output", str(decoded)],
@@ -161,6 +163,8 @@ def verify_singbox(path: Path, kind: str, tool: Path) -> tuple[str, Counter[Rule
 
 
 def verify_mihomo(path: Path, kind: str, tool: Path) -> tuple[str, Counter[RuleEntry]]:
+    if not path.exists() or path.stat().st_size == 0:
+        raise ValueError(f"mihomo MRS artifact is missing or empty: {path}")
     behavior = "domain" if kind == "domain" else "ipcidr"
     with tempfile.TemporaryDirectory() as temporary:
         decoded = Path(temporary) / "decoded.txt"

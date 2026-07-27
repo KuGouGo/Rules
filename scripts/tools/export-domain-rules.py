@@ -10,7 +10,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from domain_rules import domain_value_errors, parse_classical_domain_file
+from domain_rules import (
+    compact_classical_domain_file,
+    domain_value_errors,
+    parse_classical_domain_file,
+)
 from platform_capabilities import PlatformCapabilities, load_platform_capabilities
 
 
@@ -150,10 +154,12 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
             attrs: list[str] = []
             affiliate_targets: list[str] = []
             for token in tail_tokens:
-                if token.startswith("@"):
+                if token.startswith("@") and len(token) > 1:
                     attrs.append(token[1:])
-                elif token.startswith("&"):
+                elif token.startswith("&") and len(token) > 1:
                     affiliate_targets.append(token[1:])
+                else:
+                    raise ValueError(f"{path}:{line_no} unsupported trailing token: {token}")
 
             if head.startswith("include:"):
                 includes.append(Include(head.split(":", 1)[1], tuple(attrs)))
@@ -390,7 +396,9 @@ def build_surge_lines(rules: list[Rule]) -> list[str]:
 
 
 def build_surge_list(input_file: Path, output_file: Path) -> None:
-    write_text_lines(build_surge_lines(parse_classical_domain_rules(input_file)), output_file)
+    rules = parse_classical_domain_rules(input_file)
+    print_platform_skip_summary(input_file.stem, rules)
+    write_text_lines(build_surge_lines(rules), output_file)
 
 
 def build_quanx_lines(rules: list[Rule], policy_tag: str) -> list[str]:
@@ -402,7 +410,9 @@ def build_quanx_lines(rules: list[Rule], policy_tag: str) -> list[str]:
 
 
 def build_quanx_list(input_file: Path, output_file: Path, policy_tag: str) -> None:
-    write_text_lines(build_quanx_lines(parse_classical_domain_rules(input_file), policy_tag), output_file)
+    rules = parse_classical_domain_rules(input_file)
+    print_platform_skip_summary(input_file.stem, rules)
+    write_text_lines(build_quanx_lines(rules, policy_tag), output_file)
 
 
 def yaml_quote(value: str) -> str:
@@ -483,6 +493,14 @@ def export_data_dir_lists(data_dir: Path, output_dir: Path) -> None:
         for target, rule in affiliations:
             affiliated_rules.setdefault(target, []).append(rule)
 
+    missing_includes = sorted(
+        {include.target for includes in include_rules.values() for include in includes}
+        - set(direct_rules)
+        - set(affiliated_rules)
+    )
+    if missing_includes:
+        raise ValueError("missing included DLC rule sets: " + ", ".join(missing_includes))
+
     cache: dict[str, list[Rule]] = {}
     visiting: set[str] = set()
 
@@ -526,6 +544,7 @@ def export_data_dir_lists(data_dir: Path, output_dir: Path) -> None:
             write_rule_set(f"{name}@{attr}", rules)
 
 
+
 def export_lists(input_path: Path, output_dir: Path) -> None:
     if input_path.is_dir():
         export_data_dir_lists(input_path, output_dir)
@@ -535,11 +554,16 @@ def export_lists(input_path: Path, output_dir: Path) -> None:
 
 def build_singbox_payload(rules: list[Rule]) -> dict[str, list[str]]:
     payload: dict[str, list[str]] = {}
+    unsupported_kinds = PLATFORM_CAPABILITIES["sing-box"].domain.unsupported_kinds
 
     for rule in rules:
         kind = rule.kind
-        value = rule.value
-        payload.setdefault(SINGBOX_KIND_MAP[kind], []).append(value)
+        if kind in unsupported_kinds:
+            continue
+        target = SINGBOX_KIND_MAP.get(kind)
+        if target is None:
+            raise ValueError(f"unsupported sing-box domain mapping for {kind}")
+        payload.setdefault(target, []).append(rule.value)
 
     return payload
 
@@ -558,6 +582,22 @@ def build_singbox_json(input_file: Path, output_file: Path) -> None:
 
 def sorted_classical_rule_files(rule_dir: Path) -> list[Path]:
     return sorted(rule_dir.glob("*.list"), key=lambda item: item.name)
+
+
+def compact_rule_directory(rule_dir: Path) -> dict[str, int]:
+    summary: dict[str, int] = {}
+    total_before = 0
+    for output_file in sorted_classical_rule_files(rule_dir):
+        before, removed = compact_classical_domain_file(output_file)
+        total_before += before
+        if removed:
+            summary[output_file.stem] = removed
+    total_removed = sum(summary.values())
+    print(
+        f"domain canonical compaction: before={total_before} "
+        f"removed={total_removed} after={total_before - total_removed}"
+    )
+    return summary
 
 
 def domain_rule_manifest(rule_dir: Path) -> dict[str, object]:
@@ -721,6 +761,12 @@ def main() -> int:
     binary_input_parser.add_argument("rule_dir")
     binary_input_parser.add_argument("output_dir")
 
+    compact_file_parser = subparsers.add_parser("compact-file")
+    compact_file_parser.add_argument("rule_file")
+
+    compact_parser = subparsers.add_parser("compact-dir")
+    compact_parser.add_argument("rule_dir")
+
     manifest_parser = subparsers.add_parser("domain-rule-manifest")
     manifest_parser.add_argument("rule_dir")
     manifest_parser.add_argument("output_file")
@@ -752,6 +798,12 @@ def main() -> int:
             return 0
         if args.command == "singbox-json":
             build_singbox_json(Path(args.input_file), Path(args.output_file))
+            return 0
+        if args.command == "compact-file":
+            compact_classical_domain_file(Path(args.rule_file))
+            return 0
+        if args.command == "compact-dir":
+            compact_rule_directory(Path(args.rule_dir))
             return 0
         if args.command == "text-platform-dirs":
             render_text_platform_dirs(

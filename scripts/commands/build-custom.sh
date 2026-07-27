@@ -8,6 +8,7 @@ cd "$ROOT"
 source "$ROOT/scripts/commands/check-runtime.sh"
 
 TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
+BUILD_JOBS="${RULES_BUILD_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 
 # Reject malformed or globally conflicting custom sources before creating build
 # directories, inspecting staged artifacts, or downloading build tools.
@@ -171,6 +172,32 @@ assert_no_name_conflict() {
 
 GENERATED_CUSTOM_ARTIFACTS="$(collect_generated_custom_artifacts)"
 
+print_domain_rule_stats() {
+  local plain_list="$1"
+  local base="$2"
+  local total domain suffix keyword regex
+  
+  total=$(grep -c "^DOMAIN" "$plain_list" 2>/dev/null || echo "0")
+  domain=$(grep -c "^DOMAIN," "$plain_list" 2>/dev/null || echo "0")
+  suffix=$(grep -c "^DOMAIN-SUFFIX," "$plain_list" 2>/dev/null || echo "0")
+  keyword=$(grep -c "^DOMAIN-KEYWORD," "$plain_list" 2>/dev/null || echo "0")
+  regex=$(grep -c "^DOMAIN-REGEX," "$plain_list" 2>/dev/null || echo "0")
+  
+  echo "Building domain rules for $base: $total rules (DOMAIN=$domain, SUFFIX=$suffix, KEYWORD=$keyword, REGEX=$regex)"
+}
+
+print_ip_rule_stats() {
+  local plain_list="$1"
+  local base="$2"
+  local total v4 v6
+  
+  total=$(grep -c "^[0-9a-fA-F:./]" "$plain_list" 2>/dev/null || echo "0")
+  v4=$(grep -c "^\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}" "$plain_list" 2>/dev/null || echo "0")
+  v6=$(grep -c ":" "$plain_list" 2>/dev/null || echo "0")
+  
+  echo "Building IP rules for $base: $total CIDRs (IPv4=$v4, IPv6=$v6)"
+}
+
 build_domain_plain_and_surge() {
   local list_file="$1"
   local base surge_out quanx_out egern_out plain_out surge_tmp quanx_tmp egern_tmp
@@ -184,6 +211,7 @@ build_domain_plain_and_surge() {
   egern_tmp="$TMP_DOMAIN_DIR/$base.egern.tmp"
 
   normalize_custom_domain_source "$list_file" "$plain_out"
+  print_domain_rule_stats "$plain_out" "$base"
   cp "$plain_out" "$CANONICAL_STAGE_ROOT/domain/$base.list"
   render_surge_domain_ruleset_from_rules "$plain_out" "$surge_tmp"
   render_quanx_domain_ruleset_from_rules "$plain_out" "$quanx_tmp" "$base"
@@ -193,35 +221,53 @@ build_domain_plain_and_surge() {
   write_if_nonempty_or_remove "$egern_tmp" "$egern_out"
 }
 
-build_domain_binaries() {
+build_domain_json_and_mihomo_text() {
   local plain_list="$1"
-  local base json srs_tmp mihomo_text_tmp mihomo_mrs_tmp
+  local base json mihomo_text_tmp
   base="$(basename "$plain_list" .list)"
   json="$TMP_DOMAIN_DIR/$base.json"
-  srs_tmp="$TMP_DOMAIN_DIR/$base.srs.tmp"
-  compile_domain_rule_list_to_artifacts "$plain_list" "$json" "$srs_tmp" || {
-    echo "failed to build custom domain binary rules for $base" >&2
+  mihomo_text_tmp="$TMP_DOMAIN_DIR/$base.mihomo.txt"
+
+  # Generate sing-box JSON
+  SINGBOX_RULE_SET_VERSION="$(detect_singbox_rule_set_source_version)" \
+    build_domain_json_from_rules "$plain_list" "$json" || {
+    echo "failed to generate sing-box JSON for $base" >&2
     return 1
   }
-  write_if_changed "$srs_tmp" "$DOMAIN_SINGBOX_DIR/$base.srs"
 
-  mihomo_text_tmp="$TMP_DOMAIN_DIR/$base.mihomo.txt"
+  # Generate mihomo text
   build_mihomo_domain_text_from_rules "$plain_list" "$mihomo_text_tmp"
 
   if [ ! -s "$mihomo_text_tmp" ]; then
     echo "custom domain list $base has no DOMAIN/DOMAIN-SUFFIX entries; skip mihomo mrs" >&2
-    rm -f "$DOMAIN_MIHOMO_DIR/$base.list" "$DOMAIN_MIHOMO_DIR/$base.mrs"
-    return 0
+    rm -f "$DOMAIN_MIHOMO_DIR/$base.list" "$DOMAIN_MIHOMO_DIR/$base.mrs" "$mihomo_text_tmp"
   fi
+}
 
-  ensure_mihomo_once
-  mihomo_mrs_tmp="$TMP_DOMAIN_DIR/$base.mrs.tmp"
-  compile_mihomo_domain_plain_to_binary_artifact "$mihomo_text_tmp" "$mihomo_mrs_tmp" || {
-    echo "failed to build custom mihomo domain rules for $base" >&2
+build_domain_binaries_parallel() {
+  local tmp_dir="$TMP_DOMAIN_DIR"
+  local singbox_dir="$DOMAIN_SINGBOX_DIR"
+  local mihomo_dir="$DOMAIN_MIHOMO_DIR"
+  local jobs="$BUILD_JOBS"
+
+  echo "Compiling domain binaries with $jobs parallel jobs..."
+
+  # Parallel compile sing-box
+  if ! compile_domain_singbox_json_dir "$tmp_dir" "$singbox_dir" "$jobs"; then
+    echo "failed to compile sing-box domain binaries" >&2
     return 1
-  }
-  rm -f "$DOMAIN_MIHOMO_DIR/$base.list"
-  write_if_changed "$mihomo_mrs_tmp" "$DOMAIN_MIHOMO_DIR/$base.mrs"
+  fi
+  local singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
+  echo "  ✓ sing-box: compiled $singbox_count rule-sets"
+
+  # Parallel compile mihomo
+  ensure_mihomo_once
+  if ! compile_domain_mihomo_text_dir "$tmp_dir" "$mihomo_dir" "$jobs"; then
+    echo "failed to compile mihomo domain binaries" >&2
+    return 1
+  fi
+  local mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
+  echo "  ✓ mihomo: compiled $mihomo_count rule-sets"
 }
 
 build_ip_plain_and_surge() {
@@ -238,6 +284,7 @@ build_ip_plain_and_surge() {
   plain_tmp="$TMP_IP_DIR/$base.plain.tmp"
 
   normalize_ip_rule_source "$list_file" "$surge_tmp" "$plain_tmp"
+  print_ip_rule_stats "$plain_tmp" "$base"
   render_ip_plain_to_quanx_list "$plain_tmp" "$quanx_tmp" "$base"
   render_ip_plain_to_egern_yaml "$plain_tmp" "$egern_tmp"
   write_if_nonempty_or_remove "$surge_tmp" "$surge_out"
@@ -248,19 +295,61 @@ build_ip_plain_and_surge() {
   rm -f "$surge_tmp" "$quanx_tmp" "$egern_tmp"
 }
 
-build_ip_binaries() {
+build_ip_json() {
   local plain_list="$1"
-  local base json srs_tmp mrs_tmp
+  local base json
   base="$(basename "$plain_list" .txt)"
   json="$TMP_IP_DIR/$base.json"
-  srs_tmp="$TMP_IP_DIR/$base.srs.tmp"
-  mrs_tmp="$TMP_IP_DIR/$base.mrs.tmp"
-  compile_ip_plain_to_binary_artifacts "$plain_list" "$json" "$srs_tmp" "$mrs_tmp" || {
-    echo "failed to build custom IP binary rules for $base" >&2
+
+  SINGBOX_RULE_SET_VERSION="$(detect_singbox_rule_set_source_version)" \
+    build_ip_json_from_plain "$plain_list" "$json" || {
+    echo "failed to generate IP JSON for $base" >&2
     return 1
   }
-  write_if_changed "$srs_tmp" "$IP_SINGBOX_DIR/$base.srs"
-  write_if_changed "$mrs_tmp" "$IP_MIHOMO_DIR/$base.mrs"
+}
+
+build_ip_binaries_parallel() {
+  local tmp_dir="$TMP_IP_DIR"
+  local singbox_dir="$IP_SINGBOX_DIR"
+  local mihomo_dir="$IP_MIHOMO_DIR"
+  local jobs="$BUILD_JOBS"
+  local json_list plain_list json base
+
+  echo "Compiling IP binaries with $jobs parallel jobs..."
+
+  # Parallel compile sing-box
+  json_list="$tmp_dir/.singbox-json-files"
+  find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$json_list"
+  if [ -s "$json_list" ]; then
+    xargs -0 -n 1 -P "$jobs" sh -c '
+      out_dir="$1"
+      json="$2"
+      base="$(basename "$json" .json)"
+      sing-box rule-set compile "$json" --output "$out_dir/$base.srs"
+    ' sh "$singbox_dir" < "$json_list" || {
+      echo "failed to compile sing-box IP binaries" >&2
+      return 1
+    }
+  fi
+  local singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
+  echo "  ✓ sing-box: compiled $singbox_count rule-sets"
+
+  # Parallel compile mihomo
+  plain_list="$tmp_dir/.mihomo-plain-files"
+  find "$tmp_dir" -maxdepth 1 -type f -name '*.txt' -size +0c -print0 > "$plain_list"
+  if [ -s "$plain_list" ]; then
+    xargs -0 -n 1 -P "$jobs" sh -c '
+      out_dir="$1"
+      plain="$2"
+      base="$(basename "$plain" .txt)"
+      mihomo convert-ruleset ipcidr text "$plain" "$out_dir/$base.mrs" >/dev/null
+    ' sh "$mihomo_dir" < "$plain_list" || {
+      echo "failed to compile mihomo IP binaries" >&2
+      return 1
+    }
+  fi
+  local mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
+  echo "  ✓ mihomo: compiled $mihomo_count rule-sets"
 }
 
 CONFLICT_BASE_REF="$(resolve_conflict_base_ref)"
@@ -320,15 +409,25 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ] && [ "$has_custom_ip" -gt 0 ]; then
 fi
 
 if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
+  # Generate JSON and intermediate files (serial, fast)
   for plain_list in "$TMP_DOMAIN_DIR"/*.list; do
     [ -f "$plain_list" ] || continue
-    build_domain_binaries "$plain_list"
+    build_domain_json_and_mihomo_text "$plain_list"
   done
 
   for plain_list in "$TMP_IP_DIR"/*.txt; do
     [ -f "$plain_list" ] || continue
-    build_ip_binaries "$plain_list"
+    build_ip_json "$plain_list"
   done
+
+  # Batch parallel compile (CPU-intensive)
+  if compgen -G "$TMP_DOMAIN_DIR/*.list" >/dev/null; then
+    build_domain_binaries_parallel
+  fi
+
+  if compgen -G "$TMP_IP_DIR/*.txt" >/dev/null; then
+    build_ip_binaries_parallel
+  fi
 fi
 
 controlled_artifact_paths() {
