@@ -70,9 +70,14 @@ def count_rule_kinds(rules: list[Rule]) -> dict[str, int]:
     return counts
 
 
-def print_platform_skip_summary(name: str, rules: list[Rule]) -> None:
+def print_platform_skip_summary(name: str, rules: list[Rule], platform: str | None = None) -> None:
     counts = count_rule_kinds(rules)
-    for platform, capability in PLATFORM_CAPABILITIES.items():
+    capabilities = (
+        {platform: PLATFORM_CAPABILITIES[platform]}
+        if platform is not None
+        else PLATFORM_CAPABILITIES
+    )
+    for platform_name, capability in capabilities.items():
         skipped = {
             kind: count
             for kind, count in counts.items()
@@ -80,7 +85,10 @@ def print_platform_skip_summary(name: str, rules: list[Rule]) -> None:
         }
         if skipped:
             details = ", ".join(f"{kind}={count}" for kind, count in sorted(skipped.items()))
-            print(f"domain summary: {name} skips unsupported rules for {platform}: {details}", file=sys.stderr)
+            print(
+                f"domain summary: {name} skips unsupported rules for {platform_name}: {details}",
+                file=sys.stderr,
+            )
 
 
 def print_mihomo_mrs_skip_summary(input_file: Path, rules: list[Rule]) -> None:
@@ -397,7 +405,7 @@ def build_surge_lines(rules: list[Rule]) -> list[str]:
 
 def build_surge_list(input_file: Path, output_file: Path) -> None:
     rules = parse_classical_domain_rules(input_file)
-    print_platform_skip_summary(input_file.stem, rules)
+    print_platform_skip_summary(input_file.stem, rules, "surge")
     write_text_lines(build_surge_lines(rules), output_file)
 
 
@@ -411,7 +419,7 @@ def build_quanx_lines(rules: list[Rule], policy_tag: str) -> list[str]:
 
 def build_quanx_list(input_file: Path, output_file: Path, policy_tag: str) -> None:
     rules = parse_classical_domain_rules(input_file)
-    print_platform_skip_summary(input_file.stem, rules)
+    print_platform_skip_summary(input_file.stem, rules, "quanx")
     write_text_lines(build_quanx_lines(rules, policy_tag), output_file)
 
 

@@ -8,7 +8,6 @@ cd "$ROOT"
 source "$ROOT/scripts/commands/check-runtime.sh"
 
 TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
-BUILD_JOBS="${RULES_BUILD_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 
 # Reject malformed or globally conflicting custom sources before creating build
 # directories, inspecting staged artifacts, or downloading build tools.
@@ -175,27 +174,33 @@ GENERATED_CUSTOM_ARTIFACTS="$(collect_generated_custom_artifacts)"
 print_domain_rule_stats() {
   local plain_list="$1"
   local base="$2"
-  local total domain suffix keyword regex
-  
-  total=$(grep -c "^DOMAIN" "$plain_list" 2>/dev/null || echo "0")
-  domain=$(grep -c "^DOMAIN," "$plain_list" 2>/dev/null || echo "0")
-  suffix=$(grep -c "^DOMAIN-SUFFIX," "$plain_list" 2>/dev/null || echo "0")
-  keyword=$(grep -c "^DOMAIN-KEYWORD," "$plain_list" 2>/dev/null || echo "0")
-  regex=$(grep -c "^DOMAIN-REGEX," "$plain_list" 2>/dev/null || echo "0")
-  
-  echo "Building domain rules for $base: $total rules (DOMAIN=$domain, SUFFIX=$suffix, KEYWORD=$keyword, REGEX=$regex)"
+
+  awk -F, -v name="$base" '
+    $1 == "DOMAIN" { domain++ }
+    $1 == "DOMAIN-SUFFIX" { suffix++ }
+    $1 == "DOMAIN-KEYWORD" { keyword++ }
+    $1 == "DOMAIN-REGEX" { regex++ }
+    END {
+      total = domain + suffix + keyword + regex
+      printf "Building domain rules for %s: %d rules (DOMAIN=%d, SUFFIX=%d, KEYWORD=%d, REGEX=%d)\n", \
+        name, total, domain, suffix, keyword, regex
+    }
+  ' "$plain_list"
 }
 
 print_ip_rule_stats() {
   local plain_list="$1"
   local base="$2"
-  local total v4 v6
-  
-  total=$(grep -c "^[0-9a-fA-F:./]" "$plain_list" 2>/dev/null || echo "0")
-  v4=$(grep -c "^\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}" "$plain_list" 2>/dev/null || echo "0")
-  v6=$(grep -c ":" "$plain_list" 2>/dev/null || echo "0")
-  
-  echo "Building IP rules for $base: $total CIDRs (IPv4=$v4, IPv6=$v6)"
+
+  awk -v name="$base" '
+    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
+    /:/ { ipv6++; next }
+    { ipv4++ }
+    END {
+      printf "Building IP rules for %s: %d CIDRs (IPv4=%d, IPv6=%d)\n", \
+        name, ipv4 + ipv6, ipv4, ipv6
+    }
+  ' "$plain_list"
 }
 
 build_domain_plain_and_surge() {
@@ -245,31 +250,25 @@ build_domain_json_and_mihomo_text() {
 }
 
 build_domain_binaries_parallel() {
-  local tmp_dir="$TMP_DOMAIN_DIR"
-  local singbox_dir="$DOMAIN_SINGBOX_DIR"
-  local mihomo_dir="$DOMAIN_MIHOMO_DIR"
-  local jobs="$BUILD_JOBS"
+  local jobs singbox_count mihomo_count
 
+  jobs="$(detect_compile_jobs)"
   echo "Compiling domain binaries with $jobs parallel jobs..."
 
-  # Parallel compile sing-box
-  if ! compile_domain_singbox_json_dir "$tmp_dir" "$singbox_dir" "$jobs"; then
+  if ! compile_domain_singbox_json_dir "$TMP_DOMAIN_DIR" "$DOMAIN_SINGBOX_DIR" "$jobs"; then
     echo "failed to compile sing-box domain binaries" >&2
     return 1
   fi
-  local singbox_count
-  singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
-  echo "  ✓ sing-box: compiled $singbox_count rule-sets"
+  singbox_count="$(find "$DOMAIN_SINGBOX_DIR" -maxdepth 1 -type f -name '*.srs' -size +0c | wc -l | tr -d ' ')"
+  echo "  sing-box: compiled $singbox_count rule-sets"
 
-  # Parallel compile mihomo
   ensure_mihomo_once
-  if ! compile_domain_mihomo_text_dir "$tmp_dir" "$mihomo_dir" "$jobs"; then
+  if ! compile_domain_mihomo_text_dir "$TMP_DOMAIN_DIR" "$DOMAIN_MIHOMO_DIR" "$jobs"; then
     echo "failed to compile mihomo domain binaries" >&2
     return 1
   fi
-  local mihomo_count
-  mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
-  echo "  ✓ mihomo: compiled $mihomo_count rule-sets"
+  mihomo_count="$(find "$DOMAIN_MIHOMO_DIR" -maxdepth 1 -type f -name '*.mrs' -size +0c | wc -l | tr -d ' ')"
+  echo "  mihomo: compiled $mihomo_count rule-sets"
 }
 
 build_ip_plain_and_surge() {
@@ -311,51 +310,16 @@ build_ip_json() {
 }
 
 build_ip_binaries_parallel() {
-  local tmp_dir="$TMP_IP_DIR"
-  local singbox_dir="$IP_SINGBOX_DIR"
-  local mihomo_dir="$IP_MIHOMO_DIR"
-  local jobs="$BUILD_JOBS"
-  local json_list plain_list json base
+  local jobs singbox_count mihomo_count
 
+  jobs="$(detect_compile_jobs)"
   echo "Compiling IP binaries with $jobs parallel jobs..."
+  compile_ip_binary_dirs "$TMP_IP_DIR" "$IP_SINGBOX_DIR" "$IP_MIHOMO_DIR" "$jobs"
 
-  # Parallel compile sing-box
-  json_list="$tmp_dir/.singbox-json-files"
-  find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$json_list"
-  if [ -s "$json_list" ]; then
-    # shellcheck disable=SC2016
-    xargs -0 -n 1 -P "$jobs" sh -c '
-      out_dir="$1"
-      json="$2"
-      base="$(basename "$json" .json)"
-      sing-box rule-set compile "$json" --output "$out_dir/$base.srs"
-    ' sh "$singbox_dir" < "$json_list" || {
-      echo "failed to compile sing-box IP binaries" >&2
-      return 1
-    }
-  fi
-  local singbox_count
-  singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
-  echo "  ✓ sing-box: compiled $singbox_count rule-sets"
-
-  # Parallel compile mihomo
-  plain_list="$tmp_dir/.mihomo-plain-files"
-  find "$tmp_dir" -maxdepth 1 -type f -name '*.txt' -size +0c -print0 > "$plain_list"
-  if [ -s "$plain_list" ]; then
-    # shellcheck disable=SC2016
-    xargs -0 -n 1 -P "$jobs" sh -c '
-      out_dir="$1"
-      plain="$2"
-      base="$(basename "$plain" .txt)"
-      mihomo convert-ruleset ipcidr text "$plain" "$out_dir/$base.mrs" >/dev/null
-    ' sh "$mihomo_dir" < "$plain_list" || {
-      echo "failed to compile mihomo IP binaries" >&2
-      return 1
-    }
-  fi
-  local mihomo_count
-  mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
-  echo "  ✓ mihomo: compiled $mihomo_count rule-sets"
+  singbox_count="$(find "$IP_SINGBOX_DIR" -maxdepth 1 -type f -name '*.srs' -size +0c | wc -l | tr -d ' ')"
+  mihomo_count="$(find "$IP_MIHOMO_DIR" -maxdepth 1 -type f -name '*.mrs' -size +0c | wc -l | tr -d ' ')"
+  echo "  sing-box: compiled $singbox_count rule-sets"
+  echo "  mihomo: compiled $mihomo_count rule-sets"
 }
 
 CONFLICT_BASE_REF="$(resolve_conflict_base_ref)"

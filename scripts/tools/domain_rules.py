@@ -88,6 +88,44 @@ def domain_value_errors(
     return errors
 
 
+def compact_domain_rules(rules: list[ParsedDomainRule]) -> tuple[list[ParsedDomainRule], int]:
+    """Remove rules made redundant by an equal or parent DOMAIN-SUFFIX.
+
+    Keyword and regular-expression rules are intentionally opaque. The first
+    occurrence order is preserved so canonical output remains deterministic.
+    """
+    suffixes = {rule.value for rule in rules if rule.kind == "DOMAIN-SUFFIX"}
+    compacted: list[ParsedDomainRule] = []
+    removed = 0
+
+    for rule in rules:
+        if rule.kind not in {"DOMAIN", "DOMAIN-SUFFIX"}:
+            compacted.append(rule)
+            continue
+        labels = rule.value.split(".")
+        start = 1 if rule.kind == "DOMAIN-SUFFIX" else 0
+        covered = any(".".join(labels[index:]) in suffixes for index in range(start, len(labels)))
+        if covered:
+            removed += 1
+        else:
+            compacted.append(rule)
+    return compacted, removed
+
+
+def compact_classical_domain_file(path: Path) -> tuple[int, int]:
+    rules, errors = parse_classical_domain_file(
+        path,
+        require_canonical=True,
+        allow_single_label_suffix=True,
+    )
+    if errors:
+        raise ValueError("\n".join(errors))
+    compacted, removed = compact_domain_rules(rules)
+    text = "\n".join(rule.text for rule in compacted)
+    path.write_text(text + ("\n" if text else ""), encoding="utf-8")
+    return len(rules), removed
+
+
 def parse_classical_domain_file(
     path: Path,
     *,

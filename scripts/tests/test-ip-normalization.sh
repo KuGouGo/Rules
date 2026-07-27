@@ -59,7 +59,6 @@ cat > "$TMP_DIR/mixed.txt" <<'CIDRS'
 192.168.1.1/24
 192.168.1.0/24
 2001:db8::1/32
-not-a-cidr
 # comment
 CIDRS
 
@@ -107,9 +106,23 @@ python3 "$ROOT/scripts/tools/normalize-ip-rules.py" \
   "$TMP_DIR/merge-b.txt"
 assert_file_content "$TMP_DIR/merged-dedupe.out" $'10.0.0.0/8\n192.168.1.0/24\n2001:db8::/32\n10.1.0.0/16\n192.168.2.0/24\n2001:db8:1::/48'
 
+cat > "$TMP_DIR/invalid-text.txt" <<'CIDRS'
+192.0.2.0/24
+not-a-cidr
+CIDRS
+if python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single text \
+  "$TMP_DIR/invalid-text.txt" "$TMP_DIR/invalid-text.out" >"$TMP_DIR/invalid-text.stdout" 2>"$TMP_DIR/invalid-text.stderr"; then
+  echo "test failed: invalid effective text-source line should fail" >&2
+  exit 1
+fi
+if ! grep -Fq "invalid CIDR entry: not-a-cidr" "$TMP_DIR/invalid-text.stderr"; then
+  echo "test failed: strict text-source parser did not identify invalid line" >&2
+  cat "$TMP_DIR/invalid-text.stderr" >&2
+  exit 1
+fi
+
 cat > "$TMP_DIR/empty.txt" <<'CIDRS'
 # comment only
-not-a-cidr
 CIDRS
 
 python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single text "$TMP_DIR/empty.txt" "$TMP_DIR/empty.out"

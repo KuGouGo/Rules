@@ -217,14 +217,30 @@ compile_mihomo_domain_plain_to_binary_artifact() {
   mihomo convert-ruleset domain text "$plain_list" "$mrs_out" >/dev/null
 }
 
+assert_compiled_file_count() {
+  local label="$1"
+  local expected="$2"
+  local output_dir="$3"
+  local pattern="$4"
+  local actual
+
+  actual="$(find "$output_dir" -maxdepth 1 -type f -name "$pattern" -size +0c | wc -l | tr -d ' ')"
+  if [ "$actual" -ne "$expected" ]; then
+    echo "$label produced $actual non-empty artifacts; expected $expected" >&2
+    return 1
+  fi
+}
+
 compile_domain_singbox_json_dir() {
   local tmp_dir="$1"
   local singbox_dir="$2"
   local jobs="$3"
   local list_file="$tmp_dir/.singbox-json-files"
+  local expected
 
   find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$list_file"
-  if [ ! -s "$list_file" ]; then
+  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name '*.json' | wc -l | tr -d ' ')"
+  if [ "$expected" -eq 0 ]; then
     return 0
   fi
 
@@ -234,7 +250,9 @@ compile_domain_singbox_json_dir() {
     json="$2"
     base="$(basename "$json" .json)"
     sing-box rule-set compile "$json" --output "$out_dir/$base.srs"
+    test -s "$out_dir/$base.srs"
   ' sh "$singbox_dir" < "$list_file"
+  assert_compiled_file_count "sing-box domain compile" "$expected" "$singbox_dir" '*.srs'
 }
 
 compile_domain_mihomo_text_dir() {
@@ -242,9 +260,11 @@ compile_domain_mihomo_text_dir() {
   local mihomo_dir="$2"
   local jobs="$3"
   local list_file="$tmp_dir/.mihomo-text-files"
+  local expected
 
   find "$tmp_dir" -maxdepth 1 -type f -name '*.mihomo.txt' -size +0c -print0 > "$list_file"
-  if [ ! -s "$list_file" ]; then
+  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name '*.mihomo.txt' -size +0c | wc -l | tr -d ' ')"
+  if [ "$expected" -eq 0 ]; then
     return 0
   fi
 
@@ -254,7 +274,9 @@ compile_domain_mihomo_text_dir() {
     plain="$2"
     base="$(basename "$plain" .mihomo.txt)"
     mihomo convert-ruleset domain text "$plain" "$out_dir/$base.mrs" >/dev/null
+    test -s "$out_dir/$base.mrs"
   ' sh "$mihomo_dir" < "$list_file"
+  assert_compiled_file_count "mihomo domain compile" "$expected" "$mihomo_dir" '*.mrs'
 }
 
 build_domain_artifacts_from_rule_dir() {
@@ -442,7 +464,47 @@ compile_ip_plain_to_binary_artifacts() {
   SINGBOX_RULE_SET_VERSION="$source_version" \
     build_ip_json_from_plain "$plain_list" "$json_out"
   sing-box rule-set compile "$json_out" --output "$srs_out"
+  test -s "$srs_out"
   mihomo convert-ruleset ipcidr text "$plain_list" "$mrs_out" >/dev/null
+  test -s "$mrs_out"
+}
+
+compile_ip_binary_dirs() {
+  local tmp_dir="$1"
+  local singbox_dir="$2"
+  local mihomo_dir="$3"
+  local jobs="$4"
+  local json_list plain_list expected
+
+  json_list="$tmp_dir/.singbox-ip-json-files"
+  find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$json_list"
+  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name '*.json' | wc -l | tr -d ' ')"
+  if [ "$expected" -gt 0 ]; then
+    # shellcheck disable=SC2016
+    xargs -0 -n 1 -P "$jobs" sh -c '
+      out_dir="$1"
+      json="$2"
+      base="$(basename "$json" .json)"
+      sing-box rule-set compile "$json" --output "$out_dir/$base.srs"
+      test -s "$out_dir/$base.srs"
+    ' sh "$singbox_dir" < "$json_list"
+    assert_compiled_file_count "sing-box IP compile" "$expected" "$singbox_dir" '*.srs'
+  fi
+
+  plain_list="$tmp_dir/.mihomo-ip-text-files"
+  find "$tmp_dir" -maxdepth 1 -type f -name '*.txt' -size +0c -print0 > "$plain_list"
+  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name '*.txt' -size +0c | wc -l | tr -d ' ')"
+  if [ "$expected" -gt 0 ]; then
+    # shellcheck disable=SC2016
+    xargs -0 -n 1 -P "$jobs" sh -c '
+      out_dir="$1"
+      plain="$2"
+      base="$(basename "$plain" .txt)"
+      mihomo convert-ruleset ipcidr text "$plain" "$out_dir/$base.mrs" >/dev/null
+      test -s "$out_dir/$base.mrs"
+    ' sh "$mihomo_dir" < "$plain_list"
+    assert_compiled_file_count "mihomo IP compile" "$expected" "$mihomo_dir" '*.mrs'
+  fi
 }
 
 build_ip_artifacts_from_surge_dir() {
