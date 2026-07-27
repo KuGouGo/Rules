@@ -48,19 +48,25 @@ def atomic_write_text(output_file: Path, output_text: str) -> None:
             temp_path.unlink(missing_ok=True)
 
 
-def normalize_networks(values: list[str]) -> list[ipaddress._BaseNetwork]:
+def normalize_networks(values: list[str], *, strict_values: bool = False) -> list[ipaddress._BaseNetwork]:
     networks: list[ipaddress._BaseNetwork] = []
+    invalid: list[str] = []
 
     for value in values:
         cidr = value.strip()
         if not cidr:
             continue
         try:
-            # strict=False silently masks host bits (e.g. 192.168.1.1/24 → 192.168.1.0/24).
+            # Source feeds may contain host bits; normalize those without
+            # changing the represented network. Invalid effective entries are
+            # rejected by strict source-specific parsers instead of vanishing.
             networks.append(ipaddress.ip_network(cidr, strict=False))
         except ValueError:
-            continue
-
+            invalid.append(cidr)
+    if strict_values and invalid:
+        preview = ", ".join(repr(value) for value in invalid[:5])
+        suffix = f" (and {len(invalid) - 5} more)" if len(invalid) > 5 else ""
+        raise ValueError(f"invalid CIDR source entries: {preview}{suffix}")
     return networks
 
 
@@ -76,6 +82,11 @@ def deduplicated_cidrs(values: list[str]) -> list[str]:
         normalized.append(text)
 
     return normalized
+
+
+def canonical_cidrs(values: list[str]) -> list[str]:
+    """Return the minimal, deterministic IPv4/IPv6 union."""
+    return collapsed_cidrs(values)
 
 
 def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
@@ -115,44 +126,61 @@ def merge_plain_cidr_files_dedup(input_files: list[Path], output_file: Path) -> 
 
 def extract_text_cidrs(input_file: Path, output_file: Path) -> None:
     lines = []
-    for raw_line in input_file.read_text(encoding="utf-8").splitlines():
+    for line_no, raw_line in enumerate(input_file.read_text(encoding="utf-8").splitlines(), start=1):
         line = raw_line.split("#", 1)[0].strip()
-        if line:
-            lines.append(line)
+        if not line:
+            continue
+        try:
+            ipaddress.ip_network(line, strict=False)
+        except ValueError as exc:
+            raise ValueError(f"{input_file}:{line_no} invalid CIDR entry: {line}") from exc
+        lines.append(line)
     write_deduplicated_cidrs(lines, output_file)
+
+
+def require_object_list(data: object, field: str, source: Path) -> list[dict]:
+    if not isinstance(data, dict) or field not in data or not isinstance(data[field], list):
+        raise ValueError(f"{source} missing required JSON array: {field}")
+    if not all(isinstance(item, dict) for item in data[field]):
+        raise ValueError(f"{source} JSON array {field} must contain objects")
+    return data[field]
 
 
 def extract_google_json_cidrs(input_file: Path, output_file: Path) -> None:
     data = json.loads(input_file.read_text(encoding="utf-8"))
     values = []
-    for item in data.get("prefixes", []):
-        if "ipv4Prefix" in item:
-            values.append(item["ipv4Prefix"])
-        if "ipv6Prefix" in item:
-            values.append(item["ipv6Prefix"])
+    for index, item in enumerate(require_object_list(data, "prefixes", input_file), start=1):
+        present = [key for key in ("ipv4Prefix", "ipv6Prefix") if key in item]
+        if len(present) != 1 or not isinstance(item[present[0]], str):
+            raise ValueError(f"{input_file} prefixes[{index}] must contain one string IP prefix")
+        values.append(item[present[0]])
     write_deduplicated_cidrs(values, output_file)
 
 
 def extract_aws_cloudfront_json_cidrs(input_file: Path, output_file: Path) -> None:
     data = json.loads(input_file.read_text(encoding="utf-8"))
     values = []
-
-    for item in data.get("prefixes", []):
-        if item.get("service") == "CLOUDFRONT" and "ip_prefix" in item:
-            values.append(item["ip_prefix"])
-
-    for item in data.get("ipv6_prefixes", []):
-        if item.get("service") == "CLOUDFRONT" and "ipv6_prefix" in item:
-            values.append(item["ipv6_prefix"])
-
+    for field, prefix_key in (("prefixes", "ip_prefix"), ("ipv6_prefixes", "ipv6_prefix")):
+        for index, item in enumerate(require_object_list(data, field, input_file), start=1):
+            if item.get("service") != "CLOUDFRONT":
+                continue
+            value = item.get(prefix_key)
+            if not isinstance(value, str):
+                raise ValueError(f"{input_file} {field}[{index}] missing string {prefix_key}")
+            values.append(value)
     write_deduplicated_cidrs(values, output_file)
 
 
 def extract_fastly_json_cidrs(input_file: Path, output_file: Path) -> None:
     data = json.loads(input_file.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{input_file} Fastly response must be an object")
     values = []
-    values.extend(data.get("addresses", []))
-    values.extend(data.get("ipv6_addresses", []))
+    for field in ("addresses", "ipv6_addresses"):
+        entries = data.get(field)
+        if not isinstance(entries, list) or not all(isinstance(value, str) for value in entries):
+            raise ValueError(f"{input_file} missing required string array: {field}")
+        values.extend(entries)
     write_deduplicated_cidrs(values, output_file)
 
 
@@ -183,18 +211,15 @@ def extract_github_json_cidrs(input_file: Path, output_file: Path) -> None:
 
 
 def extract_aws_all_json_cidrs(input_file: Path, output_file: Path) -> None:
-    """Parse AWS's published IP ranges (https://ip-ranges.amazonaws.com/ip-ranges.json).
-
-    Unlike the CloudFront-filtered variant, this collects *all* AWS service prefixes.
-    """
+    """Parse all prefixes from AWS's official dual-stack schema."""
     data = json.loads(input_file.read_text(encoding="utf-8"))
     values = []
-    for item in data.get("prefixes", []):
-        if "ip_prefix" in item:
-            values.append(item["ip_prefix"])
-    for item in data.get("ipv6_prefixes", []):
-        if "ipv6_prefix" in item:
-            values.append(item["ipv6_prefix"])
+    for field, prefix_key in (("prefixes", "ip_prefix"), ("ipv6_prefixes", "ipv6_prefix")):
+        for index, item in enumerate(require_object_list(data, field, input_file), start=1):
+            value = item.get(prefix_key)
+            if not isinstance(value, str):
+                raise ValueError(f"{input_file} {field}[{index}] missing string {prefix_key}")
+            values.append(value)
     write_deduplicated_cidrs(values, output_file)
 
 
@@ -209,8 +234,16 @@ def extract_ripe_stat_json_cidrs(input_file: Path, output_file: Path) -> None:
     suitable for proxy rule sets.
     """
     data = json.loads(input_file.read_text(encoding="utf-8"))
-    prefixes = data.get("data", {}).get("prefixes", [])
-    write_deduplicated_cidrs([item["prefix"] for item in prefixes], output_file)
+    if not isinstance(data, dict) or not isinstance(data.get("data"), dict):
+        raise ValueError(f"{input_file} missing RIPE Stat data object")
+    prefixes = require_object_list(data["data"], "prefixes", input_file)
+    values = []
+    for index, item in enumerate(prefixes, start=1):
+        value = item.get("prefix")
+        if not isinstance(value, str):
+            raise ValueError(f"{input_file} prefixes[{index}] missing string prefix")
+        values.append(value)
+    write_deduplicated_cidrs(values, output_file)
 
 
 def extract_html_cidrs(input_file: Path, output_file: Path) -> None:
@@ -233,7 +266,7 @@ def render_ip_classical_from_plain(
     if capability.format != "classical" or capability.compiler != "none":
         raise ValueError(f"unsupported {platform} IP renderer implementation")
     lines: list[str] = []
-    for cidr in deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines()):
+    for cidr in canonical_cidrs(input_file.read_text(encoding="utf-8").splitlines()):
         kind = classify_plain_cidr(cidr)
         target = capability.mapping_for(kind)
         fields = [target, cidr]
@@ -254,7 +287,7 @@ def render_ip_egern_from_plain(input_file: Path, output_file: Path) -> None:
     if capability.format != "yaml" or capability.compiler != "none":
         raise ValueError("unsupported egern IP renderer implementation")
     sections: dict[str, list[str]] = {}
-    for cidr in deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines()):
+    for cidr in canonical_cidrs(input_file.read_text(encoding="utf-8").splitlines()):
         target = capability.mapping_for(classify_plain_cidr(cidr))
         sections.setdefault(target, []).append(cidr)
     chunks = [
@@ -272,7 +305,7 @@ def build_singbox_json_from_plain(input_file: Path, output_file: Path) -> None:
     mapped_targets = {capability.mapping_for(kind) for kind in ("IP-CIDR", "IP-CIDR6")}
     if mapped_targets != {"ip_cidr"}:
         raise ValueError(f"unsupported sing-box IP rule mappings: {sorted(mapped_targets)}")
-    cidrs = deduplicated_cidrs(input_file.read_text(encoding="utf-8").splitlines())
+    cidrs = canonical_cidrs(input_file.read_text(encoding="utf-8").splitlines())
     data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [{"ip_cidr": cidrs}]}
     atomic_write_text(output_file, json.dumps(data, separators=(",", ":")))
 
@@ -289,6 +322,12 @@ def run_single_task(source_type: str, input_file: Path, output_file: Path) -> No
         "html": extract_html_cidrs,
     }
     source_to_handler[source_type](input_file, output_file)
+    # All upstream parsers converge on one minimal canonical CIDR union. At
+    # this boundary every parser output must be valid; no entry may disappear.
+    values = output_file.read_text(encoding="utf-8").splitlines()
+    normalize_networks(values, strict_values=True)
+    output_text = "\n".join(canonical_cidrs(values))
+    atomic_write_text(output_file, output_text + ("\n" if output_text else ""))
 
 
 def run_batch_tasks(manifest_file: Path) -> None:
@@ -396,7 +435,7 @@ def main() -> int:
             rules, errors = parse_classical_ip_file(input_file, require_canonical=True)
             if errors:
                 raise ValueError("\n".join(errors))
-            output_text = "\n".join(rule.value for rule in rules)
+            output_text = "\n".join(canonical_cidrs([rule.value for rule in rules]))
             atomic_write_text(Path(args.output_file), output_text + ("\n" if output_text else ""))
         elif args.command == "render-classical":
             render_ip_classical_from_plain(

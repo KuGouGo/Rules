@@ -31,7 +31,13 @@ def load_plain(path: Path) -> tuple[list[str], int]:
     for raw in path.read_text(encoding='utf-8').splitlines():
         value=raw.split('#',1)[0].strip().lower().rstrip('.')
         if not value: continue
-        if domain_value_errors('DOMAIN-SUFFIX',value,require_canonical=True): invalid+=1; continue
+        if domain_value_errors(
+            'DOMAIN-SUFFIX',
+            value,
+            require_canonical=True,
+            allow_single_label_suffix=True,
+        ):
+            invalid+=1; continue
         values.add(value)
     return sorted(values,key=lambda x:(x.count('.'),x)),invalid
 

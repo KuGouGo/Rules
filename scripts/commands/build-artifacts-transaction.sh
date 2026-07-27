@@ -252,6 +252,11 @@ case "$SCOPE" in
 esac
 
 "$ROOT/scripts/commands/build-custom.sh"
+if [ -d "$STAGE_ROOT/.canonical/domain" ] && [ -d "$STAGE_ROOT/.canonical/ip" ]; then
+  python3 "$ROOT/scripts/tools/audit-rule-overlaps.py" \
+    "$STAGE_ROOT/.canonical" \
+    --output "$STAGE_ROOT/overlap-report.json"
+fi
 "$ROOT/scripts/commands/guard-artifacts.sh"
 python3 "$ROOT/scripts/tools/summarize-artifacts.py" "$STAGE_ROOT" --output "$STAGE_ROOT/build-summary.json" >/dev/null
 ARTIFACT_BUILD_SCOPE="$SCOPE" "$ROOT/scripts/commands/generate-artifact-manifest.sh"
