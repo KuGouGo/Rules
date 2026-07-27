@@ -257,7 +257,8 @@ build_domain_binaries_parallel() {
     echo "failed to compile sing-box domain binaries" >&2
     return 1
   fi
-  local singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
+  local singbox_count
+  singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
   echo "  ✓ sing-box: compiled $singbox_count rule-sets"
 
   # Parallel compile mihomo
@@ -266,7 +267,8 @@ build_domain_binaries_parallel() {
     echo "failed to compile mihomo domain binaries" >&2
     return 1
   fi
-  local mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
+  local mihomo_count
+  mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
   echo "  ✓ mihomo: compiled $mihomo_count rule-sets"
 }
 
@@ -321,6 +323,7 @@ build_ip_binaries_parallel() {
   json_list="$tmp_dir/.singbox-json-files"
   find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$json_list"
   if [ -s "$json_list" ]; then
+    # shellcheck disable=SC2016
     xargs -0 -n 1 -P "$jobs" sh -c '
       out_dir="$1"
       json="$2"
@@ -331,13 +334,15 @@ build_ip_binaries_parallel() {
       return 1
     }
   fi
-  local singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
+  local singbox_count
+  singbox_count=$(find "$singbox_dir" -name "*.srs" -type f 2>/dev/null | wc -l)
   echo "  ✓ sing-box: compiled $singbox_count rule-sets"
 
   # Parallel compile mihomo
   plain_list="$tmp_dir/.mihomo-plain-files"
   find "$tmp_dir" -maxdepth 1 -type f -name '*.txt' -size +0c -print0 > "$plain_list"
   if [ -s "$plain_list" ]; then
+    # shellcheck disable=SC2016
     xargs -0 -n 1 -P "$jobs" sh -c '
       out_dir="$1"
       plain="$2"
@@ -348,7 +353,8 @@ build_ip_binaries_parallel() {
       return 1
     }
   fi
-  local mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
+  local mihomo_count
+  mihomo_count=$(find "$mihomo_dir" -name "*.mrs" -type f 2>/dev/null | wc -l)
   echo "  ✓ mihomo: compiled $mihomo_count rule-sets"
 }
 
