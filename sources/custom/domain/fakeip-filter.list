@@ -14,8 +14,6 @@ DOMAIN-SUFFIX,home.arpa
 DOMAIN-SUFFIX,direct
 
 # NTP services
-# REGEX patterns below for precise matching of NTP time servers
-# Fallback SUFFIX rules added for Surge/QuanX/mihomo (broader match)
 DOMAIN-REGEX,^time\.[^.]+\.com$
 DOMAIN-REGEX,^time\.[^.]+\.gov$
 DOMAIN-REGEX,^time\.[^.]+\.edu\.cn$
@@ -28,11 +26,6 @@ DOMAIN-SUFFIX,time.edu.cn
 DOMAIN-SUFFIX,ntp.org.cn
 DOMAIN-SUFFIX,pool.ntp.org
 DOMAIN,time1.cloud.tencent.com
-# Fallback for platforms without REGEX support
-DOMAIN-SUFFIX,time.windows.com
-DOMAIN-SUFFIX,time.nist.gov
-DOMAIN-SUFFIX,ntp.aliyun.com
-DOMAIN-SUFFIX,ntp.tencent.com
 
 # Music services
 DOMAIN-SUFFIX,music.163.com
@@ -67,15 +60,10 @@ DOMAIN-SUFFIX,kk-rays.com
 DOMAIN-SUFFIX,steamcontent.com
 DOMAIN-SUFFIX,srv.nintendo.net
 DOMAIN-SUFFIX,cdn.nintendo.net
-# Xbox Live: REGEX for precise matching, SUFFIX fallback for compatibility
 DOMAIN-REGEX,^xbox\.[^.]+\.[^.]+\.microsoft\.com$
 DOMAIN-REGEX,^(?:[^.]+\.){2}xboxlive\.com$
 DOMAIN-REGEX,^xbox\.[^.]+\.microsoft\.com$
-# Fallback SUFFIX for Surge/QuanX/mihomo (broader but functional)
-DOMAIN-SUFFIX,xboxlive.com
-DOMAIN-SUFFIX,xboxservices.com
-DOMAIN-SUFFIX,xboxab.com
-DOMAIN-SUFFIX,xbox.com
+DOMAIN,xnotify.xboxlive.com
 DOMAIN-SUFFIX,battle.net
 DOMAIN-SUFFIX,battlenet.com.cn
 DOMAIN-SUFFIX,wotgame.cn
@@ -85,11 +73,7 @@ DOMAIN-SUFFIX,wargaming.net
 
 # Development and STUN
 DOMAIN,proxy.golang.org
-# STUN: REGEX for dynamic patterns, common services as fallback
 DOMAIN-REGEX,^(?:.+\.)?stun(?:\.[^.]+){2,5}$
-DOMAIN-SUFFIX,stunprotocol.org
-DOMAIN-SUFFIX,stun.l.google.com
-DOMAIN-SUFFIX,stun.syncthing.net
 
 # Routers
 DOMAIN,heartbeat.belkin.com
