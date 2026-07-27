@@ -44,6 +44,11 @@ if dlc.get("kind") != "git":
     raise SystemExit("test failed: domain.dlc must use the git source tree to preserve @attribute filters")
 if dlc.get("url") != "https://github.com/v2fly/domain-list-community.git":
     raise SystemExit("test failed: domain.dlc URL must point at domain-list-community.git")
+china = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))["domain"]["loyalsoldier-china-list"]
+if china.get("parser") != "domain-suffix-text":
+    raise SystemExit("test failed: China List must use domain-suffix-text parser")
+if not china.get("url", "").endswith("/release/china-list.txt"):
+    raise SystemExit("test failed: China List URL must use the narrow release text artifact")
 PY
 
 cp config/upstreams.json "$TMP_DIR/upstreams.invalid-url.json"

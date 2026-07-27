@@ -6,6 +6,13 @@
       "parser": "git-tree",
       "url": "https://github.com/v2fly/domain-list-community.git",
       "health": { "requirement": "required", "min_raw_bytes": 1024, "min_entries": 1, "family": "any", "fallback_policy": "none" }
+    },
+    "loyalsoldier-china-list": {
+      "kind": "text",
+      "trust": "community",
+      "parser": "domain-suffix-text",
+      "url": "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/china-list.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 1000000, "min_entries": 100000, "family": "any", "fallback_policy": "none" }
     }
   },
   "ip": {

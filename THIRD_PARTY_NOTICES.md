@@ -5,6 +5,7 @@
 | 内容 | 来源 |
 | --- | --- |
 | 域名规则 | [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（MIT） |
+| 中国大陆可直连域名补充 | [Loyalsoldier/v2ray-rules-dat](https://github.com/Loyalsoldier/v2ray-rules-dat) 发布的 `china-list.txt`（GPL-3.0；数据源为 [felixonmars/dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)） |
 | 中国 IP | <https://ispip.clang.cn/all_cn_ipv46.txt>、<https://ispip.clang.cn/all_cn_ipv46_apnic.txt>、[Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) |
 | Google IP | <https://www.gstatic.com/ipranges/goog.json> |
 | Telegram IP | <https://core.telegram.org/resources/cidr.txt> |
