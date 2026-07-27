@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE_IMPLEMENTATIONS = {
     "domain": {
         "dlc": ("git", "git-tree"),
+        "loyalsoldier-china-list": ("text", "domain-suffix-text"),
     },
     "ip": {
         "cn-ipv46": ("text", "cidr-text"),
@@ -39,7 +40,7 @@ REQUIRED_IP_SOURCES = set(SOURCE_IMPLEMENTATIONS["ip"])
 REQUIRED_ASN_GROUPS = {"telegram", "netflix", "spotify", "disney"}
 REQUIRED_FIRST_BATCH_SOURCES = {"google-json", "github-json", "telegram"}
 SUPPORTED_PARSERS = {
-    "git-tree", "cidr-text", "google-json", "github-json", "telegram",
+    "git-tree", "domain-suffix-text", "cidr-text", "google-json", "github-json", "telegram",
     "aws-json", "aws-cloudfront-json", "fastly-json", "html-cidr", "ripe-stat-json",
 }
 ALLOWED_REQUIREMENTS = {"required", "optional"}

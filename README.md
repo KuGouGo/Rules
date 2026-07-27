@@ -34,7 +34,7 @@ https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/fakeip-filter.sr
 https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/google.mrs
 ```
 
-常用规则包括 `cn`、`geolocation-cn`、`geolocation-!cn`、`google`、`telegram`、`emby-cn`、`emby` 和 `fakeip-filter`。同时使用 `emby-cn` 与 `emby` 时，应先加载范围较小的 `emby-cn`。
+常用规则包括 `cn`、`geolocation-cn`、`geolocation-!cn`、`google`、`telegram`、`emby-cn`、`emby` 和 `fakeip-filter`。其中 `cn` 与 `geolocation-cn` 在 `domain-list-community` 基础上合并 Loyalsoldier 发布的 `china-list.txt`，补充中国大陆可直连的长尾域名；不合并其宽泛的 `direct/proxy/reject` 列表。同时使用 `emby-cn` 与 `emby` 时，应先加载范围较小的 `emby-cn`。
 
 ## 添加自定义规则
 

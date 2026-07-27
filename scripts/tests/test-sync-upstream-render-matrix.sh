@@ -68,6 +68,11 @@ for snippet in loyalsoldier_required_snippets:
 
 domain_required_snippets = [
     'clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"',
+    'LOYALSOLDIER_CHINA_LIST_SOURCE_URL="$(upstream_value domain loyalsoldier-china-list url)"',
+    'download_file "$LOYALSOLDIER_CHINA_LIST_SOURCE_URL" "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt"',
+    '"$DOMAIN_RULE_TMP_DIR/cn.list"',
+    '"$DOMAIN_RULE_TMP_DIR/geolocation-cn.list"',
+    '--normalized-output "$WORK_TMP_DIR/loyalsoldier-china-list.normalized.list"',
     '"$WORK_TMP_DIR/domain-list-community/data"',
     'assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"',
     '"apple@cn"',

@@ -52,6 +52,7 @@ PY
 }
 
 DOMAIN_SOURCE_REPO_URL="$(upstream_value domain dlc url)"
+LOYALSOLDIER_CHINA_LIST_SOURCE_URL="$(upstream_value domain loyalsoldier-china-list url)"
 CN_IPV46_SOURCE_URL="$(upstream_value ip cn-ipv46 url)"
 CN_IPV46_APNIC_SOURCE_URL="$(upstream_value ip cn-ipv46-apnic url)"
 LOYALSOLDIER_GEOIP_CN_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-cn url)"
@@ -795,13 +796,7 @@ clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-co
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
   "$WORK_TMP_DIR/domain-list-community/data" \
   "$DOMAIN_RULE_TMP_DIR"
-python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
-  "$DOMAIN_RULE_TMP_DIR" \
-  "$DOMAIN_RULE_MANIFEST_FILE"
-stage_domain_canonical_rules \
-  "$DOMAIN_RULE_TMP_DIR" \
-  "$CANONICAL_ARTIFACTS_DIR/domain"
-assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"
+# Verify the DLC export before any supplemental source mutates the rule tree.
 verify_and_record_upstream_health \
   domain \
   dlc \
@@ -810,6 +805,33 @@ verify_and_record_upstream_health \
   "$DOMAIN_RULE_TMP_DIR" \
   0 \
   "commit=$(git -C "$WORK_TMP_DIR/domain-list-community" rev-parse HEAD)"
+
+# Supplement the DLC China categories with the independently maintained
+# dnsmasq-china-list export published by Loyalsoldier. Parse the 100k+ source
+# once, verify its normalized form independently, and update both targets via
+# a reverse-label trie (linear in domain label count).
+download_file "$LOYALSOLDIER_CHINA_LIST_SOURCE_URL" "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt"
+python3 "$ROOT_DIR/scripts/tools/merge-domain-suffixes.py" \
+  "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt" \
+  "$DOMAIN_RULE_TMP_DIR/cn.list" \
+  "$DOMAIN_RULE_TMP_DIR/geolocation-cn.list" \
+  --normalized-output "$WORK_TMP_DIR/loyalsoldier-china-list.normalized.list"
+verify_and_record_upstream_health \
+  domain \
+  loyalsoldier-china-list \
+  "$LOYALSOLDIER_CHINA_LIST_SOURCE_URL" \
+  "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt" \
+  "$WORK_TMP_DIR/loyalsoldier-china-list.normalized.list" \
+  0
+
+# Build the manifest and canonical tree once from the final merged rule set.
+python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$DOMAIN_RULE_MANIFEST_FILE"
+stage_domain_canonical_rules \
+  "$DOMAIN_RULE_TMP_DIR" \
+  "$CANONICAL_ARTIFACTS_DIR/domain"
+assert_domain_attr_derivatives "$DOMAIN_RULE_MANIFEST_FILE"
 assert_files_present "$DOMAIN_RULE_TMP_DIR" "$DOMAIN_RULE_TMP_DIR/*.list"
 render_domain_rule_dir_to_text_platform_dirs \
   "$DOMAIN_RULE_TMP_DIR" \
