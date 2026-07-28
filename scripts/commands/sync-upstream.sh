@@ -25,58 +25,84 @@ IP_CANONICAL_ARTIFACTS=("${IP_TEXT_ARTIFACTS[@]}" netflix spotify disney)
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 UPSTREAM_SUMMARY_FILE="$WORK_TMP_DIR/upstream-summary.jsonl"
 FIRST_BATCH_BASELINES_FILE="$ROOT_DIR/config/upstream-first-batch-baselines.json"
+BUILTIN_PRIVATE_SOURCE_FILE="$ROOT_DIR/sources/builtin/ip/private.list"
+SUKKA_MARKER_DOMAIN="7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe"
 
-upstream_value() {
-  local section="$1"
-  local name="$2"
-  local key="$3"
-  python3 - <<'PY' "$UPSTREAMS_CONFIG_FILE" "$section" "$name" "$key"
-import json, sys
-config, section, name, key = sys.argv[1:]
-data = json.load(open(config, encoding="utf-8"))[section][name]
-value = data.get(key, "")
-if isinstance(value, list):
-    print(" ".join(str(item) for item in value))
-else:
-    print(value)
+mapfile -t UPSTREAM_SETTINGS < <(python3 - "$UPSTREAMS_CONFIG_FILE" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    config = json.load(handle)
+
+values = (
+    config["domain"]["dlc"]["url"],
+    config["domain"]["loyalsoldier-china-list"]["url"],
+    config["domain"]["sukka-apple-intelligence"]["url"],
+    config["domain"]["sukka-icloud-private-relay"]["url"],
+    config["domain"]["sukka-game-download"]["url"],
+    config["domain"]["sukka-domestic"]["url"],
+    config["domain"]["sukka-ai"]["url"],
+    config["domain"]["sukka-apple-cdn"]["url"],
+    config["domain"]["sukka-apple-cn"]["url"],
+    config["domain"]["sukka-microsoft-cdn"]["url"],
+    config["ip"]["cn-ipv46"]["url"],
+    config["ip"]["cn-ipv46-apnic"]["url"],
+    config["ip"]["google"]["url"],
+    config["ip"]["telegram"]["url"],
+    config["ip"]["cloudflare-ipv4"]["url"],
+    config["ip"]["cloudflare-ipv6"]["url"],
+    config["ip"]["aws"]["url"],
+    config["ip"]["cloudfront"]["url"],
+    config["ip"]["fastly"]["url"],
+    config["ip"]["github"]["url"],
+    config["ip"]["apple"]["url"],
+    config["ip"]["apple"]["fallback_url"],
+    config["ip"]["sukka-apple-services"]["url"],
+    config["ip"]["ripe-stat"]["base_url"],
+    *(" ".join(str(asn) for asn in config["asn_groups"][name]) for name in ("telegram", "netflix", "spotify", "disney")),
+)
+print("\n".join(values))
 PY
-}
+)
+if [ "${#UPSTREAM_SETTINGS[@]}" -ne 28 ]; then
+  echo "failed to load complete upstream settings" >&2
+  exit 1
+fi
 
-upstream_asn_group() {
-  local name="$1"
-  python3 - <<'PY' "$UPSTREAMS_CONFIG_FILE" "$name"
-import json, sys
-config, name = sys.argv[1:]
-print(" ".join(str(item) for item in json.load(open(config, encoding="utf-8"))["asn_groups"][name]))
-PY
-}
-
-DOMAIN_SOURCE_REPO_URL="$(upstream_value domain dlc url)"
-LOYALSOLDIER_CHINA_LIST_SOURCE_URL="$(upstream_value domain loyalsoldier-china-list url)"
-CN_IPV46_SOURCE_URL="$(upstream_value ip cn-ipv46 url)"
-CN_IPV46_APNIC_SOURCE_URL="$(upstream_value ip cn-ipv46-apnic url)"
-LOYALSOLDIER_GEOIP_CN_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-cn url)"
-LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL="$(upstream_value ip loyalsoldier-geoip-private url)"
-GOOGLE_IP_SOURCE_URL="$(upstream_value ip google url)"
-TELEGRAM_IP_SOURCE_URL="$(upstream_value ip telegram url)"
-CLOUDFLARE_IPV4_SOURCE_URL="$(upstream_value ip cloudflare-ipv4 url)"
-CLOUDFLARE_IPV6_SOURCE_URL="$(upstream_value ip cloudflare-ipv6 url)"
-AWS_IP_SOURCE_URL="$(upstream_value ip aws url)"
-CLOUDFRONT_IP_SOURCE_URL="$(upstream_value ip cloudfront url)"
-FASTLY_IP_SOURCE_URL="$(upstream_value ip fastly url)"
-GITHUB_IP_SOURCE_URL="$(upstream_value ip github url)"
-APPLE_IP_SOURCE_URL="$(upstream_value ip apple url)"
-APPLE_IP_SOURCE_FALLBACK_URL="$(upstream_value ip apple fallback_url)"
-RIPE_STAT_BASE_URL="$(upstream_value ip ripe-stat base_url)"
+DOMAIN_SOURCE_REPO_URL="${UPSTREAM_SETTINGS[0]}"
+LOYALSOLDIER_CHINA_LIST_SOURCE_URL="${UPSTREAM_SETTINGS[1]}"
+SUKKA_APPLE_INTELLIGENCE_SOURCE_URL="${UPSTREAM_SETTINGS[2]}"
+SUKKA_ICLOUD_PRIVATE_RELAY_SOURCE_URL="${UPSTREAM_SETTINGS[3]}"
+SUKKA_GAME_DOWNLOAD_SOURCE_URL="${UPSTREAM_SETTINGS[4]}"
+SUKKA_DOMESTIC_SOURCE_URL="${UPSTREAM_SETTINGS[5]}"
+SUKKA_AI_SOURCE_URL="${UPSTREAM_SETTINGS[6]}"
+SUKKA_APPLE_CDN_SOURCE_URL="${UPSTREAM_SETTINGS[7]}"
+SUKKA_APPLE_CN_SOURCE_URL="${UPSTREAM_SETTINGS[8]}"
+SUKKA_MICROSOFT_CDN_SOURCE_URL="${UPSTREAM_SETTINGS[9]}"
+CN_IPV46_SOURCE_URL="${UPSTREAM_SETTINGS[10]}"
+CN_IPV46_APNIC_SOURCE_URL="${UPSTREAM_SETTINGS[11]}"
+GOOGLE_IP_SOURCE_URL="${UPSTREAM_SETTINGS[12]}"
+TELEGRAM_IP_SOURCE_URL="${UPSTREAM_SETTINGS[13]}"
+CLOUDFLARE_IPV4_SOURCE_URL="${UPSTREAM_SETTINGS[14]}"
+CLOUDFLARE_IPV6_SOURCE_URL="${UPSTREAM_SETTINGS[15]}"
+AWS_IP_SOURCE_URL="${UPSTREAM_SETTINGS[16]}"
+CLOUDFRONT_IP_SOURCE_URL="${UPSTREAM_SETTINGS[17]}"
+FASTLY_IP_SOURCE_URL="${UPSTREAM_SETTINGS[18]}"
+GITHUB_IP_SOURCE_URL="${UPSTREAM_SETTINGS[19]}"
+APPLE_IP_SOURCE_URL="${UPSTREAM_SETTINGS[20]}"
+APPLE_IP_SOURCE_FALLBACK_URL="${UPSTREAM_SETTINGS[21]}"
+SUKKA_APPLE_SERVICES_SOURCE_URL="${UPSTREAM_SETTINGS[22]}"
+RIPE_STAT_BASE_URL="${UPSTREAM_SETTINGS[23]}"
 DLC_MIN_ATTR_RULESETS="${DLC_MIN_ATTR_RULESETS:-300}"
 DLC_MIN_CN_ATTR_RULESETS="${DLC_MIN_CN_ATTR_RULESETS:-100}"
 DLC_MIN_NOT_CN_ATTR_RULESETS="${DLC_MIN_NOT_CN_ATTR_RULESETS:-30}"
 DLC_MIN_ADS_ATTR_RULESETS="${DLC_MIN_ADS_ATTR_RULESETS:-100}"
 DLC_MIN_REGIONAL_RULESETS="${DLC_MIN_REGIONAL_RULESETS:-40}"
-read -r -a TELEGRAM_ASNS <<< "$(upstream_asn_group telegram)"
-read -r -a NETFLIX_ASNS <<< "$(upstream_asn_group netflix)"
-read -r -a SPOTIFY_ASNS <<< "$(upstream_asn_group spotify)"
-read -r -a DISNEY_ASNS <<< "$(upstream_asn_group disney)"
+read -r -a TELEGRAM_ASNS <<< "${UPSTREAM_SETTINGS[24]}"
+read -r -a NETFLIX_ASNS <<< "${UPSTREAM_SETTINGS[25]}"
+read -r -a SPOTIFY_ASNS <<< "${UPSTREAM_SETTINGS[26]}"
+read -r -a DISNEY_ASNS <<< "${UPSTREAM_SETTINGS[27]}"
 
 # shellcheck source=scripts/lib/common.sh
 source "$ROOT_DIR/scripts/lib/common.sh"
@@ -178,6 +204,7 @@ verify_and_record_upstream_health() {
   local fallback_used="${6:-0}"
   local context="${7:-}"
   local health_json status detail health_detail verifier_failed=0
+  local -a health_fields=()
 
   if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" \
     "$UPSTREAMS_CONFIG_FILE" "$category" "$name" "$raw_file" "$normalized_file")"; then
@@ -185,9 +212,18 @@ verify_and_record_upstream_health() {
   else
     verifier_failed=1
   fi
-  if ! status="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])' 2>/dev/null)"; then
+  mapfile -t health_fields < <(
+    printf '%s' "$health_json" \
+      | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data["status"]); print("; ".join(data.get("errors", [])))' \
+        2>/dev/null
+  )
+  if [ "${#health_fields[@]}" -ne 2 ]; then
     status=semantic_regression
+    health_detail="health verifier failed"
     verifier_failed=1
+  else
+    status="${health_fields[0]}"
+    health_detail="${health_fields[1]}"
   fi
   case "$status" in
     ok|semantic_regression) ;;
@@ -198,7 +234,6 @@ verify_and_record_upstream_health() {
   else
     detail=""
   fi
-  health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
   detail="${health_detail:-$detail}"
   if [ -n "$context" ]; then
     detail="${context}${detail:+; $detail}"
@@ -273,39 +308,32 @@ render_ip_text_artifacts() {
   done
 }
 
-sync_asn_ip_cidrs() {
-  local name="$1"
-  shift
-  local -a asns=("$@")
-  local -a cidr_files=()
-  local asn raw_json cidr_txt merge_mode health_json health_status health_detail
+prepare_ripe_stat_asns() {
+  local -A seen=()
+  local -a unique_asns=() download_args=()
+  local asn raw_json cidr_txt health_json health_status health_detail
 
-  for asn in "${asns[@]}"; do
-    raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
-    cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
-    download_file "${RIPE_STAT_BASE_URL}${asn}" "$raw_json"
-    cidr_files+=("$cidr_txt")
+  for asn in "$@"; do
+    if [ -n "${seen[$asn]:-}" ]; then
+      continue
+    fi
+    seen[$asn]=1
+    unique_asns+=("$asn")
+    raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
+    download_args+=("ripe-stat-as${asn}" required "${RIPE_STAT_BASE_URL}${asn}" "$raw_json")
   done
+  download_files_parallel "${download_args[@]}"
 
-  # Normalize separately so malformed responses are attributed and reported
-  # before they block the transaction.
-  for asn in "${asns[@]}"; do
-    raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
-    cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
+  for asn in "${unique_asns[@]}"; do
+    raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
+    cidr_txt="$IP_BUILD_TMP_DIR/ripe_as${asn}.cidr.txt"
     if ! python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" single ripe-stat-json "$raw_json" "$cidr_txt"; then
       : > "$cidr_txt"
       record_upstream_summary ip "ripe-stat-as${asn}" semantic_regression "${RIPE_STAT_BASE_URL}${asn}" "$raw_json" "$cidr_txt" 0 "invalid RIPE Stat response"
       echo "RIPE Stat response AS${asn} is invalid" >&2
       return 1
     fi
-  done
 
-  # Every RIPE Stat response is independently subject to the configured source
-  # policy. Record the failing response before returning so transaction
-  # diagnostics explain which ASN was undersized or invalid.
-  for asn in "${asns[@]}"; do
-    raw_json="$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json"
-    cidr_txt="$IP_BUILD_TMP_DIR/${name}_as${asn}.cidr.txt"
     if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$raw_json" "$cidr_txt")"; then
       health_status=ok
     else
@@ -317,6 +345,23 @@ sync_asn_ip_cidrs() {
       echo "RIPE Stat response AS${asn} failed configured health policy: $health_detail" >&2
       return 1
     fi
+  done
+}
+
+sync_asn_ip_cidrs() {
+  local name="$1"
+  shift
+  local -a asns=("$@") cidr_files=()
+  local asn raw_json cidr_txt merge_mode health_json health_status health_detail
+
+  for asn in "${asns[@]}"; do
+    raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
+    cidr_txt="$IP_BUILD_TMP_DIR/ripe_as${asn}.cidr.txt"
+    if [ ! -s "$raw_json" ] || [ ! -s "$cidr_txt" ]; then
+      echo "RIPE Stat AS${asn} was not prepared" >&2
+      return 1
+    fi
+    cidr_files+=("$cidr_txt")
   done
 
   merge_mode="${ASN_CIDR_MERGE_MODE:-collapse}"
@@ -338,7 +383,7 @@ sync_asn_ip_cidrs() {
   local group_raw="$IP_BUILD_TMP_DIR/${name}.ripe-group.raw"
   : > "$group_raw"
   for asn in "${asns[@]}"; do
-    cat "$IP_BUILD_TMP_DIR/${name}_as${asn}.raw.json" >> "$group_raw"
+    cat "$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json" >> "$group_raw"
   done
   if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt")"; then
     health_status=ok
@@ -427,10 +472,9 @@ generate_ip_normalize_manifest() {
   generate_normalize_manifest "$manifest_file" \
     text "$tmp_dir/cn_ipv46.raw.txt" "$tmp_dir/cn_ipv46.cidr.txt" \
     text "$tmp_dir/cn_ipv46_apnic.raw.txt" "$tmp_dir/cn_ipv46_apnic.cidr.txt" \
-    text "$tmp_dir/loyalsoldier_geoip_cn.raw.txt" "$tmp_dir/loyalsoldier_geoip_cn.cidr.txt" \
-    text "$tmp_dir/private.raw.txt" "$tmp_dir/private.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv4.raw.txt" "$tmp_dir/cloudflare_ipv4.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv6.raw.txt" "$tmp_dir/cloudflare_ipv6.cidr.txt" \
+    sukka-classical-ip "$tmp_dir/sukka_apple_services.raw.txt" "$tmp_dir/sukka_apple_services.cidr.txt" \
     aws-cloudfront-json "$tmp_dir/aws.raw.json" "$tmp_dir/cloudfront.cidr.txt" \
     aws-json "$tmp_dir/aws.raw.json" "$tmp_dir/aws.cidr.txt" \
     fastly-json "$tmp_dir/fastly.raw.json" "$tmp_dir/fastly.cidr.txt" \
@@ -576,6 +620,7 @@ first_batch_source_url() {
 classify_first_batch_source() {
   local source="$1"
   local raw_file result_json status reason
+  local -a result_fields=()
 
   raw_file="$(first_batch_raw_file "$source")"
   result_json="$(
@@ -585,8 +630,16 @@ classify_first_batch_source() {
       "$raw_file" \
       "$FIRST_BATCH_BASELINES_FILE"
   )"
-  status="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
-  reason="$(printf '%s' "$result_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["reason"])')"
+  mapfile -t result_fields < <(
+    printf '%s' "$result_json" \
+      | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data["status"]); print(data["reason"])'
+  )
+  if [ "${#result_fields[@]}" -ne 2 ]; then
+    echo "failed to parse first-batch classification for $source" >&2
+    return 1
+  fi
+  status="${result_fields[0]}"
+  reason="${result_fields[1]}"
 
   set_first_batch_result "$source" "$status" "$reason"
   if [ "$status" != "ok" ]; then
@@ -600,19 +653,6 @@ classify_first_batch_source() {
       0 \
       "$reason"
   fi
-}
-
-download_and_classify_first_batch_source() {
-  local source="$1"
-  local url="$2"
-  local raw_file
-
-  raw_file="$(first_batch_raw_file "$source")"
-  if ! download_file "$url" "$raw_file"; then
-    rm -f "$raw_file"
-  fi
-
-  classify_first_batch_source "$source"
 }
 
 normalize_first_batch_source() {
@@ -806,15 +846,22 @@ verify_and_record_upstream_health \
   0 \
   "commit=$(git -C "$WORK_TMP_DIR/domain-list-community" rev-parse HEAD)"
 
-# Supplement the DLC China categories with the independently maintained
-# dnsmasq-china-list export published by Loyalsoldier. Parse the 100k+ source
-# once, verify its normalized form independently, and update both targets via
-# a reverse-label trie (linear in domain label count).
-download_file "$LOYALSOLDIER_CHINA_LIST_SOURCE_URL" "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt"
+# Fetch independent domain supplements together. The large China list remains
+# a DNS-only artifact; it must not change DLC's routing-oriented cn categories.
+download_files_parallel \
+  loyalsoldier-china-list required "$LOYALSOLDIER_CHINA_LIST_SOURCE_URL" "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt" \
+  sukka-apple-intelligence required "$SUKKA_APPLE_INTELLIGENCE_SOURCE_URL" "$WORK_TMP_DIR/sukka-apple-intelligence.raw.conf" \
+  sukka-icloud-private-relay required "$SUKKA_ICLOUD_PRIVATE_RELAY_SOURCE_URL" "$WORK_TMP_DIR/sukka-icloud-private-relay.raw.conf" \
+  sukka-game-download required "$SUKKA_GAME_DOWNLOAD_SOURCE_URL" "$WORK_TMP_DIR/sukka-game-download.raw.conf" \
+  sukka-domestic required "$SUKKA_DOMESTIC_SOURCE_URL" "$WORK_TMP_DIR/sukka-domestic.raw.conf" \
+  sukka-ai required "$SUKKA_AI_SOURCE_URL" "$WORK_TMP_DIR/sukka-ai.raw.conf" \
+  sukka-apple-cdn required "$SUKKA_APPLE_CDN_SOURCE_URL" "$WORK_TMP_DIR/sukka-apple-cdn.raw.conf" \
+  sukka-apple-cn required "$SUKKA_APPLE_CN_SOURCE_URL" "$WORK_TMP_DIR/sukka-apple-cn.raw.conf" \
+  sukka-microsoft-cdn required "$SUKKA_MICROSOFT_CDN_SOURCE_URL" "$WORK_TMP_DIR/sukka-microsoft-cdn.raw.conf"
+: > "$DOMAIN_RULE_TMP_DIR/china-list.list"
 python3 "$ROOT_DIR/scripts/tools/merge-domain-suffixes.py" \
   "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt" \
-  "$DOMAIN_RULE_TMP_DIR/cn.list" \
-  "$DOMAIN_RULE_TMP_DIR/geolocation-cn.list" \
+  "$DOMAIN_RULE_TMP_DIR/china-list.list" \
   --normalized-output "$WORK_TMP_DIR/loyalsoldier-china-list.normalized.list"
 verify_and_record_upstream_health \
   domain \
@@ -823,6 +870,52 @@ verify_and_record_upstream_health \
   "$WORK_TMP_DIR/loyalsoldier-china-list.raw.txt" \
   "$WORK_TMP_DIR/loyalsoldier-china-list.normalized.list" \
   0
+
+while IFS='|' read -r source_name source_url source_format target_name; do
+  raw_file="$WORK_TMP_DIR/${source_name}.raw.conf"
+  normalized_file="$WORK_TMP_DIR/${source_name}.normalized.list"
+  python3 "$ROOT_DIR/scripts/tools/merge-domain-rule-source.py" \
+    "$raw_file" \
+    "$DOMAIN_RULE_TMP_DIR/${target_name}.list" \
+    "$normalized_file" \
+    --format "$source_format" \
+    --ignore-domain "$SUKKA_MARKER_DOMAIN"
+  verify_and_record_upstream_health \
+    domain "$source_name" "$source_url" "$raw_file" "$normalized_file" 0
+done <<EOF
+sukka-apple-intelligence|$SUKKA_APPLE_INTELLIGENCE_SOURCE_URL|classical|apple-intelligence
+sukka-icloud-private-relay|$SUKKA_ICLOUD_PRIVATE_RELAY_SOURCE_URL|domain-set|icloudprivaterelay
+sukka-game-download|$SUKKA_GAME_DOWNLOAD_SOURCE_URL|domain-set|category-game-platforms-download
+sukka-apple-cdn|$SUKKA_APPLE_CDN_SOURCE_URL|domain-set|apple@cn
+sukka-apple-cn|$SUKKA_APPLE_CN_SOURCE_URL|classical|apple@cn
+sukka-microsoft-cdn|$SUKKA_MICROSOFT_CDN_SOURCE_URL|classical|microsoft@cn
+EOF
+
+python3 "$ROOT_DIR/scripts/tools/merge-domain-rule-source.py" \
+  "$WORK_TMP_DIR/sukka-ai.raw.conf" \
+  "$DOMAIN_RULE_TMP_DIR/category-ai-!cn.list" \
+  "$WORK_TMP_DIR/sukka-ai.normalized.list" \
+  --format classical \
+  --ignore-domain "$SUKKA_MARKER_DOMAIN" \
+  --allow-unsupported-rule DOMAIN-KEYWORD,openai \
+  --allow-unsupported-rule DOMAIN-KEYWORD,alkalimakersuite-pa.clients6.google.com
+verify_and_record_upstream_health \
+  domain sukka-ai "$SUKKA_AI_SOURCE_URL" \
+  "$WORK_TMP_DIR/sukka-ai.raw.conf" \
+  "$WORK_TMP_DIR/sukka-ai.normalized.list" 0
+
+python3 "$ROOT_DIR/scripts/tools/merge-domain-rule-source.py" \
+  "$WORK_TMP_DIR/sukka-domestic.raw.conf" \
+  "$DOMAIN_RULE_TMP_DIR/cn.list" \
+  "$WORK_TMP_DIR/sukka-domestic.normalized.list" \
+  --format classical \
+  --ignore-domain "$SUKKA_MARKER_DOMAIN" \
+  --allow-unsupported-rule 'DOMAIN-WILDCARD,*.qhimgs?.com' \
+  --exclude-file "$DOMAIN_RULE_TMP_DIR/category-ads-all.list"
+verify_and_record_upstream_health \
+  domain sukka-domestic "$SUKKA_DOMESTIC_SOURCE_URL" \
+  "$WORK_TMP_DIR/sukka-domestic.raw.conf" \
+  "$WORK_TMP_DIR/sukka-domestic.normalized.list" 0
 
 # Build the manifest and canonical tree once from the final merged rule set.
 python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
@@ -855,18 +948,20 @@ assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihom
 rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
 mkdir -p "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx"
 
-download_file "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt"
-download_file "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt"
-download_file "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL" "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.raw.txt"
-download_file "$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL" "$IP_BUILD_TMP_DIR/private.raw.txt"
-download_and_classify_first_batch_source "google-json" "$GOOGLE_IP_SOURCE_URL"
-download_and_classify_first_batch_source "telegram" "$TELEGRAM_IP_SOURCE_URL"
-download_file "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt"
-download_file "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt"
-# AWS JSON is shared between cloudfront (service-filtered) and aws (all services)
-download_file "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json"
-download_file "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json"
-download_and_classify_first_batch_source "github-json" "$GITHUB_IP_SOURCE_URL"
+download_files_parallel \
+  cn-ipv46 required "$CN_IPV46_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46.raw.txt" \
+  cn-ipv46-apnic required "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt" \
+  google classified "$GOOGLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/google.raw.json" \
+  telegram classified "$TELEGRAM_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/telegram.raw.txt" \
+  cloudflare-ipv4 required "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" \
+  cloudflare-ipv6 required "$CLOUDFLARE_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv6.raw.txt" \
+  aws-cloudfront required "$AWS_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/aws.raw.json" \
+  fastly required "$FASTLY_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/fastly.raw.json" \
+  github classified "$GITHUB_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/github.raw.json" \
+  sukka-apple-services required "$SUKKA_APPLE_SERVICES_SOURCE_URL" "$IP_BUILD_TMP_DIR/sukka_apple_services.raw.txt"
+classify_first_batch_source google-json
+classify_first_batch_source telegram
+classify_first_batch_source github-json
 download_file_with_fallback \
   "$IP_BUILD_TMP_DIR/apple.raw.html" \
   "$APPLE_IP_SOURCE_URL" \
@@ -878,6 +973,9 @@ IP_NORMALIZE_MANIFEST="$IP_BUILD_TMP_DIR/normalize-tasks.json"
 
 generate_ip_normalize_manifest "$IP_NORMALIZE_MANIFEST"
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" batch "$IP_NORMALIZE_MANIFEST"
+python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" custom-source \
+  "$BUILTIN_PRIVATE_SOURCE_FILE" \
+  "$IP_BUILD_TMP_DIR/private.cidr.txt"
 summarize_first_batch_checks
 normalize_first_batch_source "google-json"
 normalize_first_batch_source "github-json"
@@ -893,8 +991,6 @@ while IFS='|' read -r health_name health_url health_raw health_normalized fallba
 done <<EOF
 cn-ipv46|$CN_IPV46_SOURCE_URL|cn_ipv46.raw.txt|cn_ipv46.cidr.txt|0
 cn-ipv46-apnic|$CN_IPV46_APNIC_SOURCE_URL|cn_ipv46_apnic.raw.txt|cn_ipv46_apnic.cidr.txt|0
-loyalsoldier-geoip-cn|$LOYALSOLDIER_GEOIP_CN_SOURCE_URL|loyalsoldier_geoip_cn.raw.txt|loyalsoldier_geoip_cn.cidr.txt|0
-loyalsoldier-geoip-private|$LOYALSOLDIER_GEOIP_PRIVATE_SOURCE_URL|private.raw.txt|private.cidr.txt|0
 google|$GOOGLE_IP_SOURCE_URL|google.raw.json|google.cidr.txt|0
 telegram|$TELEGRAM_IP_SOURCE_URL|telegram.raw.txt|telegram.cidr.txt|0
 cloudflare-ipv4|$CLOUDFLARE_IPV4_SOURCE_URL|cloudflare_ipv4.raw.txt|cloudflare_ipv4.cidr.txt|0
@@ -904,19 +1000,29 @@ cloudfront|$CLOUDFRONT_IP_SOURCE_URL|aws.raw.json|cloudfront.cidr.txt|0
 fastly|$FASTLY_IP_SOURCE_URL|fastly.raw.json|fastly.cidr.txt|0
 github|$GITHUB_IP_SOURCE_URL|github.raw.json|github.cidr.txt|0
 apple|$APPLE_RESOLVED_URL|apple.raw.html|apple.cidr.txt|$APPLE_FALLBACK_USED
+sukka-apple-services|$SUKKA_APPLE_SERVICES_SOURCE_URL|sukka_apple_services.raw.txt|sukka_apple_services.cidr.txt|0
 EOF
 python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
   "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cn_ipv46.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt" \
-  "$IP_BUILD_TMP_DIR/loyalsoldier_geoip_cn.cidr.txt"
+  "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"
 merge_cidr_plain_files \
   "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \
   "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
+python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
+  "$IP_BUILD_TMP_DIR/apple.merged.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/apple.cidr.txt" \
+  "$IP_BUILD_TMP_DIR/sukka_apple_services.cidr.txt"
+mv "$IP_BUILD_TMP_DIR/apple.merged.cidr.txt" "$IP_BUILD_TMP_DIR/apple.cidr.txt"
 render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
 
 # Supplement Telegram's direct source with ASN-derived prefixes.
+prepare_ripe_stat_asns \
+  "${TELEGRAM_ASNS[@]}" \
+  "${NETFLIX_ASNS[@]}" \
+  "${SPOTIFY_ASNS[@]}" \
+  "${DISNEY_ASNS[@]}"
 sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"
 
 # Streaming services without a direct CIDR source use ASN-derived prefixes.

@@ -28,5 +28,5 @@ jobs:
       - name: Prepare scripts
         run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
 
-      - name: Quick check
-        run: REQUIRE_SHELLCHECK=1 make lint
+      - name: Validate
+        run: REQUIRE_SHELLCHECK=1 make validate

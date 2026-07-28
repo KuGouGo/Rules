@@ -13,24 +13,48 @@
       "parser": "domain-suffix-text",
       "url": "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/china-list.txt",
       "health": { "requirement": "required", "min_raw_bytes": 1000000, "min_entries": 100000, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-apple-intelligence": {
+      "kind": "text", "trust": "community", "parser": "sukka-classical-domain", "url": "https://ruleset.skk.moe/Clash/non_ip/apple_intelligence.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 200, "min_entries": 5, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-icloud-private-relay": {
+      "kind": "text", "trust": "community", "parser": "sukka-domain-set-text", "url": "https://ruleset.skk.moe/Clash/domainset/icloud_private_relay.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 150, "min_entries": 6, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-game-download": {
+      "kind": "text", "trust": "community", "parser": "sukka-domain-set-text", "url": "https://ruleset.skk.moe/Clash/domainset/game-download.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 50, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-domestic": {
+      "kind": "text", "trust": "community", "parser": "sukka-classical-domain", "url": "https://ruleset.skk.moe/Clash/non_ip/domestic.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 20000, "min_entries": 750, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-ai": {
+      "kind": "text", "trust": "community", "parser": "sukka-classical-domain", "url": "https://ruleset.skk.moe/Clash/non_ip/ai.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 500, "min_entries": 40, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-apple-cdn": {
+      "kind": "text", "trust": "community", "parser": "sukka-domain-set-text", "url": "https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 3000, "min_entries": 150, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-apple-cn": {
+      "kind": "text", "trust": "community", "parser": "sukka-classical-domain", "url": "https://ruleset.skk.moe/Clash/non_ip/apple_cn.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 500, "min_entries": 9, "family": "any", "fallback_policy": "none" }
+    },
+    "sukka-microsoft-cdn": {
+      "kind": "text", "trust": "community", "parser": "sukka-classical-domain", "url": "https://ruleset.skk.moe/Clash/non_ip/microsoft_cdn.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 1500, "min_entries": 50, "family": "any", "fallback_policy": "none" }
     }
   },
   "ip": {
     "cn-ipv46": {
-      "kind": "text", "trust": "registry", "parser": "cidr-text", "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
+      "kind": "text", "trust": "community", "parser": "cidr-text", "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
       "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 100, "family": "dual", "fallback_policy": "none" }
     },
     "cn-ipv46-apnic": {
       "kind": "text", "trust": "registry", "parser": "cidr-text", "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt",
       "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 100, "family": "dual", "fallback_policy": "none" }
-    },
-    "loyalsoldier-geoip-cn": {
-      "kind": "text", "trust": "community", "parser": "cidr-text", "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt",
-      "health": { "requirement": "required", "min_raw_bytes": 1000, "min_entries": 5000, "family": "any", "fallback_policy": "none" }
-    },
-    "loyalsoldier-geoip-private": {
-      "kind": "text", "trust": "community", "parser": "cidr-text", "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/private.txt",
-      "health": { "requirement": "required", "min_raw_bytes": 100, "min_entries": 15, "family": "any", "fallback_policy": "none" }
     },
     "google": {
       "kind": "json", "trust": "official", "parser": "google-json", "url": "https://www.gstatic.com/ipranges/goog.json",
@@ -68,14 +92,18 @@
       "kind": "html", "trust": "official", "parser": "html-cidr", "url": "https://support.apple.com/en-us/101555", "fallback_url": "https://support.apple.com/zh-cn/101555",
       "health": { "requirement": "required", "min_raw_bytes": 100, "min_entries": 3, "family": "any", "fallback_policy": "ordered" }
     },
+    "sukka-apple-services": {
+      "kind": "text", "trust": "community", "parser": "sukka-classical-ip", "url": "https://ruleset.skk.moe/Clash/ip/apple_services.txt",
+      "health": { "requirement": "required", "min_raw_bytes": 300, "min_entries": 10, "family": "ipv4", "fallback_policy": "none" }
+    },
     "ripe-stat": {
       "kind": "json-api", "trust": "registry", "parser": "ripe-stat-json", "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
       "health": { "requirement": "required", "min_raw_bytes": 50, "min_entries": 1, "family": "any", "fallback_policy": "none" }
     }
   },
   "asn_groups": {
-    "telegram": [44907, 59930, 62014, 62041, 211157],
-    "netflix": [2906, 40027],
+    "telegram": [62041],
+    "netflix": [2906],
     "spotify": [35228, 7441],
     "disney": [13379, 15260, 23344, 25932, 29736, 30311, 53578]
   }

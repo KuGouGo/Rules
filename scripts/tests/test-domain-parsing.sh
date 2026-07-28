@@ -492,6 +492,76 @@ EOF
 }
 
 
+test_regional_base_lists_apply_safe_attribute_policy() {
+  mkdir -p "$TMP_DIR/regional_policy/data" "$TMP_DIR/regional_policy/out"
+  cat > "$TMP_DIR/regional_policy/data/shared" <<'EOF'
+domain:plain.example
+domain:cn.example @cn
+domain:not-cn.example @!cn
+domain:ads.example @ads
+domain:cn-ads.example @cn @ads
+EOF
+  cat > "$TMP_DIR/regional_policy/data/cn" <<'EOF'
+include:shared
+EOF
+  cat > "$TMP_DIR/regional_policy/data/geolocation-cn" <<'EOF'
+include:shared
+EOF
+  cat > "$TMP_DIR/regional_policy/data/geolocation-!cn" <<'EOF'
+include:shared
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/regional_policy/data" \
+    "$TMP_DIR/regional_policy/out"
+
+  cat > "$TMP_DIR/regional_policy/cn.expected" <<'EOF'
+DOMAIN-SUFFIX,plain.example
+DOMAIN-SUFFIX,cn.example
+EOF
+  cat > "$TMP_DIR/regional_policy/not-cn.expected" <<'EOF'
+DOMAIN-SUFFIX,plain.example
+DOMAIN-SUFFIX,not-cn.example
+EOF
+  cat > "$TMP_DIR/regional_policy/ads.expected" <<'EOF'
+DOMAIN-SUFFIX,ads.example
+DOMAIN-SUFFIX,cn-ads.example
+EOF
+  cat > "$TMP_DIR/regional_policy/not-cn-attr.expected" <<'EOF'
+DOMAIN-SUFFIX,not-cn.example
+EOF
+  cat > "$TMP_DIR/regional_policy/cn-attr.expected" <<'EOF'
+DOMAIN-SUFFIX,cn.example
+DOMAIN-SUFFIX,cn-ads.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/cn.expected" \
+    "$TMP_DIR/regional_policy/out/cn.list" \
+    "cn excludes ads and !cn rules from its default output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/cn.expected" \
+    "$TMP_DIR/regional_policy/out/geolocation-cn.list" \
+    "geolocation-cn excludes ads and !cn rules from its default output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/not-cn.expected" \
+    "$TMP_DIR/regional_policy/out/geolocation-!cn.list" \
+    "geolocation-!cn excludes ads and cn rules from its default output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/ads.expected" \
+    "$TMP_DIR/regional_policy/out/cn@ads.list" \
+    "regional base filtering preserves ads derivative output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/not-cn-attr.expected" \
+    "$TMP_DIR/regional_policy/out/cn@!cn.list" \
+    "regional base filtering preserves !cn derivative output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/cn-attr.expected" \
+    "$TMP_DIR/regional_policy/out/geolocation-!cn@cn.list" \
+    "regional base filtering preserves cn derivative output"
+}
+
+
 test_export_materializes_attr_derivatives_with_sing_geosite_filter() {
   mkdir -p "$TMP_DIR/region_derivatives/data" "$TMP_DIR/region_derivatives/out"
   cat > "$TMP_DIR/region_derivatives/data/vendor" <<'EOF'
@@ -771,6 +841,7 @@ test_batch_domain_dir_outputs
 test_include_filter_semantics
 test_export_preserves_upstream_order_and_cn_regex_policy
 test_attr_derivatives_merge_duplicate_rule_attrs
+test_regional_base_lists_apply_safe_attribute_policy
 test_export_materializes_attr_derivatives_with_sing_geosite_filter
 test_domain_capability_summary
 test_mihomo_mrs_skip_summary

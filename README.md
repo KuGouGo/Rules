@@ -34,12 +34,15 @@ https://raw.githubusercontent.com/KuGouGo/Rules/sing-box/domain/fakeip-filter.sr
 https://raw.githubusercontent.com/KuGouGo/Rules/mihomo/ip/google.mrs
 ```
 
-常用规则包括 `cn`、`geolocation-cn`、`geolocation-!cn`、`google`、`telegram`、`emby-cn`、`emby` 和 `fakeip-filter`。其中 `cn` 与 `geolocation-cn` 在 `domain-list-community` 基础上合并 Loyalsoldier 发布的 `china-list.txt`，补充中国大陆可直连的长尾域名；不合并其宽泛的 `direct/proxy/reject` 列表。同时使用 `emby-cn` 与 `emby` 时，应先加载范围较小的 `emby-cn`。
+常用规则包括 `cn`、`geolocation-cn`、`geolocation-!cn`、`google`、`telegram`、`emby-cn`、`emby` 和 `fakeip-filter`。域名规则以 `domain-list-community` 源码树为主源，保留 include、affiliation 和属性派生；默认 `cn` / `geolocation-cn` 排除 `@ads`、`@!cn`，`geolocation-!cn` 排除 `@ads`、`@cn`，同时继续生成对应属性列表。该策略参考 `domain-list-custom`，但不重复克隆或反解析其 `geosite.dat`。
+
+`china-list` 独立包含 `felixonmars/dnsmasq-china-list` 的 accelerated domains，仅用于有特殊需求的中国大陆 DNS 分流，不合并进 `cn` 或 `geolocation-cn`，也不建议作为路由规则使用。`ruleset.skk.moe` 用于补充 `cn` 中可在中国大陆直连的 `domestic` 域名，以及 AI、Apple 中国服务/CDN、Microsoft 中国 CDN、`apple-intelligence`、`icloudprivaterelay`、`category-game-platforms-download` 和 Apple 服务 IP；上游固定标记域名会在规范化阶段统一剔除。其中国 IP 列表因边际覆盖较低不默认引入，语义混合的 `direct`、宽泛的 `global/reject`、动态测速、通用 CDN 与下载大集合也不会默认引入。同时使用 `emby-cn` 与 `emby` 时，应先加载范围较小的 `emby-cn`。
 
 ## 添加自定义规则
 
 - 域名规则：`sources/custom/domain/*.list`
 - IP 规则：`sources/custom/ip/*.list`
+- 内置稳定规则：`sources/builtin/`（例如无需远端下载的特殊用途网络）
 - 文件名使用小写字母、数字和连字符。
 
 ```text

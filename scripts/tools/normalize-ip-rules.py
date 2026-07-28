@@ -138,6 +138,45 @@ def extract_text_cidrs(input_file: Path, output_file: Path) -> None:
     write_deduplicated_cidrs(lines, output_file)
 
 
+def extract_classical_ip_cidrs(
+    input_file: Path,
+    output_file: Path,
+    *,
+    allow_sukka_marker: bool = False,
+) -> None:
+    values: list[str] = []
+    for line_no, raw_line in enumerate(input_file.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw_line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        fields = [field.strip() for field in line.split(",")]
+        if allow_sukka_marker and fields == [
+            "DOMAIN",
+            "7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe",
+        ]:
+            continue
+        if len(fields) not in {2, 3} or (len(fields) == 3 and fields[2] != "no-resolve"):
+            raise ValueError(f"{input_file}:{line_no} invalid classical IP rule: {line}")
+        kind, value = fields[:2]
+        if kind not in {"IP-CIDR", "IP-CIDR6"}:
+            raise ValueError(f"{input_file}:{line_no} invalid classical IP rule type: {kind}")
+        try:
+            network = ipaddress.ip_network(value, strict=False)
+        except ValueError as exc:
+            raise ValueError(f"{input_file}:{line_no} invalid CIDR value: {value}") from exc
+        expected_kind = "IP-CIDR6" if network.version == 6 else "IP-CIDR"
+        if kind != expected_kind:
+            raise ValueError(
+                f"{input_file}:{line_no} {kind} has wrong address family for {value}"
+            )
+        values.append(value)
+    write_deduplicated_cidrs(values, output_file)
+
+
+def extract_sukka_classical_ip_cidrs(input_file: Path, output_file: Path) -> None:
+    extract_classical_ip_cidrs(input_file, output_file, allow_sukka_marker=True)
+
+
 def require_object_list(data: object, field: str, source: Path) -> list[dict]:
     if not isinstance(data, dict) or field not in data or not isinstance(data[field], list):
         raise ValueError(f"{source} missing required JSON array: {field}")
@@ -313,6 +352,8 @@ def build_singbox_json_from_plain(input_file: Path, output_file: Path) -> None:
 def run_single_task(source_type: str, input_file: Path, output_file: Path) -> None:
     source_to_handler = {
         "text": extract_text_cidrs,
+        "classical-ip": extract_classical_ip_cidrs,
+        "sukka-classical-ip": extract_sukka_classical_ip_cidrs,
         "google-json": extract_google_json_cidrs,
         "aws-cloudfront-json": extract_aws_cloudfront_json_cidrs,
         "aws-json": extract_aws_all_json_cidrs,
@@ -369,6 +410,8 @@ def run_batch_tasks(manifest_file: Path) -> None:
 def main() -> int:
     source_types = {
         "text",
+        "classical-ip",
+        "sukka-classical-ip",
         "google-json",
         "aws-cloudfront-json",
         "aws-json",

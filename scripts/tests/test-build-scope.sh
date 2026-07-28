@@ -158,6 +158,10 @@ assert_scope full "pull_request includes changes outside custom sources" \
   EVENT_NAME=pull_request CURRENT_SHA=HEAD BEFORE_SHA=base \
   CHANGED_FILES=$'README.md\nscripts/commands/build-custom.sh'
 
+assert_scope full "pull_request includes changes outside custom sources" \
+  EVENT_NAME=pull_request CURRENT_SHA=HEAD BEFORE_SHA=base \
+  CHANGED_FILES=$'sources/builtin/ip/private.list'
+
 assert_scope full "pull_request includes unclassified changes" \
   EVENT_NAME=pull_request CURRENT_SHA=HEAD BEFORE_SHA=base \
   CHANGED_FILES=$'pyproject.toml'

@@ -17,12 +17,18 @@ SOURCE_IMPLEMENTATIONS = {
     "domain": {
         "dlc": ("git", "git-tree"),
         "loyalsoldier-china-list": ("text", "domain-suffix-text"),
+        "sukka-apple-intelligence": ("text", "sukka-classical-domain"),
+        "sukka-icloud-private-relay": ("text", "sukka-domain-set-text"),
+        "sukka-game-download": ("text", "sukka-domain-set-text"),
+        "sukka-domestic": ("text", "sukka-classical-domain"),
+        "sukka-ai": ("text", "sukka-classical-domain"),
+        "sukka-apple-cdn": ("text", "sukka-domain-set-text"),
+        "sukka-apple-cn": ("text", "sukka-classical-domain"),
+        "sukka-microsoft-cdn": ("text", "sukka-classical-domain"),
     },
     "ip": {
         "cn-ipv46": ("text", "cidr-text"),
         "cn-ipv46-apnic": ("text", "cidr-text"),
-        "loyalsoldier-geoip-cn": ("text", "cidr-text"),
-        "loyalsoldier-geoip-private": ("text", "cidr-text"),
         "google": ("json", "google-json"),
         "telegram": ("text", "telegram"),
         "cloudflare-ipv4": ("text", "cidr-text"),
@@ -32,6 +38,7 @@ SOURCE_IMPLEMENTATIONS = {
         "fastly": ("json", "fastly-json"),
         "github": ("json", "github-json"),
         "apple": ("html", "html-cidr"),
+        "sukka-apple-services": ("text", "sukka-classical-ip"),
         "ripe-stat": ("json-api", "ripe-stat-json"),
     },
 }
@@ -40,7 +47,7 @@ REQUIRED_IP_SOURCES = set(SOURCE_IMPLEMENTATIONS["ip"])
 REQUIRED_ASN_GROUPS = {"telegram", "netflix", "spotify", "disney"}
 REQUIRED_FIRST_BATCH_SOURCES = {"google-json", "github-json", "telegram"}
 SUPPORTED_PARSERS = {
-    "git-tree", "domain-suffix-text", "cidr-text", "google-json", "github-json", "telegram",
+    "git-tree", "domain-suffix-text", "classical-domain", "sukka-classical-domain", "domain-set-text", "sukka-domain-set-text", "cidr-text", "classical-ip", "sukka-classical-ip", "google-json", "github-json", "telegram",
     "aws-json", "aws-cloudfront-json", "fastly-json", "html-cidr", "ripe-stat-json",
 }
 ALLOWED_REQUIREMENTS = {"required", "optional"}
@@ -209,12 +216,21 @@ def validate_upstreams(data: dict, reporter: Reporter) -> None:
     missing_domain = REQUIRED_DOMAIN_SOURCES - set(domain)
     missing_ip = REQUIRED_IP_SOURCES - set(ip)
     missing_asn_groups = REQUIRED_ASN_GROUPS - set(asn_groups)
+    unexpected_domain = set(domain) - REQUIRED_DOMAIN_SOURCES
+    unexpected_ip = set(ip) - REQUIRED_IP_SOURCES
+    unexpected_asn_groups = set(asn_groups) - REQUIRED_ASN_GROUPS
     if missing_domain:
         reporter.error("upstreams.domain", f"missing required sources: {sorted(missing_domain)}")
     if missing_ip:
         reporter.error("upstreams.ip", f"missing required sources: {sorted(missing_ip)}")
     if missing_asn_groups:
         reporter.error("upstreams.asn_groups", f"missing required groups: {sorted(missing_asn_groups)}")
+    if unexpected_domain:
+        reporter.error("upstreams.domain", f"unsupported sources: {sorted(unexpected_domain)}")
+    if unexpected_ip:
+        reporter.error("upstreams.ip", f"unsupported sources: {sorted(unexpected_ip)}")
+    if unexpected_asn_groups:
+        reporter.error("upstreams.asn_groups", f"unsupported groups: {sorted(unexpected_asn_groups)}")
 
     for name, item in sorted(domain.items()):
         validate_source("domain", name, item, reporter)
