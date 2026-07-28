@@ -208,6 +208,26 @@ assert_file_content \
   "$TMP_DIR/surge-source.plain" \
   $'10.0.0.0/8\n2001:db8::/32'
 
+python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single classical-ip \
+  "$TMP_DIR/surge-source.list" "$TMP_DIR/classical-ip.plain"
+assert_file_content \
+  "$TMP_DIR/classical-ip.plain" \
+  $'10.0.0.0/8\n2001:db8::/32'
+printf '%s\n' 'IP-CIDR,10.0.0.0/8,unsupported' > "$TMP_DIR/classical-ip-invalid.list"
+if python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single classical-ip \
+  "$TMP_DIR/classical-ip-invalid.list" "$TMP_DIR/classical-ip-invalid.out" >/dev/null 2>&1; then
+  echo "test failed: classical IP parser accepted unsupported option" >&2
+  exit 1
+fi
+cat > "$TMP_DIR/sukka-classical-ip.list" <<'CIDRS'
+DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe
+IP-CIDR,10.0.0.0/8,no-resolve
+IP-CIDR6,2001:db8::/32,no-resolve
+CIDRS
+python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single sukka-classical-ip \
+  "$TMP_DIR/sukka-classical-ip.list" "$TMP_DIR/sukka-classical-ip.out"
+assert_file_content "$TMP_DIR/sukka-classical-ip.out" $'10.0.0.0/8\n2001:db8::/32'
+
 cat > "$TMP_DIR/singbox-source.txt" <<'CIDRS'
 192.168.1.1/24
 192.168.1.0/24

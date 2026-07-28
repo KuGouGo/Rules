@@ -103,6 +103,61 @@ download_file() {
   fi
 }
 
+download_files_parallel() {
+  if [ $(( $# % 4 )) -ne 0 ]; then
+    echo "parallel download expects groups of: label mode url output" >&2
+    return 2
+  fi
+
+  local log_dir="${RULES_DOWNLOAD_LOG_DIR:-${WORK_TMP_DIR:-}}"
+  if [ -z "$log_dir" ]; then
+    echo "parallel download log directory is not configured" >&2
+    return 2
+  fi
+  mkdir -p "$log_dir"
+
+  local -a labels=() modes=() urls=() outputs=() pids=() logs=()
+  local label mode url output log index failed=0
+  while [ "$#" -gt 0 ]; do
+    label="$1"
+    mode="$2"
+    url="$3"
+    output="$4"
+    shift 4
+    case "$mode" in
+      required|classified) ;;
+      *) echo "unsupported download mode for $label: $mode" >&2; return 2 ;;
+    esac
+    labels+=("$label")
+    modes+=("$mode")
+    urls+=("$url")
+    outputs+=("$output")
+  done
+
+  for index in "${!labels[@]}"; do
+    log="$log_dir/download-${index}.log"
+    logs+=("$log")
+    download_file "${urls[$index]}" "${outputs[$index]}" >"$log" 2>&1 &
+    pids+=("$!")
+  done
+
+  for index in "${!labels[@]}"; do
+    if wait "${pids[$index]}"; then
+      cat "${logs[$index]}"
+    else
+      cat "${logs[$index]}" >&2
+      rm -f "${outputs[$index]}"
+      if [ "${modes[$index]}" = "required" ]; then
+        echo "required download failed: ${labels[$index]}" >&2
+        failed=1
+      fi
+    fi
+    rm -f "${logs[$index]}"
+  done
+
+  [ "$failed" -eq 0 ]
+}
+
 tool_lock_value() {
   local tool="$1"
   local field="$2"

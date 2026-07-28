@@ -17,6 +17,7 @@ make clean              # 清理临时文件和产物
 ```text
 sources/custom/domain/  自定义域名规则
 sources/custom/ip/      自定义 IP 规则
+sources/builtin/        不依赖远端下载的稳定内置规则
 config/upstreams.json   上游地址和解析方式
 config/tools-lock.json  sing-box / mihomo 工具版本
 scripts/                同步、转换、校验和发布脚本
@@ -39,9 +40,13 @@ IP-CIDR,192.0.2.0/24
 
 新增上游时修改 `config/upstreams.json`，并按实际情况更新根目录的 `THIRD_PARTY_NOTICES.md`。
 
+上游来源应优先选择官方或注册机构数据，并满足以下条件：能够声明稳定的健康阈值、对最终规则有可量化的边际覆盖、不会仅重复已有来源。共享同一载荷的不同规则集应只下载一次再分别解析；高重叠、低边际或容易引入地域误判的来源应移除。
+
+ASN 补充仅保留官方列表之外仍有覆盖贡献的网络。所有 RIPE Stat ASN 在一次并行批次中下载，每个唯一 ASN 只规范化和检查一次，再由 Telegram、Netflix、Spotify、Disney 规则组复用。
+
 ## 自动构建
 
-- PR：只运行快速检查。
+- PR：运行完整 lint 和测试，阻止未经测试的构建脚本变更合并。
 - `main`：检查、构建并发布五个平台分支。
 - 定时任务：每天同步一次上游。
 - 手动运行：Actions → Sync Rules，可选择 `auto`、`custom` 或 `full`。

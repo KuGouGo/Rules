@@ -47,6 +47,11 @@ RULE_KIND_ALIASES = {
 }
 
 REGIONAL_ATTRS = ("!cn", "cn")
+BASE_RULE_EXCLUDED_ATTRS = {
+    "cn": frozenset({"!cn", "ads"}),
+    "geolocation-cn": frozenset({"!cn", "ads"}),
+    "geolocation-!cn": frozenset({"cn", "ads"}),
+}
 
 
 CAPABILITY_SCHEMA: PlatformCapabilities = load_platform_capabilities(CAPABILITIES_FILE)
@@ -241,6 +246,13 @@ def collect_rule_set_output(rules: list[Rule]) -> RuleSetOutput:
             rules_by_attr.setdefault(attr, []).append(rule)
 
     return RuleSetOutput(unique_rules, rules_by_attr)
+
+
+def filter_base_rule_set(name: str, rules: list[Rule]) -> list[Rule]:
+    excluded_attrs = BASE_RULE_EXCLUDED_ATTRS.get(name)
+    if not excluded_attrs:
+        return rules
+    return [rule for rule in rules if excluded_attrs.isdisjoint(rule.attrs)]
 
 
 def regional_suffix_for_rule_set_name(name: str) -> str | None:
@@ -543,8 +555,10 @@ def export_data_dir_lists(data_dir: Path, output_dir: Path) -> None:
         (output_dir / f"{name}.list").write_text("\n".join(rendered) + "\n", encoding="utf-8")
 
     for name in names:
-        rule_set_output = collect_rule_set_output(resolve(name))
-        write_rule_set(name, rule_set_output.rules)
+        resolved_rules = resolve(name)
+        rule_set_output = collect_rule_set_output(resolved_rules)
+        base_output = collect_rule_set_output(filter_base_rule_set(name, resolved_rules))
+        write_rule_set(name, base_output.rules)
 
         for attr, rules in sorted(rule_set_output.rules_by_attr.items()):
             if is_redundant_attr_rule_set_name(name, attr):

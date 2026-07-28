@@ -8,4 +8,8 @@ python3 "$ROOT/scripts/tools/lint-custom-rules.py" \
   --domain-dir "$ROOT/sources/custom/domain" \
   --ip-dir "$ROOT/sources/custom/ip"
 
-echo "custom rule lint passed"
+python3 "$ROOT/scripts/tools/lint-custom-rules.py" \
+  --domain-dir "$ROOT/sources/builtin/domain" \
+  --ip-dir "$ROOT/sources/builtin/ip"
+
+echo "custom and built-in rule lint passed"

@@ -148,6 +148,56 @@ test_sha256_file_uses_python_fallback_without_sha256sum() {
     "sha256_file Python fallback"
 }
 
+test_parallel_downloads_preserve_failure_semantics() {
+  local download_root="$TMP_DIR/parallel-downloads"
+  local ready_dir="$download_root/ready"
+  mkdir -p "$ready_dir"
+
+  download_file() {
+    local url="$1"
+    local output="$2"
+    local name="${url##*/}"
+    touch "$ready_dir/$name"
+    local attempts=0
+    while [ "$(find "$ready_dir" -type f | wc -l | tr -d ' ')" -lt 3 ]; do
+      attempts=$((attempts + 1))
+      if [ "$attempts" -gt 100 ]; then
+        echo "downloads did not start concurrently" >&2
+        return 1
+      fi
+      sleep 0.01
+    done
+    if [ "$name" = "classified-fail" ] || [ "$name" = "required-fail" ]; then
+      return 1
+    fi
+    printf '%s\n' "$name" > "$output"
+  }
+
+  RULES_DOWNLOAD_LOG_DIR="$download_root/logs" download_files_parallel \
+    one required mock://one "$download_root/one.out" \
+    two required mock://two "$download_root/two.out" \
+    classified-fail classified mock://classified-fail "$download_root/classified.out"
+  assert_file_content "$download_root/one.out" "one"
+  assert_file_content "$download_root/two.out" "two"
+  if [ -e "$download_root/classified.out" ]; then
+    echo "test failed: failed classified download output should be removed" >&2
+    exit 1
+  fi
+
+  find "$ready_dir" -type f -delete
+  if RULES_DOWNLOAD_LOG_DIR="$download_root/logs" download_files_parallel \
+    one required mock://one "$download_root/one.out" \
+    two required mock://two "$download_root/two.out" \
+    required-fail required mock://required-fail "$download_root/required.out"; then
+    echo "test failed: required parallel download failure should fail the batch" >&2
+    exit 1
+  fi
+  if [ -e "$download_root/required.out" ]; then
+    echo "test failed: failed required download output should be removed" >&2
+    exit 1
+  fi
+}
+
 test_list_rule_files_sorts_lists_only
 test_list_rule_files_missing_dir_is_empty
 test_write_if_changed_replaces_different_file
@@ -157,5 +207,6 @@ test_write_if_nonempty_or_remove_deletes_empty_output_and_stale_target
 test_common_source_has_no_tool_cache_side_effects
 test_setup_tool_cache_creates_bin_and_updates_path_once
 test_sha256_file_uses_python_fallback_without_sha256sum
+test_parallel_downloads_preserve_failure_semantics
 
 echo "shell utility tests passed"

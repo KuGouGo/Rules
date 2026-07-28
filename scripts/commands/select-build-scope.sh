@@ -218,7 +218,7 @@ collect_deleted_custom_files() {
 }
 
 has_build_relevant_changes() {
-  grep -Eq '^(\.github/workflows/|Makefile$|config/|scripts/|sources/custom/|templates/|tests/)'
+  grep -Eq '^(\.github/workflows/|Makefile$|config/|scripts/|sources/(builtin|custom)/|templates/|tests/)'
 }
 
 has_only_non_build_changes() {

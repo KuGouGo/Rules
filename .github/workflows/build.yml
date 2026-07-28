@@ -21,6 +21,7 @@ on:
       - 'config/**'
       - 'scripts/**'
       - 'sources/custom/**'
+      - 'sources/builtin/**'
       - 'templates/**'
       - 'tests/**'
   schedule:

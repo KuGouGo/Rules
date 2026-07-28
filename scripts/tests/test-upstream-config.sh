@@ -49,6 +49,69 @@ if china.get("parser") != "domain-suffix-text":
     raise SystemExit("test failed: China List must use domain-suffix-text parser")
 if not china.get("url", "").endswith("/release/china-list.txt"):
     raise SystemExit("test failed: China List URL must use the narrow release text artifact")
+domain_sources = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))["domain"]
+expected_sukka_domain_sources = {
+    "sukka-apple-intelligence": "sukka-classical-domain",
+    "sukka-icloud-private-relay": "sukka-domain-set-text",
+    "sukka-game-download": "sukka-domain-set-text",
+    "sukka-domestic": "sukka-classical-domain",
+    "sukka-ai": "sukka-classical-domain",
+    "sukka-apple-cdn": "sukka-domain-set-text",
+    "sukka-apple-cn": "sukka-classical-domain",
+    "sukka-microsoft-cdn": "sukka-classical-domain",
+}
+for name, parser in expected_sukka_domain_sources.items():
+    source = domain_sources.get(name, {})
+    if source.get("parser") != parser or not source.get("url", "").startswith("https://ruleset.skk.moe/"):
+        raise SystemExit(f"test failed: invalid focused Sukka domain source {name}")
+ip_sources = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))["ip"]
+if ip_sources.get("cn-ipv46", {}).get("trust") != "community":
+    raise SystemExit("test failed: IPNetDB-derived China IP source must use community trust")
+if ip_sources.get("cn-ipv46-apnic", {}).get("trust") != "registry":
+    raise SystemExit("test failed: APNIC-derived China IP source must retain registry trust")
+if "loyalsoldier-geoip-cn" in ip_sources:
+    raise SystemExit("test failed: low-marginal China GeoIP source must remain excluded")
+if "loyalsoldier-geoip-private" in ip_sources:
+    raise SystemExit("test failed: static private ranges must not depend on a remote source")
+sukka_apple = ip_sources.get("sukka-apple-services", {})
+if sukka_apple.get("parser") != "sukka-classical-ip" or not sukka_apple.get("url", "").startswith("https://ruleset.skk.moe/"):
+    raise SystemExit("test failed: invalid focused Sukka Apple IP source")
+for excluded in ("sukka-china-ipv4", "sukka-china-ipv6"):
+    if excluded in ip_sources:
+        raise SystemExit(f"test failed: low-marginal Sukka China IP source was reintroduced: {excluded}")
+asn_groups = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))["asn_groups"]
+if asn_groups["telegram"] != [62041]:
+    raise SystemExit("test failed: Telegram must keep only the ASN with coverage beyond its official CIDR list")
+if asn_groups["netflix"] != [2906]:
+    raise SystemExit("test failed: Netflix must exclude AS40027 because AS2906 fully covers it")
+PY
+
+python3 - <<'PY'
+from pathlib import Path
+
+expected = {
+    "IP-CIDR,0.0.0.0/8",
+    "IP-CIDR,10.0.0.0/8",
+    "IP-CIDR,100.64.0.0/10",
+    "IP-CIDR,127.0.0.0/8",
+    "IP-CIDR,169.254.0.0/16",
+    "IP-CIDR,172.16.0.0/12",
+    "IP-CIDR,192.0.0.0/24",
+    "IP-CIDR,192.0.2.0/24",
+    "IP-CIDR,192.88.99.0/24",
+    "IP-CIDR,192.168.0.0/16",
+    "IP-CIDR,198.18.0.0/15",
+    "IP-CIDR,198.51.100.0/24",
+    "IP-CIDR,203.0.113.0/24",
+    "IP-CIDR,224.0.0.0/3",
+    "IP-CIDR6,::/127",
+    "IP-CIDR6,fc00::/7",
+    "IP-CIDR6,fe80::/10",
+    "IP-CIDR6,ff00::/8",
+}
+actual = set(Path("sources/builtin/ip/private.list").read_text(encoding="utf-8").splitlines())
+if actual != expected:
+    raise SystemExit("test failed: built-in private ranges changed without updating the reviewed baseline")
 PY
 
 cp config/upstreams.json "$TMP_DIR/upstreams.invalid-url.json"
@@ -114,6 +177,32 @@ assert_lint_fails_with \
   "wrong-kind" \
   "upstreams.ip.github.kind: must equal 'json' for source 'github', got 'text'" \
   --upstreams "$TMP_DIR/upstreams.wrong-kind.json"
+
+cp config/upstreams.json "$TMP_DIR/upstreams.unused.json"
+python3 - <<'PY' "$TMP_DIR/upstreams.unused.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["domain"]["unused-domain"] = data["domain"]["sukka-ai"].copy()
+data["ip"]["unused-ip"] = data["ip"]["cloudflare-ipv4"].copy()
+data["asn_groups"]["unused-group"] = [64512]
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "unused-domain" \
+  "upstreams.domain: unsupported sources: ['unused-domain']" \
+  --upstreams "$TMP_DIR/upstreams.unused.json"
+assert_lint_fails_with \
+  "unused-ip" \
+  "upstreams.ip: unsupported sources: ['unused-ip']" \
+  --upstreams "$TMP_DIR/upstreams.unused.json"
+assert_lint_fails_with \
+  "unused-asn-group" \
+  "upstreams.asn_groups: unsupported groups: ['unused-group']" \
+  --upstreams "$TMP_DIR/upstreams.unused.json"
 
 cp config/upstreams.json "$TMP_DIR/upstreams.cloudfront-url.json"
 python3 - <<'PY' "$TMP_DIR/upstreams.cloudfront-url.json"
