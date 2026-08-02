@@ -8,6 +8,7 @@ from pathlib import Path
 
 DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
 DOMAIN_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
+SUKKA_MARKER_SUFFIX = ".skk.moe"
 
 
 @dataclass(frozen=True)
@@ -37,6 +38,18 @@ def normalize_domain_value(kind: str, value: str) -> str:
     if kind == "DOMAIN-KEYWORD":
         return value.lower()
     return value
+
+
+def is_sukka_marker_domain(value: str) -> bool:
+    """Match Sukka ruleset watermark domains.
+
+    Sukka embeds an un-routable fake domain as a copy-protection marker (e.g.
+    ``7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe``). The leetspeak payload changes
+    between releases, so match on the stable ``.skk.moe`` suffix plus the
+    underscore that always makes the domain an invalid DNS label.
+    """
+    lowered = value.strip().lower().rstrip(".")
+    return lowered.endswith(SUKKA_MARKER_SUFFIX) and "_" in lowered
 
 
 def domain_value_errors(

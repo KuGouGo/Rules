@@ -220,7 +220,8 @@ if python3 "$ROOT/scripts/tools/normalize-ip-rules.py" single classical-ip \
   exit 1
 fi
 cat > "$TMP_DIR/sukka-classical-ip.list" <<'CIDRS'
-DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe
+DOMAIN,7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe
+DOMAIN,7h15_rul35et_1s_m4d3_by_5ukk4w.skk.moe
 IP-CIDR,10.0.0.0/8,no-resolve
 IP-CIDR6,2001:db8::/32,no-resolve
 CIDRS

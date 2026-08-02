@@ -54,7 +54,7 @@ ip_source_required_snippets = [
     'mapfile -t UPSTREAM_SETTINGS',
     'BUILTIN_PRIVATE_SOURCE_FILE="$ROOT_DIR/sources/builtin/ip/private.list"',
     'download_files_parallel',
-    'SUKKA_MARKER_DOMAIN="7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe"',
+    'SUKKA_MARKER_DOMAIN="7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe"',
     '"$BUILTIN_PRIVATE_SOURCE_FILE"',
     '"$IP_BUILD_TMP_DIR/private.cidr.txt"',
     'verify_and_record_upstream_health',

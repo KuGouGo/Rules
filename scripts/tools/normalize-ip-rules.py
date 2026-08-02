@@ -12,6 +12,7 @@ from pathlib import Path
 
 from ip_rules import parse_classical_ip_file
 from platform_capabilities import load_platform_capabilities
+from domain_rules import is_sukka_marker_domain
 
 
 PLATFORM_CAPABILITIES = load_platform_capabilities().platforms
@@ -150,10 +151,12 @@ def extract_classical_ip_cidrs(
         if not line:
             continue
         fields = [field.strip() for field in line.split(",")]
-        if allow_sukka_marker and fields == [
-            "DOMAIN",
-            "7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe",
-        ]:
+        if (
+            allow_sukka_marker
+            and len(fields) == 2
+            and fields[0] == "DOMAIN"
+            and is_sukka_marker_domain(fields[1])
+        ):
             continue
         if len(fields) not in {2, 3} or (len(fields) == 3 and fields[2] != "no-resolve"):
             raise ValueError(f"{input_file}:{line_no} invalid classical IP rule: {line}")

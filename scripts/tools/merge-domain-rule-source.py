@@ -8,6 +8,7 @@ from domain_rules import (
     ParsedDomainRule,
     compact_domain_rules,
     domain_value_errors,
+    is_sukka_marker_domain,
     normalize_domain_value,
     normalize_rule_type,
     parse_classical_domain_file,
@@ -57,6 +58,9 @@ def parse_source(
 
         value = normalize_domain_value(kind, value)
         if value in ignored_domains:
+            skipped += 1
+            continue
+        if is_sukka_marker_domain(value):
             skipped += 1
             continue
         errors = domain_value_errors(

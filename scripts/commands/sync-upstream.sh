@@ -26,7 +26,7 @@ UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 UPSTREAM_SUMMARY_FILE="$WORK_TMP_DIR/upstream-summary.jsonl"
 FIRST_BATCH_BASELINES_FILE="$ROOT_DIR/config/upstream-first-batch-baselines.json"
 BUILTIN_PRIVATE_SOURCE_FILE="$ROOT_DIR/sources/builtin/ip/private.list"
-SUKKA_MARKER_DOMAIN="7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe"
+SUKKA_MARKER_DOMAIN="7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe"
 
 mapfile -t UPSTREAM_SETTINGS < <(python3 - "$UPSTREAMS_CONFIG_FILE" <<'PY'
 import json

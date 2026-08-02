@@ -52,16 +52,17 @@ if python3 "$ROOT/scripts/tools/merge-domain-rule-source.py" \
 fi
 
 cat > "$TMP_DIR/filtered.conf" <<'EOF'
-DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe
+DOMAIN,7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe
+DOMAIN,7h15_rul35et_1s_m4d3_by_5ukk4w.skk.moe
 DOMAIN-SUFFIX,kept.example
 DOMAIN-WILDCARD,stun.*.*
 EOF
 output="$(python3 "$ROOT/scripts/tools/merge-domain-rule-source.py" \
   "$TMP_DIR/filtered.conf" "$TMP_DIR/target.list" "$TMP_DIR/filtered.list" \
   --format classical \
-  --ignore-domain 7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe \
+  --ignore-domain 7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe \
   --allow-unsupported-rule 'DOMAIN-WILDCARD,stun.*.*')"
-grep -q 'source=1 skipped=2 excluded=0 added=1' <<<"$output"
+grep -q 'source=1 skipped=3 excluded=0 added=1' <<<"$output"
 grep -qx 'DOMAIN-SUFFIX,kept.example' "$TMP_DIR/filtered.list"
 
 cat > "$TMP_DIR/unreviewed-unsupported.conf" <<'EOF'
@@ -77,15 +78,15 @@ if python3 "$ROOT/scripts/tools/merge-domain-rule-source.py" \
 fi
 
 cat > "$TMP_DIR/marked-domain-set.conf" <<'EOF'
-7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe
+7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe
 .domain-set.example
 EOF
 output="$(python3 "$ROOT/scripts/tools/merge-domain-rule-source.py" \
   "$TMP_DIR/marked-domain-set.conf" "$TMP_DIR/target.list" "$TMP_DIR/marked-domain-set.list" \
   --format domain-set \
-  --ignore-domain 7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe)"
+  --ignore-domain 7h15_ru1353t_1s_m4d3_by_5ukk4w.skk.moe)"
 grep -q 'source=1 skipped=1 excluded=0 added=1' <<<"$output"
-if grep -q '7h1s_rul35et' "$TMP_DIR/marked-domain-set.list" "$TMP_DIR/target.list"; then
+if grep -q 'skk.moe' "$TMP_DIR/marked-domain-set.list" "$TMP_DIR/target.list"; then
   echo "test failed: Sukka marker leaked from domain-set source" >&2
   exit 1
 fi
