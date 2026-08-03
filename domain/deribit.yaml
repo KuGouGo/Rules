@@ -1,0 +1,5 @@
+domain_set:
+  - 'deribit.cdn.prismic.io'
+
+domain_suffix_set:
+  - 'deribit.com'

@@ -1,0 +1,4 @@
+domain_suffix_set:
+  - 'esp32.com'
+  - 'esp8266.com'
+  - 'espressif.com'

@@ -1,0 +1,5 @@
+domain_set:
+  - 'public-us-pingsx.api.clonoth.com'
+
+domain_suffix_set:
+  - 'ping.sx'

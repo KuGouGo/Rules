@@ -1,0 +1,8 @@
+domain_set:
+  - 'metrika.kontur.ru'
+  - 'sentry.kontur.host'
+
+domain_suffix_set:
+  - 'kontur.ru'
+  - 'kontur.host'
+  - 'kontur-inc.com'

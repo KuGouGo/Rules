@@ -1,0 +1,5 @@
+domain_suffix_set:
+  - 'deps.dev'
+  - 'deps.info'
+  - 'opensourceinsight.dev'
+  - 'opensourceinsights.dev'

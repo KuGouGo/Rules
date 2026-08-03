@@ -1,0 +1,3 @@
+domain_suffix_set:
+  - 'insights-collector.gog.com'
+  - 'log-upload-os.hoyoverse.com'

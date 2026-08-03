@@ -1,0 +1,4 @@
+domain_suffix_set:
+  - 'lencr.org'
+  - 'letsencrypt.com'
+  - 'letsencrypt.org'

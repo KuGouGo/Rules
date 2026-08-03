@@ -1,0 +1,8 @@
+domain_set:
+  - 'misa-prod.s3.ap-northeast-1.amazonaws.com'
+
+domain_suffix_set:
+  - 'fansta.me'
+  - '2023aga.oen.tw'
+  - 'aga-expo.com'
+  - 'cosfans-tw.com'
