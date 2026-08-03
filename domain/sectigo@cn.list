@@ -1,0 +1,5 @@
+HOST-SUFFIX,oemssl.cn,sectigo@cn
+HOST-SUFFIX,oemssl.cn.cdn.cloudflare.net,sectigo@cn
+HOST-SUFFIX,sectigochina.com,sectigo@cn
+HOST-SUFFIX,sectigochina.com.cdn.cloudflare.net,sectigo@cn
+HOST-SUFFIX,trust-provider.cn,sectigo@cn

@@ -1,0 +1,5 @@
+HOST-SUFFIX,perl.apache.org,perl
+HOST-SUFFIX,perl.org,perl
+HOST-SUFFIX,cpan.org,perl
+HOST-SUFFIX,metacpan.org,perl
+HOST-SUFFIX,modperl.pl,perl

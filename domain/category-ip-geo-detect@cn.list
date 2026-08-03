@@ -1,0 +1,4 @@
+HOST-SUFFIX,ipify.cn,category-ip-geo-detect@cn
+HOST-SUFFIX,iplark.com,category-ip-geo-detect@cn
+HOST-SUFFIX,ipw.cn,category-ip-geo-detect@cn
+HOST-SUFFIX,whois.pconline.com.cn,category-ip-geo-detect@cn

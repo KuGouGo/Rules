@@ -1,0 +1,4 @@
+HOST,ads-img.mozilla.org,mozilla@ads
+HOST,ads.mozilla.org,mozilla@ads
+HOST,incoming.telemetry.mozilla.org,mozilla@ads
+HOST,incoming-telemetry.thunderbird.net,mozilla@ads

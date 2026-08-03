@@ -1,0 +1,9 @@
+HOST-SUFFIX,cn.eset.com,eset
+HOST-SUFFIX,e5.sk,eset
+HOST-SUFFIX,eset.com,eset
+HOST-SUFFIX,eset.eu,eset
+HOST-SUFFIX,eset.sk,eset
+HOST-SUFFIX,eset.systems,eset
+HOST-SUFFIX,esetsoftware.com,eset
+HOST,eset-prod-ca48648d0ce7cadf.elb.eu-central-1.amazonaws.com,eset
+HOST,epc-de-agent-proxy.germanywestcentral.cloudapp.azure.com,eset

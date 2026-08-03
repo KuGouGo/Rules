@@ -1,0 +1,6 @@
+HOST-SUFFIX,compose-spec.io,docker
+HOST-SUFFIX,docker.com,docker
+HOST-SUFFIX,docker.io,docker
+HOST-SUFFIX,dockerstatic.com,docker
+HOST,docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com,docker
+HOST,docker-pinata-support.s3.amazonaws.com,docker
