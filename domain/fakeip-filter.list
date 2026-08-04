@@ -12,7 +12,6 @@ HOST-SUFFIX,time.edu.cn,fakeip-filter
 HOST-SUFFIX,ntp.org.cn,fakeip-filter
 HOST-SUFFIX,pool.ntp.org,fakeip-filter
 HOST,time1.cloud.tencent.com,fakeip-filter
-HOST,music.163.com,fakeip-filter
 HOST-SUFFIX,music.163.com,fakeip-filter
 HOST-SUFFIX,126.net,fakeip-filter
 HOST,musicapi.taihe.com,fakeip-filter
@@ -23,7 +22,6 @@ HOST-SUFFIX,kuwo.cn,fakeip-filter
 HOST,api-jooxtt.sanook.com,fakeip-filter
 HOST,api.joox.com,fakeip-filter
 HOST,joox.com,fakeip-filter
-HOST,y.qq.com,fakeip-filter
 HOST-SUFFIX,y.qq.com,fakeip-filter
 HOST,streamoc.music.tc.qq.com,fakeip-filter
 HOST,mobileoc.music.tc.qq.com,fakeip-filter
@@ -33,7 +31,6 @@ HOST,aqqmusic.tc.qq.com,fakeip-filter
 HOST,amobile.music.tc.qq.com,fakeip-filter
 HOST-SUFFIX,xiami.com,fakeip-filter
 HOST-SUFFIX,music.migu.cn,fakeip-filter
-HOST,music.migu.cn,fakeip-filter
 HOST-SUFFIX,msftconnecttest.com,fakeip-filter
 HOST-SUFFIX,msftncsi.com,fakeip-filter
 HOST,localhost.ptlogin2.qq.com,fakeip-filter
@@ -41,7 +38,6 @@ HOST,localhost.sec.qq.com,fakeip-filter
 HOST-SUFFIX,kk-rays.com,fakeip-filter
 HOST-SUFFIX,steamcontent.com,fakeip-filter
 HOST-SUFFIX,srv.nintendo.net,fakeip-filter
-HOST-SUFFIX,n.n.srv.nintendo.net,fakeip-filter
 HOST-SUFFIX,cdn.nintendo.net,fakeip-filter
 HOST,xnotify.xboxlive.com,fakeip-filter
 HOST-SUFFIX,battle.net,fakeip-filter
@@ -84,7 +80,6 @@ HOST-SUFFIX,n0808.com,fakeip-filter
 HOST-SUFFIX,3gppnetwork.org,fakeip-filter
 HOST-SUFFIX,uu.163.com,fakeip-filter
 HOST,ps.res.netease.com,fakeip-filter
-HOST-SUFFIX,pub.3gppnetwork.org,fakeip-filter
 HOST-SUFFIX,oray.com,fakeip-filter
 HOST-SUFFIX,orayimg.com,fakeip-filter
 HOST-SUFFIX,gcloudcs.com,fakeip-filter

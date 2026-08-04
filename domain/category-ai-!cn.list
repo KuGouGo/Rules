@@ -98,7 +98,6 @@ HOST-SUFFIX,gemini.google,category-ai-!cn
 HOST-SUFFIX,gemini.google.com,category-ai-!cn
 HOST-SUFFIX,gemini.gstatic.com,category-ai-!cn
 HOST,cloudaicompanion.googleapis.com,category-ai-!cn
-HOST,cloudcode-pa.googleapis.com,category-ai-!cn
 HOST,daily-cloudcode-pa.googleapis.com,category-ai-!cn
 HOST,notebooklm-pa.googleapis.com,category-ai-!cn
 HOST,notebooklm.googleapis.com,category-ai-!cn
