@@ -1,6 +1,6 @@
 # Rules / Quantumult X
 
-这里放 Quantumult X 的自动构建产物，每次推送 `main` 都会整批覆盖更新。里面只有 `README.md`、`domain/` 和 `ip/`；想固定版本就锁定提交 SHA。
+本分支存放 Quantumult X 客户端的自动构建产物。产物由 `main` 分支的持续集成流水线生成，并在每次推送 `main` 时整批覆盖更新；分支仅包含 `README.md`、`domain/` 与 `ip/`。如需固定版本，可锁定具体提交的 SHA。
 
 ## 项目与许可
 
@@ -11,9 +11,9 @@
 
 ## 文件里有什么
 
-- `domain/` 与 `ip/` 均使用 `.list` 扩展名。
+- `domain/` 与 `ip/` 使用 `.list` 格式。
 - 域名规则：转换为 `HOST`、`HOST-SUFFIX`、`HOST-KEYWORD`；`DOMAIN-REGEX` 不写入产物，仅含正则的列表不会发布。
-- IP 规则：支持 `IP-CIDR`、`IP6-CIDR`；第三字段是规则文件名，建议用 `force-policy` 覆盖占位策略。
+- IP 规则：支持 `IP-CIDR`、`IP6-CIDR`；第三字段为规则文件名，建议使用 `force-policy` 覆盖占位策略。
 - 产物面向 Quantumult X 生成，不能假定与其他客户端的规则格式兼容。
 
 ## 最小示例
