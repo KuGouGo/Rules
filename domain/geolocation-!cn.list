@@ -43,6 +43,8 @@ HOST-SUFFIX,copilot-stg.com,geolocation-!cn
 HOST-SUFFIX,copilot.cloud.microsoft,geolocation-!cn
 HOST-SUFFIX,copilot.com,geolocation-!cn
 HOST-SUFFIX,copilot.microsoft.com,geolocation-!cn
+HOST-SUFFIX,deepwiki.com,geolocation-!cn
+HOST-SUFFIX,deepwiki.org,geolocation-!cn
 HOST-SUFFIX,clipdrop.co,geolocation-!cn
 HOST-SUFFIX,jasper.ai,geolocation-!cn
 HOST-SUFFIX,agentclientprotocol.com,geolocation-!cn
@@ -3466,14 +3468,17 @@ HOST-SUFFIX,ocourier.ru,geolocation-!cn
 HOST-SUFFIX,ozon-dostavka.ru,geolocation-!cn
 HOST-SUFFIX,ozon-credit.ru,geolocation-!cn
 HOST-SUFFIX,ozon-tech.ru,geolocation-!cn
+HOST-SUFFIX,ozon.app,geolocation-!cn
 HOST-SUFFIX,ozon.by,geolocation-!cn
 HOST-SUFFIX,ozon.com,geolocation-!cn
 HOST-SUFFIX,ozon.com.by,geolocation-!cn
 HOST-SUFFIX,ozon.com.kz,geolocation-!cn
 HOST-SUFFIX,ozon.dev,geolocation-!cn
 HOST-SUFFIX,ozon.express,geolocation-!cn
+HOST-SUFFIX,ozon.global,geolocation-!cn
 HOST-SUFFIX,ozon.kz,geolocation-!cn
 HOST-SUFFIX,ozon.li,geolocation-!cn
+HOST-SUFFIX,ozon.market,geolocation-!cn
 HOST-SUFFIX,ozon.ru,geolocation-!cn
 HOST-SUFFIX,ozon.tech,geolocation-!cn
 HOST-SUFFIX,ozon.tm,geolocation-!cn
@@ -16550,6 +16555,9 @@ HOST-SUFFIX,evernote.com,geolocation-!cn
 HOST-SUFFIX,faststone.org,geolocation-!cn
 HOST-SUFFIX,feedly.com,geolocation-!cn
 HOST-SUFFIX,figma.com,geolocation-!cn
+HOST-SUFFIX,fly.dev,geolocation-!cn
+HOST-SUFFIX,fly.io,geolocation-!cn
+HOST-SUFFIX,flyio.net,geolocation-!cn
 HOST-SUFFIX,gofundme.com,geolocation-!cn
 HOST-SUFFIX,gravatar.com,geolocation-!cn
 HOST-SUFFIX,botstop.com,geolocation-!cn
