@@ -37,6 +37,8 @@ domain_suffix_set:
   - 'copilot.cloud.microsoft'
   - 'copilot.com'
   - 'copilot.microsoft.com'
+  - 'deepwiki.com'
+  - 'deepwiki.org'
   - 'clipdrop.co'
   - 'jasper.ai'
   - 'agentclientprotocol.com'
