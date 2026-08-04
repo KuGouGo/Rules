@@ -43,6 +43,8 @@ DOMAIN-SUFFIX,copilot-stg.com
 DOMAIN-SUFFIX,copilot.cloud.microsoft
 DOMAIN-SUFFIX,copilot.com
 DOMAIN-SUFFIX,copilot.microsoft.com
+DOMAIN-SUFFIX,deepwiki.com
+DOMAIN-SUFFIX,deepwiki.org
 DOMAIN-SUFFIX,clipdrop.co
 DOMAIN-SUFFIX,jasper.ai
 DOMAIN-SUFFIX,agentclientprotocol.com
@@ -3466,14 +3468,17 @@ DOMAIN-SUFFIX,ocourier.ru
 DOMAIN-SUFFIX,ozon-dostavka.ru
 DOMAIN-SUFFIX,ozon-credit.ru
 DOMAIN-SUFFIX,ozon-tech.ru
+DOMAIN-SUFFIX,ozon.app
 DOMAIN-SUFFIX,ozon.by
 DOMAIN-SUFFIX,ozon.com
 DOMAIN-SUFFIX,ozon.com.by
 DOMAIN-SUFFIX,ozon.com.kz
 DOMAIN-SUFFIX,ozon.dev
 DOMAIN-SUFFIX,ozon.express
+DOMAIN-SUFFIX,ozon.global
 DOMAIN-SUFFIX,ozon.kz
 DOMAIN-SUFFIX,ozon.li
+DOMAIN-SUFFIX,ozon.market
 DOMAIN-SUFFIX,ozon.ru
 DOMAIN-SUFFIX,ozon.tech
 DOMAIN-SUFFIX,ozon.tm
@@ -16550,6 +16555,9 @@ DOMAIN-SUFFIX,evernote.com
 DOMAIN-SUFFIX,faststone.org
 DOMAIN-SUFFIX,feedly.com
 DOMAIN-SUFFIX,figma.com
+DOMAIN-SUFFIX,fly.dev
+DOMAIN-SUFFIX,fly.io
+DOMAIN-SUFFIX,flyio.net
 DOMAIN-SUFFIX,gofundme.com
 DOMAIN-SUFFIX,gravatar.com
 DOMAIN-SUFFIX,botstop.com

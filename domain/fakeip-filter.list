@@ -12,6 +12,7 @@ DOMAIN-SUFFIX,time.edu.cn
 DOMAIN-SUFFIX,ntp.org.cn
 DOMAIN-SUFFIX,pool.ntp.org
 DOMAIN,time1.cloud.tencent.com
+DOMAIN,music.163.com
 DOMAIN-SUFFIX,music.163.com
 DOMAIN-SUFFIX,126.net
 DOMAIN,musicapi.taihe.com
@@ -22,6 +23,7 @@ DOMAIN-SUFFIX,kuwo.cn
 DOMAIN,api-jooxtt.sanook.com
 DOMAIN,api.joox.com
 DOMAIN,joox.com
+DOMAIN,y.qq.com
 DOMAIN-SUFFIX,y.qq.com
 DOMAIN,streamoc.music.tc.qq.com
 DOMAIN,mobileoc.music.tc.qq.com
@@ -31,6 +33,7 @@ DOMAIN,aqqmusic.tc.qq.com
 DOMAIN,amobile.music.tc.qq.com
 DOMAIN-SUFFIX,xiami.com
 DOMAIN-SUFFIX,music.migu.cn
+DOMAIN,music.migu.cn
 DOMAIN-SUFFIX,msftconnecttest.com
 DOMAIN-SUFFIX,msftncsi.com
 DOMAIN,localhost.ptlogin2.qq.com
@@ -38,6 +41,7 @@ DOMAIN,localhost.sec.qq.com
 DOMAIN-SUFFIX,kk-rays.com
 DOMAIN-SUFFIX,steamcontent.com
 DOMAIN-SUFFIX,srv.nintendo.net
+DOMAIN-SUFFIX,n.n.srv.nintendo.net
 DOMAIN-SUFFIX,cdn.nintendo.net
 DOMAIN,xnotify.xboxlive.com
 DOMAIN-SUFFIX,battle.net
@@ -80,6 +84,7 @@ DOMAIN-SUFFIX,n0808.com
 DOMAIN-SUFFIX,3gppnetwork.org
 DOMAIN-SUFFIX,uu.163.com
 DOMAIN,ps.res.netease.com
+DOMAIN-SUFFIX,pub.3gppnetwork.org
 DOMAIN-SUFFIX,oray.com
 DOMAIN-SUFFIX,orayimg.com
 DOMAIN-SUFFIX,gcloudcs.com
