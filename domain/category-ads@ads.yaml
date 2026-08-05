@@ -162,7 +162,9 @@ domain_set:
   - 'report.ap.yandex-net.ru'
 
 domain_suffix_set:
+  - 'adx.36kr.com'
   - 'advertising.adobe.com'
+  - 'demdex.net'
   - 'tubemogul.com'
   - 'a.alimama.cn'
   - 'adash-c.m.taobao.com'

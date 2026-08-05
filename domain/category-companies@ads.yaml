@@ -91,6 +91,7 @@ domain_set:
 
 domain_suffix_set:
   - 'advertising.adobe.com'
+  - 'demdex.net'
   - 'tubemogul.com'
   - '2mdn-cn.net'
   - '2mdn.net'

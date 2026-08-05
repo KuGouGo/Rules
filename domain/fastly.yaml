@@ -6,4 +6,3 @@ domain_suffix_set:
   - 'fastly.net'
   - 'fastlylabs.com'
   - 'fastlylb.net'
-  - 'zencdn.net'
