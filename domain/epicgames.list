@@ -1,5 +1,4 @@
 HOST-SUFFIX,3lateral.com,epicgames
-HOST-SUFFIX,artstation.com,epicgames
 HOST-SUFFIX,capturingreality.com,epicgames
 HOST-SUFFIX,cubicmotion.com,epicgames
 HOST-SUFFIX,battlebreakers.com,epicgames
@@ -27,3 +26,5 @@ HOST-SUFFIX,unrealengine.com,epicgames
 HOST-SUFFIX,unrealtournament.com,epicgames
 HOST-SUFFIX,egdownload.fastly-edge.com,epicgames
 HOST-SUFFIX,fortnite-vod.akamaized.net,epicgames
+HOST-SUFFIX,artstation.com,epicgames
+HOST-SUFFIX,artstationmedia.com,epicgames

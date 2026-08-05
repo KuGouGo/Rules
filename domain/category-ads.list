@@ -5,7 +5,6 @@ HOST-SUFFIX,aaxads.com,category-ads
 HOST-SUFFIX,ad-srv.net,category-ads
 HOST-SUFFIX,ad.wang502.com,category-ads
 HOST-SUFFIX,adbutter.net,category-ads
-HOST-SUFFIX,addthisedge.com,category-ads
 HOST-SUFFIX,ads.huan.tv,category-ads
 HOST-SUFFIX,ads.huantest.com,category-ads
 HOST-SUFFIX,ads.trafficjunky.net,category-ads
@@ -14,7 +13,6 @@ HOST-SUFFIX,adservice.sigmob.cn,category-ads
 HOST-SUFFIX,adtechus.com,category-ads
 HOST-SUFFIX,adtrue.com,category-ads
 HOST-SUFFIX,adxprtz.com,category-ads
-HOST-SUFFIX,cdn.advertserve.com,category-ads
 HOST-SUFFIX,cdn.banclip.com,category-ads
 HOST-SUFFIX,cfts1tifqr.com,category-ads
 HOST-SUFFIX,contentabc.com,category-ads
@@ -60,7 +58,6 @@ HOST-SUFFIX,tsyndicate.com,category-ads
 HOST-SUFFIX,uberads.com,category-ads
 HOST-SUFFIX,wwads.cn,category-ads
 HOST-SUFFIX,ad.12306.cn,category-ads
-HOST-SUFFIX,adx.36kr.com,category-ads
 HOST-SUFFIX,hubcloud.com.cn,category-ads
 HOST-SUFFIX,beizi.biz,category-ads
 HOST-SUFFIX,click.ali213.net,category-ads
@@ -68,18 +65,6 @@ HOST-SUFFIX,pbmp.ali213.net,category-ads
 HOST-SUFFIX,applovin.com,category-ads
 HOST-SUFFIX,applvn.com,category-ads
 HOST-SUFFIX,appsflyersdk.com,category-ads
-HOST,pinggai0.caixin.com,category-ads
-HOST,pinggai1.caixin.com,category-ads
-HOST,pinggai2.caixin.com,category-ads
-HOST,pinggai3.caixin.com,category-ads
-HOST,pinggai4.caixin.com,category-ads
-HOST,pinggai5.caixin.com,category-ads
-HOST,pinggai6.caixin.com,category-ads
-HOST,pinggai7.caixin.com,category-ads
-HOST,pinggai8.caixin.com,category-ads
-HOST,pinggai9.caixin.com,category-ads
-HOST-SUFFIX,adq.chinaso.com,category-ads
-HOST-SUFFIX,stat.chinaso.com,category-ads
 HOST-SUFFIX,mlog.hiido.com,category-ads
 HOST-SUFFIX,ylog.hiido.com,category-ads
 HOST-SUFFIX,ad.hpplay.cn,category-ads
@@ -91,13 +76,8 @@ HOST-SUFFIX,atom-data.io,category-ads
 HOST-SUFFIX,ironbeast.io,category-ads
 HOST-SUFFIX,advapi.joyplus.tv,category-ads
 HOST-SUFFIX,advapikj.joyplus.tv,category-ads
-HOST-SUFFIX,cdn.pocoiq.cn,category-ads
-HOST-SUFFIX,oct.pocoiq.cn,category-ads
-HOST-SUFFIX,dn-growing.qbox.me,category-ads
 HOST-SUFFIX,g1.tagtic.cn,category-ads
 HOST-SUFFIX,xy-log.tagtic.cn,category-ads
-HOST-SUFFIX,ad.unimhk.com,category-ads
-HOST-SUFFIX,das-rpt-log.ucloud.cn,category-ads
 HOST,logs.ads.vungle.com,category-ads
 HOST-SUFFIX,telecome.cn,category-ads
 HOST-SUFFIX,unioncom.cc,category-ads
@@ -132,8 +112,10 @@ HOST-SUFFIX,najva.com,category-ads
 HOST-SUFFIX,sabavision.com,category-ads
 HOST-SUFFIX,tapsell.ir,category-ads
 HOST-SUFFIX,yektanet.com,category-ads
+HOST-SUFFIX,adx.36kr.com,category-ads
 HOST,apilog-web.acfun.cn,category-ads
 HOST-SUFFIX,advertising.adobe.com,category-ads
+HOST-SUFFIX,demdex.net,category-ads
 HOST-SUFFIX,tubemogul.com,category-ads
 HOST-SUFFIX,a.alimama.cn,category-ads
 HOST-SUFFIX,adash-c.m.taobao.com,category-ads

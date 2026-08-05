@@ -660,8 +660,6 @@ HOST-SUFFIX,foxuv.com,category-media
 HOST-SUFFIX,foxweatherwatch.com,category-media
 HOST-SUFFIX,fssta.com,category-media
 HOST-SUFFIX,fxn.ws,category-media
-HOST-SUFFIX,fxnetwork.com,category-media
-HOST-SUFFIX,fxnetworks.com,category-media
 HOST-SUFFIX,bentobox.tv,category-media
 HOST-SUFFIX,kicu.tv,category-media
 HOST-SUFFIX,ktvu.com,category-media
@@ -844,8 +842,6 @@ HOST-SUFFIX,hket.com,category-media
 HOST-SUFFIX,hketgroup.com,category-media
 HOST-SUFFIX,ulifestyle.com.hk,category-media
 HOST-SUFFIX,umagazine.com.hk,category-media
-HOST-SUFFIX,hkopentv.com,category-media
-HOST-SUFFIX,fantv.hk,category-media
 HOST-SUFFIX,huffingtonpost.ca,category-media
 HOST-SUFFIX,huffingtonpost.co.uk,category-media
 HOST-SUFFIX,huffingtonpost.co.za,category-media
@@ -866,6 +862,8 @@ HOST-SUFFIX,huffpostbrasil.com,category-media
 HOST-SUFFIX,huffpostmaghreb.com,category-media
 HOST-SUFFIX,i-cablecomm.com,category-media
 HOST-SUFFIX,cabletv.com.hk,category-media
+HOST-SUFFIX,fantv.hk,category-media
+HOST-SUFFIX,hkopentv.com,category-media
 HOST-SUFFIX,hoy.tv,category-media
 HOST-SUFFIX,i-cable.com,category-media
 HOST-SUFFIX,banned.video,category-media
@@ -1449,6 +1447,7 @@ HOST-SUFFIX,tospo-keiba.jp,category-media
 HOST-SUFFIX,bigbigchannel.com.hk,category-media
 HOST-SUFFIX,bigbigshop.com,category-media
 HOST-SUFFIX,encoretvb.com,category-media
+HOST-SUFFIX,neigbuy.com,category-media
 HOST-SUFFIX,tvb.com,category-media
 HOST-SUFFIX,tvb.com.au,category-media
 HOST-SUFFIX,tvbanywhere.com,category-media

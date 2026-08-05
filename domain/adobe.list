@@ -45,7 +45,6 @@ HOST-SUFFIX,authorxml.com,adobe
 HOST-SUFFIX,businesscatalyst.com,adobe
 HOST-SUFFIX,ccnsite.com,adobe
 HOST-SUFFIX,ccpsx.com,adobe
-HOST-SUFFIX,demdex.net,adobe
 HOST-SUFFIX,dollarfotoclub.com,adobe
 HOST-SUFFIX,dollarphotoclub.com,adobe
 HOST-SUFFIX,dollarphotosclub.com,adobe
@@ -121,6 +120,7 @@ HOST-SUFFIX,sign.new,adobe
 HOST-SUFFIX,scene7.com,adobe
 HOST-SUFFIX,adobestats.io,adobe
 HOST-SUFFIX,advertising.adobe.com,adobe
+HOST-SUFFIX,demdex.net,adobe
 HOST-SUFFIX,tubemogul.com,adobe
 HOST,3dns-1.adobe.com,adobe
 HOST,3dns-2.adobe.com,adobe

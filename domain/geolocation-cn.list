@@ -6319,6 +6319,11 @@ HOST-SUFFIX,djiops.com,geolocation-cn
 HOST-SUFFIX,djiservice.org,geolocation-cn
 HOST-SUFFIX,skypixel.com,geolocation-cn
 HOST-SUFFIX,robomaster.com,geolocation-cn
+HOST-SUFFIX,focuschina.com,geolocation-cn
+HOST-SUFFIX,made-in-china.com,geolocation-cn
+HOST-SUFFIX,micstatic.com,geolocation-cn
+HOST-SUFFIX,trademessenger.com,geolocation-cn
+HOST-SUFFIX,vemic.com,geolocation-cn
 HOST-SUFFIX,gree.cn,geolocation-cn
 HOST-SUFFIX,gree.com,geolocation-cn
 HOST-SUFFIX,gree.com.cn,geolocation-cn

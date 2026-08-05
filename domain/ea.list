@@ -6,10 +6,8 @@ HOST-SUFFIX,bejewled-stars.com,ea
 HOST-SUFFIX,bejeweledstars.com,ea
 HOST-SUFFIX,capitalgames.com,ea
 HOST-SUFFIX,chillingo.com,ea
-HOST-SUFFIX,commandandconquer.com,ea
 HOST-SUFFIX,conquerwithcharacter.com,ea
 HOST-SUFFIX,crysis.jp,ea
-HOST-SUFFIX,dawngate.com,ea
 HOST-SUFFIX,dawngatechronicles.com,ea
 HOST-SUFFIX,dicela.com,ea
 HOST-SUFFIX,dicela.net,ea
@@ -49,15 +47,11 @@ HOST-SUFFIX,playapex.com,ea
 HOST-SUFFIX,pogo.com,ea
 HOST-SUFFIX,pogobeta.com,ea
 HOST-SUFFIX,popcap.com,ea
-HOST-SUFFIX,projectapex.com,ea
-HOST-SUFFIX,pvzheroes.com,ea
-HOST-SUFFIX,spearhead.kr,ea
 HOST-SUFFIX,speedhunters.com,ea
 HOST-SUFFIX,spore.com,ea
 HOST-SUFFIX,ssx3.com,ea
 HOST-SUFFIX,starwarsbattlefront.com,ea
 HOST-SUFFIX,starwarsbattlefront2.com,ea
-HOST-SUFFIX,tiberiumalliances.com,ea
 HOST-SUFFIX,tiburon.com,ea
 HOST-SUFFIX,tnt-ea.com,ea
 HOST-SUFFIX,ultimaforever.com,ea
@@ -68,6 +62,7 @@ HOST-SUFFIX,yogify.com,ea
 HOST-SUFFIX,anthemgame.com,ea
 HOST-SUFFIX,anthemthegame.com,ea
 HOST-SUFFIX,apexlegends.com,ea
+HOST-SUFFIX,projectapex.com,ea
 HOST-SUFFIX,battlefield.com,ea
 HOST-SUFFIX,battlefield1943.com,ea
 HOST-SUFFIX,battlefield3.com,ea
@@ -81,6 +76,8 @@ HOST-SUFFIX,biowarestore.com,ea
 HOST-SUFFIX,eamythic.com,ea
 HOST-SUFFIX,eamythic.net,ea
 HOST-SUFFIX,cncrivals.com,ea
+HOST-SUFFIX,commandandconquer.com,ea
+HOST-SUFFIX,tiberiumalliances.com,ea
 HOST-SUFFIX,camelot-europe.com,ea
 HOST-SUFFIX,camelotherald.com,ea
 HOST-SUFFIX,camelotherald.net,ea
@@ -129,10 +126,12 @@ HOST-SUFFIX,nfsworld.com,ea
 HOST-SUFFIX,teamneedforspeed.com,ea
 HOST-SUFFIX,plantsvszombies2.com,ea
 HOST-SUFFIX,pvzgw2.com,ea
+HOST-SUFFIX,pvzheroes.com,ea
 HOST-SUFFIX,seaofsolitude.com,ea
 HOST-SUFFIX,simcity-buildit.com,ea
 HOST-SUFFIX,simcity.com,ea
 HOST-SUFFIX,skate2.com,ea
+HOST-SUFFIX,spearhead.kr,ea
 HOST-SUFFIX,starwarsfallenorder.com,ea
 HOST-SUFFIX,starwarsjedifallenorder.com,ea
 HOST-SUFFIX,starwarstheoldrepublic.com,ea
@@ -155,6 +154,7 @@ HOST-SUFFIX,uoherald.com,ea
 HOST-SUFFIX,xdsummit.com,ea
 HOST,ea.tt.omtrdc.net,ea
 HOST,eaassets-a.akamaihd.net,ea
+HOST-SUFFIX,dawngate.com,ea
 HOST-SUFFIX,eastore.com,ea
 HOST-SUFFIX,lordofultima.com,ea
 HOST-SUFFIX,origin.com,ea

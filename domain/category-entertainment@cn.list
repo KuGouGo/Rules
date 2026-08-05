@@ -43,6 +43,7 @@ HOST,play.music.apple.com,category-entertainment@cn
 HOST,speedysub.music.apple.com,category-entertainment@cn
 HOST,amp-api.podcasts.apple.com,category-entertainment@cn
 HOST,podcasts.apple.com,category-entertainment@cn
+HOST-SUFFIX,shanghaidisneyresort.com,category-entertainment@cn
 HOST-SUFFIX,apple-itunes.cn,category-entertainment@cn
 HOST-SUFFIX,itunes-apple.cn,category-entertainment@cn
 HOST-SUFFIX,itunesapple.cn,category-entertainment@cn

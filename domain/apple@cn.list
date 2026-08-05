@@ -51,7 +51,6 @@ HOST,init.gc.apple.com,apple@cn
 HOST,maps.apple.com,apple@cn
 HOST,tj-pod2-smp-device.apple.com,apple@cn
 HOST,tj-pod3-smp-device.apple.com,apple@cn
-HOST,cdn-cn.apple-mapkit.com,apple@cn
 HOST,cl2-cdn.origin-apple.com.akadns.net,apple@cn
 HOST,s1.mzstatic.com,apple@cn
 HOST,s2.mzstatic.com,apple@cn
@@ -61,6 +60,7 @@ HOST,s5.mzstatic.com,apple@cn
 HOST,amp-api-updates.apps.apple.com,apple@cn
 HOST,init-p01st.push.apple.com,apple@cn
 HOST,init-s01st.push.apple.com,apple@cn
+HOST,cdn-cn.apple-mapkit.com,apple@cn
 HOST-SUFFIX,researchkit.cn,apple@cn
 HOST-SUFFIX,researchkit.com.cn,apple@cn
 HOST-SUFFIX,swiftui.cn,apple@cn

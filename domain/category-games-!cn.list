@@ -81,10 +81,8 @@ HOST-SUFFIX,bejewled-stars.com,category-games-!cn
 HOST-SUFFIX,bejeweledstars.com,category-games-!cn
 HOST-SUFFIX,capitalgames.com,category-games-!cn
 HOST-SUFFIX,chillingo.com,category-games-!cn
-HOST-SUFFIX,commandandconquer.com,category-games-!cn
 HOST-SUFFIX,conquerwithcharacter.com,category-games-!cn
 HOST-SUFFIX,crysis.jp,category-games-!cn
-HOST-SUFFIX,dawngate.com,category-games-!cn
 HOST-SUFFIX,dawngatechronicles.com,category-games-!cn
 HOST-SUFFIX,dicela.com,category-games-!cn
 HOST-SUFFIX,dicela.net,category-games-!cn
@@ -124,15 +122,11 @@ HOST-SUFFIX,playapex.com,category-games-!cn
 HOST-SUFFIX,pogo.com,category-games-!cn
 HOST-SUFFIX,pogobeta.com,category-games-!cn
 HOST-SUFFIX,popcap.com,category-games-!cn
-HOST-SUFFIX,projectapex.com,category-games-!cn
-HOST-SUFFIX,pvzheroes.com,category-games-!cn
-HOST-SUFFIX,spearhead.kr,category-games-!cn
 HOST-SUFFIX,speedhunters.com,category-games-!cn
 HOST-SUFFIX,spore.com,category-games-!cn
 HOST-SUFFIX,ssx3.com,category-games-!cn
 HOST-SUFFIX,starwarsbattlefront.com,category-games-!cn
 HOST-SUFFIX,starwarsbattlefront2.com,category-games-!cn
-HOST-SUFFIX,tiberiumalliances.com,category-games-!cn
 HOST-SUFFIX,tiburon.com,category-games-!cn
 HOST-SUFFIX,tnt-ea.com,category-games-!cn
 HOST-SUFFIX,ultimaforever.com,category-games-!cn
@@ -143,6 +137,7 @@ HOST-SUFFIX,yogify.com,category-games-!cn
 HOST-SUFFIX,anthemgame.com,category-games-!cn
 HOST-SUFFIX,anthemthegame.com,category-games-!cn
 HOST-SUFFIX,apexlegends.com,category-games-!cn
+HOST-SUFFIX,projectapex.com,category-games-!cn
 HOST-SUFFIX,battlefield.com,category-games-!cn
 HOST-SUFFIX,battlefield1943.com,category-games-!cn
 HOST-SUFFIX,battlefield3.com,category-games-!cn
@@ -156,6 +151,8 @@ HOST-SUFFIX,biowarestore.com,category-games-!cn
 HOST-SUFFIX,eamythic.com,category-games-!cn
 HOST-SUFFIX,eamythic.net,category-games-!cn
 HOST-SUFFIX,cncrivals.com,category-games-!cn
+HOST-SUFFIX,commandandconquer.com,category-games-!cn
+HOST-SUFFIX,tiberiumalliances.com,category-games-!cn
 HOST-SUFFIX,camelot-europe.com,category-games-!cn
 HOST-SUFFIX,camelotherald.com,category-games-!cn
 HOST-SUFFIX,camelotherald.net,category-games-!cn
@@ -204,10 +201,12 @@ HOST-SUFFIX,nfsworld.com,category-games-!cn
 HOST-SUFFIX,teamneedforspeed.com,category-games-!cn
 HOST-SUFFIX,plantsvszombies2.com,category-games-!cn
 HOST-SUFFIX,pvzgw2.com,category-games-!cn
+HOST-SUFFIX,pvzheroes.com,category-games-!cn
 HOST-SUFFIX,seaofsolitude.com,category-games-!cn
 HOST-SUFFIX,simcity-buildit.com,category-games-!cn
 HOST-SUFFIX,simcity.com,category-games-!cn
 HOST-SUFFIX,skate2.com,category-games-!cn
+HOST-SUFFIX,spearhead.kr,category-games-!cn
 HOST-SUFFIX,starwarsfallenorder.com,category-games-!cn
 HOST-SUFFIX,starwarsjedifallenorder.com,category-games-!cn
 HOST-SUFFIX,starwarstheoldrepublic.com,category-games-!cn
@@ -230,6 +229,7 @@ HOST-SUFFIX,uoherald.com,category-games-!cn
 HOST-SUFFIX,xdsummit.com,category-games-!cn
 HOST,ea.tt.omtrdc.net,category-games-!cn
 HOST,eaassets-a.akamaihd.net,category-games-!cn
+HOST-SUFFIX,dawngate.com,category-games-!cn
 HOST-SUFFIX,eastore.com,category-games-!cn
 HOST-SUFFIX,lordofultima.com,category-games-!cn
 HOST-SUFFIX,origin.com,category-games-!cn
@@ -243,7 +243,6 @@ HOST-SUFFIX,embark-studios.com,category-games-!cn
 HOST-SUFFIX,embark.games,category-games-!cn
 HOST-SUFFIX,reachthefinals.com,category-games-!cn
 HOST-SUFFIX,3lateral.com,category-games-!cn
-HOST-SUFFIX,artstation.com,category-games-!cn
 HOST-SUFFIX,capturingreality.com,category-games-!cn
 HOST-SUFFIX,cubicmotion.com,category-games-!cn
 HOST-SUFFIX,battlebreakers.com,category-games-!cn
@@ -271,6 +270,8 @@ HOST-SUFFIX,unrealengine.com,category-games-!cn
 HOST-SUFFIX,unrealtournament.com,category-games-!cn
 HOST-SUFFIX,egdownload.fastly-edge.com,category-games-!cn
 HOST-SUFFIX,fortnite-vod.akamaized.net,category-games-!cn
+HOST-SUFFIX,artstation.com,category-games-!cn
+HOST-SUFFIX,artstationmedia.com,category-games-!cn
 HOST-SUFFIX,tarkov.com,category-games-!cn
 HOST-SUFFIX,eft-store.com,category-games-!cn
 HOST-SUFFIX,escapefromtarkov.com,category-games-!cn

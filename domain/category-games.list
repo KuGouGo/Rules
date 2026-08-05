@@ -364,10 +364,8 @@ HOST-SUFFIX,bejewled-stars.com,category-games
 HOST-SUFFIX,bejeweledstars.com,category-games
 HOST-SUFFIX,capitalgames.com,category-games
 HOST-SUFFIX,chillingo.com,category-games
-HOST-SUFFIX,commandandconquer.com,category-games
 HOST-SUFFIX,conquerwithcharacter.com,category-games
 HOST-SUFFIX,crysis.jp,category-games
-HOST-SUFFIX,dawngate.com,category-games
 HOST-SUFFIX,dawngatechronicles.com,category-games
 HOST-SUFFIX,dicela.com,category-games
 HOST-SUFFIX,dicela.net,category-games
@@ -407,15 +405,11 @@ HOST-SUFFIX,playapex.com,category-games
 HOST-SUFFIX,pogo.com,category-games
 HOST-SUFFIX,pogobeta.com,category-games
 HOST-SUFFIX,popcap.com,category-games
-HOST-SUFFIX,projectapex.com,category-games
-HOST-SUFFIX,pvzheroes.com,category-games
-HOST-SUFFIX,spearhead.kr,category-games
 HOST-SUFFIX,speedhunters.com,category-games
 HOST-SUFFIX,spore.com,category-games
 HOST-SUFFIX,ssx3.com,category-games
 HOST-SUFFIX,starwarsbattlefront.com,category-games
 HOST-SUFFIX,starwarsbattlefront2.com,category-games
-HOST-SUFFIX,tiberiumalliances.com,category-games
 HOST-SUFFIX,tiburon.com,category-games
 HOST-SUFFIX,tnt-ea.com,category-games
 HOST-SUFFIX,ultimaforever.com,category-games
@@ -426,6 +420,7 @@ HOST-SUFFIX,yogify.com,category-games
 HOST-SUFFIX,anthemgame.com,category-games
 HOST-SUFFIX,anthemthegame.com,category-games
 HOST-SUFFIX,apexlegends.com,category-games
+HOST-SUFFIX,projectapex.com,category-games
 HOST-SUFFIX,battlefield.com,category-games
 HOST-SUFFIX,battlefield1943.com,category-games
 HOST-SUFFIX,battlefield3.com,category-games
@@ -439,6 +434,8 @@ HOST-SUFFIX,biowarestore.com,category-games
 HOST-SUFFIX,eamythic.com,category-games
 HOST-SUFFIX,eamythic.net,category-games
 HOST-SUFFIX,cncrivals.com,category-games
+HOST-SUFFIX,commandandconquer.com,category-games
+HOST-SUFFIX,tiberiumalliances.com,category-games
 HOST-SUFFIX,camelot-europe.com,category-games
 HOST-SUFFIX,camelotherald.com,category-games
 HOST-SUFFIX,camelotherald.net,category-games
@@ -487,10 +484,12 @@ HOST-SUFFIX,nfsworld.com,category-games
 HOST-SUFFIX,teamneedforspeed.com,category-games
 HOST-SUFFIX,plantsvszombies2.com,category-games
 HOST-SUFFIX,pvzgw2.com,category-games
+HOST-SUFFIX,pvzheroes.com,category-games
 HOST-SUFFIX,seaofsolitude.com,category-games
 HOST-SUFFIX,simcity-buildit.com,category-games
 HOST-SUFFIX,simcity.com,category-games
 HOST-SUFFIX,skate2.com,category-games
+HOST-SUFFIX,spearhead.kr,category-games
 HOST-SUFFIX,starwarsfallenorder.com,category-games
 HOST-SUFFIX,starwarsjedifallenorder.com,category-games
 HOST-SUFFIX,starwarstheoldrepublic.com,category-games
@@ -513,6 +512,7 @@ HOST-SUFFIX,uoherald.com,category-games
 HOST-SUFFIX,xdsummit.com,category-games
 HOST,ea.tt.omtrdc.net,category-games
 HOST,eaassets-a.akamaihd.net,category-games
+HOST-SUFFIX,dawngate.com,category-games
 HOST-SUFFIX,eastore.com,category-games
 HOST-SUFFIX,lordofultima.com,category-games
 HOST-SUFFIX,origin.com,category-games
@@ -526,7 +526,6 @@ HOST-SUFFIX,embark-studios.com,category-games
 HOST-SUFFIX,embark.games,category-games
 HOST-SUFFIX,reachthefinals.com,category-games
 HOST-SUFFIX,3lateral.com,category-games
-HOST-SUFFIX,artstation.com,category-games
 HOST-SUFFIX,capturingreality.com,category-games
 HOST-SUFFIX,cubicmotion.com,category-games
 HOST-SUFFIX,battlebreakers.com,category-games
@@ -554,6 +553,8 @@ HOST-SUFFIX,unrealengine.com,category-games
 HOST-SUFFIX,unrealtournament.com,category-games
 HOST-SUFFIX,egdownload.fastly-edge.com,category-games
 HOST-SUFFIX,fortnite-vod.akamaized.net,category-games
+HOST-SUFFIX,artstation.com,category-games
+HOST-SUFFIX,artstationmedia.com,category-games
 HOST-SUFFIX,tarkov.com,category-games
 HOST-SUFFIX,eft-store.com,category-games
 HOST-SUFFIX,escapefromtarkov.com,category-games

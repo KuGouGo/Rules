@@ -66,7 +66,6 @@ HOST-SUFFIX,authorxml.com,category-companies
 HOST-SUFFIX,businesscatalyst.com,category-companies
 HOST-SUFFIX,ccnsite.com,category-companies
 HOST-SUFFIX,ccpsx.com,category-companies
-HOST-SUFFIX,demdex.net,category-companies
 HOST-SUFFIX,dollarfotoclub.com,category-companies
 HOST-SUFFIX,dollarphotoclub.com,category-companies
 HOST-SUFFIX,dollarphotosclub.com,category-companies
@@ -142,6 +141,7 @@ HOST-SUFFIX,sign.new,category-companies
 HOST-SUFFIX,scene7.com,category-companies
 HOST-SUFFIX,adobestats.io,category-companies
 HOST-SUFFIX,advertising.adobe.com,category-companies
+HOST-SUFFIX,demdex.net,category-companies
 HOST-SUFFIX,tubemogul.com,category-companies
 HOST,3dns-1.adobe.com,category-companies
 HOST,3dns-2.adobe.com,category-companies
@@ -2155,7 +2155,6 @@ HOST-SUFFIX,apple-hk.com,category-companies
 HOST-SUFFIX,apple-ibooks.cn,category-companies
 HOST-SUFFIX,apple-inc.net,category-companies
 HOST-SUFFIX,apple-livephotoskit.com,category-companies
-HOST-SUFFIX,apple-mapkit.com,category-companies
 HOST-SUFFIX,apple-maps.cn,category-companies
 HOST-SUFFIX,apple-online.com,category-companies
 HOST-SUFFIX,apple-studies.com,category-companies
@@ -2406,16 +2405,6 @@ HOST,a2.mzstatic.com,category-companies
 HOST,a3.mzstatic.com,category-companies
 HOST,a4.mzstatic.com,category-companies
 HOST,a5.mzstatic.com,category-companies
-HOST,cdn.apple-mapkit.com,category-companies
-HOST,cdn1.apple-mapkit.com,category-companies
-HOST,cdn2.apple-mapkit.com,category-companies
-HOST,cdn3.apple-mapkit.com,category-companies
-HOST,cdn4.apple-mapkit.com,category-companies
-HOST,cdn-cn.apple-mapkit.com,category-companies
-HOST,cdn-cn1.apple-mapkit.com,category-companies
-HOST,cdn-cn2.apple-mapkit.com,category-companies
-HOST,cdn-cn3.apple-mapkit.com,category-companies
-HOST,cdn-cn4.apple-mapkit.com,category-companies
 HOST,cl1-cdn.origin-apple.com.akadns.net,category-companies
 HOST,cl2-cdn.origin-apple.com.akadns.net,category-companies
 HOST,cl3-cdn.origin-apple.com.akadns.net,category-companies
@@ -2575,6 +2564,17 @@ HOST-SUFFIX,macosforge.org,category-companies
 HOST-SUFFIX,macruby.com,category-companies
 HOST-SUFFIX,macruby.net,category-companies
 HOST-SUFFIX,macruby.org,category-companies
+HOST-SUFFIX,apple-mapkit.com,category-companies
+HOST,cdn.apple-mapkit.com,category-companies
+HOST,cdn1.apple-mapkit.com,category-companies
+HOST,cdn2.apple-mapkit.com,category-companies
+HOST,cdn3.apple-mapkit.com,category-companies
+HOST,cdn4.apple-mapkit.com,category-companies
+HOST,cdn-cn.apple-mapkit.com,category-companies
+HOST,cdn-cn1.apple-mapkit.com,category-companies
+HOST,cdn-cn2.apple-mapkit.com,category-companies
+HOST,cdn-cn3.apple-mapkit.com,category-companies
+HOST,cdn-cn4.apple-mapkit.com,category-companies
 HOST-SUFFIX,playgrounds-cdn.apple.com,category-companies
 HOST-SUFFIX,carekit.org,category-companies
 HOST-SUFFIX,researchandcare.org,category-companies
@@ -3549,7 +3549,6 @@ HOST-SUFFIX,att.cn,category-companies
 HOST-SUFFIX,att.com,category-companies
 HOST-SUFFIX,att.jobs,category-companies
 HOST-SUFFIX,att.net,category-companies
-HOST-SUFFIX,att.tv,category-companies
 HOST-SUFFIX,attalascom.com,category-companies
 HOST-SUFFIX,attbelieves.com,category-companies
 HOST-SUFFIX,attbusiness.net,category-companies
@@ -3571,7 +3570,6 @@ HOST-SUFFIX,attspecial.com,category-companies
 HOST-SUFFIX,attssl.com,category-companies
 HOST-SUFFIX,attstadium.com,category-companies
 HOST-SUFFIX,attsuppliers.com,category-companies
-HOST-SUFFIX,atttvnow.com,category-companies
 HOST-SUFFIX,attuverseoffers.com,category-companies
 HOST-SUFFIX,attuverseonline.com,category-companies
 HOST-SUFFIX,attvoip.com,category-companies
@@ -3589,7 +3587,6 @@ HOST-SUFFIX,enterprisepaging.com,category-companies
 HOST-SUFFIX,itcanwait.com,category-companies
 HOST-SUFFIX,mymmode.com,category-companies
 HOST-SUFFIX,naturalvoices.com,category-companies
-HOST-SUFFIX,nettyinternet.com,category-companies
 HOST-SUFFIX,openapiplatform.com,category-companies
 HOST-SUFFIX,openapiservice.com,category-companies
 HOST-SUFFIX,patentgold.net,category-companies
@@ -3671,6 +3668,11 @@ HOST-SUFFIX,mydirectvchannels.com,category-companies
 HOST-SUFFIX,redzonechannel.com,category-companies
 HOST-SUFFIX,txdirectv.com,category-companies
 HOST-SUFFIX,xandr.com,category-companies
+HOST-SUFFIX,att.tv,category-companies
+HOST-SUFFIX,atttvnow.com,category-companies
+HOST-SUFFIX,attwatchtv.com,category-companies
+HOST-SUFFIX,dtvce.com,category-companies
+HOST-SUFFIX,nettyinternet.com,category-companies
 HOST-SUFFIX,123dapp.com,category-companies
 HOST-SUFFIX,123dappipad.com,category-companies
 HOST-SUFFIX,123dartisan.com,category-companies
@@ -5585,7 +5587,6 @@ HOST-SUFFIX,niosii.net,category-companies
 HOST-SUFFIX,omekinteractive.com,category-companies
 HOST-SUFFIX,omnitek.tv,category-companies
 HOST-SUFFIX,openamt.com,category-companies
-HOST-SUFFIX,opendroneid.org,category-companies
 HOST-SUFFIX,optanedifference.com,category-companies
 HOST-SUFFIX,passwordday.org,category-companies
 HOST-SUFFIX,pc.com,category-companies
@@ -5633,6 +5634,7 @@ HOST-SUFFIX,intellinuxgraphics.net,category-companies
 HOST-SUFFIX,oneapi.com,category-companies
 HOST-SUFFIX,oneapi.io,category-companies
 HOST-SUFFIX,opencas.io,category-companies
+HOST-SUFFIX,opendroneid.org,category-companies
 HOST-SUFFIX,openvino.ai,category-companies
 HOST-SUFFIX,openvinotoolkit.org,category-companies
 HOST-SUFFIX,renderingtoolkit.org,category-companies
@@ -6581,7 +6583,6 @@ HOST-SUFFIX,nextstop.com,category-companies
 HOST-SUFFIX,online-deals.net,category-companies
 HOST-SUFFIX,opencreate.org,category-companies
 HOST-SUFFIX,reachtheworldonfacebook.com,category-companies
-HOST-SUFFIX,rocksdb.org,category-companies
 HOST-SUFFIX,shopfacebook.com,category-companies
 HOST-SUFFIX,sportsfacebook.com,category-companies
 HOST-SUFFIX,sportstream.com,category-companies
@@ -6649,6 +6650,7 @@ HOST-SUFFIX,reactjs.org,category-companies
 HOST-SUFFIX,recoiljs.org,category-companies
 HOST-SUFFIX,rocksdb.com,category-companies
 HOST-SUFFIX,rocksdb.net,category-companies
+HOST-SUFFIX,rocksdb.org,category-companies
 HOST-SUFFIX,yogalayout.com,category-companies
 HOST,developers.facebook.com,category-companies
 HOST-SUFFIX,achat-followers-instagram.com,category-companies

@@ -116,6 +116,12 @@ HOST,jp.tiar.app,category-doh
 HOST,rx.techomespace.com,category-doh
 HOST,public.ns.nwps.fi,category-doh
 HOST,kids.ns.nwps.fi,category-doh
+HOST,dns.astracat.ru,category-doh
 HOST,frd4wvnobp.cloudflare-gateway.com,category-doh
 HOST,dnsguard.pub,category-doh
 HOST,doh.18bit.cn,category-doh
+HOST,5u35p8m9i7.cloudflare-gateway.com,category-doh
+HOST,dns.malw.link,category-doh
+HOST,dns.mafioznik.xyz,category-doh
+HOST,dns.geohide.ru,category-doh
+HOST,xbox-dns.ru,category-doh

@@ -228,7 +228,6 @@ HOST-SUFFIX,niosii.net,intel
 HOST-SUFFIX,omekinteractive.com,intel
 HOST-SUFFIX,omnitek.tv,intel
 HOST-SUFFIX,openamt.com,intel
-HOST-SUFFIX,opendroneid.org,intel
 HOST-SUFFIX,optanedifference.com,intel
 HOST-SUFFIX,passwordday.org,intel
 HOST-SUFFIX,pc.com,intel
@@ -276,6 +275,7 @@ HOST-SUFFIX,intellinuxgraphics.net,intel
 HOST-SUFFIX,oneapi.com,intel
 HOST-SUFFIX,oneapi.io,intel
 HOST-SUFFIX,opencas.io,intel
+HOST-SUFFIX,opendroneid.org,intel
 HOST-SUFFIX,openvino.ai,intel
 HOST-SUFFIX,openvinotoolkit.org,intel
 HOST-SUFFIX,renderingtoolkit.org,intel

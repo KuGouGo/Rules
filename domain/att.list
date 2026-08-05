@@ -9,7 +9,6 @@ HOST-SUFFIX,att.cn,att
 HOST-SUFFIX,att.com,att
 HOST-SUFFIX,att.jobs,att
 HOST-SUFFIX,att.net,att
-HOST-SUFFIX,att.tv,att
 HOST-SUFFIX,attalascom.com,att
 HOST-SUFFIX,attbelieves.com,att
 HOST-SUFFIX,attbusiness.net,att
@@ -31,7 +30,6 @@ HOST-SUFFIX,attspecial.com,att
 HOST-SUFFIX,attssl.com,att
 HOST-SUFFIX,attstadium.com,att
 HOST-SUFFIX,attsuppliers.com,att
-HOST-SUFFIX,atttvnow.com,att
 HOST-SUFFIX,attuverseoffers.com,att
 HOST-SUFFIX,attuverseonline.com,att
 HOST-SUFFIX,attvoip.com,att
@@ -49,7 +47,6 @@ HOST-SUFFIX,enterprisepaging.com,att
 HOST-SUFFIX,itcanwait.com,att
 HOST-SUFFIX,mymmode.com,att
 HOST-SUFFIX,naturalvoices.com,att
-HOST-SUFFIX,nettyinternet.com,att
 HOST-SUFFIX,openapiplatform.com,att
 HOST-SUFFIX,openapiservice.com,att
 HOST-SUFFIX,patentgold.net,att
@@ -131,3 +128,8 @@ HOST-SUFFIX,mydirectvchannels.com,att
 HOST-SUFFIX,redzonechannel.com,att
 HOST-SUFFIX,txdirectv.com,att
 HOST-SUFFIX,xandr.com,att
+HOST-SUFFIX,att.tv,att
+HOST-SUFFIX,atttvnow.com,att
+HOST-SUFFIX,attwatchtv.com,att
+HOST-SUFFIX,dtvce.com,att
+HOST-SUFFIX,nettyinternet.com,att

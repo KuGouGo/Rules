@@ -4,13 +4,11 @@ HOST-SUFFIX,ad-delivery.net,category-ads-all@ads
 HOST-SUFFIX,adcolony.com,category-ads-all@ads
 HOST-SUFFIX,adinplay.com,category-ads-all@ads
 HOST-SUFFIX,adnxs.com,category-ads-all@ads
-HOST-SUFFIX,ads.trafficjunky.net,category-ads-all@ads
 HOST-SUFFIX,advertserve.com,category-ads-all@ads
 HOST-SUFFIX,adview.cn,category-ads-all@ads
 HOST-SUFFIX,casalemedia.com,category-ads-all@ads
 HOST-SUFFIX,contextual.media.net,category-ads-all@ads
 HOST-SUFFIX,cpmstar.com,category-ads-all@ads
-HOST-SUFFIX,demdex.net,category-ads-all@ads
 HOST-SUFFIX,httpool.com,category-ads-all@ads
 HOST-SUFFIX,lijit.com,category-ads-all@ads
 HOST-SUFFIX,mfadsrvr.com,category-ads-all@ads
@@ -20,8 +18,10 @@ HOST-SUFFIX,sigmob.com,category-ads-all@ads
 HOST-SUFFIX,spotxchange.com,category-ads-all@ads
 HOST-SUFFIX,unimhk.com,category-ads-all@ads
 HOST-SUFFIX,upapi.net,category-ads-all@ads
+HOST-SUFFIX,adx.36kr.com,category-ads-all@ads
 HOST,apilog-web.acfun.cn,category-ads-all@ads
 HOST-SUFFIX,advertising.adobe.com,category-ads-all@ads
+HOST-SUFFIX,demdex.net,category-ads-all@ads
 HOST-SUFFIX,tubemogul.com,category-ads-all@ads
 HOST-SUFFIX,a.alimama.cn,category-ads-all@ads
 HOST-SUFFIX,adash-c.m.taobao.com,category-ads-all@ads
