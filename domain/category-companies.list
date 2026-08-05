@@ -66,7 +66,6 @@ DOMAIN-SUFFIX,authorxml.com
 DOMAIN-SUFFIX,businesscatalyst.com
 DOMAIN-SUFFIX,ccnsite.com
 DOMAIN-SUFFIX,ccpsx.com
-DOMAIN-SUFFIX,demdex.net
 DOMAIN-SUFFIX,dollarfotoclub.com
 DOMAIN-SUFFIX,dollarphotoclub.com
 DOMAIN-SUFFIX,dollarphotosclub.com
@@ -142,6 +141,7 @@ DOMAIN-SUFFIX,sign.new
 DOMAIN-SUFFIX,scene7.com
 DOMAIN-SUFFIX,adobestats.io
 DOMAIN-SUFFIX,advertising.adobe.com
+DOMAIN-SUFFIX,demdex.net
 DOMAIN-SUFFIX,tubemogul.com
 DOMAIN,3dns-1.adobe.com
 DOMAIN,3dns-2.adobe.com
@@ -2155,7 +2155,6 @@ DOMAIN-SUFFIX,apple-hk.com
 DOMAIN-SUFFIX,apple-ibooks.cn
 DOMAIN-SUFFIX,apple-inc.net
 DOMAIN-SUFFIX,apple-livephotoskit.com
-DOMAIN-SUFFIX,apple-mapkit.com
 DOMAIN-SUFFIX,apple-maps.cn
 DOMAIN-SUFFIX,apple-online.com
 DOMAIN-SUFFIX,apple-studies.com
@@ -2406,16 +2405,6 @@ DOMAIN,a2.mzstatic.com
 DOMAIN,a3.mzstatic.com
 DOMAIN,a4.mzstatic.com
 DOMAIN,a5.mzstatic.com
-DOMAIN,cdn.apple-mapkit.com
-DOMAIN,cdn1.apple-mapkit.com
-DOMAIN,cdn2.apple-mapkit.com
-DOMAIN,cdn3.apple-mapkit.com
-DOMAIN,cdn4.apple-mapkit.com
-DOMAIN,cdn-cn.apple-mapkit.com
-DOMAIN,cdn-cn1.apple-mapkit.com
-DOMAIN,cdn-cn2.apple-mapkit.com
-DOMAIN,cdn-cn3.apple-mapkit.com
-DOMAIN,cdn-cn4.apple-mapkit.com
 DOMAIN,cl1-cdn.origin-apple.com.akadns.net
 DOMAIN,cl2-cdn.origin-apple.com.akadns.net
 DOMAIN,cl3-cdn.origin-apple.com.akadns.net
@@ -2575,6 +2564,17 @@ DOMAIN-SUFFIX,macosforge.org
 DOMAIN-SUFFIX,macruby.com
 DOMAIN-SUFFIX,macruby.net
 DOMAIN-SUFFIX,macruby.org
+DOMAIN-SUFFIX,apple-mapkit.com
+DOMAIN,cdn.apple-mapkit.com
+DOMAIN,cdn1.apple-mapkit.com
+DOMAIN,cdn2.apple-mapkit.com
+DOMAIN,cdn3.apple-mapkit.com
+DOMAIN,cdn4.apple-mapkit.com
+DOMAIN,cdn-cn.apple-mapkit.com
+DOMAIN,cdn-cn1.apple-mapkit.com
+DOMAIN,cdn-cn2.apple-mapkit.com
+DOMAIN,cdn-cn3.apple-mapkit.com
+DOMAIN,cdn-cn4.apple-mapkit.com
 DOMAIN-SUFFIX,playgrounds-cdn.apple.com
 DOMAIN-SUFFIX,carekit.org
 DOMAIN-SUFFIX,researchandcare.org
@@ -3549,7 +3549,6 @@ DOMAIN-SUFFIX,att.cn
 DOMAIN-SUFFIX,att.com
 DOMAIN-SUFFIX,att.jobs
 DOMAIN-SUFFIX,att.net
-DOMAIN-SUFFIX,att.tv
 DOMAIN-SUFFIX,attalascom.com
 DOMAIN-SUFFIX,attbelieves.com
 DOMAIN-SUFFIX,attbusiness.net
@@ -3571,7 +3570,6 @@ DOMAIN-SUFFIX,attspecial.com
 DOMAIN-SUFFIX,attssl.com
 DOMAIN-SUFFIX,attstadium.com
 DOMAIN-SUFFIX,attsuppliers.com
-DOMAIN-SUFFIX,atttvnow.com
 DOMAIN-SUFFIX,attuverseoffers.com
 DOMAIN-SUFFIX,attuverseonline.com
 DOMAIN-SUFFIX,attvoip.com
@@ -3589,7 +3587,6 @@ DOMAIN-SUFFIX,enterprisepaging.com
 DOMAIN-SUFFIX,itcanwait.com
 DOMAIN-SUFFIX,mymmode.com
 DOMAIN-SUFFIX,naturalvoices.com
-DOMAIN-SUFFIX,nettyinternet.com
 DOMAIN-SUFFIX,openapiplatform.com
 DOMAIN-SUFFIX,openapiservice.com
 DOMAIN-SUFFIX,patentgold.net
@@ -3671,6 +3668,11 @@ DOMAIN-SUFFIX,mydirectvchannels.com
 DOMAIN-SUFFIX,redzonechannel.com
 DOMAIN-SUFFIX,txdirectv.com
 DOMAIN-SUFFIX,xandr.com
+DOMAIN-SUFFIX,att.tv
+DOMAIN-SUFFIX,atttvnow.com
+DOMAIN-SUFFIX,attwatchtv.com
+DOMAIN-SUFFIX,dtvce.com
+DOMAIN-SUFFIX,nettyinternet.com
 DOMAIN-SUFFIX,123dapp.com
 DOMAIN-SUFFIX,123dappipad.com
 DOMAIN-SUFFIX,123dartisan.com
@@ -5585,7 +5587,6 @@ DOMAIN-SUFFIX,niosii.net
 DOMAIN-SUFFIX,omekinteractive.com
 DOMAIN-SUFFIX,omnitek.tv
 DOMAIN-SUFFIX,openamt.com
-DOMAIN-SUFFIX,opendroneid.org
 DOMAIN-SUFFIX,optanedifference.com
 DOMAIN-SUFFIX,passwordday.org
 DOMAIN-SUFFIX,pc.com
@@ -5633,6 +5634,7 @@ DOMAIN-SUFFIX,intellinuxgraphics.net
 DOMAIN-SUFFIX,oneapi.com
 DOMAIN-SUFFIX,oneapi.io
 DOMAIN-SUFFIX,opencas.io
+DOMAIN-SUFFIX,opendroneid.org
 DOMAIN-SUFFIX,openvino.ai
 DOMAIN-SUFFIX,openvinotoolkit.org
 DOMAIN-SUFFIX,renderingtoolkit.org
@@ -6581,7 +6583,6 @@ DOMAIN-SUFFIX,nextstop.com
 DOMAIN-SUFFIX,online-deals.net
 DOMAIN-SUFFIX,opencreate.org
 DOMAIN-SUFFIX,reachtheworldonfacebook.com
-DOMAIN-SUFFIX,rocksdb.org
 DOMAIN-SUFFIX,shopfacebook.com
 DOMAIN-SUFFIX,sportsfacebook.com
 DOMAIN-SUFFIX,sportstream.com
@@ -6649,6 +6650,7 @@ DOMAIN-SUFFIX,reactjs.org
 DOMAIN-SUFFIX,recoiljs.org
 DOMAIN-SUFFIX,rocksdb.com
 DOMAIN-SUFFIX,rocksdb.net
+DOMAIN-SUFFIX,rocksdb.org
 DOMAIN-SUFFIX,yogalayout.com
 DOMAIN,developers.facebook.com
 DOMAIN-SUFFIX,achat-followers-instagram.com

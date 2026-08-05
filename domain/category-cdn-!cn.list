@@ -103,6 +103,7 @@ DOMAIN-SUFFIX,cloudflare-terms-of-service-abuse.com
 DOMAIN-SUFFIX,cloudflare.com
 DOMAIN-SUFFIX,cloudflare.dev
 DOMAIN-SUFFIX,cloudflare.net
+DOMAIN-SUFFIX,cloudflare.pay
 DOMAIN-SUFFIX,cloudflare.tv
 DOMAIN-SUFFIX,cloudflareaccess.com
 DOMAIN-SUFFIX,cloudflareapps.com
@@ -170,7 +171,6 @@ DOMAIN-SUFFIX,fastly.io
 DOMAIN-SUFFIX,fastly.net
 DOMAIN-SUFFIX,fastlylabs.com
 DOMAIN-SUFFIX,fastlylb.net
-DOMAIN-SUFFIX,zencdn.net
 DOMAIN-SUFFIX,imgix.com
 DOMAIN-SUFFIX,imgix.net
 DOMAIN-SUFFIX,esm.run

@@ -372,7 +372,6 @@ DOMAIN-SUFFIX,nextstop.com
 DOMAIN-SUFFIX,online-deals.net
 DOMAIN-SUFFIX,opencreate.org
 DOMAIN-SUFFIX,reachtheworldonfacebook.com
-DOMAIN-SUFFIX,rocksdb.org
 DOMAIN-SUFFIX,shopfacebook.com
 DOMAIN-SUFFIX,sportsfacebook.com
 DOMAIN-SUFFIX,sportstream.com
@@ -440,6 +439,7 @@ DOMAIN-SUFFIX,reactjs.org
 DOMAIN-SUFFIX,recoiljs.org
 DOMAIN-SUFFIX,rocksdb.com
 DOMAIN-SUFFIX,rocksdb.net
+DOMAIN-SUFFIX,rocksdb.org
 DOMAIN-SUFFIX,yogalayout.com
 DOMAIN,developers.facebook.com
 DOMAIN-SUFFIX,achat-followers-instagram.com
