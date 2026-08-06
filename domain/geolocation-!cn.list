@@ -2762,6 +2762,7 @@ HOST-SUFFIX,cloudflare-esni.com,geolocation-!cn
 HOST-SUFFIX,cloudflare-gateway.com,geolocation-!cn
 HOST-SUFFIX,cloudflare-quic.com,geolocation-!cn
 HOST-SUFFIX,cloudflare-terms-of-service-abuse.com,geolocation-!cn
+HOST-SUFFIX,cloudflare.app,geolocation-!cn
 HOST-SUFFIX,cloudflare.com,geolocation-!cn
 HOST-SUFFIX,cloudflare.dev,geolocation-!cn
 HOST-SUFFIX,cloudflare.net,geolocation-!cn
@@ -4743,6 +4744,7 @@ HOST-SUFFIX,medrxiv.org,geolocation-!cn
 HOST-SUFFIX,morganclaypool.com,geolocation-!cn
 HOST-SUFFIX,nature.com,geolocation-!cn
 HOST-SUFFIX,naturemag.org,geolocation-!cn
+HOST-SUFFIX,ncbi.nlm.nih.gov,geolocation-!cn
 HOST-SUFFIX,ncl.edu.tw,geolocation-!cn
 HOST-SUFFIX,nejm.org,geolocation-!cn
 HOST-SUFFIX,neurology.org,geolocation-!cn

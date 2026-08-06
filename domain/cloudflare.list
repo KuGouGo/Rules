@@ -9,6 +9,7 @@ HOST-SUFFIX,cloudflare-esni.com,cloudflare
 HOST-SUFFIX,cloudflare-gateway.com,cloudflare
 HOST-SUFFIX,cloudflare-quic.com,cloudflare
 HOST-SUFFIX,cloudflare-terms-of-service-abuse.com,cloudflare
+HOST-SUFFIX,cloudflare.app,cloudflare
 HOST-SUFFIX,cloudflare.com,cloudflare
 HOST-SUFFIX,cloudflare.dev,cloudflare
 HOST-SUFFIX,cloudflare.net,cloudflare

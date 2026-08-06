@@ -98,6 +98,7 @@ HOST-SUFFIX,gemini.google,category-ai-!cn
 HOST-SUFFIX,gemini.google.com,category-ai-!cn
 HOST-SUFFIX,gemini.gstatic.com,category-ai-!cn
 HOST,cloudaicompanion.googleapis.com,category-ai-!cn
+HOST,cloudcode-pa.googleapis.com,category-ai-!cn
 HOST,daily-cloudcode-pa.googleapis.com,category-ai-!cn
 HOST,notebooklm-pa.googleapis.com,category-ai-!cn
 HOST,notebooklm.googleapis.com,category-ai-!cn
@@ -170,7 +171,3 @@ HOST-SUFFIX,x.ai,category-ai-!cn
 HOST-SUFFIX,youmind.ai,category-ai-!cn
 HOST-SUFFIX,youmind.com,category-ai-!cn
 HOST-SUFFIX,youmind.site,category-ai-!cn
-HOST-SUFFIX,g.ai,category-ai-!cn
-HOST-SUFFIX,ai.com,category-ai-!cn
-HOST,api.github.com,category-ai-!cn
-HOST-SUFFIX,cloudcode-pa.googleapis.com,category-ai-!cn

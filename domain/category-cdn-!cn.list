@@ -100,6 +100,7 @@ HOST-SUFFIX,cloudflare-esni.com,category-cdn-!cn
 HOST-SUFFIX,cloudflare-gateway.com,category-cdn-!cn
 HOST-SUFFIX,cloudflare-quic.com,category-cdn-!cn
 HOST-SUFFIX,cloudflare-terms-of-service-abuse.com,category-cdn-!cn
+HOST-SUFFIX,cloudflare.app,category-cdn-!cn
 HOST-SUFFIX,cloudflare.com,category-cdn-!cn
 HOST-SUFFIX,cloudflare.dev,category-cdn-!cn
 HOST-SUFFIX,cloudflare.net,category-cdn-!cn
