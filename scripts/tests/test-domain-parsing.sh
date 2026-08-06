@@ -1,0 +1,851 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT"
+
+# shellcheck source=scripts/lib/rules.sh
+source "$ROOT/scripts/lib/rules.sh"
+
+TMP_DIR="$(mktemp -d)"
+FIXTURE_ROOT="$ROOT/scripts/tests/fixtures/domain"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+assert_egern_yaml_parses() {
+  local file="$1"
+  python3 - "$file" <<'PYCODE'
+import sys
+from pathlib import Path
+
+allowed = {"domain_set", "domain_suffix_set", "domain_keyword_set", "domain_regex_set", "ip_cidr_set", "ip_cidr6_set"}
+current = None
+for line_no, raw_line in enumerate(Path(sys.argv[1]).read_text(encoding="utf-8").splitlines(), start=1):
+    if not raw_line.strip():
+        continue
+    if raw_line in {"no_resolve: true", "no_resolve: false"}:
+        current = "no_resolve"
+        continue
+    if raw_line.endswith(":") and not raw_line.startswith(" "):
+        current = raw_line[:-1]
+        if current not in allowed:
+            raise SystemExit(f"unexpected Egern YAML key at line {line_no}: {current}")
+        continue
+    if raw_line.startswith("  - "):
+        if current is None or current == "no_resolve":
+            raise SystemExit(f"list entry without section at line {line_no}")
+        continue
+    raise SystemExit(f"unexpected Egern YAML line {line_no}: {raw_line}")
+PYCODE
+}
+
+assert_file_equals() {
+  local expected="$1"
+  local actual="$2"
+  local label="$3"
+  if ! diff -u "$expected" "$actual"; then
+    echo "test failed: $label" >&2
+    exit 1
+  fi
+}
+
+assert_file_text_equals() {
+  local expected="$1"
+  local actual="$2"
+  local label="$3"
+  local expected_text actual_text
+
+  expected_text="$(cat "$expected")"
+  actual_text="$(cat "$actual")"
+  if [ "$expected_text" != "$actual_text" ]; then
+    echo "test failed: $label" >&2
+    diff -u "$expected" "$actual" || true
+    exit 1
+  fi
+}
+
+assert_file_absent() {
+  local file="$1"
+  local label="$2"
+
+  if [ -e "$file" ]; then
+    echo "test failed: $label" >&2
+    echo "unexpected file exists: $file" >&2
+    exit 1
+  fi
+}
+
+assert_text_equals() {
+  local expected="$1"
+  local actual="$2"
+  local label="$3"
+
+  if [ "$expected" != "$actual" ]; then
+    echo "test failed: $label" >&2
+    echo "expected: $expected" >&2
+    echo "actual:   $actual" >&2
+    exit 1
+  fi
+}
+
+test_compile_jobs_override_validation() {
+  local actual
+
+  actual="$(RULES_COMPILE_JOBS=2 detect_compile_jobs)"
+  assert_text_equals "2" "$actual" "RULES_COMPILE_JOBS override is honored"
+
+  if RULES_COMPILE_JOBS=0 detect_compile_jobs >"$TMP_DIR/compile_jobs.stdout" 2>"$TMP_DIR/compile_jobs.stderr"; then
+    echo "test failed: RULES_COMPILE_JOBS=0 should fail" >&2
+    exit 1
+  fi
+  if ! grep -Fxq "RULES_COMPILE_JOBS must be a positive integer" "$TMP_DIR/compile_jobs.stderr"; then
+    echo "test failed: missing RULES_COMPILE_JOBS validation message" >&2
+    cat "$TMP_DIR/compile_jobs.stderr" >&2
+    exit 1
+  fi
+}
+
+test_export_alias_prefixes() {
+  mkdir -p "$TMP_DIR/export_alias/data" "$TMP_DIR/export_alias/out"
+  cat > "$TMP_DIR/export_alias/data/a" <<'EOF'
+domain-suffix:Example.COM.
+domain_suffix:foo.com
+suffix:bar.com
+domain-full:Api.Example.com.
+domain-keyword:YouTube
+domain-regex:^Foo\\.
+regex:^bar$
+example.org
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/export_alias/data" \
+    "$TMP_DIR/export_alias/out" \
+    2>"$TMP_DIR/export_alias/stderr"
+
+  cat > "$TMP_DIR/export_alias/expected.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN-SUFFIX,foo.com
+DOMAIN-SUFFIX,bar.com
+DOMAIN,api.example.com
+DOMAIN-KEYWORD,youtube
+DOMAIN-REGEX,^Foo\\.
+DOMAIN-REGEX,^bar$
+DOMAIN-SUFFIX,example.org
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/export_alias/expected.list" \
+    "$TMP_DIR/export_alias/out/a.list" \
+    "export supports domain prefix aliases"
+}
+
+test_export_unknown_prefix_fails() {
+  mkdir -p "$TMP_DIR/export_error/data" "$TMP_DIR/export_error/out"
+  cat > "$TMP_DIR/export_error/data/b" <<'EOF'
+unknownprefix:example.com
+EOF
+
+  if python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/export_error/data" \
+    "$TMP_DIR/export_error/out" >"$TMP_DIR/export_error/stdout" 2>"$TMP_DIR/export_error/stderr"; then
+    echo "test failed: export should reject unknown prefix" >&2
+    exit 1
+  fi
+
+  if ! grep -q "unsupported rule prefix: unknownprefix" "$TMP_DIR/export_error/stderr"; then
+    echo "test failed: missing unknown-prefix error message" >&2
+    cat "$TMP_DIR/export_error/stderr" >&2
+    exit 1
+  fi
+}
+
+test_upstream_single_label_suffix() {
+  mkdir -p "$TMP_DIR/tld_suffix/data" "$TMP_DIR/tld_suffix/out"
+  printf '%s\n' 'alibaba' > "$TMP_DIR/tld_suffix/data/brand-tld"
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/tld_suffix/data" \
+    "$TMP_DIR/tld_suffix/out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" surge-list \
+    "$TMP_DIR/tld_suffix/out/brand-tld.list" \
+    "$TMP_DIR/tld_suffix/brand-tld.surge.list"
+
+  grep -Fx 'DOMAIN-SUFFIX,alibaba' "$TMP_DIR/tld_suffix/brand-tld.surge.list" >/dev/null || {
+    echo "test failed: upstream brand TLD suffix was not rendered" >&2
+    exit 1
+  }
+
+  python3 - "$ROOT" "$TMP_DIR/tld_suffix/out/brand-tld.list" <<'PY'
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(sys.argv[1]) / "scripts" / "tools"))
+from domain_rules import parse_classical_domain_file
+
+_, errors = parse_classical_domain_file(Path(sys.argv[2]))
+assert errors and "too broad" in errors[0], errors
+PY
+}
+
+test_export_plain_yaml_artifact() {
+  mkdir -p "$TMP_DIR/export_plain_yaml/out"
+  cat > "$TMP_DIR/export_plain_yaml/dlc.dat_plain.yml" <<'EOF'
+lists:
+  - name: yaml-test
+    length: 6
+    rules:
+      - "domain:Example.COM."
+      - "full:Api.Example.COM."
+      - "keyword:YouTube"
+      - "regexp:^Foo\\."
+      - "domain:example.com"
+      - "full:api.example.com"
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/export_plain_yaml/dlc.dat_plain.yml" \
+    "$TMP_DIR/export_plain_yaml/out" \
+    2>"$TMP_DIR/export_plain_yaml/stderr"
+
+  cat > "$TMP_DIR/export_plain_yaml/expected.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN,api.example.com
+DOMAIN-KEYWORD,youtube
+DOMAIN-REGEX,^Foo\.
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/export_plain_yaml/expected.list" \
+    "$TMP_DIR/export_plain_yaml/out/yaml-test.list" \
+    "export supports domain-list-community plain YAML artifacts"
+}
+
+test_classical_domain_fixture_outputs() {
+  local fixture_name="mixed"
+  local input_file="$FIXTURE_ROOT/input/$fixture_name.list"
+  local normalized_out="$TMP_DIR/$fixture_name.normalized.list"
+  local surge_out="$TMP_DIR/$fixture_name.surge.list"
+  local quanx_out="$TMP_DIR/$fixture_name.quanx.list"
+  local egern_out="$TMP_DIR/$fixture_name.egern.yaml"
+  local mihomo_out="$TMP_DIR/$fixture_name.mihomo.txt"
+  local singbox_out="$TMP_DIR/$fixture_name.singbox.json"
+
+  normalize_custom_domain_source "$input_file" "$normalized_out"
+  render_surge_domain_ruleset_from_rules "$normalized_out" "$surge_out"
+  render_quanx_domain_ruleset_from_rules "$normalized_out" "$quanx_out" "$fixture_name"
+  render_egern_domain_ruleset_from_rules "$normalized_out" "$egern_out"
+  build_mihomo_domain_text_from_rules "$normalized_out" "$mihomo_out" \
+    2>"$TMP_DIR/$fixture_name.mihomo.stderr"
+  build_domain_json_from_rules "$normalized_out" "$singbox_out"
+
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.normalized.list" \
+    "$normalized_out" \
+    "normalized domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.surge.list" \
+    "$surge_out" \
+    "surge domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.quanx.list" \
+    "$quanx_out" \
+    "quanx domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.egern.yaml" \
+    "$egern_out" \
+    "egern domain fixture output is stable"
+  assert_egern_yaml_parses "$egern_out"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.mihomo.txt" \
+    "$mihomo_out" \
+    "mihomo domain text fixture output is stable"
+  assert_file_text_equals \
+    "$FIXTURE_ROOT/expected/$fixture_name.singbox.json" \
+    "$singbox_out" \
+    "sing-box domain json fixture output is stable"
+}
+
+test_batch_domain_dir_outputs() {
+  mkdir -p \
+    "$TMP_DIR/batch/input" \
+    "$TMP_DIR/batch/surge" \
+    "$TMP_DIR/batch/quanx" \
+    "$TMP_DIR/batch/egern" \
+    "$TMP_DIR/batch/binary"
+  cp "$FIXTURE_ROOT/input/mixed.list" "$TMP_DIR/batch/input/mixed.list"
+  cat > "$TMP_DIR/batch/input/regex-only.list" <<'EOF'
+DOMAIN-REGEX,^regex-only\.example$
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \
+    "$TMP_DIR/batch/input" \
+    "$TMP_DIR/batch/surge" \
+    "$TMP_DIR/batch/quanx" \
+    "$TMP_DIR/batch/egern"
+
+  SINGBOX_RULE_SET_VERSION=4 \
+    python3 "$ROOT/scripts/tools/export-domain-rules.py" binary-input-dir \
+      "$TMP_DIR/batch/input" \
+      "$TMP_DIR/batch/binary" \
+      2>"$TMP_DIR/batch/binary.stderr"
+
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.surge.list" \
+    "$TMP_DIR/batch/surge/mixed.list" \
+    "batch surge domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.quanx.list" \
+    "$TMP_DIR/batch/quanx/mixed.list" \
+    "batch quanx domain fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.egern.yaml" \
+    "$TMP_DIR/batch/egern/mixed.yaml" \
+    "batch egern domain fixture output is stable"
+  assert_file_absent \
+    "$TMP_DIR/batch/surge/regex-only.list" \
+    "Surge skips regex-only domain lists"
+  assert_file_absent \
+    "$TMP_DIR/batch/quanx/regex-only.list" \
+    "QuanX skips regex-only domain lists"
+  grep -Fx "domain_regex_set:" "$TMP_DIR/batch/egern/regex-only.yaml" >/dev/null || {
+    echo "test failed: Egern should keep regex-only domain lists" >&2
+    cat "$TMP_DIR/batch/egern/regex-only.yaml" >&2
+    exit 1
+  }
+  assert_file_text_equals \
+    "$FIXTURE_ROOT/expected/mixed.singbox.json" \
+    "$TMP_DIR/batch/binary/mixed.json" \
+    "batch sing-box domain json fixture output is stable"
+  assert_file_equals \
+    "$FIXTURE_ROOT/expected/mixed.mihomo.txt" \
+    "$TMP_DIR/batch/binary/mixed.mihomo.txt" \
+    "batch mihomo domain text fixture output is stable"
+}
+
+test_include_filter_semantics() {
+  mkdir -p "$TMP_DIR/include_filter/data" "$TMP_DIR/include_filter/out"
+  cat > "$TMP_DIR/include_filter/data/base" <<'EOF'
+domain:example.com @cn
+domain:ads.example.com @cn @ads
+full:exact.example.com @cn
+keyword:cn-keyword @cn
+regexp:^cn-regex\.example$ @cn
+domain:global.example
+EOF
+
+  cat > "$TMP_DIR/include_filter/data/filtered" <<'EOF'
+include:base @cn @-ads
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/include_filter/data" \
+    "$TMP_DIR/include_filter/out" \
+    2>"$TMP_DIR/include_filter/export.stderr"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \
+    "$TMP_DIR/include_filter/out" \
+    "$TMP_DIR/include_filter/surge" \
+    "$TMP_DIR/include_filter/quanx" \
+    "$TMP_DIR/include_filter/egern" \
+    2>"$TMP_DIR/include_filter/text-platform.stderr"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" binary-input-dir \
+    "$TMP_DIR/include_filter/out" \
+    "$TMP_DIR/include_filter/binary" \
+    2>"$TMP_DIR/include_filter/binary.stderr"
+
+  cat > "$TMP_DIR/include_filter/expected.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN,exact.example.com
+DOMAIN-KEYWORD,cn-keyword
+DOMAIN-REGEX,^cn-regex\.example$
+EOF
+
+  cat > "$TMP_DIR/include_filter/expected.surge.list" <<'EOF'
+DOMAIN-SUFFIX,example.com
+DOMAIN,exact.example.com
+DOMAIN-KEYWORD,cn-keyword
+EOF
+
+  cat > "$TMP_DIR/include_filter/expected.mihomo.txt" <<'EOF'
+.example.com
+exact.example.com
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/include_filter/expected.list" \
+    "$TMP_DIR/include_filter/out/filtered.list" \
+    "include filters match required attrs, exclude blocked attrs, and preserve rule kinds"
+  assert_file_equals \
+    "$TMP_DIR/include_filter/expected.surge.list" \
+    "$TMP_DIR/include_filter/surge/filtered.list" \
+    "Surge renders supported include-filtered rule kinds"
+  assert_file_equals \
+    "$TMP_DIR/include_filter/expected.mihomo.txt" \
+    "$TMP_DIR/include_filter/binary/filtered.mihomo.txt" \
+    "mihomo keeps only supported include-filtered domain kinds"
+
+  grep -Fx "domain_regex_set:" "$TMP_DIR/include_filter/egern/filtered.yaml" >/dev/null || {
+    echo "test failed: Egern should render include-filtered regex rules" >&2
+    cat "$TMP_DIR/include_filter/egern/filtered.yaml" >&2
+    exit 1
+  }
+
+  python3 - "$TMP_DIR/include_filter/binary/filtered.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))["rules"][0]
+assert payload["domain_suffix"] == ["example.com"]
+assert payload["domain"] == ["exact.example.com"]
+assert payload["domain_keyword"] == ["cn-keyword"]
+assert payload["domain_regex"] == [r"^cn-regex\.example$"]
+PY
+}
+
+
+test_export_preserves_upstream_order_and_cn_regex_policy() {
+  mkdir -p "$TMP_DIR/cn_regex/data" "$TMP_DIR/cn_regex/out"
+  cat > "$TMP_DIR/cn_regex/data/base" <<'EOF'
+regexp:^cn-regex\.example$ @cn
+keyword:cn-keyword @cn
+domain:cn.example @cn
+regexp:^not-cn-regex\.example$ @!cn
+full:not-cn.example @!cn
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/cn_regex/data" \
+    "$TMP_DIR/cn_regex/out" \
+    2>"$TMP_DIR/cn_regex/stderr"
+
+  cat > "$TMP_DIR/cn_regex/base_expected.list" <<'EOF'
+DOMAIN-REGEX,^cn-regex\.example$
+DOMAIN-KEYWORD,cn-keyword
+DOMAIN-SUFFIX,cn.example
+DOMAIN-REGEX,^not-cn-regex\.example$
+DOMAIN,not-cn.example
+EOF
+
+  cat > "$TMP_DIR/cn_regex/base_cn_expected.list" <<'EOF'
+DOMAIN-REGEX,^cn-regex\.example$
+DOMAIN-KEYWORD,cn-keyword
+DOMAIN-SUFFIX,cn.example
+EOF
+
+  cat > "$TMP_DIR/cn_regex/base_not_cn_expected.list" <<'EOF'
+DOMAIN-REGEX,^not-cn-regex\.example$
+DOMAIN,not-cn.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/cn_regex/base_expected.list" \
+    "$TMP_DIR/cn_regex/out/base.list" \
+    "export preserves upstream order and regex in full list"
+  assert_file_equals \
+    "$TMP_DIR/cn_regex/base_cn_expected.list" \
+    "$TMP_DIR/cn_regex/out/base@cn.list" \
+    "@cn derivatives preserve all rule kinds"
+  assert_file_equals \
+    "$TMP_DIR/cn_regex/base_not_cn_expected.list" \
+    "$TMP_DIR/cn_regex/out/base@!cn.list" \
+    "@!cn derivatives preserve all rule kinds"
+}
+
+
+test_attr_derivatives_merge_duplicate_rule_attrs() {
+  mkdir -p "$TMP_DIR/duplicate_attrs/data" "$TMP_DIR/duplicate_attrs/out"
+  cat > "$TMP_DIR/duplicate_attrs/data/base" <<'EOF'
+domain:shared.example @cn
+domain:shared.example @ads
+domain:shared.example @cn
+domain:unique.example @cn
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/duplicate_attrs/data" \
+    "$TMP_DIR/duplicate_attrs/out"
+
+  cat > "$TMP_DIR/duplicate_attrs/base_expected.list" <<'EOF'
+DOMAIN-SUFFIX,shared.example
+DOMAIN-SUFFIX,unique.example
+EOF
+  cat > "$TMP_DIR/duplicate_attrs/base_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,shared.example
+DOMAIN-SUFFIX,unique.example
+EOF
+  cat > "$TMP_DIR/duplicate_attrs/base_ads_expected.list" <<'EOF'
+DOMAIN-SUFFIX,shared.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/duplicate_attrs/base_expected.list" \
+    "$TMP_DIR/duplicate_attrs/out/base.list" \
+    "base output deduplicates repeated rules"
+  assert_file_equals \
+    "$TMP_DIR/duplicate_attrs/base_cn_expected.list" \
+    "$TMP_DIR/duplicate_attrs/out/base@cn.list" \
+    "@cn output keeps unique matching rules"
+  assert_file_equals \
+    "$TMP_DIR/duplicate_attrs/base_ads_expected.list" \
+    "$TMP_DIR/duplicate_attrs/out/base@ads.list" \
+    "@ads output keeps duplicate rule attributes"
+}
+
+
+test_regional_base_lists_apply_safe_attribute_policy() {
+  mkdir -p "$TMP_DIR/regional_policy/data" "$TMP_DIR/regional_policy/out"
+  cat > "$TMP_DIR/regional_policy/data/shared" <<'EOF'
+domain:plain.example
+domain:cn.example @cn
+domain:not-cn.example @!cn
+domain:ads.example @ads
+domain:cn-ads.example @cn @ads
+EOF
+  cat > "$TMP_DIR/regional_policy/data/cn" <<'EOF'
+include:shared
+EOF
+  cat > "$TMP_DIR/regional_policy/data/geolocation-cn" <<'EOF'
+include:shared
+EOF
+  cat > "$TMP_DIR/regional_policy/data/geolocation-!cn" <<'EOF'
+include:shared
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/regional_policy/data" \
+    "$TMP_DIR/regional_policy/out"
+
+  cat > "$TMP_DIR/regional_policy/cn.expected" <<'EOF'
+DOMAIN-SUFFIX,plain.example
+DOMAIN-SUFFIX,cn.example
+EOF
+  cat > "$TMP_DIR/regional_policy/not-cn.expected" <<'EOF'
+DOMAIN-SUFFIX,plain.example
+DOMAIN-SUFFIX,not-cn.example
+EOF
+  cat > "$TMP_DIR/regional_policy/ads.expected" <<'EOF'
+DOMAIN-SUFFIX,ads.example
+DOMAIN-SUFFIX,cn-ads.example
+EOF
+  cat > "$TMP_DIR/regional_policy/not-cn-attr.expected" <<'EOF'
+DOMAIN-SUFFIX,not-cn.example
+EOF
+  cat > "$TMP_DIR/regional_policy/cn-attr.expected" <<'EOF'
+DOMAIN-SUFFIX,cn.example
+DOMAIN-SUFFIX,cn-ads.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/cn.expected" \
+    "$TMP_DIR/regional_policy/out/cn.list" \
+    "cn excludes ads and !cn rules from its default output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/cn.expected" \
+    "$TMP_DIR/regional_policy/out/geolocation-cn.list" \
+    "geolocation-cn excludes ads and !cn rules from its default output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/not-cn.expected" \
+    "$TMP_DIR/regional_policy/out/geolocation-!cn.list" \
+    "geolocation-!cn excludes ads and cn rules from its default output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/ads.expected" \
+    "$TMP_DIR/regional_policy/out/cn@ads.list" \
+    "regional base filtering preserves ads derivative output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/not-cn-attr.expected" \
+    "$TMP_DIR/regional_policy/out/cn@!cn.list" \
+    "regional base filtering preserves !cn derivative output"
+  assert_file_equals \
+    "$TMP_DIR/regional_policy/cn-attr.expected" \
+    "$TMP_DIR/regional_policy/out/geolocation-!cn@cn.list" \
+    "regional base filtering preserves cn derivative output"
+}
+
+
+test_export_materializes_attr_derivatives_with_sing_geosite_filter() {
+  mkdir -p "$TMP_DIR/region_derivatives/data" "$TMP_DIR/region_derivatives/out"
+  cat > "$TMP_DIR/region_derivatives/data/vendor" <<'EOF'
+domain:vendor-cn.example @cn
+domain:vendor-ads.example @ads
+domain:vendor-global.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/cn" <<'EOF'
+include:vendor
+domain:mainland.example @cn
+full:not-mainland.example @!cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/vendor-cn" <<'EOF'
+domain:vendor-region.example @cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/vendor-!cn" <<'EOF'
+domain:vendor-overseas.example @!cn
+domain:vendor-overseas-cn.example @cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/geolocation-cn" <<'EOF'
+include:cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/geolocation-!cn" <<'EOF'
+include:vendor-!cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/category-ai-!cn" <<'EOF'
+domain:ai-overseas.example @!cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/category-games-!cn" <<'EOF'
+domain:games-mainland.example @cn
+EOF
+  cat > "$TMP_DIR/region_derivatives/data/tracking-ads" <<'EOF'
+domain:tracking-ad.example @ads
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/region_derivatives/data" \
+    "$TMP_DIR/region_derivatives/out"
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" domain-rule-manifest \
+    "$TMP_DIR/region_derivatives/out" \
+    "$TMP_DIR/region_derivatives/manifest.json"
+
+  cat > "$TMP_DIR/region_derivatives/vendor_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-cn.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/vendor_ads_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-ads.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/vendor_not_cn_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-overseas-cn.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/geolocation_not_cn_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,vendor-overseas-cn.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/geolocation_cn_not_cn_expected.list" <<'EOF'
+DOMAIN,not-mainland.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/cn_not_cn_expected.list" <<'EOF'
+DOMAIN,not-mainland.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/category_games_not_cn_cn_expected.list" <<'EOF'
+DOMAIN-SUFFIX,games-mainland.example
+EOF
+  cat > "$TMP_DIR/region_derivatives/tracking_ads_expected.list" <<'EOF'
+DOMAIN-SUFFIX,tracking-ad.example
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/vendor_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/vendor@cn.list" \
+    "neutral lists materialize @cn derivatives"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/vendor_ads_expected.list" \
+    "$TMP_DIR/region_derivatives/out/vendor@ads.list" \
+    "all upstream attrs materialize, not only @cn"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/vendor_not_cn_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/vendor-!cn@cn.list" \
+    "list ending !cn still materializes @cn"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/geolocation_not_cn_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/geolocation-!cn@cn.list" \
+    "geolocation-!cn keeps non-redundant @cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/geolocation_cn_not_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/geolocation-cn@!cn.list" \
+    "geolocation-cn keeps non-redundant @!cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/cn_not_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/cn@!cn.list" \
+    "cn keeps non-redundant @!cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/category_games_not_cn_cn_expected.list" \
+    "$TMP_DIR/region_derivatives/out/category-games-!cn@cn.list" \
+    "category-games-!cn keeps non-redundant @cn derivative"
+  assert_file_equals \
+    "$TMP_DIR/region_derivatives/tracking_ads_expected.list" \
+    "$TMP_DIR/region_derivatives/out/tracking-ads@ads.list" \
+    "non-region names still materialize matching attrs"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/cn@cn.list" \
+    "cn should not generate redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/geolocation-cn@cn.list" \
+    "geolocation-cn should not generate redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/vendor-cn@cn.list" \
+    "region-suffixed cn list should not generate redundant @cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/vendor-!cn@!cn.list" \
+    "region-suffixed !cn list should not generate redundant @!cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/geolocation-!cn@!cn.list" \
+    "geolocation-!cn should not generate redundant @!cn derivative"
+  assert_file_absent \
+    "$TMP_DIR/region_derivatives/out/category-ai-!cn@!cn.list" \
+    "category-ai-!cn should not generate redundant @!cn derivative"
+
+  python3 - "$TMP_DIR/region_derivatives/manifest.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+by_name = {entry["name"]: entry for entry in manifest["lists"]}
+assert by_name["geolocation-cn"]["kind"] == "regional"
+assert by_name["geolocation-cn"]["region_suffix"] == "cn"
+assert by_name["geolocation-cn"]["region_base"] == "geolocation"
+assert by_name["vendor-!cn"]["kind"] == "regional"
+assert by_name["vendor-!cn"]["region_suffix"] == "!cn"
+assert by_name["vendor@cn"]["kind"] == "attr"
+assert by_name["vendor@cn"]["base"] == "vendor"
+assert by_name["vendor@cn"]["attr"] == "cn"
+assert by_name["vendor@cn"]["base_kind"] == "base"
+assert by_name["geolocation-!cn@cn"]["base_kind"] == "regional"
+assert by_name["geolocation-!cn@cn"]["base_region_suffix"] == "!cn"
+assert by_name["geolocation-!cn@cn"]["base_region_base"] == "geolocation"
+assert by_name["geolocation-cn@!cn"]["base_kind"] == "regional"
+assert by_name["geolocation-cn@!cn"]["base_region_suffix"] == "cn"
+assert by_name["tracking-ads@ads"]["base_kind"] == "base"
+assert "cn@cn" not in by_name
+assert "geolocation-cn@cn" not in by_name
+assert "category-ai-!cn@!cn" not in by_name
+assert manifest["by_attr"] == {"!cn": 2, "ads": 4, "cn": 4}
+assert manifest["by_region_suffix"] == {"!cn": 4, "cn": 3}
+PY
+}
+
+
+test_domain_capability_summary() {
+  mkdir -p "$TMP_DIR/capability_summary/data" "$TMP_DIR/capability_summary/out"
+  cat > "$TMP_DIR/capability_summary/data/base" <<'EOF'
+domain:example.com
+keyword:example-keyword
+regexp:^example-regex$
+EOF
+
+  python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/capability_summary/data" \
+    "$TMP_DIR/capability_summary/out" \
+    >"$TMP_DIR/capability_summary/stdout" \
+    2>"$TMP_DIR/capability_summary/stderr"
+
+  grep -Fx "domain summary: base skips unsupported rules for mihomo: DOMAIN-KEYWORD=1, DOMAIN-REGEX=1" \
+    "$TMP_DIR/capability_summary/stderr" >/dev/null || {
+      echo "test failed: missing mihomo-mrs capability summary" >&2
+      cat "$TMP_DIR/capability_summary/stderr" >&2
+      exit 1
+    }
+  grep -Fx "domain summary: base skips unsupported rules for surge: DOMAIN-REGEX=1" \
+    "$TMP_DIR/capability_summary/stderr" >/dev/null || {
+      echo "test failed: missing surge capability summary" >&2
+      cat "$TMP_DIR/capability_summary/stderr" >&2
+      exit 1
+    }
+  grep -Fx "domain summary: base skips unsupported rules for quanx: DOMAIN-REGEX=1" \
+    "$TMP_DIR/capability_summary/stderr" >/dev/null || {
+      echo "test failed: missing quanx capability summary" >&2
+      cat "$TMP_DIR/capability_summary/stderr" >&2
+      exit 1
+    }
+}
+
+
+test_mihomo_mrs_skip_summary() {
+  cat > "$TMP_DIR/mihomo_summary_in.list" <<'EOF'
+DOMAIN,exact.example.com
+DOMAIN-SUFFIX,example.org
+DOMAIN-KEYWORD,ignored-keyword
+DOMAIN-REGEX,^ignored$
+EOF
+
+  build_mihomo_domain_text_from_rules "$TMP_DIR/mihomo_summary_in.list" "$TMP_DIR/mihomo_summary_out.txt" \
+    2>"$TMP_DIR/mihomo_summary_stderr"
+
+  grep -Fx "mihomo mrs summary: mihomo_summary_in.list skips unsupported rules: DOMAIN-KEYWORD=1, DOMAIN-REGEX=1" \
+    "$TMP_DIR/mihomo_summary_stderr" >/dev/null || {
+      echo "test failed: missing mihomo mrs skip summary" >&2
+      cat "$TMP_DIR/mihomo_summary_stderr" >&2
+      exit 1
+    }
+  grep -Fx "mihomo mrs warning: mihomo_summary_in.list skips 50% unsupported rules (threshold 30%)" \
+    "$TMP_DIR/mihomo_summary_stderr" >/dev/null || {
+      echo "test failed: missing mihomo mrs skip warning" >&2
+      cat "$TMP_DIR/mihomo_summary_stderr" >&2
+      exit 1
+    }
+}
+
+
+test_classical_comments_preserve_hash_values() {
+  cat > "$TMP_DIR/hash-values.list" <<'EOF'
+# full-line comment
+   # indented full-line comment
+DOMAIN-REGEX,^foo#bar$
+DOMAIN-KEYWORD,hash#value
+EOF
+
+  python3 - "$ROOT" "$TMP_DIR/hash-values.list" <<'PY'
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(sys.argv[1]) / "scripts" / "tools"))
+from domain_rules import parse_classical_domain_file
+
+rules, errors = parse_classical_domain_file(Path(sys.argv[2]))
+assert not errors, errors
+assert [rule.text for rule in rules] == [
+    r"DOMAIN-REGEX,^foo#bar$",
+    "DOMAIN-KEYWORD,hash#value",
+]
+PY
+}
+
+
+test_mihomo_domain_text_generation() {
+  cat > "$TMP_DIR/mihomo_domain_in.list" <<'EOF'
+DOMAIN,exact.example.com
+DOMAIN-SUFFIX,example.org
+DOMAIN-KEYWORD,ignored-keyword
+DOMAIN-REGEX,^ignored$
+EOF
+
+  build_mihomo_domain_text_from_rules "$TMP_DIR/mihomo_domain_in.list" "$TMP_DIR/mihomo_domain_out.txt" \
+    2>"$TMP_DIR/mihomo_domain_stderr"
+
+  cat > "$TMP_DIR/mihomo_domain_expected.txt" <<'EOF'
+exact.example.com
+.example.org
+EOF
+
+  assert_file_equals \
+    "$TMP_DIR/mihomo_domain_expected.txt" \
+    "$TMP_DIR/mihomo_domain_out.txt" \
+    "mihomo domain text keeps only DOMAIN/DOMAIN-SUFFIX entries"
+
+  cat > "$TMP_DIR/mihomo_keyword_only.list" <<'EOF'
+DOMAIN-KEYWORD,only-keyword
+DOMAIN-REGEX,^only-regex$
+EOF
+
+  build_mihomo_domain_text_from_rules "$TMP_DIR/mihomo_keyword_only.list" "$TMP_DIR/mihomo_keyword_only_out.txt" \
+    2>"$TMP_DIR/mihomo_keyword_only_stderr"
+  if [ -s "$TMP_DIR/mihomo_keyword_only_out.txt" ]; then
+    echo "test failed: keyword/regex-only input should produce empty mihomo domain text" >&2
+    exit 1
+  fi
+}
+
+test_compile_jobs_override_validation
+test_export_alias_prefixes
+test_export_unknown_prefix_fails
+test_upstream_single_label_suffix
+test_export_plain_yaml_artifact
+test_classical_domain_fixture_outputs
+test_batch_domain_dir_outputs
+test_include_filter_semantics
+test_export_preserves_upstream_order_and_cn_regex_policy
+test_attr_derivatives_merge_duplicate_rule_attrs
+test_regional_base_lists_apply_safe_attribute_policy
+test_export_materializes_attr_derivatives_with_sing_geosite_filter
+test_domain_capability_summary
+test_mihomo_mrs_skip_summary
+test_classical_comments_preserve_hash_values
+test_mihomo_domain_text_generation
+
+echo "domain parsing tests passed"

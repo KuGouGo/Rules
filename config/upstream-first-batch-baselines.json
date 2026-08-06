@@ -1,0 +1,10 @@
+{
+  "google-json": {
+    "secondary_min_total": 2,
+    "update_policy": "Update this baseline only in the same change that intentionally accepts upstream evolution."
+  },
+  "telegram": {
+    "secondary_min_total": 2,
+    "update_policy": "Update this baseline only in the same change that intentionally accepts upstream evolution."
+  }
+}
