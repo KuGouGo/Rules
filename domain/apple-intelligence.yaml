@@ -4,4 +4,3 @@ domain_set:
   - 'apple-relay.fastly-edge.com'
   - 'apple-relay.mask.apple-dns.net'
   - 'gspe1-ssl.ls.apple.com'
-  - 'cp4.cloudflare.com'
