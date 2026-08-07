@@ -1,0 +1,25 @@
+name: Setup Python and tool cache
+description: Install Python, prepare scripts, resolve locked tool versions, and restore the shared binary cache.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: '3.11'
+
+    - name: Prepare scripts
+      shell: bash
+      run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+
+    - name: Resolve tool versions
+      id: versions
+      shell: bash
+      run: bash ./scripts/commands/resolve-tool-versions.sh
+
+    - name: Restore tool cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: .bin
+        key: rules-tools-v3-${{ steps.versions.outputs.sing_box_version }}-${{ steps.versions.outputs.mihomo_version }}-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('config/tools-lock.json') }}

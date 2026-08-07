@@ -1,0 +1,179 @@
+name: Sync Rules
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Build scope
+        type: choice
+        required: true
+        default: auto
+        options:
+          - auto
+          - custom
+          - full
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - 'Makefile'
+      - 'config/**'
+      - 'scripts/**'
+      - 'sources/custom/**'
+      - 'sources/builtin/**'
+      - 'templates/**'
+  schedule:
+    - cron: '0 8 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-rules
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    uses: ./.github/workflows/validate.yml
+
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python and tool cache
+        uses: ./.github/actions/setup-tools
+
+      - name: Select build scope
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SCOPE: ${{ github.event.inputs.scope || 'auto' }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: ./scripts/commands/select-build-scope.sh
+
+      - name: Show selected build scope
+        run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
+
+      - name: Build artifact transaction
+        env:
+          RULES_BUILD_SCOPE: ${{ steps.scope.outputs.scope }}
+          RULES_CONFLICT_BASE_SHA: ${{ steps.scope.outputs.base_sha }}
+          ARTIFACT_GENERATION_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          ARTIFACT_BUILD_ID: ${{ github.run_id }}
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
+          ARTIFACT_BASELINE_FILE: ${{ steps.scope.outputs.baseline_file }}
+        run: ./scripts/commands/build-artifacts-transaction.sh
+
+      - name: Show summary
+        if: always()
+        run: |
+          if [ -d .output ]; then
+            if [ ! -f .output/build-summary.json ]; then
+              python3 scripts/tools/summarize-artifacts.py .output --output .output/build-summary.json >/dev/null
+            fi
+            cat .output/build-summary.json
+            if [ -f .output/upstream-summary.json ]; then
+              cat .output/upstream-summary.json
+            fi
+          fi
+          if [ -d .artifacts/diagnostics ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          diagnostics = Path(".artifacts/diagnostics")
+          allowed_names = {
+              "build-summary.json",
+              "transaction-health.json",
+              "upstream-summary.json",
+          }
+          max_bytes = 256 * 1024
+
+          for path in sorted(diagnostics.rglob("*.json")):
+              if path.name not in allowed_names or path.stat().st_size > max_bytes:
+                  continue
+              try:
+                  payload = json.loads(path.read_text(encoding="utf-8"))
+              except (OSError, json.JSONDecodeError) as exc:
+                  print(f"diagnostic summary unreadable: {path}: {exc}")
+                  continue
+              print(f"Failure diagnostic summary: {path}")
+              print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+          PY
+          fi
+          echo "Changed files summary:"
+          git status --short
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: build-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/diagnostics/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload publish artifacts
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: publish-output
+          path: .output/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: build
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download publish artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: publish-output
+          path: .output
+
+      - name: Set up Python and tool cache
+        uses: ./.github/actions/setup-tools
+
+      - name: Lint publish configuration
+        run: python3 ./scripts/tools/lint-config.py
+
+      - name: Resolve verification tools
+        run: |
+          source ./scripts/lib/common.sh
+          ensure_sing_box
+          ensure_mihomo
+
+      - name: Reverify artifact manifest
+        env:
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
+        run: ./scripts/commands/verify-artifact-manifest.sh
+
+      - name: Publish client branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_SOURCE_SHA: ${{ github.sha }}
+        run: ./scripts/commands/publish-branches.sh

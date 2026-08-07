@@ -1,0 +1,34 @@
+name: Auto-merge trusted PRs
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    if: |
+      github.event.pull_request.draft == false &&
+      (startsWith(github.head_ref, 'dependabot/') || github.head_ref == 'chore/update-tool-versions')
+    steps:
+      - name: Wait for validation and merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr="${{ github.event.pull_request.number }}"
+          echo "Auto-merging trusted PR #${pr}"
+          gh pr checks "$pr" --watch --interval 20 || {
+            echo "validation failed; not auto-merging" >&2
+            exit 1
+          }
+          gh pr review "$pr" --approve
+          gh pr merge "$pr" --squash --delete-branch

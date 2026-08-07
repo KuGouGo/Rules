@@ -1,0 +1,154 @@
+{
+  "asn_groups": {
+    "telegram": [
+      62041
+    ]
+  },
+  "domain": {
+    "dlc": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "any",
+        "min_entries": 1,
+        "min_raw_bytes": 1024,
+        "requirement": "required"
+      },
+      "kind": "git",
+      "parser": "git-tree",
+      "trust": "community",
+      "url": "https://github.com/nekolsd/dlc2.git"
+    },
+    "shellcrash-fakeip": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "any",
+        "min_entries": 50,
+        "min_raw_bytes": 2000,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "domain-set-text",
+      "trust": "community",
+      "url": "https://raw.githubusercontent.com/juewuy/ShellCrash/refs/heads/dev/public/fake_ip_filter.list"
+    }
+  },
+  "ip": {
+    "cloudfront": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "dual",
+        "min_entries": 10,
+        "min_raw_bytes": 500,
+        "requirement": "required"
+      },
+      "kind": "json",
+      "parser": "cloudfront-json",
+      "trust": "official",
+      "url": "https://ip-ranges.amazonaws.com/ip-ranges.json"
+    },
+    "cloudflare-ipv4": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "ipv4",
+        "min_entries": 15,
+        "min_raw_bytes": 20,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "cidr-text",
+      "trust": "official",
+      "url": "https://www.cloudflare.com/ips-v4"
+    },
+    "cloudflare-ipv6": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "ipv6",
+        "min_entries": 5,
+        "min_raw_bytes": 10,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "cidr-text",
+      "trust": "official",
+      "url": "https://www.cloudflare.com/ips-v6"
+    },
+    "cn-ipv46": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "dual",
+        "min_entries": 100,
+        "min_raw_bytes": 1000,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "cidr-text",
+      "trust": "community",
+      "url": "https://ispip.clang.cn/all_cn_ipv46.txt"
+    },
+    "cn-ipv46-apnic": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "dual",
+        "min_entries": 100,
+        "min_raw_bytes": 1000,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "cidr-text",
+      "trust": "registry",
+      "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
+    },
+    "fastly": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "any",
+        "min_entries": 12,
+        "min_raw_bytes": 50,
+        "requirement": "required"
+      },
+      "kind": "json",
+      "parser": "fastly-json",
+      "trust": "official",
+      "url": "https://api.fastly.com/public-ip-list"
+    },
+    "google": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "dual",
+        "min_entries": 80,
+        "min_raw_bytes": 100,
+        "requirement": "required"
+      },
+      "kind": "json",
+      "parser": "google-json",
+      "trust": "official",
+      "url": "https://www.gstatic.com/ipranges/goog.json"
+    },
+    "ripe-stat": {
+      "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
+      "health": {
+        "fallback_policy": "none",
+        "family": "any",
+        "min_entries": 1,
+        "min_raw_bytes": 50,
+        "requirement": "required"
+      },
+      "kind": "json-api",
+      "parser": "ripe-stat-json",
+      "trust": "registry"
+    },
+    "telegram": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "ipv4",
+        "min_entries": 8,
+        "min_raw_bytes": 20,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "telegram",
+      "trust": "official",
+      "url": "https://core.telegram.org/resources/cidr.txt"
+    }
+  }
+}
