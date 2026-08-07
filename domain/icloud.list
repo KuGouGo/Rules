@@ -51,6 +51,3 @@ HOST-SUFFIX,myicloud.net,icloud
 HOST-SUFFIX,mylcloud.net,icloud
 HOST-SUFFIX,wwwicloud.com,icloud
 HOST,www-cdn.icloud.com.akadns.net,icloud
-HOST-SUFFIX,mask-api.icloud.com,icloud
-HOST-SUFFIX,mask-h2.icloud.com,icloud
-HOST-SUFFIX,mask.icloud.com,icloud

@@ -150,7 +150,6 @@ HOST,blizzcon-a.akamaihd.net,category-entertainment-!cn
 HOST,blzmedia-a.akamaihd.net,category-entertainment-!cn
 HOST,blznav.akamaized.net,category-entertainment-!cn
 HOST-SUFFIX,bluearchive.jp,category-entertainment-!cn
-HOST-SUFFIX,bluearchive.nexon.com,category-entertainment-!cn
 HOST-SUFFIX,arma3.com,category-entertainment-!cn
 HOST-SUFFIX,armaplatform.com,category-entertainment-!cn
 HOST-SUFFIX,bistudio.com,category-entertainment-!cn
@@ -330,8 +329,6 @@ HOST-SUFFIX,origin.com,category-entertainment-!cn
 HOST-SUFFIX,origin.tv,category-entertainment-!cn
 HOST,cloudsync-prod.s3.amazonaws.com,category-entertainment-!cn
 HOST,origin-a.akamaihd.net,category-entertainment-!cn
-HOST,rtm.tnt-ea.com,category-entertainment-!cn
-HOST,ssl-lvlt.cdn.ea.com,category-entertainment-!cn
 HOST-SUFFIX,arcraiders.com,category-entertainment-!cn
 HOST-SUFFIX,embark-studios.com,category-entertainment-!cn
 HOST-SUFFIX,embark.games,category-entertainment-!cn
@@ -408,7 +405,6 @@ HOST-SUFFIX,gog-statics.com,category-entertainment-!cn
 HOST-SUFFIX,gogalaxy.com,category-entertainment-!cn
 HOST,gog-cdn-lumen.secure2.footprint.net,category-entertainment-!cn
 HOST,gog-cdn.akamaized.net,category-entertainment-!cn
-HOST-SUFFIX,insights-collector.gog.com,category-entertainment-!cn
 HOST-SUFFIX,genshinimpact.com,category-entertainment-!cn
 HOST-SUFFIX,honkaiimpact3.com,category-entertainment-!cn
 HOST-SUFFIX,honkaistarrail.com,category-entertainment-!cn
@@ -417,7 +413,6 @@ HOST-SUFFIX,hoyolab.com,category-entertainment-!cn
 HOST-SUFFIX,hoyoverse.com,category-entertainment-!cn
 HOST-SUFFIX,n0vadesktop.com,category-entertainment-!cn
 HOST-SUFFIX,zenlesszonezero.com,category-entertainment-!cn
-HOST-SUFFIX,log-upload-os.hoyoverse.com,category-entertainment-!cn
 HOST-SUFFIX,humblebundle.com,category-entertainment-!cn
 HOST,hb.imgix.net,category-entertainment-!cn
 HOST-SUFFIX,itch.io,category-entertainment-!cn
@@ -593,8 +588,6 @@ HOST-SUFFIX,playbattlegrounds.com,category-entertainment-!cn
 HOST-SUFFIX,pubg.com,category-entertainment-!cn
 HOST,pubg1.battleye.com,category-entertainment-!cn
 HOST-SUFFIX,priconne-redive.jp,category-entertainment-!cn
-HOST-SUFFIX,api-priconne-redive.cygames.jp,category-entertainment-!cn
-HOST-SUFFIX,omotenashi.cygames.jp,category-entertainment-!cn
 HOST,prd-priconne-redive.akamaized.net,category-entertainment-!cn
 HOST-SUFFIX,historyofdota.com,category-entertainment-!cn
 HOST-SUFFIX,historyofdota.net,category-entertainment-!cn
@@ -925,7 +918,6 @@ HOST-SUFFIX,amc.com,category-entertainment-!cn
 HOST-SUFFIX,amcn.com,category-entertainment-!cn
 HOST-SUFFIX,amcnetworks.com,category-entertainment-!cn
 HOST-SUFFIX,amcplus.com,category-entertainment-!cn
-HOST-SUFFIX,e5a6ae085b6c43020dea230eb0c0ecc33a188227507da97b8ecc05eb8beace6.us-east-1.prod.service.minerva.devices.a2z.com,category-entertainment-!cn
 HOST-SUFFIX,9anime.cz,category-entertainment-!cn
 HOST-SUFFIX,9anime.id,category-entertainment-!cn
 HOST-SUFFIX,9anime.to,category-entertainment-!cn
@@ -961,12 +953,6 @@ HOST-SUFFIX,music.apple.com,category-entertainment-!cn
 HOST-SUFFIX,applepodcasts.com,category-entertainment-!cn
 HOST-SUFFIX,podcasts.apple.com,category-entertainment-!cn
 HOST,apple-tv-plus-press.apple.com,category-entertainment-!cn
-HOST,hls-amt.itunes.apple.com,category-entertainment-!cn
-HOST,hls.itunes.apple.com,category-entertainment-!cn
-HOST,np-edge.itunes.apple.com,category-entertainment-!cn
-HOST,play-edge.itunes.apple.com,category-entertainment-!cn
-HOST,tv.applemusic.com,category-entertainment-!cn
-HOST,uts-api.itunes.apple.com,category-entertainment-!cn
 HOST-SUFFIX,tv.apple.com,category-entertainment-!cn
 HOST-SUFFIX,ao3.org,category-entertainment-!cn
 HOST-SUFFIX,archiveofourown.org,category-entertainment-!cn
@@ -1188,7 +1174,6 @@ HOST-SUFFIX,espn.net,category-entertainment-!cn
 HOST-SUFFIX,espncdn.com,category-entertainment-!cn
 HOST-SUFFIX,espnqa.com,category-entertainment-!cn
 HOST-SUFFIX,watchespn.com,category-entertainment-!cn
-HOST,espn.api.edge.bamgrid.com,category-entertainment-!cn
 HOST,espn.hb.omtrdc.net,category-entertainment-!cn
 HOST,espndotcom.tt.omtrdc.net,category-entertainment-!cn
 HOST-SUFFIX,hotstar.com,category-entertainment-!cn
@@ -1212,10 +1197,6 @@ HOST-SUFFIX,nationalgeographicpartners.com,category-entertainment-!cn
 HOST-SUFFIX,ngeo.com,category-entertainment-!cn
 HOST-SUFFIX,starott.com,category-entertainment-!cn
 HOST-SUFFIX,starplus.com,category-entertainment-!cn
-HOST-SUFFIX,star.api.edge.bamgrid.com,category-entertainment-!cn
-HOST-SUFFIX,star.connections.edge.bamgrid.com,category-entertainment-!cn
-HOST-SUFFIX,star.content.edge.bamgrid.com,category-entertainment-!cn
-HOST-SUFFIX,star.playback.edge.bamgrid.com,category-entertainment-!cn
 HOST-SUFFIX,chobit.cc,category-entertainment-!cn
 HOST-SUFFIX,ci-en.jp,category-entertainment-!cn
 HOST-SUFFIX,ci-en.net,category-entertainment-!cn
@@ -1371,7 +1352,6 @@ HOST-SUFFIX,payhulu.com,category-entertainment-!cn
 HOST-SUFFIX,registerhulu.com,category-entertainment-!cn
 HOST-SUFFIX,thehulubraintrust.com,category-entertainment-!cn
 HOST-SUFFIX,wwwhuluplus.com,category-entertainment-!cn
-HOST,hulu.playback.edge.bamgrid.com,category-entertainment-!cn
 HOST-SUFFIX,imdb,category-entertainment-!cn
 HOST-SUFFIX,boxofficemojo.com,category-entertainment-!cn
 HOST-SUFFIX,imdb.com,category-entertainment-!cn
@@ -1648,9 +1628,6 @@ HOST,heads4-ak-spotify-com.akamaized.net,category-entertainment-!cn
 HOST,spotify.com.edgesuite.net,category-entertainment-!cn
 HOST,spotify.map.fastly.net,category-entertainment-!cn
 HOST,spotify.map.fastlylb.net,category-entertainment-!cn
-HOST,adeventtracker.spotify.com,category-entertainment-!cn
-HOST,adstudio-assets.scdn.co,category-entertainment-!cn
-HOST,bloodhound.spotify.com,category-entertainment-!cn
 HOST-SUFFIX,subscene.com,category-entertainment-!cn
 HOST,i.jeded.com,category-entertainment-!cn
 HOST-SUFFIX,tidal.com,category-entertainment-!cn
@@ -1692,7 +1669,6 @@ HOST,roovza-launches.appsflyersdk.com,category-entertainment-!cn
 HOST,roovza.inapps.appsflyersdk.com,category-entertainment-!cn
 HOST,roovza.launches.appsflyersdk.com,category-entertainment-!cn
 HOST,roovza.skadsdk.appsflyersdk.com,category-entertainment-!cn
-HOST-SUFFIX,analytics.tiktok.com,category-entertainment-!cn
 HOST-SUFFIX,themoviedb.org,category-entertainment-!cn
 HOST-SUFFIX,tmdb.org,category-entertainment-!cn
 HOST,tmdb-image-prod.b-cdn.net,category-entertainment-!cn
@@ -1772,7 +1748,6 @@ HOST-SUFFIX,rewrite-anime.tv,category-entertainment-!cn
 HOST-SUFFIX,visualarts.gr.jp,category-entertainment-!cn
 HOST-SUFFIX,visual-arts.jp,category-entertainment-!cn
 HOST-SUFFIX,viu.tv,category-entertainment-!cn
-HOST,api.viu.now.com,category-entertainment-!cn
 HOST-SUFFIX,viu.com,category-entertainment-!cn
 HOST,dfp6rglgjqszk.cloudfront.net,category-entertainment-!cn
 HOST,d1k2us671qcoau.cloudfront.net,category-entertainment-!cn
@@ -1959,7 +1934,6 @@ HOST-SUFFIX,youtubemobilesupport.com,category-entertainment-!cn
 HOST-SUFFIX,yt.be,category-entertainment-!cn
 HOST-SUFFIX,ytimg.com,category-entertainment-!cn
 HOST,yt3.googleusercontent.com,category-entertainment-!cn
-HOST-SUFFIX,ads.youtube.com,category-entertainment-!cn
 HOST-SUFFIX,z5.app,category-entertainment-!cn
 HOST-SUFFIX,z5.com,category-entertainment-!cn
 HOST-SUFFIX,zee5.com,category-entertainment-!cn

@@ -161,5 +161,3 @@ HOST-SUFFIX,origin.com,ea
 HOST-SUFFIX,origin.tv,ea
 HOST,cloudsync-prod.s3.amazonaws.com,ea
 HOST,origin-a.akamaihd.net,ea
-HOST,rtm.tnt-ea.com,ea
-HOST,ssl-lvlt.cdn.ea.com,ea

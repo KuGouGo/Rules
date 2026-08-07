@@ -253,15 +253,8 @@ HOST-SUFFIX,sber.ru,category-bank-!cn
 HOST-SUFFIX,sberbank.com,category-bank-!cn
 HOST-SUFFIX,sberbank.ru,category-bank-!cn
 HOST-SUFFIX,sbrf.ru,category-bank-!cn
-HOST-SUFFIX,ads.sber.ru,category-bank-!cn
-HOST-SUFFIX,clickstream.sberbank.ru,category-bank-!cn
 HOST-SUFFIX,neon.click,category-bank-!cn
 HOST-SUFFIX,sbermarketing.ru,category-bank-!cn
-HOST,error-tracking.megamarket.tech,category-bank-!cn
-HOST,metrics.21-school.ru,category-bank-!cn
-HOST,sentry.sberauto.com,category-bank-!cn
-HOST,tracing-http.megamarket.tech,category-bank-!cn
-HOST,visor.sberbank.ru,category-bank-!cn
 HOST-SUFFIX,id.ru,category-bank-!cn
 HOST-SUFFIX,megamarket.ru,category-bank-!cn
 HOST-SUFFIX,megamarket.tech,category-bank-!cn
@@ -455,8 +448,6 @@ HOST-SUFFIX,centraluniversity.ru,category-bank-!cn
 HOST-SUFFIX,cu.ru,category-bank-!cn
 HOST-SUFFIX,prodcontest.com,category-bank-!cn
 HOST-SUFFIX,tinkoff-edu.ru,category-bank-!cn
-HOST,edu.tinkoff.ru,category-bank-!cn
-HOST,education.tbank.ru,category-bank-!cn
 HOST-SUFFIX,bochk.com,category-bank-!cn
 HOST-SUFFIX,ccbintl.com.hk,category-bank-!cn
 HOST-SUFFIX,ccbseoul.com,category-bank-!cn

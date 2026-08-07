@@ -4,15 +4,8 @@ HOST-SUFFIX,sber.ru,sber
 HOST-SUFFIX,sberbank.com,sber
 HOST-SUFFIX,sberbank.ru,sber
 HOST-SUFFIX,sbrf.ru,sber
-HOST-SUFFIX,ads.sber.ru,sber
-HOST-SUFFIX,clickstream.sberbank.ru,sber
 HOST-SUFFIX,neon.click,sber
 HOST-SUFFIX,sbermarketing.ru,sber
-HOST,error-tracking.megamarket.tech,sber
-HOST,metrics.21-school.ru,sber
-HOST,sentry.sberauto.com,sber
-HOST,tracing-http.megamarket.tech,sber
-HOST,visor.sberbank.ru,sber
 HOST-SUFFIX,id.ru,sber
 HOST-SUFFIX,megamarket.ru,sber
 HOST-SUFFIX,megamarket.tech,sber

@@ -3,7 +3,6 @@ HOST-SUFFIX,amp.dev,openjsfoundation
 HOST-SUFFIX,ampproject.com,openjsfoundation
 HOST-SUFFIX,ampproject.net,openjsfoundation
 HOST-SUFFIX,ampproject.org,openjsfoundation
-HOST,cdn.ampproject.org,openjsfoundation
 HOST,amp.akamaized.net,openjsfoundation
 HOST-SUFFIX,electronjs.org,openjsfoundation
 HOST-SUFFIX,jquery.com,openjsfoundation

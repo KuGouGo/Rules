@@ -23,6 +23,3 @@ HOST,heads4-ak-spotify-com.akamaized.net,spotify
 HOST,spotify.com.edgesuite.net,spotify
 HOST,spotify.map.fastly.net,spotify
 HOST,spotify.map.fastlylb.net,spotify
-HOST,adeventtracker.spotify.com,spotify
-HOST,adstudio-assets.scdn.co,spotify
-HOST,bloodhound.spotify.com,spotify

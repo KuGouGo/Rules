@@ -257,15 +257,8 @@ HOST-SUFFIX,sber.ru,category-finance-!cn
 HOST-SUFFIX,sberbank.com,category-finance-!cn
 HOST-SUFFIX,sberbank.ru,category-finance-!cn
 HOST-SUFFIX,sbrf.ru,category-finance-!cn
-HOST-SUFFIX,ads.sber.ru,category-finance-!cn
-HOST-SUFFIX,clickstream.sberbank.ru,category-finance-!cn
 HOST-SUFFIX,neon.click,category-finance-!cn
 HOST-SUFFIX,sbermarketing.ru,category-finance-!cn
-HOST,error-tracking.megamarket.tech,category-finance-!cn
-HOST,metrics.21-school.ru,category-finance-!cn
-HOST,sentry.sberauto.com,category-finance-!cn
-HOST,tracing-http.megamarket.tech,category-finance-!cn
-HOST,visor.sberbank.ru,category-finance-!cn
 HOST-SUFFIX,id.ru,category-finance-!cn
 HOST-SUFFIX,megamarket.ru,category-finance-!cn
 HOST-SUFFIX,megamarket.tech,category-finance-!cn
@@ -459,8 +452,6 @@ HOST-SUFFIX,centraluniversity.ru,category-finance-!cn
 HOST-SUFFIX,cu.ru,category-finance-!cn
 HOST-SUFFIX,prodcontest.com,category-finance-!cn
 HOST-SUFFIX,tinkoff-edu.ru,category-finance-!cn
-HOST,edu.tinkoff.ru,category-finance-!cn
-HOST,education.tbank.ru,category-finance-!cn
 HOST-SUFFIX,bochk.com,category-finance-!cn
 HOST-SUFFIX,ccbintl.com.hk,category-finance-!cn
 HOST-SUFFIX,ccbseoul.com,category-finance-!cn

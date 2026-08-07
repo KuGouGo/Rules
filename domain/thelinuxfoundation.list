@@ -7,7 +7,6 @@ HOST-SUFFIX,amp.dev,thelinuxfoundation
 HOST-SUFFIX,ampproject.com,thelinuxfoundation
 HOST-SUFFIX,ampproject.net,thelinuxfoundation
 HOST-SUFFIX,ampproject.org,thelinuxfoundation
-HOST,cdn.ampproject.org,thelinuxfoundation
 HOST,amp.akamaized.net,thelinuxfoundation
 HOST-SUFFIX,electronjs.org,thelinuxfoundation
 HOST-SUFFIX,jquery.com,thelinuxfoundation

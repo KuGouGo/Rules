@@ -10,13 +10,3 @@ HOST-SUFFIX,mindbox.so,mindbox
 HOST-SUFFIX,popmechanic.io,mindbox
 HOST-SUFFIX,popmechanic.ru,mindbox
 HOST-SUFFIX,summitceo.ru,mindbox
-HOST-SUFFIX,e.mindbox.ru,mindbox
-HOST-SUFFIX,g.mindbox.ru,mindbox
-HOST-SUFFIX,s.mindbox.ru,mindbox
-HOST,api-js.mindbox.ru,mindbox
-HOST,api-ru.mindbox.cloud,mindbox
-HOST,api-staging.mindbox.ru,mindbox
-HOST,api.mindbox.cloud,mindbox
-HOST,api.mindbox.ru,mindbox
-HOST,sentry.mindbox.ru,mindbox
-HOST,sentry.popmechanic.ru,mindbox

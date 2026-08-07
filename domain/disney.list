@@ -130,7 +130,6 @@ HOST-SUFFIX,espn.net,disney
 HOST-SUFFIX,espncdn.com,disney
 HOST-SUFFIX,espnqa.com,disney
 HOST-SUFFIX,watchespn.com,disney
-HOST,espn.api.edge.bamgrid.com,disney
 HOST,espn.hb.omtrdc.net,disney
 HOST,espndotcom.tt.omtrdc.net,disney
 HOST-SUFFIX,hotstar.com,disney
@@ -154,7 +153,3 @@ HOST-SUFFIX,nationalgeographicpartners.com,disney
 HOST-SUFFIX,ngeo.com,disney
 HOST-SUFFIX,starott.com,disney
 HOST-SUFFIX,starplus.com,disney
-HOST-SUFFIX,star.api.edge.bamgrid.com,disney
-HOST-SUFFIX,star.connections.edge.bamgrid.com,disney
-HOST-SUFFIX,star.content.edge.bamgrid.com,disney
-HOST-SUFFIX,star.playback.edge.bamgrid.com,disney

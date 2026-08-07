@@ -108,8 +108,6 @@ HOST-SUFFIX,z.cn,amazon
 HOST-SUFFIX,alexa.com,amazon
 HOST-SUFFIX,audible.com,amazon
 HOST-SUFFIX,createspace.com,amazon
-HOST,images-cn.ssl-images-amazon.com,amazon
-HOST,images-cn-8.ssl-images-amazon.com,amazon
 HOST-SUFFIX,amazon-adsystem.com,amazon
 HOST-SUFFIX,serving-sys.com,amazon
 HOST-SUFFIX,amazontrust.com,amazon
@@ -214,16 +212,6 @@ HOST-SUFFIX,kindleoasis.org,amazon
 HOST-SUFFIX,kindleoasis.us,amazon
 HOST-SUFFIX,kindleoasisnews.com,amazon
 HOST-SUFFIX,kindleproject.com,amazon
-HOST,d1v5ir2lpwr8os.cloudfront.net,amazon
-HOST,d22qjgkvxw22r6.cloudfront.net,amazon
-HOST,d25xi40x97liuc.cloudfront.net,amazon
-HOST,d27xxe7juh1us6.cloudfront.net,amazon
-HOST,dmqdd6hw24ucf.cloudfront.net,amazon
-HOST,images-eu.ssl-images-amazon.com,amazon
-HOST,images-na.ssl-images-amazon.com,amazon
-HOST,images-fe.ssl-images-amazon.com,amazon
-HOST,msh.amazon.co.uk,amazon
-HOST,static.siege-amazon.com,amazon
 HOST-SUFFIX,aiv-cdn.net,amazon
 HOST-SUFFIX,amazonprimevideo.cn,amazon
 HOST-SUFFIX,amazonprimevideo.com.cn,amazon
@@ -236,7 +224,6 @@ HOST-SUFFIX,primevideo.com,amazon
 HOST-SUFFIX,primevideo.info,amazon
 HOST-SUFFIX,primevideo.org,amazon
 HOST-SUFFIX,primevideo.tv,amazon
-HOST-SUFFIX,prod.service.minerva.devices.a2z.com,amazon
 HOST-SUFFIX,wfm.com,amazon
 HOST-SUFFIX,wholecitiesfoundation.org,amazon
 HOST-SUFFIX,wholefoods.com,amazon

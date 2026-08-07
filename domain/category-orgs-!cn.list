@@ -118,14 +118,5 @@ HOST-SUFFIX,stateofthemap.com,category-orgs-!cn
 HOST-SUFFIX,stateofthemap.org,category-orgs-!cn
 HOST-SUFFIX,paskoocheh.com,category-orgs-!cn
 HOST-SUFFIX,ppy.sh,category-orgs-!cn
-HOST,a.ppy.sh,category-orgs-!cn
-HOST,assets.ppy.sh,category-orgs-!cn
-HOST,c.ppy.sh,category-orgs-!cn
-HOST,osu.ppy.sh,category-orgs-!cn
-HOST,m1.ppy.sh,category-orgs-!cn
-HOST,lazer.ppy.sh,category-orgs-!cn
-HOST,notify.ppy.sh,category-orgs-!cn
-HOST,sentry.ppy.sh,category-orgs-!cn
-HOST,spectator.ppy.sh,category-orgs-!cn
 HOST-SUFFIX,rolfoundation.org,category-orgs-!cn
 HOST-SUFFIX,rolsociety.org,category-orgs-!cn

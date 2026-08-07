@@ -221,7 +221,6 @@ HOST-SUFFIX,dns.iqiyi.com,category-ads-all
 HOST-SUFFIX,dns.qiyipic.iqiyi.com,category-ads-all
 HOST-SUFFIX,doh.iqiyi.com,category-ads-all
 HOST-SUFFIX,hdns.ksyun.com,category-ads-all
-HOST-SUFFIX,kuaishou.httpdns.pro,category-ads-all
 HOST-SUFFIX,httpdns.meituan.com,category-ads-all
 HOST-SUFFIX,httpdnsmultiapivip.meituan.com,category-ads-all
 HOST-SUFFIX,httpdnsvip.meituan.com,category-ads-all
@@ -536,7 +535,6 @@ HOST-SUFFIX,ads.wteam.xyz,category-ads-all
 HOST-SUFFIX,adtechus.com,category-ads-all
 HOST-SUFFIX,adtrue.com,category-ads-all
 HOST-SUFFIX,adxprtz.com,category-ads-all
-HOST-SUFFIX,cdn.advertserve.com,category-ads-all
 HOST-SUFFIX,cdn.banclip.com,category-ads-all
 HOST-SUFFIX,cfts1tifqr.com,category-ads-all
 HOST-SUFFIX,contentabc.com,category-ads-all
@@ -585,7 +583,6 @@ HOST-SUFFIX,toboads.com,category-ads-all
 HOST-SUFFIX,analytics-data.io,category-ads-all
 HOST-SUFFIX,atom-data.io,category-ads-all
 HOST-SUFFIX,ironbeast.io,category-ads-all
-HOST-SUFFIX,ad.unimhk.com,category-ads-all
 HOST,logs.ads.vungle.com,category-ads-all
 HOST-SUFFIX,pub.network,category-ads-all
 HOST-SUFFIX,1rx.io,category-ads-all

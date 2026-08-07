@@ -31,11 +31,4 @@ HOST-SUFFIX,copilot.cloud.microsoft,bing
 HOST-SUFFIX,copilot.com,bing
 HOST-SUFFIX,copilot.microsoft.com,bing
 HOST,location.microsoft.com,bing
-HOST-SUFFIX,cn.bing.com,bing
-HOST-SUFFIX,cn.bing.net,bing
-HOST-SUFFIX,cn.mm.bing.net,bing
 HOST-SUFFIX,ditu.live.com,bing
-HOST-SUFFIX,r.bing.com,bing
-HOST-SUFFIX,th.bing.com,bing
-HOST,bj1.api.bing.com,bing
-HOST,emoi-cncdn.bing.com,bing

@@ -128,7 +128,6 @@ HOST-SUFFIX,tjstats.com,category-dev-cn
 HOST-SUFFIX,wegamedeveloper.com,category-dev-cn
 HOST-SUFFIX,weixinbridge.com,category-dev-cn
 HOST-SUFFIX,weui.io,category-dev-cn
-HOST-SUFFIX,badjs.weixinbridge.com,category-dev-cn
 HOST-SUFFIX,cnb.cool,category-dev-cn
 HOST-SUFFIX,coding.me,category-dev-cn
 HOST-SUFFIX,coding.net,category-dev-cn
@@ -138,11 +137,6 @@ HOST-SUFFIX,u3d.cn,category-dev-cn
 HOST-SUFFIX,unity.cn,category-dev-cn
 HOST-SUFFIX,unitychina.cn,category-dev-cn
 HOST-SUFFIX,unity3dcloud.cn,category-dev-cn
-HOST-SUFFIX,ads.unitychina.cn,category-dev-cn
-HOST-SUFFIX,splash-ads.cdn.unity.cn,category-dev-cn
-HOST-SUFFIX,splash-ads.unitychina.cn,category-dev-cn
-HOST-SUFFIX,unityads.unity.cn,category-dev-cn
-HOST-SUFFIX,unityads.unitychina.cn,category-dev-cn
 HOST-SUFFIX,researchkit.cn,category-dev-cn
 HOST-SUFFIX,researchkit.com.cn,category-dev-cn
 HOST-SUFFIX,swiftui.cn,category-dev-cn

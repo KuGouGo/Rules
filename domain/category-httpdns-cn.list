@@ -16,7 +16,6 @@ HOST-SUFFIX,dns.iqiyi.com,category-httpdns-cn
 HOST-SUFFIX,dns.qiyipic.iqiyi.com,category-httpdns-cn
 HOST-SUFFIX,doh.iqiyi.com,category-httpdns-cn
 HOST-SUFFIX,hdns.ksyun.com,category-httpdns-cn
-HOST-SUFFIX,kuaishou.httpdns.pro,category-httpdns-cn
 HOST-SUFFIX,httpdns.meituan.com,category-httpdns-cn
 HOST-SUFFIX,httpdnsmultiapivip.meituan.com,category-httpdns-cn
 HOST-SUFFIX,httpdnsvip.meituan.com,category-httpdns-cn

@@ -55,7 +55,6 @@ HOST,blizzcon-a.akamaihd.net,category-games-!cn
 HOST,blzmedia-a.akamaihd.net,category-games-!cn
 HOST,blznav.akamaized.net,category-games-!cn
 HOST-SUFFIX,bluearchive.jp,category-games-!cn
-HOST-SUFFIX,bluearchive.nexon.com,category-games-!cn
 HOST-SUFFIX,arma3.com,category-games-!cn
 HOST-SUFFIX,armaplatform.com,category-games-!cn
 HOST-SUFFIX,bistudio.com,category-games-!cn
@@ -235,8 +234,6 @@ HOST-SUFFIX,origin.com,category-games-!cn
 HOST-SUFFIX,origin.tv,category-games-!cn
 HOST,cloudsync-prod.s3.amazonaws.com,category-games-!cn
 HOST,origin-a.akamaihd.net,category-games-!cn
-HOST,rtm.tnt-ea.com,category-games-!cn
-HOST,ssl-lvlt.cdn.ea.com,category-games-!cn
 HOST-SUFFIX,arcraiders.com,category-games-!cn
 HOST-SUFFIX,embark-studios.com,category-games-!cn
 HOST-SUFFIX,embark.games,category-games-!cn
@@ -313,7 +310,6 @@ HOST-SUFFIX,gog-statics.com,category-games-!cn
 HOST-SUFFIX,gogalaxy.com,category-games-!cn
 HOST,gog-cdn-lumen.secure2.footprint.net,category-games-!cn
 HOST,gog-cdn.akamaized.net,category-games-!cn
-HOST-SUFFIX,insights-collector.gog.com,category-games-!cn
 HOST-SUFFIX,genshinimpact.com,category-games-!cn
 HOST-SUFFIX,honkaiimpact3.com,category-games-!cn
 HOST-SUFFIX,honkaistarrail.com,category-games-!cn
@@ -322,7 +318,6 @@ HOST-SUFFIX,hoyolab.com,category-games-!cn
 HOST-SUFFIX,hoyoverse.com,category-games-!cn
 HOST-SUFFIX,n0vadesktop.com,category-games-!cn
 HOST-SUFFIX,zenlesszonezero.com,category-games-!cn
-HOST-SUFFIX,log-upload-os.hoyoverse.com,category-games-!cn
 HOST-SUFFIX,humblebundle.com,category-games-!cn
 HOST,hb.imgix.net,category-games-!cn
 HOST-SUFFIX,itch.io,category-games-!cn
@@ -498,8 +493,6 @@ HOST-SUFFIX,playbattlegrounds.com,category-games-!cn
 HOST-SUFFIX,pubg.com,category-games-!cn
 HOST,pubg1.battleye.com,category-games-!cn
 HOST-SUFFIX,priconne-redive.jp,category-games-!cn
-HOST-SUFFIX,api-priconne-redive.cygames.jp,category-games-!cn
-HOST-SUFFIX,omotenashi.cygames.jp,category-games-!cn
 HOST,prd-priconne-redive.akamaized.net,category-games-!cn
 HOST-SUFFIX,historyofdota.com,category-games-!cn
 HOST-SUFFIX,historyofdota.net,category-games-!cn

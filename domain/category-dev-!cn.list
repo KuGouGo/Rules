@@ -190,8 +190,6 @@ HOST-SUFFIX,gcr.io,category-dev-!cn
 HOST-SUFFIX,ghcr.io,category-dev-!cn
 HOST-SUFFIX,mcr.microsoft.com,category-dev-!cn
 HOST-SUFFIX,quay.io,category-dev-!cn
-HOST-SUFFIX,registry.gitlab.com,category-dev-!cn
-HOST-SUFFIX,registry.k8s.io,category-dev-!cn
 HOST-SUFFIX,codeberg.org,category-dev-!cn
 HOST-SUFFIX,codeberg.page,category-dev-!cn
 HOST-SUFFIX,dart.dev,category-dev-!cn
@@ -351,13 +349,8 @@ HOST,productionresultssa16.blob.core.windows.net,category-dev-!cn
 HOST,productionresultssa17.blob.core.windows.net,category-dev-!cn
 HOST,productionresultssa18.blob.core.windows.net,category-dev-!cn
 HOST,productionresultssa19.blob.core.windows.net,category-dev-!cn
-HOST-SUFFIX,collector.github.com,category-dev-!cn
 HOST-SUFFIX,githubcopilot.com,category-dev-!cn
-HOST,copilot-proxy.githubusercontent.com,category-dev-!cn
-HOST,copilot-workspace.githubnext.com,category-dev-!cn
 HOST,copilotprodattachments.blob.core.windows.net,category-dev-!cn
-HOST,copilot-telemetry-service.githubusercontent.com,category-dev-!cn
-HOST,copilot-telemetry.githubusercontent.com,category-dev-!cn
 HOST-SUFFIX,npm.community,category-dev-!cn
 HOST-SUFFIX,npmjs.com,category-dev-!cn
 HOST-SUFFIX,npmjs.org,category-dev-!cn
@@ -388,7 +381,6 @@ HOST-SUFFIX,haskell.org,category-dev-!cn
 HOST-SUFFIX,haskellstack.org,category-dev-!cn
 HOST-SUFFIX,stackage.org,category-dev-!cn
 HOST-SUFFIX,brew.sh,category-dev-!cn
-HOST,homebrew.bintray.com,category-dev-!cn
 HOST-SUFFIX,01.org,category-dev-!cn
 HOST-SUFFIX,hyperscan.io,category-dev-!cn
 HOST-SUFFIX,intellinuxgraphics.com,category-dev-!cn
@@ -430,7 +422,6 @@ HOST-SUFFIX,myjetbrains.com,category-dev-!cn
 HOST-SUFFIX,talkingkotlin.com,category-dev-!cn
 HOST-SUFFIX,youtrack.cloud,category-dev-!cn
 HOST-SUFFIX,grazie.ai,category-dev-!cn
-HOST-SUFFIX,grazie.aws.intellij.net,category-dev-!cn
 HOST-SUFFIX,jetbrains.ai,category-dev-!cn
 HOST-SUFFIX,jfrog.com,category-dev-!cn
 HOST-SUFFIX,jfrog.org,category-dev-!cn
@@ -514,7 +505,6 @@ HOST-SUFFIX,nginx.com,category-dev-!cn
 HOST-SUFFIX,nginx.org,category-dev-!cn
 HOST-SUFFIX,openwrt.org,category-dev-!cn
 HOST-SUFFIX,lede-project.org,category-dev-!cn
-HOST-SUFFIX,perl.apache.org,category-dev-!cn
 HOST-SUFFIX,perl.org,category-dev-!cn
 HOST-SUFFIX,cpan.org,category-dev-!cn
 HOST-SUFFIX,metacpan.org,category-dev-!cn
@@ -606,15 +596,7 @@ HOST-SUFFIX,tildacdn.com,category-dev-!cn
 HOST-SUFFIX,tildacdn.net,category-dev-!cn
 HOST-SUFFIX,unity.com,category-dev-!cn
 HOST-SUFFIX,unity3d.com,category-dev-!cn
-HOST-SUFFIX,analytics.cloud.unity3d.com,category-dev-!cn
 HOST-SUFFIX,api2.amplitude.com,category-dev-!cn
-HOST-SUFFIX,config.uca.cloud.unity3d.com,category-dev-!cn
-HOST-SUFFIX,cdp.cloud.unity3d.com,category-dev-!cn
-HOST-SUFFIX,prd-lender.cdp.internal.unity3d.com,category-dev-!cn
-HOST-SUFFIX,iads.unity3d.com,category-dev-!cn
-HOST-SUFFIX,perf.cloud.unity3d.com,category-dev-!cn
-HOST-SUFFIX,perf-events.cloud.unity3d.com,category-dev-!cn
-HOST-SUFFIX,unityads.unity3d.com,category-dev-!cn
 HOST-SUFFIX,v8.dev,category-dev-!cn
 HOST-SUFFIX,v8project.org,category-dev-!cn
 HOST-SUFFIX,videopress.com,category-dev-!cn
