@@ -6,8 +6,6 @@ DOMAIN-SUFFIX,copilot-stg.com
 DOMAIN-SUFFIX,copilot.cloud.microsoft
 DOMAIN-SUFFIX,copilot.com
 DOMAIN-SUFFIX,copilot.microsoft.com
-DOMAIN-SUFFIX,deepwiki.com
-DOMAIN-SUFFIX,deepwiki.org
 DOMAIN-SUFFIX,clipdrop.co
 DOMAIN-SUFFIX,jasper.ai
 DOMAIN-SUFFIX,agentclientprotocol.com
@@ -43,6 +41,18 @@ DOMAIN-SUFFIX,sider.ai
 DOMAIN-SUFFIX,spicywriter.com
 DOMAIN-SUFFIX,tapnow.ai
 DOMAIN-SUFFIX,tripo3d.ai
+DOMAIN-SUFFIX,aiesa.ru
+DOMAIN-SUFFIX,alice.yandex.net
+DOMAIN-SUFFIX,alice.yandex.ru
+DOMAIN-SUFFIX,alicepro.yandex.ru
+DOMAIN-SUFFIX,copymonkey.app
+DOMAIN-SUFFIX,gerwin.io
+DOMAIN-SUFFIX,giga.chat
+DOMAIN-SUFFIX,gptunnel.ru
+DOMAIN-SUFFIX,polza.ai
+DOMAIN-SUFFIX,robotext.io
+DOMAIN-SUFFIX,rugpt.io
+DOMAIN-SUFFIX,tokenator.top
 DOMAIN-SUFFIX,anthropic.com
 DOMAIN-SUFFIX,clau.de
 DOMAIN-SUFFIX,claude.ai
