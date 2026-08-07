@@ -20,7 +20,5 @@ domain_suffix_set:
   - 'myjetbrains.com'
   - 'talkingkotlin.com'
   - 'youtrack.cloud'
-  - 'cdn.jetbrains.com'
   - 'grazie.ai'
-  - 'grazie.aws.intellij.net'
   - 'jetbrains.ai'

@@ -1,6 +1,5 @@
 domain_set:
   - 'fbcdn-a.akamaihd.net'
-  - 'developers.facebook.com'
 
 domain_suffix_set:
   - 'atmeta.com'
@@ -400,9 +399,7 @@ domain_suffix_set:
   - 'redkix.com'
   - 'workplace.com'
   - 'workplaceusecases.com'
-  - 'analytics.facebook.com'
   - 'facebookads.com'
-  - 'pixel.facebook.com'
   - 'accountkit.com'
   - 'atscaleconference.com'
   - 'botorch.org'
@@ -517,8 +514,6 @@ domain_suffix_set:
   - 'onlineinstagram.com'
   - 'web-instagram.net'
   - 'wwwinstagram.com'
-  - 'graph.instagram.com'
-  - 'graph-fallback.instagram.com'
   - 'fbmessenger.com'
   - 'm.me'
   - 'messenger.com'
@@ -553,5 +548,3 @@ domain_suffix_set:
   - 'whatsapp.org'
   - 'whatsapp.tv'
   - 'whatsappbrand.com'
-  - 'graph.whatsapp.com'
-  - 'graph.whatsapp.net'

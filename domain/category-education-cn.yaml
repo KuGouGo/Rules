@@ -1,6 +1,4 @@
 domain_set:
-  - 'moocs.unipus.cn'
-  - 'opencourse.pku.edu.cn'
   - 'study.163.com'
 
 domain_suffix_set:

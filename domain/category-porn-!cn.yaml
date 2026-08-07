@@ -1,8 +1,6 @@
 domain_set:
   - 'anime-rule34-world.b-cdn.net'
   - 'misa-prod.s3.ap-northeast-1.amazonaws.com'
-  - 'ad-channel.diwodiwo.xyz'
-  - 'ad-display.diwodiwo.xyz'
   - 'widgets.stripst.com'
 
 domain_suffix_set:
@@ -56,7 +54,6 @@ domain_suffix_set:
   - '18-teen-xxx.com'
   - '188channel.com'
   - '18acg.us'
-  - '18av.mm-cg.com'
   - '18av.pro'
   - '18avx.com'
   - '18commic.com'
@@ -64,7 +61,6 @@ domain_suffix_set:
   - '18doujinshi.xyz'
   - '18exgfs.com'
   - '18fby.com'
-  - '18h.mm-cg.com'
   - '18h.tv'
   - '18hmanga.click'
   - '18hmanga.com'
@@ -3641,7 +3637,6 @@ domain_suffix_set:
   - 'oldje.com'
   - 'oli-school.com'
   - 'omafotze.com'
-  - 'omg.adult'
   - 'omg.blog'
   - 'omgteens.com'
   - 'omorashi.jp'
@@ -4041,7 +4036,6 @@ domain_suffix_set:
   - 'pornogrund.com'
   - 'pornohd.blue'
   - 'pornohd.plus'
-  - 'pornohd.porn'
   - 'pornohoo.com.mx'
   - 'pornohut.info'
   - 'pornohutdeutsch.net'
@@ -6478,7 +6472,6 @@ domain_suffix_set:
   - 'xhnews.live'
   - 'xhpingcdn.com'
   - 'xhreal5.com'
-  - 'collector.xhamster.com'
   - 'avstar01.me'
   - 'avstar02.me'
   - 'avstar03.me'

@@ -7,9 +7,6 @@ domain_set:
   - 'spotify.com.edgesuite.net'
   - 'spotify.map.fastly.net'
   - 'spotify.map.fastlylb.net'
-  - 'adeventtracker.spotify.com'
-  - 'adstudio-assets.scdn.co'
-  - 'bloodhound.spotify.com'
 
 domain_suffix_set:
   - 'byspotify.com'

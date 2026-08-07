@@ -1,6 +1,3 @@
-domain_set:
-  - 'sentry.hetzner.company'
-
 domain_suffix_set:
   - 'first-ns.de'
   - 'hetzner-cloud.de'

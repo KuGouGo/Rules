@@ -7,7 +7,6 @@ domain_suffix_set:
   - 'hoyoverse.com'
   - 'n0vadesktop.com'
   - 'zenlesszonezero.com'
-  - 'log-upload-os.hoyoverse.com'
   - 'mhystatic.com'
   - 'mhyurl.cn'
   - 'mihayo.com'
@@ -23,7 +22,6 @@ domain_suffix_set:
   - 'themisweeps.com'
   - 'yuanshen.com'
   - 'juequling.com'
-  - 'log-upload.mihoyo.com'
 
 domain_regex_set:
   - '^.+-mihayo\.akamaized\.net$'

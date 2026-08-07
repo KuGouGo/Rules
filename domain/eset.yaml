@@ -3,7 +3,6 @@ domain_set:
   - 'epc-de-agent-proxy.germanywestcentral.cloudapp.azure.com'
 
 domain_suffix_set:
-  - 'cn.eset.com'
   - 'e5.sk'
   - 'eset.com'
   - 'eset.eu'

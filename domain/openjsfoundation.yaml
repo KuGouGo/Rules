@@ -1,5 +1,4 @@
 domain_set:
-  - 'cdn.ampproject.org'
   - 'amp.akamaized.net'
 
 domain_suffix_set:

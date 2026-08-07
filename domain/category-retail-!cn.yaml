@@ -1,8 +1,5 @@
 domain_set:
   - 'mvideo.edna.io'
-  - 'ads.x5.ru'
-  - 'ads.x5media.ru'
-  - 'sentry.x5.ru'
 
 domain_suffix_set:
   - 'av.ru'

@@ -26,11 +26,7 @@ domain_set:
   - 'productionresultssa17.blob.core.windows.net'
   - 'productionresultssa18.blob.core.windows.net'
   - 'productionresultssa19.blob.core.windows.net'
-  - 'copilot-proxy.githubusercontent.com'
-  - 'copilot-workspace.githubnext.com'
   - 'copilotprodattachments.blob.core.windows.net'
-  - 'copilot-telemetry-service.githubusercontent.com'
-  - 'copilot-telemetry.githubusercontent.com'
 
 domain_suffix_set:
   - 'atom.io'
@@ -60,7 +56,6 @@ domain_suffix_set:
   - 'opensource.guide'
   - 'repo.new'
   - 'thegithubshop.com'
-  - 'collector.github.com'
   - 'githubcopilot.com'
   - 'npm.community'
   - 'npmjs.com'

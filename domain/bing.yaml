@@ -1,7 +1,5 @@
 domain_set:
   - 'location.microsoft.com'
-  - 'bj1.api.bing.com'
-  - 'emoi-cncdn.bing.com'
 
 domain_suffix_set:
   - 'bing'
@@ -36,9 +34,4 @@ domain_suffix_set:
   - 'copilot.cloud.microsoft'
   - 'copilot.com'
   - 'copilot.microsoft.com'
-  - 'cn.bing.com'
-  - 'cn.bing.net'
-  - 'cn.mm.bing.net'
   - 'ditu.live.com'
-  - 'r.bing.com'
-  - 'th.bing.com'

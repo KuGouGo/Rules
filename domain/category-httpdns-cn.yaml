@@ -17,7 +17,6 @@ domain_suffix_set:
   - 'dns.qiyipic.iqiyi.com'
   - 'doh.iqiyi.com'
   - 'hdns.ksyun.com'
-  - 'kuaishou.httpdns.pro'
   - 'httpdns.meituan.com'
   - 'httpdnsmultiapivip.meituan.com'
   - 'httpdnsvip.meituan.com'

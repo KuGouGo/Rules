@@ -1,7 +1,6 @@
 domain_set:
   - 'nvidia.custhelp.com'
   - 'nvidia.tt.omtrdc.net'
-  - 'cn.download.nvidia.com'
 
 domain_suffix_set:
   - 'geforce.cn'

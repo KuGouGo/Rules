@@ -1,6 +1,3 @@
-domain_set:
-  - 'redirector.c.play.google.com'
-
 domain_suffix_set:
   - 'googleplay.com'
   - 'play-fe.googleapis.com'

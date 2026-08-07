@@ -1,6 +1,4 @@
 domain_suffix_set:
-  - 'ams2.test-ipv6.com'
-  - 'fra.test-ipv6.com'
   - 'sixte.st'
   - 'test-ipv6.alpinedc.ch'
   - 'test-ipv6.arauc.br'
