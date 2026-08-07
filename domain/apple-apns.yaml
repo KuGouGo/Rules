@@ -3,4 +3,3 @@ domain_set:
 
 domain_suffix_set:
   - 'push.apple.com'
-  - 'push-apple.com.akadns.net'

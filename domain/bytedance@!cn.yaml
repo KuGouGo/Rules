@@ -12,8 +12,6 @@ domain_suffix_set:
   - 'byteoversea.net'
   - 'ibytedtos.com'
   - 'ibyteimg.com'
-  - 'capcut.com'
-  - 'capcutcdn-us.com'
   - 'coze.com'
   - 'marscode.com'
   - 'trae.ai'
@@ -51,3 +49,4 @@ domain_suffix_set:
   - 'tiktokcdn.com.edgesuite.net'
   - 'tiktokv.com.edgekey.net'
   - 'tiktokv.com.edgesuite.net'
+  - 'analytics.tiktok.com'

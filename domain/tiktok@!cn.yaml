@@ -7,6 +7,7 @@ domain_set:
 
 domain_suffix_set:
   - 'bytedapm.com'
+  - 'byteoversea.com'
   - 'muscdn.com'
   - 'musical.ly'
   - 'tik-tokapi.com'
@@ -36,3 +37,4 @@ domain_suffix_set:
   - 'tiktokcdn.com.edgesuite.net'
   - 'tiktokv.com.edgekey.net'
   - 'tiktokv.com.edgesuite.net'
+  - 'analytics.tiktok.com'

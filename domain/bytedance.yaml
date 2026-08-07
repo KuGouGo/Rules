@@ -297,8 +297,6 @@ domain_suffix_set:
   - 'vlabimg.com'
   - 'vlabstatic.com'
   - 'vlabvod.com'
-  - 'capcut.com'
-  - 'capcutcdn-us.com'
   - 'toutiao.com'
   - 'toutiaoapi.com'
   - 'toutiaocdn.com'

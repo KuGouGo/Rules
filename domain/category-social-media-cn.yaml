@@ -95,3 +95,5 @@ domain_suffix_set:
   - 'vzuu.com'
   - 'crash2.zhihu.com'
   - 'zhihu-web-analytics.zhihu.com'
+  - 'licdn.cn'
+  - 'linkedin.cn'

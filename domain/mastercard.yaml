@@ -1,3 +1,7 @@
+domain_set:
+  - 'nab.demdex.net'
+  - 'nationalaustraliaban.tt.omtrdc.net'
+
 domain_suffix_set:
   - 'mastercard.ae'
   - 'mastercard.at'
