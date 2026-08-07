@@ -150,7 +150,6 @@ DOMAIN,blizzcon-a.akamaihd.net
 DOMAIN,blzmedia-a.akamaihd.net
 DOMAIN,blznav.akamaized.net
 DOMAIN-SUFFIX,bluearchive.jp
-DOMAIN-SUFFIX,bluearchive.nexon.com
 DOMAIN-SUFFIX,arma3.com
 DOMAIN-SUFFIX,armaplatform.com
 DOMAIN-SUFFIX,bistudio.com
@@ -330,8 +329,6 @@ DOMAIN-SUFFIX,origin.com
 DOMAIN-SUFFIX,origin.tv
 DOMAIN,cloudsync-prod.s3.amazonaws.com
 DOMAIN,origin-a.akamaihd.net
-DOMAIN,rtm.tnt-ea.com
-DOMAIN,ssl-lvlt.cdn.ea.com
 DOMAIN-SUFFIX,arcraiders.com
 DOMAIN-SUFFIX,embark-studios.com
 DOMAIN-SUFFIX,embark.games
@@ -408,7 +405,6 @@ DOMAIN-SUFFIX,gog-statics.com
 DOMAIN-SUFFIX,gogalaxy.com
 DOMAIN,gog-cdn-lumen.secure2.footprint.net
 DOMAIN,gog-cdn.akamaized.net
-DOMAIN-SUFFIX,insights-collector.gog.com
 DOMAIN-SUFFIX,genshinimpact.com
 DOMAIN-SUFFIX,honkaiimpact3.com
 DOMAIN-SUFFIX,honkaistarrail.com
@@ -417,7 +413,6 @@ DOMAIN-SUFFIX,hoyolab.com
 DOMAIN-SUFFIX,hoyoverse.com
 DOMAIN-SUFFIX,n0vadesktop.com
 DOMAIN-SUFFIX,zenlesszonezero.com
-DOMAIN-SUFFIX,log-upload-os.hoyoverse.com
 DOMAIN-SUFFIX,humblebundle.com
 DOMAIN,hb.imgix.net
 DOMAIN-SUFFIX,itch.io
@@ -593,8 +588,6 @@ DOMAIN-SUFFIX,playbattlegrounds.com
 DOMAIN-SUFFIX,pubg.com
 DOMAIN,pubg1.battleye.com
 DOMAIN-SUFFIX,priconne-redive.jp
-DOMAIN-SUFFIX,api-priconne-redive.cygames.jp
-DOMAIN-SUFFIX,omotenashi.cygames.jp
 DOMAIN,prd-priconne-redive.akamaized.net
 DOMAIN-SUFFIX,historyofdota.com
 DOMAIN-SUFFIX,historyofdota.net
@@ -925,7 +918,6 @@ DOMAIN-SUFFIX,amc.com
 DOMAIN-SUFFIX,amcn.com
 DOMAIN-SUFFIX,amcnetworks.com
 DOMAIN-SUFFIX,amcplus.com
-DOMAIN-SUFFIX,e5a6ae085b6c43020dea230eb0c0ecc33a188227507da97b8ecc05eb8beace6.us-east-1.prod.service.minerva.devices.a2z.com
 DOMAIN-SUFFIX,9anime.cz
 DOMAIN-SUFFIX,9anime.id
 DOMAIN-SUFFIX,9anime.to
@@ -961,12 +953,6 @@ DOMAIN-SUFFIX,music.apple.com
 DOMAIN-SUFFIX,applepodcasts.com
 DOMAIN-SUFFIX,podcasts.apple.com
 DOMAIN,apple-tv-plus-press.apple.com
-DOMAIN,hls-amt.itunes.apple.com
-DOMAIN,hls.itunes.apple.com
-DOMAIN,np-edge.itunes.apple.com
-DOMAIN,play-edge.itunes.apple.com
-DOMAIN,tv.applemusic.com
-DOMAIN,uts-api.itunes.apple.com
 DOMAIN-SUFFIX,tv.apple.com
 DOMAIN-SUFFIX,ao3.org
 DOMAIN-SUFFIX,archiveofourown.org
@@ -1188,7 +1174,6 @@ DOMAIN-SUFFIX,espn.net
 DOMAIN-SUFFIX,espncdn.com
 DOMAIN-SUFFIX,espnqa.com
 DOMAIN-SUFFIX,watchespn.com
-DOMAIN,espn.api.edge.bamgrid.com
 DOMAIN,espn.hb.omtrdc.net
 DOMAIN,espndotcom.tt.omtrdc.net
 DOMAIN-SUFFIX,hotstar.com
@@ -1212,10 +1197,6 @@ DOMAIN-SUFFIX,nationalgeographicpartners.com
 DOMAIN-SUFFIX,ngeo.com
 DOMAIN-SUFFIX,starott.com
 DOMAIN-SUFFIX,starplus.com
-DOMAIN-SUFFIX,star.api.edge.bamgrid.com
-DOMAIN-SUFFIX,star.connections.edge.bamgrid.com
-DOMAIN-SUFFIX,star.content.edge.bamgrid.com
-DOMAIN-SUFFIX,star.playback.edge.bamgrid.com
 DOMAIN-SUFFIX,chobit.cc
 DOMAIN-SUFFIX,ci-en.jp
 DOMAIN-SUFFIX,ci-en.net
@@ -1371,7 +1352,6 @@ DOMAIN-SUFFIX,payhulu.com
 DOMAIN-SUFFIX,registerhulu.com
 DOMAIN-SUFFIX,thehulubraintrust.com
 DOMAIN-SUFFIX,wwwhuluplus.com
-DOMAIN,hulu.playback.edge.bamgrid.com
 DOMAIN-SUFFIX,imdb
 DOMAIN-SUFFIX,boxofficemojo.com
 DOMAIN-SUFFIX,imdb.com
@@ -1648,9 +1628,6 @@ DOMAIN,heads4-ak-spotify-com.akamaized.net
 DOMAIN,spotify.com.edgesuite.net
 DOMAIN,spotify.map.fastly.net
 DOMAIN,spotify.map.fastlylb.net
-DOMAIN,adeventtracker.spotify.com
-DOMAIN,adstudio-assets.scdn.co
-DOMAIN,bloodhound.spotify.com
 DOMAIN-SUFFIX,subscene.com
 DOMAIN,i.jeded.com
 DOMAIN-SUFFIX,tidal.com
@@ -1692,7 +1669,6 @@ DOMAIN,roovza-launches.appsflyersdk.com
 DOMAIN,roovza.inapps.appsflyersdk.com
 DOMAIN,roovza.launches.appsflyersdk.com
 DOMAIN,roovza.skadsdk.appsflyersdk.com
-DOMAIN-SUFFIX,analytics.tiktok.com
 DOMAIN-SUFFIX,themoviedb.org
 DOMAIN-SUFFIX,tmdb.org
 DOMAIN,tmdb-image-prod.b-cdn.net
@@ -1772,7 +1748,6 @@ DOMAIN-SUFFIX,rewrite-anime.tv
 DOMAIN-SUFFIX,visualarts.gr.jp
 DOMAIN-SUFFIX,visual-arts.jp
 DOMAIN-SUFFIX,viu.tv
-DOMAIN,api.viu.now.com
 DOMAIN-SUFFIX,viu.com
 DOMAIN,dfp6rglgjqszk.cloudfront.net
 DOMAIN,d1k2us671qcoau.cloudfront.net
@@ -1959,7 +1934,6 @@ DOMAIN-SUFFIX,youtubemobilesupport.com
 DOMAIN-SUFFIX,yt.be
 DOMAIN-SUFFIX,ytimg.com
 DOMAIN,yt3.googleusercontent.com
-DOMAIN-SUFFIX,ads.youtube.com
 DOMAIN-SUFFIX,z5.app
 DOMAIN-SUFFIX,z5.com
 DOMAIN-SUFFIX,zee5.com

@@ -221,7 +221,6 @@ DOMAIN-SUFFIX,dns.iqiyi.com
 DOMAIN-SUFFIX,dns.qiyipic.iqiyi.com
 DOMAIN-SUFFIX,doh.iqiyi.com
 DOMAIN-SUFFIX,hdns.ksyun.com
-DOMAIN-SUFFIX,kuaishou.httpdns.pro
 DOMAIN-SUFFIX,httpdns.meituan.com
 DOMAIN-SUFFIX,httpdnsmultiapivip.meituan.com
 DOMAIN-SUFFIX,httpdnsvip.meituan.com
@@ -536,7 +535,6 @@ DOMAIN-SUFFIX,ads.wteam.xyz
 DOMAIN-SUFFIX,adtechus.com
 DOMAIN-SUFFIX,adtrue.com
 DOMAIN-SUFFIX,adxprtz.com
-DOMAIN-SUFFIX,cdn.advertserve.com
 DOMAIN-SUFFIX,cdn.banclip.com
 DOMAIN-SUFFIX,cfts1tifqr.com
 DOMAIN-SUFFIX,contentabc.com
@@ -585,7 +583,6 @@ DOMAIN-SUFFIX,toboads.com
 DOMAIN-SUFFIX,analytics-data.io
 DOMAIN-SUFFIX,atom-data.io
 DOMAIN-SUFFIX,ironbeast.io
-DOMAIN-SUFFIX,ad.unimhk.com
 DOMAIN,logs.ads.vungle.com
 DOMAIN-SUFFIX,pub.network
 DOMAIN-SUFFIX,1rx.io

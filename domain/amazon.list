@@ -108,8 +108,6 @@ DOMAIN-SUFFIX,z.cn
 DOMAIN-SUFFIX,alexa.com
 DOMAIN-SUFFIX,audible.com
 DOMAIN-SUFFIX,createspace.com
-DOMAIN,images-cn.ssl-images-amazon.com
-DOMAIN,images-cn-8.ssl-images-amazon.com
 DOMAIN-SUFFIX,amazon-adsystem.com
 DOMAIN-SUFFIX,serving-sys.com
 DOMAIN-SUFFIX,amazontrust.com
@@ -214,16 +212,6 @@ DOMAIN-SUFFIX,kindleoasis.org
 DOMAIN-SUFFIX,kindleoasis.us
 DOMAIN-SUFFIX,kindleoasisnews.com
 DOMAIN-SUFFIX,kindleproject.com
-DOMAIN,d1v5ir2lpwr8os.cloudfront.net
-DOMAIN,d22qjgkvxw22r6.cloudfront.net
-DOMAIN,d25xi40x97liuc.cloudfront.net
-DOMAIN,d27xxe7juh1us6.cloudfront.net
-DOMAIN,dmqdd6hw24ucf.cloudfront.net
-DOMAIN,images-eu.ssl-images-amazon.com
-DOMAIN,images-na.ssl-images-amazon.com
-DOMAIN,images-fe.ssl-images-amazon.com
-DOMAIN,msh.amazon.co.uk
-DOMAIN,static.siege-amazon.com
 DOMAIN-SUFFIX,aiv-cdn.net
 DOMAIN-SUFFIX,amazonprimevideo.cn
 DOMAIN-SUFFIX,amazonprimevideo.com.cn
@@ -236,7 +224,6 @@ DOMAIN-SUFFIX,primevideo.com
 DOMAIN-SUFFIX,primevideo.info
 DOMAIN-SUFFIX,primevideo.org
 DOMAIN-SUFFIX,primevideo.tv
-DOMAIN-SUFFIX,prod.service.minerva.devices.a2z.com
 DOMAIN-SUFFIX,wfm.com
 DOMAIN-SUFFIX,wholecitiesfoundation.org
 DOMAIN-SUFFIX,wholefoods.com

@@ -190,8 +190,6 @@ DOMAIN-SUFFIX,gcr.io
 DOMAIN-SUFFIX,ghcr.io
 DOMAIN-SUFFIX,mcr.microsoft.com
 DOMAIN-SUFFIX,quay.io
-DOMAIN-SUFFIX,registry.gitlab.com
-DOMAIN-SUFFIX,registry.k8s.io
 DOMAIN-SUFFIX,codeberg.org
 DOMAIN-SUFFIX,codeberg.page
 DOMAIN-SUFFIX,dart.dev
@@ -351,13 +349,8 @@ DOMAIN,productionresultssa16.blob.core.windows.net
 DOMAIN,productionresultssa17.blob.core.windows.net
 DOMAIN,productionresultssa18.blob.core.windows.net
 DOMAIN,productionresultssa19.blob.core.windows.net
-DOMAIN-SUFFIX,collector.github.com
 DOMAIN-SUFFIX,githubcopilot.com
-DOMAIN,copilot-proxy.githubusercontent.com
-DOMAIN,copilot-workspace.githubnext.com
 DOMAIN,copilotprodattachments.blob.core.windows.net
-DOMAIN,copilot-telemetry-service.githubusercontent.com
-DOMAIN,copilot-telemetry.githubusercontent.com
 DOMAIN-SUFFIX,npm.community
 DOMAIN-SUFFIX,npmjs.com
 DOMAIN-SUFFIX,npmjs.org
@@ -388,7 +381,6 @@ DOMAIN-SUFFIX,haskell.org
 DOMAIN-SUFFIX,haskellstack.org
 DOMAIN-SUFFIX,stackage.org
 DOMAIN-SUFFIX,brew.sh
-DOMAIN,homebrew.bintray.com
 DOMAIN-SUFFIX,01.org
 DOMAIN-SUFFIX,hyperscan.io
 DOMAIN-SUFFIX,intellinuxgraphics.com
@@ -430,7 +422,6 @@ DOMAIN-SUFFIX,myjetbrains.com
 DOMAIN-SUFFIX,talkingkotlin.com
 DOMAIN-SUFFIX,youtrack.cloud
 DOMAIN-SUFFIX,grazie.ai
-DOMAIN-SUFFIX,grazie.aws.intellij.net
 DOMAIN-SUFFIX,jetbrains.ai
 DOMAIN-SUFFIX,jfrog.com
 DOMAIN-SUFFIX,jfrog.org
@@ -514,7 +505,6 @@ DOMAIN-SUFFIX,nginx.com
 DOMAIN-SUFFIX,nginx.org
 DOMAIN-SUFFIX,openwrt.org
 DOMAIN-SUFFIX,lede-project.org
-DOMAIN-SUFFIX,perl.apache.org
 DOMAIN-SUFFIX,perl.org
 DOMAIN-SUFFIX,cpan.org
 DOMAIN-SUFFIX,metacpan.org
@@ -606,15 +596,7 @@ DOMAIN-SUFFIX,tildacdn.com
 DOMAIN-SUFFIX,tildacdn.net
 DOMAIN-SUFFIX,unity.com
 DOMAIN-SUFFIX,unity3d.com
-DOMAIN-SUFFIX,analytics.cloud.unity3d.com
 DOMAIN-SUFFIX,api2.amplitude.com
-DOMAIN-SUFFIX,config.uca.cloud.unity3d.com
-DOMAIN-SUFFIX,cdp.cloud.unity3d.com
-DOMAIN-SUFFIX,prd-lender.cdp.internal.unity3d.com
-DOMAIN-SUFFIX,iads.unity3d.com
-DOMAIN-SUFFIX,perf.cloud.unity3d.com
-DOMAIN-SUFFIX,perf-events.cloud.unity3d.com
-DOMAIN-SUFFIX,unityads.unity3d.com
 DOMAIN-SUFFIX,v8.dev
 DOMAIN-SUFFIX,v8project.org
 DOMAIN-SUFFIX,videopress.com

@@ -55,7 +55,6 @@ DOMAIN,blizzcon-a.akamaihd.net
 DOMAIN,blzmedia-a.akamaihd.net
 DOMAIN,blznav.akamaized.net
 DOMAIN-SUFFIX,bluearchive.jp
-DOMAIN-SUFFIX,bluearchive.nexon.com
 DOMAIN-SUFFIX,arma3.com
 DOMAIN-SUFFIX,armaplatform.com
 DOMAIN-SUFFIX,bistudio.com
@@ -235,8 +234,6 @@ DOMAIN-SUFFIX,origin.com
 DOMAIN-SUFFIX,origin.tv
 DOMAIN,cloudsync-prod.s3.amazonaws.com
 DOMAIN,origin-a.akamaihd.net
-DOMAIN,rtm.tnt-ea.com
-DOMAIN,ssl-lvlt.cdn.ea.com
 DOMAIN-SUFFIX,arcraiders.com
 DOMAIN-SUFFIX,embark-studios.com
 DOMAIN-SUFFIX,embark.games
@@ -313,7 +310,6 @@ DOMAIN-SUFFIX,gog-statics.com
 DOMAIN-SUFFIX,gogalaxy.com
 DOMAIN,gog-cdn-lumen.secure2.footprint.net
 DOMAIN,gog-cdn.akamaized.net
-DOMAIN-SUFFIX,insights-collector.gog.com
 DOMAIN-SUFFIX,genshinimpact.com
 DOMAIN-SUFFIX,honkaiimpact3.com
 DOMAIN-SUFFIX,honkaistarrail.com
@@ -322,7 +318,6 @@ DOMAIN-SUFFIX,hoyolab.com
 DOMAIN-SUFFIX,hoyoverse.com
 DOMAIN-SUFFIX,n0vadesktop.com
 DOMAIN-SUFFIX,zenlesszonezero.com
-DOMAIN-SUFFIX,log-upload-os.hoyoverse.com
 DOMAIN-SUFFIX,humblebundle.com
 DOMAIN,hb.imgix.net
 DOMAIN-SUFFIX,itch.io
@@ -498,8 +493,6 @@ DOMAIN-SUFFIX,playbattlegrounds.com
 DOMAIN-SUFFIX,pubg.com
 DOMAIN,pubg1.battleye.com
 DOMAIN-SUFFIX,priconne-redive.jp
-DOMAIN-SUFFIX,api-priconne-redive.cygames.jp
-DOMAIN-SUFFIX,omotenashi.cygames.jp
 DOMAIN,prd-priconne-redive.akamaized.net
 DOMAIN-SUFFIX,historyofdota.com
 DOMAIN-SUFFIX,historyofdota.net
