@@ -6,8 +6,6 @@ HOST-SUFFIX,copilot-stg.com,category-ai-!cn
 HOST-SUFFIX,copilot.cloud.microsoft,category-ai-!cn
 HOST-SUFFIX,copilot.com,category-ai-!cn
 HOST-SUFFIX,copilot.microsoft.com,category-ai-!cn
-HOST-SUFFIX,deepwiki.com,category-ai-!cn
-HOST-SUFFIX,deepwiki.org,category-ai-!cn
 HOST-SUFFIX,clipdrop.co,category-ai-!cn
 HOST-SUFFIX,jasper.ai,category-ai-!cn
 HOST-SUFFIX,agentclientprotocol.com,category-ai-!cn
@@ -43,6 +41,18 @@ HOST-SUFFIX,sider.ai,category-ai-!cn
 HOST-SUFFIX,spicywriter.com,category-ai-!cn
 HOST-SUFFIX,tapnow.ai,category-ai-!cn
 HOST-SUFFIX,tripo3d.ai,category-ai-!cn
+HOST-SUFFIX,aiesa.ru,category-ai-!cn
+HOST-SUFFIX,alice.yandex.net,category-ai-!cn
+HOST-SUFFIX,alice.yandex.ru,category-ai-!cn
+HOST-SUFFIX,alicepro.yandex.ru,category-ai-!cn
+HOST-SUFFIX,copymonkey.app,category-ai-!cn
+HOST-SUFFIX,gerwin.io,category-ai-!cn
+HOST-SUFFIX,giga.chat,category-ai-!cn
+HOST-SUFFIX,gptunnel.ru,category-ai-!cn
+HOST-SUFFIX,polza.ai,category-ai-!cn
+HOST-SUFFIX,robotext.io,category-ai-!cn
+HOST-SUFFIX,rugpt.io,category-ai-!cn
+HOST-SUFFIX,tokenator.top,category-ai-!cn
 HOST-SUFFIX,anthropic.com,category-ai-!cn
 HOST-SUFFIX,clau.de,category-ai-!cn
 HOST-SUFFIX,claude.ai,category-ai-!cn

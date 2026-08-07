@@ -1,0 +1,7 @@
+HOST-SUFFIX,anydesk.com,category-remote-control-!cn
+HOST-SUFFIX,nomachine.com,category-remote-control-!cn
+HOST-SUFFIX,rustdesk.com,category-remote-control-!cn
+HOST-SUFFIX,teamviewer.com,category-remote-control-!cn
+HOST-SUFFIX,teamviewer.us,category-remote-control-!cn
+HOST,client-teamviewer-com.trafficmanager.net,category-remote-control-!cn
+HOST,teamviewer.com.cdn.cloudflare.net,category-remote-control-!cn

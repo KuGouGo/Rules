@@ -5,3 +5,4 @@ HOST-SUFFIX,fastly.io,fastly
 HOST-SUFFIX,fastly.net,fastly
 HOST-SUFFIX,fastlylabs.com,fastly
 HOST-SUFFIX,fastlylb.net,fastly
+HOST-SUFFIX,zencdn.net,fastly

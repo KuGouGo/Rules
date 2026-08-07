@@ -4,8 +4,6 @@ HOST-SUFFIX,byteoversea.net,bytedance@!cn
 HOST-SUFFIX,ibytedtos.com,bytedance@!cn
 HOST-SUFFIX,ibyteimg.com,bytedance@!cn
 HOST,bytedance.map.fastly.net,bytedance@!cn
-HOST-SUFFIX,capcut.com,bytedance@!cn
-HOST-SUFFIX,capcutcdn-us.com,bytedance@!cn
 HOST-SUFFIX,coze.com,bytedance@!cn
 HOST-SUFFIX,marscode.com,bytedance@!cn
 HOST-SUFFIX,trae.ai,bytedance@!cn
@@ -48,3 +46,4 @@ HOST,roovza-launches.appsflyersdk.com,bytedance@!cn
 HOST,roovza.inapps.appsflyersdk.com,bytedance@!cn
 HOST,roovza.launches.appsflyersdk.com,bytedance@!cn
 HOST,roovza.skadsdk.appsflyersdk.com,bytedance@!cn
+HOST-SUFFIX,analytics.tiktok.com,bytedance@!cn

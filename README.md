@@ -24,6 +24,6 @@ https://raw.githubusercontent.com/KuGouGo/Rules/quanx/domain/cn.list, tag=CN-DOM
 https://raw.githubusercontent.com/KuGouGo/Rules/quanx/ip/cn.list, tag=CN-IP, force-policy=direct, enabled=true
 ```
 
-## v2fly/domain-list-community MIT 通知
+## 域名数据 MIT 通知
 
-本分支的域名产物包含或派生自 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（MIT License），完整许可文本见 [LICENSE](https://github.com/v2fly/domain-list-community/blob/master/LICENSE)。
+本分支的域名产物包含或派生自 [nekolsd/dlc2](https://github.com/nekolsd/dlc2)（MIT License，v2fly/domain-list-community 的干净分支），上游许可文本见 [LICENSE](https://github.com/nekolsd/dlc2/blob/master/LICENSE)。

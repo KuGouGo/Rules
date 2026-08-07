@@ -372,6 +372,7 @@ HOST-SUFFIX,nextstop.com,meta
 HOST-SUFFIX,online-deals.net,meta
 HOST-SUFFIX,opencreate.org,meta
 HOST-SUFFIX,reachtheworldonfacebook.com,meta
+HOST-SUFFIX,rocksdb.org,meta
 HOST-SUFFIX,shopfacebook.com,meta
 HOST-SUFFIX,sportsfacebook.com,meta
 HOST-SUFFIX,sportstream.com,meta
@@ -439,7 +440,6 @@ HOST-SUFFIX,reactjs.org,meta
 HOST-SUFFIX,recoiljs.org,meta
 HOST-SUFFIX,rocksdb.com,meta
 HOST-SUFFIX,rocksdb.net,meta
-HOST-SUFFIX,rocksdb.org,meta
 HOST-SUFFIX,yogalayout.com,meta
 HOST,developers.facebook.com,meta
 HOST-SUFFIX,achat-followers-instagram.com,meta

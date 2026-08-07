@@ -1,13 +1,3 @@
-HOST,cdn.apple-mapkit.com,apple-dev@cn
-HOST,cdn1.apple-mapkit.com,apple-dev@cn
-HOST,cdn2.apple-mapkit.com,apple-dev@cn
-HOST,cdn3.apple-mapkit.com,apple-dev@cn
-HOST,cdn4.apple-mapkit.com,apple-dev@cn
-HOST,cdn-cn.apple-mapkit.com,apple-dev@cn
-HOST,cdn-cn1.apple-mapkit.com,apple-dev@cn
-HOST,cdn-cn2.apple-mapkit.com,apple-dev@cn
-HOST,cdn-cn3.apple-mapkit.com,apple-dev@cn
-HOST,cdn-cn4.apple-mapkit.com,apple-dev@cn
 HOST-SUFFIX,researchkit.cn,apple-dev@cn
 HOST-SUFFIX,researchkit.com.cn,apple-dev@cn
 HOST-SUFFIX,swiftui.cn,apple-dev@cn
