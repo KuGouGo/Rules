@@ -1,0 +1,1 @@
+{"version":4,"rules":[{"domain_suffix":["example.com"],"domain":["api.example.com"],"domain_keyword":["youtube"],"domain_regex":["^Foo\\\\."]}]}
