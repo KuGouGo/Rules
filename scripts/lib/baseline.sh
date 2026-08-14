@@ -19,14 +19,25 @@ fetch_publish_branch_metadata() {
   local branch commit subject generation source
 
   : > "$metadata_file"
+  # One fetch, one server-side advertisement: the five publish branches are
+  # read as an atomic snapshot instead of five sequential round-trips that a
+  # concurrent publication could interleave (mixed-generation baseline) and
+  # that each add a transient-failure point.
+  local -a refspecs=()
   for branch in "${PUBLISH_BRANCH_NAMES[@]}"; do
-    if ! publish_git fetch --quiet --no-tags --depth=1 origin \
-      "+refs/heads/$branch:refs/remotes/origin/$branch" 2>/dev/null; then
-      # Branch does not exist yet (e.g. first publication after a fresh release).
-      # Record a placeholder so the baseline is treated as inconsistent.
+    refspecs+=("+refs/heads/$branch:refs/remotes/origin/$branch")
+  done
+  if ! publish_git fetch --quiet --no-tags --depth=1 origin "${refspecs[@]}" 2>/dev/null; then
+    # Branches do not exist yet (e.g. first publication after a fresh
+    # release). Record placeholders so the baseline is treated as
+    # inconsistent. Pushes are atomic, so a missing branch implies all five
+    # are missing.
+    for branch in "${PUBLISH_BRANCH_NAMES[@]}"; do
       printf '%s\t-\t-\t-\n' "$branch" >> "$metadata_file"
-      continue
-    fi
+    done
+    return 0
+  fi
+  for branch in "${PUBLISH_BRANCH_NAMES[@]}"; do
     commit="$(publish_git rev-parse --verify "origin/$branch^{commit}")"
     subject="$(publish_git log -1 --format=%s "origin/$branch")"
     if [[ "$subject" =~ ^chore:\ publish\ ${branch}\ artifacts\ \[generation\ ([0-9]+-[0-9]+)\ source\ ([0-9a-f]{40})\]$ ]]; then

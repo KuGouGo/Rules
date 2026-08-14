@@ -53,10 +53,11 @@ validate_update_branch() {
   gh workflow run validate.yml --ref "$BRANCH"
 
   for attempt in {1..12}; do
-    run_id="$(gh run list --workflow validate.yml --branch "$BRANCH" \
+    runs="$(gh run list --workflow validate.yml --branch "$BRANCH" \
       --event workflow_dispatch --limit 10 --json databaseId,headSha \
-      --jq '.[] | select(.headSha == "'"$head_sha"'") | .databaseId' |
-      head -n 1)"
+      --jq '.[] | select(.headSha == "'"$head_sha"'") | .databaseId')" \
+      || continue
+    run_id="${runs%%$'\n'*}"
     [ -n "$run_id" ] && break
     echo "waiting for dispatched validation run (${attempt}/12)"
     sleep 5
