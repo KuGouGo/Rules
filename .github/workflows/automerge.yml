@@ -3,6 +3,10 @@ name: Auto-merge trusted PRs
 on:
   pull_request_target:
     types: [opened, synchronize, ready_for_review, reopened]
+  # A human approval on a normal PR enables GitHub native auto-merge, which
+  # merges once branch protection's required checks are satisfied.
+  pull_request_review:
+    types: [submitted]
   # Pull requests created with GITHUB_TOKEN do not start another PR workflow.
   # The dependency workflow has already validated the proposed commit, so its
   # successful completion is the reliable automation entry point.
@@ -62,3 +66,23 @@ jobs:
           gh pr checks "$pr" --watch --required --interval 20
           echo "Merging validated dependency update PR #${pr}"
           gh pr merge "$pr" --squash --delete-branch
+
+  # Normal PRs: a human approval arms GitHub native auto-merge. The native
+  # engine waits for branch protection's required checks and approvals, so
+  # nothing else needs to poll — and unlike gh pr checks, it is not affected
+  # by GITHUB_TOKEN PR-event suppression.
+  auto-merge-approved:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: |
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Enable auto-merge on approved PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr merge "$PR" --auto --squash --delete-branch
