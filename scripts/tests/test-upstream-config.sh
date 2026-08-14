@@ -104,6 +104,36 @@ if asn_groups["telegram"] != [62041]:
 PY
 
 python3 - <<'PY'
+import json
+from pathlib import Path
+
+config = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))
+# Every remote upstream must be pinned to its exact URL. Scheme-only
+# validation (lint-config.py) blocks http:// but not a merged PR that rewrites
+# a host to an attacker-controlled HTTPS endpoint; exact pins close that.
+expected_urls = {
+    "domain.dlc": "https://github.com/v2fly/domain-list-community.git",
+    "domain.shellcrash-fakeip": "https://raw.githubusercontent.com/juewuy/ShellCrash/refs/heads/dev/public/fake_ip_filter.list",
+    "ip.cloudfront": "https://ip-ranges.amazonaws.com/ip-ranges.json",
+    "ip.cloudflare-ipv4": "https://www.cloudflare.com/ips-v4",
+    "ip.cloudflare-ipv6": "https://www.cloudflare.com/ips-v6",
+    "ip.cn-ipv46-apnic": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt",
+    "ip.cn-clang-ipv4": "https://ispip.clang.cn/all_cn.txt",
+    "ip.cn-clang-ipv6": "https://ispip.clang.cn/all_cn_ipv6.txt",
+    "ip.fastly": "https://api.fastly.com/public-ip-list",
+    "ip.google": "https://www.gstatic.com/ipranges/goog.json",
+    "ip.ripe-stat": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
+    "ip.telegram": "https://core.telegram.org/resources/cidr.txt",
+}
+for key, url in expected_urls.items():
+    section, _, name = key.partition(".")
+    entry = config[section][name]
+    actual = entry.get("url") or entry.get("base_url")
+    if actual != url:
+        raise SystemExit(f"test failed: {key} URL must be pinned exactly, got {actual!r}")
+PY
+
+python3 - <<'PY'
 from pathlib import Path
 
 expected = {

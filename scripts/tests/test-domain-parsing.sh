@@ -218,6 +218,33 @@ EOF
     "export supports domain-list-community plain YAML artifacts"
 }
 
+test_export_plain_yaml_rejects_path_traversal_name() {
+  mkdir -p "$TMP_DIR/export_traversal/out"
+  cat > "$TMP_DIR/export_traversal/dlc.dat_plain.yml" <<'EOF'
+lists:
+  - name: ../../../../tmp/evil
+    length: 1
+    rules:
+      - "domain:example.com"
+EOF
+
+  if python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
+    "$TMP_DIR/export_traversal/dlc.dat_plain.yml" \
+    "$TMP_DIR/export_traversal/out" \
+    2>"$TMP_DIR/export_traversal/stderr"; then
+    echo "test failed: export accepted a path-traversal list name" >&2
+    exit 1
+  fi
+  if ! grep -q "invalid list name" "$TMP_DIR/export_traversal/stderr"; then
+    echo "test failed: expected invalid list name error, got: $(cat "$TMP_DIR/export_traversal/stderr")" >&2
+    exit 1
+  fi
+  if [ -e "$TMP_DIR/evil.list" ]; then
+    echo "test failed: path-traversal list name escaped the output dir" >&2
+    exit 1
+  fi
+}
+
 test_classical_domain_fixture_outputs() {
   local fixture_name="mixed"
   local input_file="$FIXTURE_ROOT/input/$fixture_name.list"

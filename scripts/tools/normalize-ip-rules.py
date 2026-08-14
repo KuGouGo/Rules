@@ -105,9 +105,9 @@ def write_deduplicated_cidrs(values: list[str], output_file: Path) -> None:
 
 def collapsed_cidrs(values: list[str]) -> list[str]:
     networks = normalize_networks(values)
-    ipv4 = [network for network in networks if network.version == 4]
-    ipv6 = [network for network in networks if network.version == 6]
-    collapsed = list(ipaddress.collapse_addresses(ipv4))
+    ipv4 = [network for network in networks if isinstance(network, ipaddress.IPv4Network)]
+    ipv6 = [network for network in networks if isinstance(network, ipaddress.IPv6Network)]
+    collapsed: list[ipaddress._BaseNetwork] = list(ipaddress.collapse_addresses(ipv4))
     collapsed.extend(ipaddress.collapse_addresses(ipv6))
     return [str(network) for network in collapsed]
 
@@ -253,7 +253,7 @@ def render_ip_egern_from_plain(input_file: Path, output_file: Path) -> None:
         f"{target}:\n" + "\n".join(f"  - '{value}'" for value in values)
         for target, values in sections.items()
     ]
-    text = "no_resolve: true\n\n" + "\n\n".join(chunks) + "\n" if chunks else ""
+    text = ("no_resolve: true\n\n" + "\n\n".join(chunks) + "\n") if chunks else ""
     atomic_write_text(output_file, text)
 
 

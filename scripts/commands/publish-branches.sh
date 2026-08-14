@@ -329,6 +329,23 @@ publish_queued_refs() {
     names+=("$branch")
   done < "$PUBLISH_QUEUE_FILE"
 
+  # Refuse to publish an incomplete cohort: a partial prepare (capability
+  # registry error, truncated queue) must never atomically push fewer than
+  # the full five-branch set.
+  if [ "${#names[@]}" -ne "${#PUBLISH_BRANCH_NAMES[@]}" ]; then
+    echo "publish cohort incomplete: got ${#names[@]} branches (${names[*]:-none}), expected ${#PUBLISH_BRANCH_NAMES[@]} (${PUBLISH_BRANCH_NAMES[*]})" >&2
+    return 1
+  fi
+  for expected in "${PUBLISH_BRANCH_NAMES[@]}"; do
+    case " ${names[*]} " in
+      *" $expected "*) ;;
+      *)
+        echo "publish cohort missing branch: $expected" >&2
+        return 1
+        ;;
+    esac
+  done
+
   echo "publishing branches atomically: ${names[*]}"
   git push --atomic "${leases[@]}" origin "${refspecs[@]}"
   if ! assert_remote_main_tip; then
@@ -340,7 +357,7 @@ publish_queued_refs() {
 PUBLISH_TMPDIR="$(mktemp -d)"
 PUBLISH_QUEUE_FILE="$PUBLISH_TMPDIR/publish-queue.tsv"
 PUBLISH_WORKTREE="$PUBLISH_TMPDIR/worktree"
-trap 'cleanup_tempdir "$PUBLISH_TMPDIR"' EXIT
+trap 'cleanup_tempdir "$PUBLISH_TMPDIR"' EXIT HUP INT TERM
 
 mkdir -p "$PUBLISH_WORKTREE"
 cd "$PUBLISH_WORKTREE"

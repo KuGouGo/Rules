@@ -103,6 +103,13 @@ download_file() {
   fi
 }
 
+# All git network operations (clone/fetch/ls-remote/push over HTTPS) inherit
+# this stall guard; a hung upstream aborts instead of idling until the
+# workflow-level timeout-minutes. Total-duration backstop stays with the job
+# timeout, matching curl's --max-time below.
+export GIT_HTTP_LOW_SPEED_LIMIT=${GIT_HTTP_LOW_SPEED_LIMIT:-1000}
+export GIT_HTTP_LOW_SPEED_TIME=${GIT_HTTP_LOW_SPEED_TIME:-60}
+
 download_files_parallel() {
   if [ $(( $# % 4 )) -ne 0 ]; then
     echo "parallel download expects groups of: label mode url output" >&2
@@ -248,10 +255,10 @@ tool_cache_is_trusted() {
   [ -x "$binary" ] || return 1
   sidecar="$(tool_provenance_file "$tool")"
   [ -s "$sidecar" ] || return 1
-  version="$(tool_lock_value "$tool" version)"
-  tag_commit="$(tool_lock_value "$tool" tag_commit)"
-  asset="$(tool_lock_value "$tool" asset "$platform")"
-  archive_sha="$(tool_lock_value "$tool" sha256 "$platform")"
+  version="$(tool_lock_value "$tool" version)" || return 1
+  tag_commit="$(tool_lock_value "$tool" tag_commit)" || return 1
+  asset="$(tool_lock_value "$tool" asset "$platform")" || return 1
+  archive_sha="$(tool_lock_value "$tool" sha256 "$platform")" || return 1
   locked_binary_sha="$(tool_lock_value "$tool" binary_sha256 "$platform")" || return 1
 
   local provenance_values

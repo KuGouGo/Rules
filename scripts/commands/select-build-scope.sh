@@ -44,7 +44,10 @@ resolve_remote_baseline() {
     return 1
   fi
   mkdir -p "$(dirname "$BASELINE_FILE")"
-  build_baseline_json "$metadata_file" "$BASELINE_FILE"
+  if ! build_baseline_json "$metadata_file" "$BASELINE_FILE"; then
+    rm -f "$metadata_file"
+    return 1
+  fi
   rm -f "$metadata_file"
 }
 

@@ -82,9 +82,21 @@ SINGBOX_KIND_MAP = PLATFORM_CAPABILITIES["sing-box"].domain.rule_mappings
 MIHOMO_KIND_MAP = PLATFORM_CAPABILITIES["mihomo"].domain.rule_mappings
 SURGE_KIND_SET = set(SURGE_KIND_MAP)
 MIHOMO_MRS_KIND_SET = set(MIHOMO_KIND_MAP)
-MIHOMO_MRS_SKIP_WARN_PERCENT = int(os.environ.get("MIHOMO_MRS_SKIP_WARN_PERCENT", "30"))
+
+
+def env_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        raise SystemExit(f"invalid {name} environment value: {value!r}") from None
+
+
+MIHOMO_MRS_SKIP_WARN_PERCENT = env_int("MIHOMO_MRS_SKIP_WARN_PERCENT", 30)
 DEFAULT_SINGBOX_RULE_SET_VERSION = 4
-SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
+SINGBOX_RULE_SET_VERSION = env_int("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION)
 
 
 def count_rule_kinds(rules: list[Rule]) -> dict[str, int]:
@@ -357,7 +369,7 @@ def is_redundant_attr_rule_set_name(base: str, attr: str) -> bool:
     return regional_suffix_for_rule_set_name(base) == attr
 
 
-def classify_rule_set_name(name: str) -> dict[str, object]:
+def classify_rule_set_name(name: str) -> dict[str, str]:
     attr_parts = split_attr_rule_set_name(name)
     if attr_parts:
         base, attr = attr_parts
@@ -437,6 +449,14 @@ def export_plain_yaml_lists(input_file: Path, output_dir: Path) -> None:
         if stripped.startswith("- name: "):
             flush_current()
             current_name = parse_plain_yaml_quoted_value(stripped.removeprefix("- name: "))
+            if (
+                not current_name
+                or current_name in {".", ".."}
+                or "/" in current_name
+                or "\\" in current_name
+                or "\x00" in current_name
+            ):
+                raise ValueError(f"{input_file}:{line_no} invalid list name: {current_name!r}")
             current_rules = []
             continue
 
@@ -927,7 +947,11 @@ def write_domain_rule_manifest(rule_dir: Path, output_file: Path) -> None:
 
 def reset_output_dirs(*dirs: Path) -> None:
     for directory in dirs:
-        shutil.rmtree(directory, ignore_errors=True)
+        try:
+            if directory.exists():
+                shutil.rmtree(directory)
+        except OSError as exc:
+            raise SystemExit(f"failed to reset output directory {directory}: {exc}") from exc
         directory.mkdir(parents=True, exist_ok=True)
 
 
