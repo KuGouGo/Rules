@@ -1,0 +1,39 @@
+name: 功能/规则集请求
+description: 请求新增规则集或改进现有处理逻辑
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请描述您期望的规则集或改进,以及它解决的使用场景。
+  - type: textarea
+    id: request
+    attributes:
+      label: 请求内容
+      description: 新增/修改的规则集名称与内容范围
+      placeholder: "如新增 domain/xxx 规则集,覆盖 xx 服务"
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+      description: 为什么需要它,现有规则集为何不能满足
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: 数据来源
+      description: 新规则集的数据应来自哪里
+      options:
+        - 新增上游来源
+        - 自定义规则 (sources/custom/)
+        - 仅基于现有上游派生
+        - 其他
+  - type: textarea
+    id: additional
+    attributes:
+      label: 补充信息
+      description: 参考链接、示例域名等
