@@ -63,9 +63,13 @@ jobs:
             exit 1
           fi
 
-          gh pr checks "$pr" --watch --required --interval 20
-          echo "Merging validated dependency update PR #${pr}"
-          gh pr merge "$pr" --squash --delete-branch
+          # Native auto-merge (not `gh pr checks`) is the reliable path for PRs
+          # pushed by GITHUB_TOKEN: GitHub suppresses `pull_request` check
+          # suites for such pushes, so no required check ever associates with
+          # the PR and `gh pr checks --required` fails. The native engine waits
+          # for branch protection's required "validate" check and merges.
+          echo "Arming native auto-merge for validated dependency update PR #${pr}"
+          gh pr merge "$pr" --auto --squash --delete-branch
 
   # Normal PRs: a human approval arms GitHub native auto-merge. The native
   # engine waits for branch protection's required checks and approvals, so
