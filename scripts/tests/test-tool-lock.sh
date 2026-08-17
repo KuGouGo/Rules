@@ -20,9 +20,9 @@ fail() {
 export SING_BOX_VERSION=latest
 export MIHOMO_VERSION=latest
 [ "$(resolve_sing_box_version)" = "1.13.18" ] || fail "sing-box version must come only from lock"
-[ "$(resolve_mihomo_version)" = "1.19.29" ] || fail "mihomo version must come only from lock"
+[ "$(resolve_mihomo_version)" = "1.19.30" ] || fail "mihomo version must come only from lock"
 [ "$(tool_lock_value sing-box tag_commit)" = "45ca32dcb966f07f97fc888fe8586e359dbe8405" ] || fail "sing-box tag commit is not locked"
-[ "$(tool_lock_value mihomo tag_commit)" = "e26714a181ac0e2fa803453c0a8e9a9ce94e31cb" ] || fail "mihomo tag commit is not locked"
+[ "$(tool_lock_value mihomo tag_commit)" = "ac017cdd246ce8bd547653d927e7bf77d7ee73d5" ] || fail "mihomo tag commit is not locked"
 
 printf 'verified archive fixture\n' > "$TMP_DIR/archive"
 archive_sha="$(sha256_file "$TMP_DIR/archive")"
