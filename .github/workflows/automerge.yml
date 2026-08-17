@@ -69,7 +69,9 @@ jobs:
           # the PR and `gh pr checks --required` fails. The native engine waits
           # for branch protection's required "validate" check and merges.
           echo "Arming native auto-merge for validated dependency update PR #${pr}"
-          gh pr merge "$pr" --auto --squash --delete-branch
+          # -R is required: `gh pr merge` otherwise resolves the repo via git,
+          # which fails in this runner (no checkout step).
+          gh pr merge "$pr" --repo "$REPOSITORY" --auto --squash --delete-branch
 
   # Normal PRs: a human approval arms GitHub native auto-merge. The native
   # engine waits for branch protection's required checks and approvals, so
@@ -88,5 +90,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          gh pr merge "$PR" --auto --squash --delete-branch
+          # -R is required: `gh pr merge` otherwise resolves the repo via git,
+          # which fails in this runner (no checkout step).
+          gh pr merge "$PR" --repo "$REPOSITORY" --auto --squash --delete-branch
