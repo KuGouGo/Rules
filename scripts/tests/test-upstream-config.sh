@@ -274,7 +274,7 @@ path.write_text(json.dumps(data), encoding="utf-8")
 PY
 assert_lint_fails_with \
   "invalid-tool-asset" \
-  "tools_lock.tools.mihomo.platforms.linux-arm64.asset: must equal mihomo-linux-arm64-v1.19.29.gz" \
+  "tools_lock.tools.mihomo.platforms.linux-arm64.asset: must equal mihomo-linux-arm64-v1.19.30.gz" \
   --tools-lock "$TMP_DIR/tools-lock.invalid-asset.json"
 
 echo "upstream config tests passed"

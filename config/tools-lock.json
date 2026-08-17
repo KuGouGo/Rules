@@ -4,20 +4,20 @@
     "mihomo": {
       "platforms": {
         "linux-amd64": {
-          "asset": "mihomo-linux-amd64-compatible-v1.19.29.gz",
-          "binary_sha256": "bd2a08ae155b7dffc12a1bdf610ff5f17c45058414a1d2c562e28eb9309abff6",
-          "sha256": "5612e698e96c8b8ad15abc4c0a4f098eba9234354b4f248cb97f2528e215b094"
+          "asset": "mihomo-linux-amd64-compatible-v1.19.30.gz",
+          "binary_sha256": "8ad44e28fe72be4640254b96741b677f4074991b99186cc4486a1c28ded02b1a",
+          "sha256": "db214c7a2517e63c150d123178d16d102e03a241ccdae4e5e07ffbe9cf56c6f9"
         },
         "linux-arm64": {
-          "asset": "mihomo-linux-arm64-v1.19.29.gz",
-          "binary_sha256": "8e02308f672e89c076bfc2fa1b03379bd54e58b0bafa81ffb01113fcf6da348d",
-          "sha256": "9a868b5e4e0ad91d9d71e1b41b0cfce78aaba44360c30df74a723f8e3926a86c"
+          "asset": "mihomo-linux-arm64-v1.19.30.gz",
+          "binary_sha256": "b9456718a8955364b9a77c80f74dca49ded10f071c1c6b4513a0ea68a3d87a50",
+          "sha256": "58896873736d28628f66de3677c8654fa0f180662523148e136cff4f6e890069"
         }
       },
       "repository": "MetaCubeX/mihomo",
-      "tag": "v1.19.29",
-      "tag_commit": "e26714a181ac0e2fa803453c0a8e9a9ce94e31cb",
-      "version": "1.19.29"
+      "tag": "v1.19.30",
+      "tag_commit": "ac017cdd246ce8bd547653d927e7bf77d7ee73d5",
+      "version": "1.19.30"
     },
     "sing-box": {
       "platforms": {
