@@ -18,15 +18,22 @@ if "workflow_run:" not in text or "workflows: [Update dependencies]" not in text
 if "github.event.workflow_run.conclusion == 'success'" not in text:
     raise SystemExit(f"{workflow}: failed dependency updates must not be merged")
 if "gh pr merge" not in text:
-    raise SystemExit(f"{workflow}: trusted PRs must be merged after checks")
-if "gh pr checks" not in text or "--required" not in text:
-    raise SystemExit(f"{workflow}: required PR checks must pass before merge")
+    raise SystemExit(f"{workflow}: trusted PRs must be merged after validation")
+if "gh pr merge --auto" in text:
+    raise SystemExit(
+        f"{workflow}: native auto-merge (--auto) must not be used for "
+        "token-created PRs; GITHUB_TOKEN pushes suppress the pull_request "
+        "check suite, so no check ever associates with the branch and --auto "
+        "stalls forever waiting on a check that can never resolve"
+    )
+if "gh pr merge --squash --delete-branch" not in text:
+    raise SystemExit(
+        f"{workflow}: trusted PRs must squash-merge and delete the branch"
+    )
 if "gh pr review" in text:
     raise SystemExit(
         f"{workflow}: GitHub Actions cannot approve PRs when repository approval is disabled"
     )
-if "gh pr checks" in text and text.index("gh pr checks") > text.index("gh pr merge"):
-    raise SystemExit(f"{workflow}: merge runs before validation checks")
 if "github.head_ref == 'automation/dependency-updates'" not in text:
     raise SystemExit(f"{workflow}: fixed dependency branch is not trusted")
 if "github.event.pull_request.head.repo.full_name == github.repository" not in text:
