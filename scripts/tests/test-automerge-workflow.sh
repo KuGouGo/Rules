@@ -26,7 +26,7 @@ if "gh pr merge --auto" in text:
         "check suite, so no check ever associates with the branch and --auto "
         "stalls forever waiting on a check that can never resolve"
     )
-if "gh pr merge --squash --delete-branch" not in text:
+if not __import__("re").search(r"gh pr merge\b[^\n]*--squash[^\n]*--delete-branch", text):
     raise SystemExit(
         f"{workflow}: trusted PRs must squash-merge and delete the branch"
     )
