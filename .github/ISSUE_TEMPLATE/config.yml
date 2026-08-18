@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 项目文档
+    url: https://github.com/KuGouGo/Rules/blob/main/README.md
+    about: 订阅方式、规则集说明与使用示例
+  - name: 上游数据来源
+    url: https://github.com/v2fly/domain-list-community
+    about: 域名规则的权威上游,数据相关问题请优先在上游反馈

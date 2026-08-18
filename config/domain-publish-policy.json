@@ -1,0 +1,71 @@
+{
+ "common": {
+  "geographic_roots": [
+   "geolocation-!cn"
+  ],
+  "geolocation_not_cn": [
+   "anthropic",
+   "apple",
+   "bahamut",
+   "cloudflare",
+   "discord",
+   "disney",
+   "epicgames",
+   "facebook",
+   "github",
+   "google",
+   "hbo",
+   "icloud",
+   "instagram",
+   "microsoft",
+   "netflix",
+   "onedrive",
+   "openai",
+   "oracle",
+   "paypal",
+   "primevideo",
+   "reddit",
+   "spotify",
+   "steam",
+   "telegram",
+   "tiktok",
+   "twitter",
+   "whatsapp",
+   "xai",
+   "xbox",
+   "youtube"
+  ],
+  "standalone": [
+   "apple-intelligence",
+   "category-ads-all",
+   "category-ai-chat-!cn",
+   "google-gemini",
+   "mihoyo",
+   "speedtest"
+  ]
+ },
+ "compatibility_replacements": {
+  "category-ai-!cn": "category-ai-chat-!cn",
+  "google-deepmind": "google-gemini",
+  "ookla-speedtest": "speedtest"
+ },
+ "default_profile": "common",
+ "extended": {
+  "geographic_roots": [],
+  "geolocation_not_cn": [
+   "category-ai-!cn",
+   "category-cas",
+   "category-dev",
+   "category-ecommerce",
+   "category-entertainment",
+   "category-finance",
+   "category-media",
+   "category-orgs",
+   "category-porn",
+   "category-scholar-!cn",
+   "google-deepmind"
+  ],
+  "standalone": "all"
+ },
+ "schema_version": 4
+}
