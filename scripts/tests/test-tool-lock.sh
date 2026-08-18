@@ -19,9 +19,9 @@ fail() {
 
 export SING_BOX_VERSION=latest
 export MIHOMO_VERSION=latest
-[ "$(resolve_sing_box_version)" = "1.13.18" ] || fail "sing-box version must come only from lock"
+[ "$(resolve_sing_box_version)" = "1.13.19" ] || fail "sing-box version must come only from lock"
 [ "$(resolve_mihomo_version)" = "1.19.30" ] || fail "mihomo version must come only from lock"
-[ "$(tool_lock_value sing-box tag_commit)" = "45ca32dcb966f07f97fc888fe8586e359dbe8405" ] || fail "sing-box tag commit is not locked"
+[ "$(tool_lock_value sing-box tag_commit)" = "b5ebaa1fc0f2b94256180b95468e73ef53caa27d" ] || fail "sing-box tag commit is not locked"
 [ "$(tool_lock_value mihomo tag_commit)" = "ac017cdd246ce8bd547653d927e7bf77d7ee73d5" ] || fail "mihomo tag commit is not locked"
 
 printf 'verified archive fixture\n' > "$TMP_DIR/archive"
@@ -37,7 +37,7 @@ TOOL_LOCK_FILE="$TMP_DIR/tools-lock.json"
 cp "$ROOT/config/tools-lock.json" "$TOOL_LOCK_FILE"
 cat > "$BIN_DIR/sing-box" <<'SH'
 #!/usr/bin/env bash
-printf 'sing-box version 1.13.18\n'
+printf 'sing-box version 1.13.19\n'
 SH
 chmod +x "$BIN_DIR/sing-box"
 python3 - "$TOOL_LOCK_FILE" "$(sha256_file "$BIN_DIR/sing-box")" <<'PY'
@@ -51,7 +51,7 @@ data["tools"]["sing-box"]["platforms"]["linux-amd64"]["binary_sha256"] = digest
 with open(path, "w", encoding="utf-8") as handle:
     json.dump(data, handle)
 PY
-write_tool_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box" "sing-box version 1.13.18"
+write_tool_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box" "sing-box version 1.13.19"
 tool_cache_is_trusted "sing-box" "linux-amd64" || fail "valid provenance cache was rejected"
 if compgen -G "$BIN_DIR/.sing-box.provenance.*" >/dev/null; then
   fail "atomic provenance temporary file was left behind"
@@ -71,7 +71,7 @@ PY
 if tool_cache_is_trusted "sing-box" "linux-amd64"; then
   fail "provenance with the wrong tag commit was accepted"
 fi
-write_tool_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box" "sing-box version 1.13.18"
+write_tool_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box" "sing-box version 1.13.19"
 
 printf '# cache pollution\n' >> "$BIN_DIR/sing-box"
 if tool_cache_is_trusted "sing-box" "linux-amd64"; then
@@ -108,10 +108,10 @@ fi
 cat > "$BIN_DIR/sing-box" <<SH
 #!/usr/bin/env bash
 touch "$TMP_DIR/tampered-executed"
-printf 'sing-box version 1.13.18\n'
+printf 'sing-box version 1.13.19\n'
 SH
 chmod +x "$BIN_DIR/sing-box"
-write_tool_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box" "sing-box version 1.13.18"
+write_tool_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box" "sing-box version 1.13.19"
 if tool_cache_is_trusted "sing-box" "linux-amd64"; then
   fail "mutually tampered cache pair was accepted"
 fi
@@ -124,7 +124,7 @@ printf 'new binary\n' > "$BIN_DIR/sing-box.new"
 old_binary_sha="$(sha256_file "$BIN_DIR/sing-box")"
 old_sidecar_sha="$(sha256_file "$(tool_provenance_file sing-box)")"
 write_tool_provenance() { return 1; }
-if install_tool_with_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box.new" "sing-box version 1.13.18"; then
+if install_tool_with_provenance "sing-box" "linux-amd64" "$BIN_DIR/sing-box.new" "sing-box version 1.13.19"; then
   fail "installation succeeded despite provenance-write failure"
 fi
 [ "$(sha256_file "$BIN_DIR/sing-box")" = "$old_binary_sha" ] || fail "provenance failure replaced canonical binary"
