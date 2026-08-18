@@ -63,15 +63,18 @@ jobs:
             exit 1
           fi
 
-          # Native auto-merge (not `gh pr checks`) is the reliable path for PRs
-          # pushed by GITHUB_TOKEN: GitHub suppresses `pull_request` check
-          # suites for such pushes, so no required check ever associates with
-          # the PR and `gh pr checks --required` fails. The native engine waits
-          # for branch protection's required "validate" check and merges.
-          echo "Arming native auto-merge for validated dependency update PR #${pr}"
+          # Merge immediately instead of using native auto-merge (`--auto`).
+          # PRs pushed by GITHUB_TOKEN get their `pull_request` check suites
+          # suppressed, so the branch never reports a completed check and the
+          # native engine stalls on a permanent "waiting for checks" state.
+          # The dependency update is already fully validated before the PR is
+          # created (update-tool-versions.sh runs `make validate-tool-update`
+          # locally and dispatches a Validation run), so nothing is gained by
+          # waiting for a check that can never resolve.
+          echo "Merging validated dependency update PR #${pr}"
           # -R is required: `gh pr merge` otherwise resolves the repo via git,
           # which fails in this runner (no checkout step).
-          gh pr merge "$pr" --repo "$REPOSITORY" --auto --squash --delete-branch
+          gh pr merge "$pr" --repo "$REPOSITORY" --squash --delete-branch
 
   # Normal PRs: a human approval arms GitHub native auto-merge. The native
   # engine waits for branch protection's required checks and approvals, so
