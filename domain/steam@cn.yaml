@@ -1,0 +1,13 @@
+domain_set:
+  - 'alibaba.cdn.steampipe.steamcontent.com'
+  - 'xz.pphimalayanrt.com'
+
+domain_suffix_set:
+  - 'wmsjsteam.com'
+  - 'client-update.queniuqe.com'
+  - 'dl.steam.clngaa.com'
+  - 'st.dl.bscstorage.net'
+  - 'st.dl.eccdnx.com'
+  - 'st.dl.pinyuncloud.com'
+  - 'steamchina.com'
+  - 'gstore.val.manlaxy.com'
