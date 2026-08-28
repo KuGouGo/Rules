@@ -48,6 +48,53 @@ TRANSACTION_FAILURE_REASON=command-failure
 TRANSACTION_SIGNAL=""
 mkdir -p "$STAGE_ROOT"
 
+# Per-phase wall-clock timings, recorded into build-timings.json so CI runs
+# expose a performance budget: a slowly degrading audit or compile stage shows
+# up here before it threatens the job timeout.
+declare -A PHASE_TIMINGS_MS=()
+PHASE_CLOCK_NS=0
+
+now_ns() {
+  python3 -c 'import time; print(time.time_ns())'
+}
+
+phase_begin() {
+  PHASE_CLOCK_NS="$(now_ns)"
+}
+
+phase_end() {
+  local phase="$1"
+  PHASE_TIMINGS_MS["$phase"]=$(( ($(now_ns) - PHASE_CLOCK_NS) / 1000000 ))
+}
+
+write_build_timings() {
+  python3 - "$STAGE_ROOT/build-timings.json" "$SCOPE" "${ARTIFACT_GENERATION_ID:-local}" <<'PY'
+import json
+import os
+import sys
+from pathlib import Path
+
+output, scope, generation_id = sys.argv[1:]
+timings = {}
+for key, value in os.environ.items():
+    if key.startswith("RULES_PHASE_MS_"):
+        timings[key.removeprefix("RULES_PHASE_MS_").lower()] = int(value)
+
+payload = {
+    "schema_version": 1,
+    "scope": scope,
+    "generation_id": generation_id,
+    "phases_ms": dict(sorted(timings.items())),
+    "total_ms": sum(timings.values()),
+}
+Path(output).write_text(
+    json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+    encoding="utf-8",
+)
+print("build phase timings (ms): " + ", ".join(f"{k}={v}" for k, v in sorted(timings.items())))
+PY
+}
+
 path_exists() {
   [ -e "$1" ] || [ -L "$1" ]
 }
@@ -263,23 +310,42 @@ fi
 export RULES_ARTIFACT_ROOT="$STAGE_ROOT"
 export RULES_ARTIFACT_DIAGNOSTICS_ROOT="$DIAGNOSTICS_ROOT"
 
+phase_begin
 case "$SCOPE" in
   full) "$ROOT/scripts/commands/sync-upstream.sh" ;;
   custom) "$ROOT/scripts/commands/restore-artifacts.sh" ;;
   *) echo "unsupported build scope: $SCOPE" >&2; exit 2 ;;
 esac
+phase_end source_preparation
 
+phase_begin
 "$ROOT/scripts/commands/build-custom.sh"
+phase_end custom_build
+
+phase_begin
 if [ -d "$STAGE_ROOT/.canonical/domain" ] && [ -d "$STAGE_ROOT/.canonical/ip" ]; then
   python3 "$ROOT/scripts/tools/audit-rule-overlaps.py" \
     "$STAGE_ROOT/.canonical" \
     --output "$STAGE_ROOT/overlap-report.json" \
     --fail-internal
 fi
+phase_end overlap_audit
+
+phase_begin
 "$ROOT/scripts/commands/guard-artifacts.sh"
+phase_end artifact_guards
+
+phase_begin
 python3 "$ROOT/scripts/tools/summarize-artifacts.py" "$STAGE_ROOT" --output "$STAGE_ROOT/build-summary.json" >/dev/null
 ARTIFACT_BUILD_SCOPE="$SCOPE" "$ROOT/scripts/commands/generate-artifact-manifest.sh"
 "$ROOT/scripts/commands/verify-artifact-manifest.sh"
+phase_end artifact_manifest
+
+for phase in "${!PHASE_TIMINGS_MS[@]}"; do
+  upper_phase="${phase^^}"
+  export "RULES_PHASE_MS_${upper_phase}=${PHASE_TIMINGS_MS[$phase]}"
+done
+write_build_timings
 
 if path_exists "$LIVE_ROOT"; then
   HAD_LIVE_ROOT=1

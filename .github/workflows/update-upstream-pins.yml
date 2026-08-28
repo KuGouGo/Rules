@@ -1,24 +1,22 @@
-name: Update dependencies
+name: Update upstream pins
 
 on:
   schedule:
-    - cron: '23 3 * * *'
+    - cron: '47 2 * * *'
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: write
   pull-requests: write
-  statuses: write
 
 concurrency:
-  group: dependency-updates
+  group: upstream-pins
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -26,7 +24,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: true
 
-      - name: Update dependencies and open one pull request
+      - name: Propose upstream pin bump
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash ./scripts/commands/update-tool-versions.sh
+        run: bash ./scripts/commands/update-upstream-pins.sh

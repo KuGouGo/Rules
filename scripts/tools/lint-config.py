@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from common_utils import Reporter
+from domain_publish_policy import parse_publish_policy
 from platform_capabilities import load_platform_capabilities
 
 
@@ -208,92 +209,27 @@ def validate_upstreams(data: dict, reporter: Reporter) -> None:
 
 
 def validate_domain_publish_policy(data: dict, reporter: Reporter) -> None:
+    """Lint the publish policy through the shared strict loader.
+
+    The exporter parses this file with domain_publish_policy.parse_publish_policy,
+    so linting the same bytes through a second hand-written schema copy would
+    only guarantee drift. Checks below the loader are repo-level invariants the
+    shared loader deliberately does not own.
+    """
     location = "domain_publish_policy"
-    expected = {
-        "schema_version",
-        "default_profile",
-        "common",
-        "extended",
-        "compatibility_replacements",
-    }
-    if set(data) != expected:
-        reporter.error(
-            location,
-            f"must contain exactly {sorted(expected)}",
-        )
-    if data.get("schema_version") != 4:
-        reporter.error(f"{location}.schema_version", "must equal 4")
-    if data.get("default_profile") not in {"common", "extended"}:
-        reporter.error(f"{location}.default_profile", "must be common or extended")
-
-    common = data.get("common")
-    extended = data.get("extended")
-    section_keys = {"geographic_roots", "geolocation_not_cn", "standalone"}
-    if not isinstance(common, dict) or set(common) != section_keys:
-        reporter.error(f"{location}.common", f"must contain exactly {sorted(section_keys)}")
+    try:
+        policy = parse_publish_policy(data, location)
+    except ValueError as exc:
+        reporter.error(location, str(exc))
         return
-    if not isinstance(extended, dict) or set(extended) != section_keys:
-        reporter.error(f"{location}.extended", f"must contain exactly {sorted(section_keys)}")
+    if not policy.common_geolocation_not_cn:
+        reporter.error(
+            f"{location}.common.geolocation_not_cn",
+            "must be a list (common geographic list cannot be empty)",
+        )
         return
-    if extended["standalone"] != "all":
-        reporter.error(f"{location}.extended.standalone", "must equal all")
-    replacements = data.get("compatibility_replacements")
-    if not isinstance(replacements, dict) or any(
-        not isinstance(name, str)
-        or not name
-        or not isinstance(target, str)
-        or not target
-        or name == target
-        for name, target in replacements.items()
-    ):
-        reporter.error(
-            f"{location}.compatibility_replacements",
-            "must map non-empty distinct names",
-        )
-        replacements = {}
-    elif list(replacements) != sorted(replacements):
-        reporter.error(f"{location}.compatibility_replacements", "entries must be sorted")
-    chained = set(replacements) & set(replacements.values())
-    if chained:
-        reporter.error(
-            f"{location}.compatibility_replacements",
-            f"must not contain chained replacements: {sorted(chained)}",
-        )
-
-    lists = {
-        "common.geographic_roots": common["geographic_roots"],
-        "common.geolocation_not_cn": common["geolocation_not_cn"],
-        "common.standalone": common["standalone"],
-        "extended.geographic_roots": extended["geographic_roots"],
-        "extended.geolocation_not_cn": extended["geolocation_not_cn"],
-    }
-    valid: dict[str, set[str]] = {}
-    for key, names in lists.items():
-        item_location = f"{location}.{key}"
-        if not isinstance(names, list) or (key == "common.geolocation_not_cn" and not names):
-            reporter.error(item_location, "must be a list (common geographic list cannot be empty)")
-            continue
-        if any(not isinstance(name, str) or not name for name in names):
-            reporter.error(item_location, "entries must be non-empty strings")
-            continue
-        if len(names) != len(set(names)):
-            reporter.error(item_location, "entries must be unique")
-        if names != sorted(names):
-            reporter.error(item_location, "entries must be sorted")
-        valid[key] = set(names)
-    if valid.get("common.geolocation_not_cn", set()) & valid.get("extended.geolocation_not_cn", set()):
-        reporter.error(location, "common and extended geographic lists must not overlap")
-    common_roots = valid.get("common.geographic_roots", set())
-    extended_roots = valid.get("extended.geographic_roots", set())
-    if common_roots & extended_roots:
-        reporter.error(location, "common and extended geographic roots must not overlap")
-    if common_roots != {"geolocation-!cn"} or extended_roots:
-        reporter.error(
-            location,
-            "common geographic roots must be geolocation-!cn and extended must add none (cn covers geolocation-cn/tld-cn)",
-        )
     required = {"apple", "google", "telegram"}
-    missing = sorted(required - valid.get("common.geolocation_not_cn", set()))
+    missing = sorted(required - policy.common_geolocation_not_cn)
     if missing:
         reporter.error(
             f"{location}.common.geolocation_not_cn",
@@ -301,9 +237,33 @@ def validate_domain_publish_policy(data: dict, reporter: Reporter) -> None:
         )
 
 
-def validate_tools_lock(data: dict, reporter: Reporter) -> None:
+def validate_upstream_pins(data: dict, reporter: Reporter) -> None:
+    location = "upstream_pins"
     if data.get("schema_version") != 1:
-        reporter.error("tools_lock.schema_version", "must equal 1")
+        reporter.error(f"{location}.schema_version", "must equal 1")
+    pins = data.get("pins")
+    if not isinstance(pins, dict):
+        reporter.error(f"{location}.pins", "must be an object")
+        return
+    for key in sorted(pins):
+        pin = pins[key]
+        pin_location = f"{location}.pins.{key}"
+        if not isinstance(pin, dict):
+            reporter.error(pin_location, "must be an object")
+            continue
+        if set(pin) != {"commit", "note"}:
+            reporter.error(pin_location, "must contain exactly commit and note")
+            continue
+        commit = pin["commit"]
+        if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
+            reporter.error(f"{pin_location}.commit", "must be a lowercase 40-character Git commit")
+        if not isinstance(pin["note"], str) or not pin["note"]:
+            reporter.error(f"{pin_location}.note", "must be a non-empty string")
+
+
+def validate_tools_lock(data: dict, reporter: Reporter) -> None:
+    if data.get("schema_version") != 2:
+        reporter.error("tools_lock.schema_version", "must equal 2")
 
     tools = data.get("tools")
     if not isinstance(tools, dict):
@@ -348,8 +308,16 @@ def validate_tools_lock(data: dict, reporter: Reporter) -> None:
             if not isinstance(asset_entry, dict):
                 reporter.error(asset_location, "must be an object")
                 continue
-            if set(asset_entry) != {"asset", "sha256", "binary_sha256"}:
-                reporter.error(asset_location, "must contain exactly asset, sha256, and binary_sha256")
+            if set(asset_entry) != {"asset", "sha256", "binary_sha256", "attestation"}:
+                reporter.error(
+                    asset_location,
+                    "must contain exactly asset, sha256, binary_sha256, and attestation",
+                )
+            if asset_entry.get("attestation") not in ("verified", "unavailable"):
+                reporter.error(
+                    f"{asset_location}.attestation",
+                    "must equal verified or unavailable",
+                )
             arch = platform.removeprefix("linux-")
             if tool == "sing-box":
                 expected_asset = f"sing-box-{version}-linux-{arch}.tar.gz"
@@ -380,6 +348,7 @@ def main() -> int:
         default=str(ROOT / "config" / "domain-publish-policy.json"),
     )
     parser.add_argument("--tools-lock", default=str(ROOT / "config" / "tools-lock.json"))
+    parser.add_argument("--upstream-pins", default=str(ROOT / "config" / "upstream-pins.json"))
     args = parser.parse_args()
 
     reporter = Reporter()
@@ -396,6 +365,7 @@ def main() -> int:
         reporter,
     )
     validate_tools_lock(load_json_object(Path(args.tools_lock), reporter), reporter)
+    validate_upstream_pins(load_json_object(Path(args.upstream_pins), reporter), reporter)
 
     if not reporter.ok:
         reporter.emit()

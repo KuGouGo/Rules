@@ -22,6 +22,7 @@ DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
 IP_TEXT_ARTIFACTS=(cn private google telegram cloudflare cloudfront fastly apple)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
+UPSTREAM_PINS_FILE="$ROOT_DIR/config/upstream-pins.json"
 UPSTREAM_SUMMARY_FILE="$WORK_TMP_DIR/upstream-summary.jsonl"
 BUILTIN_PRIVATE_SOURCE_FILE="$ROOT_DIR/sources/builtin/ip/private.list"
 BUILTIN_APPLE_SOURCE_FILE="$ROOT_DIR/sources/builtin/ip/apple.list"
@@ -243,10 +244,25 @@ render_ip_text_artifacts() {
   done
 }
 
+# Run the RIPE Stat health verifier for a raw/normalized pair; sets
+# ripe_health_status and ripe_health_detail for the caller to record.
+run_ripe_stat_health() {
+  local raw_file="$1"
+  local normalized_file="$2"
+  local health_json
+  if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" \
+    "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$raw_file" "$normalized_file")"; then
+    ripe_health_status=ok
+  else
+    ripe_health_status=semantic_regression
+  fi
+  ripe_health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
+}
+
 prepare_ripe_stat_asns() {
   local -A seen=()
   local -a unique_asns=() download_args=()
-  local asn raw_json cidr_txt health_json health_status health_detail
+  local asn raw_json cidr_txt
 
   for asn in "$@"; do
     if [ -n "${seen[$asn]:-}" ]; then
@@ -269,15 +285,10 @@ prepare_ripe_stat_asns() {
       return 1
     fi
 
-    if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$raw_json" "$cidr_txt")"; then
-      health_status=ok
-    else
-      health_status=semantic_regression
-    fi
-    health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
-    record_upstream_summary ip "ripe-stat-as${asn}" "$health_status" "${RIPE_STAT_BASE_URL}${asn}" "$raw_json" "$cidr_txt" 0 "$health_detail"
-    if [ "$health_status" != "ok" ]; then
-      echo "RIPE Stat response AS${asn} failed configured health policy: $health_detail" >&2
+    run_ripe_stat_health "$raw_json" "$cidr_txt"
+    record_upstream_summary ip "ripe-stat-as${asn}" "$ripe_health_status" "${RIPE_STAT_BASE_URL}${asn}" "$raw_json" "$cidr_txt" 0 "$ripe_health_detail"
+    if [ "$ripe_health_status" != "ok" ]; then
+      echo "RIPE Stat response AS${asn} failed configured health policy: $ripe_health_detail" >&2
       return 1
     fi
   done
@@ -287,7 +298,7 @@ sync_asn_ip_cidrs() {
   local name="$1"
   shift
   local -a asns=("$@") cidr_files=()
-  local asn raw_json cidr_txt health_json health_status health_detail
+  local asn raw_json cidr_txt
 
   for asn in "${asns[@]}"; do
     raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
@@ -312,15 +323,10 @@ sync_asn_ip_cidrs() {
   for asn in "${asns[@]}"; do
     cat "$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json" >> "$group_raw"
   done
-  if health_json="$(python3 "$ROOT_DIR/scripts/tools/verify-upstream-health.py" "$UPSTREAMS_CONFIG_FILE" ip ripe-stat "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt")"; then
-    health_status=ok
-  else
-    health_status=semantic_regression
-  fi
-  health_detail="$(printf '%s' "$health_json" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed')"
-  record_upstream_summary ip "ripe-stat-group-${name}" "$health_status" "$RIPE_STAT_BASE_URL" "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "asns=${asns[*]}${health_detail:+; $health_detail}"
-  if [ "$health_status" != "ok" ]; then
-    echo "RIPE Stat group $name failed configured health policy: $health_detail" >&2
+  run_ripe_stat_health "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt"
+  record_upstream_summary ip "ripe-stat-group-${name}" "$ripe_health_status" "$RIPE_STAT_BASE_URL" "$group_raw" "$IP_BUILD_TMP_DIR/${name}.cidr.txt" 0 "asns=${asns[*]}${ripe_health_detail:+; $ripe_health_detail}"
+  if [ "$ripe_health_status" != "ok" ]; then
+    echo "RIPE Stat group $name failed configured health policy: $ripe_health_detail" >&2
     return 1
   fi
 }
@@ -456,6 +462,12 @@ main() {
   # for closing the geographic partition and the geolocation-!cn@cn aggregate.
   rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
   clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
+  # Consume the audited pinned commit, not the upstream's moving master, so a
+  # poisoned or merely unexpected upstream push cannot ship without review.
+  "$ROOT_DIR/scripts/commands/apply-upstream-pins.sh" \
+    "$UPSTREAM_PINS_FILE" \
+    "$WORK_TMP_DIR/domain-list-community" \
+    domain.dlc
   python3 "$ROOT_DIR/scripts/tools/audit-dlc-data.py" "$WORK_TMP_DIR/domain-list-community/data"
   python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" export \
     "$WORK_TMP_DIR/domain-list-community/data" \

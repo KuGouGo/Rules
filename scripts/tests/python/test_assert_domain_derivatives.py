@@ -10,7 +10,13 @@ import _paths  # noqa: F401
 TOOL = _paths.TOOLS_DIR / "assert-domain-derivatives.py"
 
 
-def build_manifest(required=True, geolocation_pair=True, aggregate_rules=600, extended=False):
+def build_manifest(
+    required=True,
+    geolocation_pair=True,
+    aggregate_rules=600,
+    extended=False,
+    include_geolocation_cn=None,
+):
     lists = [
         {"name": name, "kind": "attr", "attr": attr}
         for name, attr in {
@@ -25,7 +31,9 @@ def build_manifest(required=True, geolocation_pair=True, aggregate_rules=600, ex
         entry for entry in lists if entry["name"] == "geolocation-!cn@cn"
     )
     aggregate["rules"] = aggregate_rules
-    if not extended:
+    if include_geolocation_cn is None:
+        include_geolocation_cn = extended
+    if not include_geolocation_cn:
         lists = [entry for entry in lists if entry["name"] != "geolocation-cn"]
     if not required:
         lists = [entry for entry in lists if entry["name"] != "cn"]
@@ -77,6 +85,17 @@ class AssertDomainDerivativesTest(unittest.TestCase):
             manifest.write_text(json.dumps(build_manifest(extended=True)), encoding="utf-8")
             result = self.run_tool(manifest, "extended")
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_extended_profile_requires_compatibility_entry_points(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "manifest.json"
+            manifest.write_text(
+                json.dumps(build_manifest(extended=True, include_geolocation_cn=False)),
+                encoding="utf-8",
+            )
+            result = self.run_tool(manifest, "extended")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("missing required derivative rule sets: geolocation-cn", result.stderr)
 
     def test_missing_required_rule_set(self):
         with tempfile.TemporaryDirectory() as tmp:

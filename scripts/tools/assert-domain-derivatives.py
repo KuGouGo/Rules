@@ -23,6 +23,14 @@ REQUIRED_RULE_SETS = {
     "geolocation-!cn@cn",
 }
 
+# Compatibility entry points that only extended publications ship: common
+# publishes the cn superset only (it fully covers geolocation-cn and tld-cn),
+# so the old names are required to be present only under extended.
+PROFILE_REQUIRED_RULE_SETS = {
+    "common": frozenset(),
+    "extended": frozenset({"geolocation-cn", "tld-cn"}),
+}
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -57,7 +65,9 @@ def main() -> int:
     if not required_regions.issubset(geolocation_regions):
         errors.append("missing required geolocation regional entry point")
 
-    required_rule_sets = set(REQUIRED_RULE_SETS)
+    required_rule_sets = set(REQUIRED_RULE_SETS) | set(
+        PROFILE_REQUIRED_RULE_SETS.get(args.profile, frozenset())
+    )
     missing = sorted(required_rule_sets - names)
     if missing:
         errors.append("missing required derivative rule sets: " + ", ".join(missing))

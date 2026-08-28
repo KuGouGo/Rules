@@ -104,7 +104,13 @@ branch_readme() {
     exit 1
   fi
 
-  cp "$template" README.md
+  # Render the template with the generated artifact stats table so each
+  # publish branch documents exactly which lists it ships and their sizes.
+  python3 "$ROOT/scripts/tools/render-branch-readme.py" \
+    --platform "$branch" \
+    --artifact-root "$ARTIFACT_ROOT" \
+    --template "$template" \
+    --output README.md
 }
 
 has_publish_source_artifacts() {
@@ -309,10 +315,14 @@ publish_queued_refs() {
   fi
 
   remote_url="$(git -C "$ROOT" remote get-url origin)"
-  if [[ "$remote_url" == https://github.com/* ]] && [ -n "${GITHUB_TOKEN:-}" ]; then
-    remote_url="https://x-access-token:${GITHUB_TOKEN}@${remote_url#https://}"
-  fi
   git remote add origin "$remote_url"
+  if [[ "$remote_url" == https://github.com/* ]] && [ -n "${GITHUB_TOKEN:-}" ]; then
+    # Auth via a URL-scoped extraheader instead of embedding the token in the
+    # remote URL, where it would be exposed by `git remote -v` and potentially
+    # by git error output and process listings.
+    basic_token="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
+    git config "http.${remote_url}/.extraheader" "AUTHORIZATION: basic ${basic_token}"
+  fi
 
   git ls-remote --exit-code origin HEAD >/dev/null
 

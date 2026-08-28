@@ -10,7 +10,6 @@ from pathlib import Path
 
 from domain_rules import (
     compact_domain_rules,
-    domain_rule_is_covered,
     parse_classical_domain_file,
 )
 from ip_rules import parse_classical_ip_file
@@ -46,29 +45,47 @@ def domain_audit(root: Path) -> dict:
         {"left": name_a, "right": name_b, "exact_rules": count}
         for (name_a, name_b), count in sorted(pairs.items(), key=lambda item: (-item[1], item[0]))[:100]
     ]
+    # Semantic containment via an inverted rule-owner index instead of the
+    # former O(lists² × rules) pairwise scan: for every rule, one owner lookup
+    # per suffix label yields every list whose rules cover it. Work stays
+    # near-linear in total rules (times label count) rather than multiplying
+    # by the list count, which matters as the canonical tree grows.
+    covered_counts: dict[tuple[str, str], int] = defaultdict(int)
+    suffix_owner_cache: dict[str, list[str]] = {}
+    for left, left_keys in rules_by_list.items():
+        for kind, value in left_keys:
+            covering = set(owners.get((kind, value), ()))
+            if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
+                labels = value.split(".")
+                for index in range(len(labels)):
+                    suffix = ".".join(labels[index:])
+                    cached = suffix_owner_cache.get(suffix)
+                    if cached is None:
+                        cached = owners.get(("DOMAIN-SUFFIX", suffix), ())
+                        suffix_owner_cache[suffix] = cached
+                    if cached:
+                        covering.update(cached)
+            covering.discard(left)
+            for right in covering:
+                covered_counts[(left, right)] += 1
+
     containments = []
-    for left, left_rules in rules_by_list.items():
-        for right, right_rules in rules_by_list.items():
-            if left == right:
-                continue
-            exact = len(left_rules & right_rules)
-            covered = sum(
-                domain_rule_is_covered(kind, value, right_rules)
-                for kind, value in left_rules
-            )
-            if not covered:
-                continue
-            containments.append(
-                {
-                    "additional_semantic_rules": covered - exact,
-                    "coverage_percent": round(covered * 100 / len(left_rules), 2),
-                    "covered_rules": covered,
-                    "exact_rules": exact,
-                    "left": left,
-                    "left_rules": len(left_rules),
-                    "right": right,
-                }
-            )
+    for (left, right), covered in covered_counts.items():
+        if not covered:
+            continue
+        left_rules = rules_by_list[left]
+        exact = len(left_rules & rules_by_list[right])
+        containments.append(
+            {
+                "additional_semantic_rules": covered - exact,
+                "coverage_percent": round(covered * 100 / len(left_rules), 2),
+                "covered_rules": covered,
+                "exact_rules": exact,
+                "left": left,
+                "left_rules": len(left_rules),
+                "right": right,
+            }
+        )
     containments.sort(
         key=lambda item: (
             -item["coverage_percent"],

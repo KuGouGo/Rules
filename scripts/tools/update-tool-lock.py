@@ -2,9 +2,10 @@
 """Refresh config/tools-lock.json from the latest upstream sing-box/mihomo releases.
 
 Queries the GitHub releases API for the latest tags, downloads the locked
-linux-amd64/linux-arm64 assets, computes archive and extracted-binary SHA-256
-digests, resolves the tag commit, and writes the updated lock plus the tests
-that pin the locked versions.
+linux-amd64/linux-arm64 assets, cross-checks each archive against upstream
+GitHub artifact attestations when the upstream publishes them, computes archive
+and extracted-binary SHA-256 digests, resolves the tag commit, and writes the
+updated lock plus the tests that pin the locked versions.
 
 Exits 0. Prints changed=true (and a versions= summary) only when at least one
 tool was updated; otherwise prints changed=false.
@@ -16,10 +17,14 @@ import hashlib
 import io
 import json
 import os
+import shutil
+import subprocess
 import sys
 import tarfile
-import urllib.request
+import tempfile
 from pathlib import Path
+
+from github_api import api_get, request_headers, resolve_tag_commit
 
 TOOLS = {
     "sing-box": {
@@ -41,12 +46,6 @@ TOOLS = {
 }
 
 
-def api_get(url, headers):
-    request = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(request, timeout=60) as response:
-        return json.load(response)
-
-
 def download(url, headers):
     request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request, timeout=180) as response:
@@ -57,14 +56,35 @@ def sha256_bytes(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def resolve_tag_commit(repo, tag, headers):
-    """Return the commit SHA a release tag resolves to (annotated tags included)."""
-    ref = api_get(f"https://api.github.com/repos/{repo}/git/refs/tags/{tag}", headers)
-    obj = ref["object"]
-    if obj["type"] == "commit":
-        return obj["sha"]
-    tag_obj = api_get(f"https://api.github.com/repos/{repo}/git/tags/{obj['sha']}", headers)
-    return tag_obj["object"]["sha"]
+def verify_release_attestation(archive_path, repository):
+    """Cross-check a downloaded archive against upstream artifact attestations.
+
+    The locked digest is computed from the downloaded bytes, so by itself it
+    only proves consistency, not authenticity. GitHub artifact attestations
+    (signed provenance tied to the upstream repository's release workflow) are
+    the independent anchor when the upstream publishes them. Returns
+    "verified" or "unavailable"; a mismatching attestation raises, because
+    that means the release asset was not produced by the upstream workflow.
+    """
+    gh = shutil.which("gh")
+    if gh is None:
+        return "unavailable"
+    proc = subprocess.run(
+        [gh, "attestation", "verify", str(archive_path), "--repo", repository],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=300,
+    )
+    if proc.returncode == 0:
+        return "verified"
+    output = (proc.stdout or "").strip()
+    if "HTTP 404" in output or "no attestations found" in output.lower():
+        return "unavailable"
+    raise RuntimeError(
+        f"artifact attestation verification failed for {archive_path.name} "
+        f"in {repository}: {output[:500]}"
+    )
 
 
 def binary_from_archive(archive_format, archive_bytes, tool, asset):
@@ -81,6 +101,35 @@ def binary_from_archive(archive_format, archive_bytes, tool, asset):
     raise RuntimeError(f"unsupported archive format: {archive_format}")
 
 
+def replace_pinned_version(path, text, tool, other_tool, old, new):
+    """Replace a tool's pinned version only on lines unambiguously scoped to it.
+
+    Both tools are pinned in the same test files and have historically shipped
+    identical version strings, so a global replace can silently rewrite the
+    other tool's pin. Every version pin lives on a line that names its tool
+    (either spelling), so scope the replace to those lines and refuse anything
+    ambiguous instead of corrupting the other tool's pin.
+    """
+    tool_tokens = (tool.lower(), tool.lower().replace("-", "_"))
+    other_tokens = (other_tool.lower(), other_tool.lower().replace("-", "_"))
+    out_lines = []
+    for line in text.splitlines(keepends=True):
+        if old not in line:
+            out_lines.append(line)
+            continue
+        lowered = line.lower()
+        has_tool = any(token in lowered for token in tool_tokens)
+        has_other = any(token in lowered for token in other_tokens)
+        if has_tool and not has_other:
+            out_lines.append(line.replace(old, new))
+        else:
+            raise RuntimeError(
+                f"{path.name}: pinned value {old!r} appears on a line without an "
+                f"unambiguous {tool} marker; refusing a blind replace"
+            )
+    return "".join(out_lines)
+
+
 def patch_tests(root, updates):
     def apply_replacements(path, text, replacements):
         for old, new in replacements:
@@ -94,14 +143,24 @@ def patch_tests(root, updates):
 
     tool_lock_test = root / "scripts/tests/test-tool-lock.sh"
     text = tool_lock_test.read_text(encoding="utf-8")
+    # tag_commit digests are unique 40-character strings, so a global replace
+    # is safe; version strings are not (see replace_pinned_version).
     for tool, update in updates.items():
         text = apply_replacements(
             tool_lock_test,
             text,
-            [
-                (update["old_version"], update["new"]["version"]),
-                (update["old_tag_commit"], update["new"]["tag_commit"]),
-            ],
+            [(update["old_tag_commit"], update["new"]["tag_commit"])],
+        )
+    all_tools = list(TOOLS)
+    for tool, update in updates.items():
+        other_tool = next(name for name in all_tools if name != tool)
+        text = replace_pinned_version(
+            tool_lock_test,
+            text,
+            tool,
+            other_tool,
+            update["old_version"],
+            update["new"]["version"],
         )
     tool_lock_test.write_text(text, encoding="utf-8")
 
@@ -131,14 +190,7 @@ def main(argv=None):
     lock_path = args.lock or root / "config" / "tools-lock.json"
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
 
-    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "Rules-tool-lock-updater",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    headers = request_headers("Rules-tool-lock-updater")
 
     updates = {}
     for tool, meta in TOOLS.items():
@@ -161,11 +213,25 @@ def main(argv=None):
             if asset not in assets:
                 raise RuntimeError(f"{tool} {tag}: asset {asset} not found in release")
             archive_bytes = download(assets[asset], headers)
+            attestation = "unavailable"
+            with tempfile.TemporaryDirectory() as verify_dir:
+                archive_file = Path(verify_dir) / asset
+                archive_file.write_bytes(archive_bytes)
+                attestation = verify_release_attestation(archive_file, repo)
+            if attestation == "verified":
+                print(f"{tool} {asset}: artifact attestation verified")
+            else:
+                print(
+                    f"warning: {tool} {asset}: upstream does not publish artifact "
+                    "attestations; the locked digest anchors the downloaded asset",
+                    file=sys.stderr,
+                )
             binary = binary_from_archive(meta["archive_format"], archive_bytes, tool, asset)
             platforms[platform] = {
                 "asset": asset,
                 "sha256": sha256_bytes(archive_bytes),
                 "binary_sha256": sha256_bytes(binary),
+                "attestation": attestation,
             }
 
         updates[tool] = {

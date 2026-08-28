@@ -33,6 +33,12 @@ if not pull_request.search(text):
         "auto-upgrade and contribution PRs are validated before merge"
     )
 
+if "ensure_sing_box" not in text or "ensure_mihomo" not in text:
+    raise SystemExit(
+        f"{workflow}: PR validation must resolve the locked tools so the "
+        "binary verifier tests run their real-tool sections instead of skipping"
+    )
+
 workflow_dispatch = re.compile(r"^\s*workflow_dispatch:\s*$", re.MULTILINE)
 if not workflow_dispatch.search(text):
     raise SystemExit(

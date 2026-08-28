@@ -57,6 +57,33 @@ for test_script in "${test_scripts[@]}"; do
   esac
 done
 
+# The Python unit tests are part of the suite; running them here keeps
+# ./scripts/tests/run.sh (and `make test`) from silently skipping them.
+# Skipped when the test dir has no python/ subtree (e.g. the runner's own
+# fixture dirs) or a TEST_FILTER excludes it.
+if [ -d "$TEST_DIR/python" ] && { [ -z "$TEST_FILTER" ] || [[ "test-python-unittest" == *"$TEST_FILTER"* ]]; }; then
+  ran=$((ran + 1))
+  echo "==> test-python-unittest (timeout: ${TEST_TIMEOUT_SECONDS}s)"
+  python3 "$TIMEOUT_HELPER" --timeout "$TEST_TIMEOUT_SECONDS" \
+    python3 -m unittest discover -s "$TEST_DIR/python" -t "$TEST_DIR/python"
+  status=$?
+  case "$status" in
+    0)
+      passed=$((passed + 1))
+      results+=("PASS  test-python-unittest")
+      ;;
+    124)
+      timed_out=$((timed_out + 1))
+      failed=$((failed + 1))
+      results+=("TIMEOUT  test-python-unittest (${TEST_TIMEOUT_SECONDS}s)")
+      ;;
+    *)
+      failed=$((failed + 1))
+      results+=("FAIL  test-python-unittest (exit $status)")
+      ;;
+  esac
+fi
+
 if [ "$ran" -eq 0 ]; then
   echo "no test scripts matched TEST_FILTER=$TEST_FILTER" >&2
   exit 1

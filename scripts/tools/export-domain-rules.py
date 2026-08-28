@@ -418,10 +418,73 @@ def parse_classical_domain_rules(input_file: Path) -> list[Rule]:
     return [Rule(kind=rule.kind, value=rule.value, attrs=tuple()) for rule in parsed]
 
 
-def parse_plain_yaml_quoted_value(raw_value: str) -> str:
+YAML_DOUBLE_QUOTE_ESCAPES = {
+    "0": "\x00",
+    "a": "\x07",
+    "b": "\x08",
+    "t": "\t",
+    "n": "\n",
+    "v": "\v",
+    "f": "\f",
+    "r": "\r",
+    "e": "\x1b",
+    " ": " ",
+    '"': '"',
+    "/": "/",
+    "\\": "\\",
+    "N": "\u0085",
+    "_": "\u00a0",
+    "L": "\u2028",
+    "P": "\u2029",
+}
+_HEX_DIGITS = frozenset("0123456789abcdefABCDEF")
+_ESCAPE_WIDTHS = {"x": 2, "u": 4, "U": 8}
+
+
+def parse_yaml_double_quoted_scalar(body: str, source: str) -> str:
+    """Decode a YAML 1.2 double-quoted scalar body.
+
+    unicode_escape is deliberately not used: it applies latin-1 semantics per
+    byte, corrupting non-ASCII characters into mojibake and silently
+    reinterpreting stray backslashes as escapes.
+    """
+    out: list[str] = []
+    index = 0
+    while index < len(body):
+        char = body[index]
+        if char != "\\":
+            out.append(char)
+            index += 1
+            continue
+        index += 1
+        if index >= len(body):
+            raise ValueError(f"{source}: trailing backslash in double-quoted scalar")
+        marker = body[index]
+        index += 1
+        if marker in YAML_DOUBLE_QUOTE_ESCAPES:
+            out.append(YAML_DOUBLE_QUOTE_ESCAPES[marker])
+            continue
+        width = _ESCAPE_WIDTHS.get(marker)
+        if width is not None:
+            digits = body[index:index + width]
+            if len(digits) != width or any(digit not in _HEX_DIGITS for digit in digits):
+                raise ValueError(f"{source}: invalid \\{marker} escape in double-quoted scalar")
+            try:
+                out.append(chr(int(digits, 16)))
+            except ValueError as exc:
+                raise ValueError(
+                    f"{source}: \\{marker} escape out of Unicode range in double-quoted scalar"
+                ) from exc
+            index += width
+            continue
+        raise ValueError(f"{source}: unsupported escape \\{marker} in double-quoted scalar")
+    return "".join(out)
+
+
+def parse_plain_yaml_quoted_value(raw_value: str, source: str = "<yaml>") -> str:
     value = raw_value.strip()
     if len(value) >= 2 and value[0] == value[-1] == '"':
-        return bytes(value[1:-1], "utf-8").decode("unicode_escape")
+        return parse_yaml_double_quoted_scalar(value[1:-1], source)
     if len(value) >= 2 and value[0] == value[-1] == "'":
         return value[1:-1].replace("''", "'")
     return value
@@ -448,7 +511,9 @@ def export_plain_yaml_lists(input_file: Path, output_dir: Path) -> None:
 
         if stripped.startswith("- name: "):
             flush_current()
-            current_name = parse_plain_yaml_quoted_value(stripped.removeprefix("- name: "))
+            current_name = parse_plain_yaml_quoted_value(
+                stripped.removeprefix("- name: "), source=f"{input_file}:{line_no}"
+            )
             if (
                 not current_name
                 or current_name in {".", ".."}
@@ -464,7 +529,9 @@ def export_plain_yaml_lists(input_file: Path, output_dir: Path) -> None:
             continue
 
         if stripped.startswith("- "):
-            token = parse_plain_yaml_quoted_value(stripped.removeprefix("- "))
+            token = parse_plain_yaml_quoted_value(
+                stripped.removeprefix("- "), source=f"{input_file}:{line_no}"
+            )
             try:
                 kind, value = parse_rule_token(token)
             except ValueError as exc:
@@ -479,18 +546,21 @@ def export_plain_yaml_lists(input_file: Path, output_dir: Path) -> None:
     flush_current()
 
 
-def write_text_lines(lines: list[str], output_file: Path) -> None:
-    if lines:
-        output_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
-        return
-    output_file.write_text("", encoding="utf-8")
+def write_text_lines(lines: list[str], output_file: Path) -> bool:
+    """Write rendered lines, or skip empty output with a visible warning.
+
+    The artifact verifier rejects empty artifacts, so writing one would only
+    convert a data problem into a later, less legible failure.
+    """
+    if not lines:
+        print(f"warning: skipping empty artifact output: {output_file}", file=sys.stderr)
+        return False
+    output_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return True
 
 
 def write_text_lines_if_nonempty(lines: list[str], output_file: Path) -> bool:
-    if not lines:
-        return False
-    write_text_lines(lines, output_file)
-    return True
+    return write_text_lines(lines, output_file)
 
 
 def write_normalized_classical_rules(input_file: Path, output_file: Path) -> None:
@@ -785,6 +855,7 @@ def export_data_dir_lists(
 
     def write_rule_set(name: str, rules: list[Rule]) -> None:
         if not rules:
+            print(f"warning: skipping empty rule set: {name}", file=sys.stderr)
             return
         add_platform_skip_counts(skip_totals, skip_affected, name, rules)
         compacted, _ = compact_rules(rules)

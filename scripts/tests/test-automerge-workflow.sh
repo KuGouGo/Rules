@@ -40,6 +40,20 @@ if "github.event.pull_request.head.repo.full_name == github.repository" not in t
     raise SystemExit(f"{workflow}: dependency PR must originate from this repository")
 if "github.event.pull_request.user.login == 'github-actions[bot]'" not in text:
     raise SystemExit(f"{workflow}: dependency PR author is not restricted to Actions")
+if 'dependency-update-validation' not in text:
+    raise SystemExit(
+        f"{workflow}: merge must be gated on the dependency-update-validation "
+        "commit status recorded by update-tool-versions.sh"
+    )
+if ".head.sha" not in text or "commits/" not in text:
+    raise SystemExit(
+        f"{workflow}: merge must fetch the PR head SHA and verify its status"
+    )
+if "exit 0" not in text:
+    raise SystemExit(
+        f"{workflow}: an unvalidated head must skip the merge (exit 0), not "
+        "fail the workflow, so the workflow_run completion path can merge later"
+    )
 for guard in (".head.ref", ".head.repo.full_name", ".user.login"):
     if guard not in text:
         raise SystemExit(f"{workflow}: runtime trust guard is missing: {guard}")

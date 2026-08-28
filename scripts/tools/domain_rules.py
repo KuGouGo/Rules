@@ -8,6 +8,10 @@ from pathlib import Path
 
 DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
 DOMAIN_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
+# For ASCII values this matches exactly what str.isspace() does; non-ASCII
+# values take the slower per-character path so Unicode whitespace semantics
+# stay identical.
+ASCII_WHITESPACE_RE = re.compile(r"[\t\n\x0b\x0c\r\x1c-\x1f ]")
 GEOGRAPHIC_BASE_EXCLUDED_ATTRS = {
     "cn": frozenset({"!cn", "ads"}),
     "geolocation-cn": frozenset({"!cn", "ads"}),
@@ -53,13 +57,45 @@ def normalize_rule_type(value: str) -> str:
     return value.strip().upper().replace("_", "-")
 
 
+def to_ascii_domain(value: str) -> str | None:
+    """Convert a possibly non-ASCII domain to punycode, or None when invalid.
+
+    Upstream rule sources may contain Unicode (U-label) domains. Consumers
+    match on ASCII SNI/DNS names, so every non-ASCII label must be converted
+    to its IDNA A-label form instead of failing the build or, worse, silently
+    never matching at runtime.
+    """
+    if value.isascii():
+        return value
+    labels: list[str] = []
+    for label in value.split("."):
+        if label.isascii():
+            labels.append(label)
+            continue
+        try:
+            labels.append(label.encode("idna").decode("ascii"))
+        except UnicodeError:
+            return None
+    return ".".join(labels)
+
+
 def normalize_domain_value(kind: str, value: str) -> str:
     value = value.strip()
     if kind in {"DOMAIN", "DOMAIN-SUFFIX"}:
-        return value.lower().rstrip(".")
+        value = value.lower().rstrip(".")
+        converted = to_ascii_domain(value)
+        return converted if converted is not None else value
     if kind == "DOMAIN-KEYWORD":
+        # Keywords are substrings matched against presentation names; encoding
+        # them to punycode would change what they match, so only case-fold.
         return value.lower()
     return value
+
+
+def _has_whitespace(value: str) -> bool:
+    if value.isascii():
+        return ASCII_WHITESPACE_RE.search(value) is not None
+    return any(char.isspace() for char in value)
 
 
 def domain_value_errors(
@@ -79,11 +115,17 @@ def domain_value_errors(
             errors.append(f"{kind} value must not end with a dot: {value}")
         if "," in value:
             errors.append(f"{kind} value must not contain commas: {value}")
-        if any(char.isspace() for char in value):
+        if _has_whitespace(value):
             errors.append(f"{kind} value must not contain whitespace: {value}")
         if require_canonical and value != value.lower():
             errors.append(f"{kind} value must be lowercase: {value}")
         canonical = value.lower().rstrip(".")
+        if not canonical.isascii():
+            converted = to_ascii_domain(canonical)
+            if converted is None:
+                errors.append(f"{kind} value cannot be converted to punycode: {value}")
+                return errors
+            canonical = converted
         if len(canonical) > 253:
             errors.append(f"{kind} value is longer than 253 characters: {value}")
         elif "." not in canonical and not (allow_single_label_suffix and kind == "DOMAIN-SUFFIX"):
@@ -99,7 +141,7 @@ def domain_value_errors(
     elif kind == "DOMAIN-KEYWORD":
         if "," in value:
             errors.append(f"DOMAIN-KEYWORD value must not contain commas: {value}")
-        if any(char.isspace() for char in value):
+        if _has_whitespace(value):
             errors.append(f"DOMAIN-KEYWORD value must not contain whitespace: {value}")
         if require_canonical and value != value.lower():
             errors.append(f"DOMAIN-KEYWORD value must be lowercase: {value}")

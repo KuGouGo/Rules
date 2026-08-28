@@ -1,5 +1,7 @@
 # Rules / Surge
 
+<!-- artifact-table -->
+
 本分支存放 Surge 客户端的自动构建产物。产物由 `main` 分支的持续集成流水线生成，并在每次推送 `main` 时整批覆盖更新；分支仅包含 `README.md`、`domain/` 与 `ip/`。如需固定版本，可锁定具体提交的 SHA。
 
 ## 项目与许可

@@ -45,7 +45,7 @@ cat > "$TMP_DIR/bad-domain-publish-policy.json" <<'EOF'
 EOF
 assert_lint_fails_with \
   "domain-publish-policy" \
-  "domain_publish_policy.common.geolocation_not_cn: entries must be unique" \
+  "domain_publish_policy: common.geolocation_not_cn must be a list of unique non-empty names" \
   --domain-publish-policy "$TMP_DIR/bad-domain-publish-policy.json"
 
 # Production capability config must be accepted by both the lint schema and the

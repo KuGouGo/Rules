@@ -1,0 +1,5 @@
+DOMAIN-SUFFIX,example.com
+DOMAIN,api.example.com
+DOMAIN-SUFFIX,example.org
+DOMAIN,one.one.one.one
+DOMAIN-KEYWORD,docs

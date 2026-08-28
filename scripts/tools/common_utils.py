@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 
 class Reporter:
@@ -22,6 +22,16 @@ class Reporter:
     @property
     def ok(self) -> bool:
         return not self.errors
+
+
+def non_comment_lines(path: Path) -> list[str]:
+    """Return a text file's non-blank lines with comments stripped."""
+    lines: list[str] = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if line and not line.startswith("#"):
+            lines.append(line)
+    return lines
 
 
 def safe_publish_path(value: str) -> bool:

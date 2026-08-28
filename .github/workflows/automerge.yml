@@ -8,8 +8,9 @@ on:
   pull_request_review:
     types: [submitted]
   # Pull requests created with GITHUB_TOKEN do not start another PR workflow.
-  # The dependency workflow has already validated the proposed commit, so its
-  # successful completion is the reliable automation entry point.
+  # This completion event is the only merge entry point: update-tool-versions.sh
+  # validates the branch, records a success status on the validated head SHA,
+  # and the merge below refuses any head SHA without that status.
   workflow_run:
     workflows: [Update dependencies]
     types: [completed]
@@ -19,7 +20,10 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: automerge-${{ github.event.pull_request.number }}
+  # pull_request.number is empty on workflow_run events; fall back to the
+  # workflow run id so concurrent dependency completions do not cancel
+  # each other under a shared empty group.
+  group: automerge-${{ github.event.workflow_run.id || github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -63,14 +67,28 @@ jobs:
             exit 1
           fi
 
-          # Merge immediately instead of using native auto-merge (`--auto`).
+          # Gate the merge on the exact validated commit. update-tool-versions.sh
+          # records a "dependency-update-validation" success status on the head
+          # SHA only after the dispatched Validation run passed, so merging is
+          # bound to that SHA: a later push to the branch has no status of its
+          # own and can never inherit the old commit's validation.
+          head_sha="$(gh api "repos/${REPOSITORY}/pulls/${pr}" --jq '.head.sha')"
+          validated="$(gh api "repos/${REPOSITORY}/commits/${head_sha}/status" \
+            --jq '[.statuses[] | select(.context == "dependency-update-validation") | .state] | last // ""')"
+          if [ "$validated" != "success" ]; then
+            # Skip (not fail): on the pull_request_target path the status is
+            # recorded only after the dispatched Validation run finishes, and
+            # the workflow_run completion event is what merges then.
+            echo "PR #${pr} head ${head_sha} has no successful dependency-update-validation status; skipping merge" >&2
+            exit 0
+          fi
+
+          # Merge directly instead of using native auto-merge (`--auto`).
           # PRs pushed by GITHUB_TOKEN get their `pull_request` check suites
           # suppressed, so the branch never reports a completed check and the
           # native engine stalls on a permanent "waiting for checks" state.
-          # The dependency update is already fully validated before the PR is
-          # created (update-tool-versions.sh runs `make validate-tool-update`
-          # locally and dispatches a Validation run), so nothing is gained by
-          # waiting for a check that can never resolve.
+          # The commit status gate above is the validation record that the
+          # native engine cannot see.
           echo "Merging validated dependency update PR #${pr}"
           # -R is required: `gh pr merge` otherwise resolves the repo via git,
           # which fails in this runner (no checkout step).

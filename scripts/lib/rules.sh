@@ -9,6 +9,19 @@
 
 SINGBOX_RULE_SET_SOURCE_VERSION_CACHE="${SINGBOX_RULE_SET_SOURCE_VERSION_CACHE:-}"
 
+# Portable SHA-256 file digest: rules.sh is also sourced standalone (without
+# common.sh) by tests and tools, so it cannot rely on common.sh's sha256_file.
+# GNU coreutils provides sha256sum on Linux CI; the Python fallback keeps
+# local development working where only BSD tools exist.
+sha256_digest() {
+  local file="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$file" | awk '{print $1}'
+  else
+    python3 -c 'import hashlib,sys; print(hashlib.file_digest(open(sys.argv[1],"rb"),"sha256").hexdigest())' "$file"
+  fi
+}
+
 is_positive_integer() {
   case "$1" in
     ''|*[!0-9]*) return 1 ;;
@@ -212,22 +225,30 @@ compiler_cache_dir() {
   local binary binary_digest cache_root
 
   binary="$(command -v "$tool")"
-  binary_digest="$(sha256sum "$binary" | awk '{print $1}')"
+  binary_digest="$(sha256_digest "$binary")"
   cache_root="${RULES_COMPILE_CACHE_ROOT:-$ROOT/.cache/compiled-rules}"
   printf '%s/%s/%s/%s\n' "$cache_root" "$artifact_kind" "$format_version" "$binary_digest"
 }
 
-compile_domain_singbox_json_dir() {
+# Shared cache-compile worker for the domain binary platforms: every input
+# file is compiled with the given compiler (or restored from the
+# digest-anchored cache entry) into out_dir, then the produced count is
+# asserted so a silently skipped compile cannot pass unnoticed.
+compile_domain_binary_dir() {
   local tmp_dir="$1"
-  local singbox_dir="$2"
+  local out_dir="$2"
   local jobs="$3"
-  local cache_dir="${4:-$tmp_dir/.compile-cache/sing-box}"
-  local list_file="$tmp_dir/.singbox-json-files"
-  local stats_dir="$tmp_dir/.singbox-cache-stats"
-  local expected hits misses
+  local cache_dir="$4"
+  local input_glob="$5"
+  local compiler="$6"
+  local output_ext="$7"
+  local label="$8"
+  local list_file stats_dir expected hits misses
 
-  find "$tmp_dir" -maxdepth 1 -type f -name '*.json' -print0 > "$list_file"
-  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name '*.json' | wc -l | tr -d ' ')"
+  list_file="$tmp_dir/.compile-inputs-${output_ext}"
+  stats_dir="$tmp_dir/.compile-cache-stats-${output_ext}"
+  find "$tmp_dir" -maxdepth 1 -type f -name "$input_glob" -size +0c -print0 > "$list_file"
+  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name "$input_glob" -size +0c | wc -l | tr -d ' ')"
   if [ "$expected" -eq 0 ]; then
     return 0
   fi
@@ -236,101 +257,68 @@ compile_domain_singbox_json_dir() {
 
   # shellcheck disable=SC2016
   xargs -0 -n 1 -P "$jobs" sh -c '
+    hash() {
+      if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk "{print \$1}"
+      else
+        python3 -c "import hashlib,sys; print(hashlib.file_digest(open(sys.argv[1],\"rb\"),\"sha256\").hexdigest())" "$1"
+      fi
+    }
     out_dir="$1"
     cache_dir="$2"
     stats_dir="$3"
-    json="$4"
-    base="$(basename "$json" .json)"
-    key="$(sha256sum "$json" | awk "{print \$1}")"
-    cached="$cache_dir/$key.srs"
+    compiler="$4"
+    output_ext="$5"
+    input="$6"
+    base="$(basename "$input")"
+    base="${base%.*}"
+    key="$(hash "$input")"
+    cached="$cache_dir/$key.$output_ext"
     sidecar="$cached.sha256"
     cache_valid=0
     if [ -s "$cached" ] && [ -s "$sidecar" ]; then
       expected_digest="$(awk "NR == 1 {print \$1}" "$sidecar")"
-      actual_digest="$(sha256sum "$cached" | awk "{print \$1}")"
+      actual_digest="$(hash "$cached")"
       [ -n "$expected_digest" ] && [ "$expected_digest" = "$actual_digest" ] && cache_valid=1
     fi
     if [ "$cache_valid" -eq 1 ]; then
-      cp "$cached" "$out_dir/$base.srs"
+      cp "$cached" "$out_dir/$base.$output_ext"
       : > "$stats_dir/$base.hit"
     else
       rm -f "$cached" "$sidecar"
       temporary="$(mktemp "$cache_dir/.${key}.XXXXXX")"
       sidecar_temporary="$(mktemp "$cache_dir/.${key}.sha256.XXXXXX")"
       trap '\''rm -f "$temporary" "$sidecar_temporary"'\'' EXIT
-      sing-box rule-set compile "$json" --output "$temporary"
+      case "$compiler" in
+        sing-box) sing-box rule-set compile "$input" --output "$temporary" ;;
+        mihomo) mihomo convert-ruleset domain text "$input" "$temporary" >/dev/null ;;
+      esac
       test -s "$temporary"
-      cp "$temporary" "$out_dir/$base.srs"
-      sha256sum "$temporary" | awk "{print \$1}" > "$sidecar_temporary"
+      cp "$temporary" "$out_dir/$base.$output_ext"
+      hash "$temporary" > "$sidecar_temporary"
       mv -f "$temporary" "$cached"
       mv -f "$sidecar_temporary" "$sidecar"
       trap - EXIT
       : > "$stats_dir/$base.miss"
     fi
-    test -s "$out_dir/$base.srs"
-  ' sh "$singbox_dir" "$cache_dir" "$stats_dir" < "$list_file" || return 1
-  assert_compiled_file_count "sing-box domain compile" "$expected" "$singbox_dir" '*.srs' || return 1
+    test -s "$out_dir/$base.$output_ext"
+  ' sh "$out_dir" "$cache_dir" "$stats_dir" "$compiler" "$output_ext" < "$list_file" || return 1
+  assert_compiled_file_count "$label" "$expected" "$out_dir" "*.$output_ext" || return 1
   hits="$(find "$stats_dir" -type f -name '*.hit' | wc -l | tr -d ' ')"
   misses="$(find "$stats_dir" -type f -name '*.miss' | wc -l | tr -d ' ')"
-  echo "sing-box domain compile cache: hits=$hits, misses=$misses"
+  echo "$label cache: hits=$hits, misses=$misses"
+}
+
+compile_domain_singbox_json_dir() {
+  local tmp_dir="$1"
+  local cache_dir="${4:-$tmp_dir/.compile-cache/sing-box}"
+  compile_domain_binary_dir "$tmp_dir" "$2" "$3" "$cache_dir" '*.json' sing-box srs "sing-box domain compile"
 }
 
 compile_domain_mihomo_text_dir() {
   local tmp_dir="$1"
-  local mihomo_dir="$2"
-  local jobs="$3"
   local cache_dir="${4:-$tmp_dir/.compile-cache/mihomo}"
-  local list_file="$tmp_dir/.mihomo-text-files"
-  local stats_dir="$tmp_dir/.mihomo-cache-stats"
-  local expected hits misses
-
-  find "$tmp_dir" -maxdepth 1 -type f -name '*.mihomo.txt' -size +0c -print0 > "$list_file"
-  expected="$(find "$tmp_dir" -maxdepth 1 -type f -name '*.mihomo.txt' -size +0c | wc -l | tr -d ' ')"
-  if [ "$expected" -eq 0 ]; then
-    return 0
-  fi
-  mkdir -p "$cache_dir" "$stats_dir"
-  rm -f "$stats_dir"/*
-
-  # shellcheck disable=SC2016
-  xargs -0 -n 1 -P "$jobs" sh -c '
-    out_dir="$1"
-    cache_dir="$2"
-    stats_dir="$3"
-    plain="$4"
-    base="$(basename "$plain" .mihomo.txt)"
-    key="$(sha256sum "$plain" | awk "{print \$1}")"
-    cached="$cache_dir/$key.mrs"
-    sidecar="$cached.sha256"
-    cache_valid=0
-    if [ -s "$cached" ] && [ -s "$sidecar" ]; then
-      expected_digest="$(awk "NR == 1 {print \$1}" "$sidecar")"
-      actual_digest="$(sha256sum "$cached" | awk "{print \$1}")"
-      [ -n "$expected_digest" ] && [ "$expected_digest" = "$actual_digest" ] && cache_valid=1
-    fi
-    if [ "$cache_valid" -eq 1 ]; then
-      cp "$cached" "$out_dir/$base.mrs"
-      : > "$stats_dir/$base.hit"
-    else
-      rm -f "$cached" "$sidecar"
-      temporary="$(mktemp "$cache_dir/.${key}.XXXXXX")"
-      sidecar_temporary="$(mktemp "$cache_dir/.${key}.sha256.XXXXXX")"
-      trap '\''rm -f "$temporary" "$sidecar_temporary"'\'' EXIT
-      mihomo convert-ruleset domain text "$plain" "$temporary" >/dev/null
-      test -s "$temporary"
-      cp "$temporary" "$out_dir/$base.mrs"
-      sha256sum "$temporary" | awk "{print \$1}" > "$sidecar_temporary"
-      mv -f "$temporary" "$cached"
-      mv -f "$sidecar_temporary" "$sidecar"
-      trap - EXIT
-      : > "$stats_dir/$base.miss"
-    fi
-    test -s "$out_dir/$base.mrs"
-  ' sh "$mihomo_dir" "$cache_dir" "$stats_dir" < "$list_file" || return 1
-  assert_compiled_file_count "mihomo domain compile" "$expected" "$mihomo_dir" '*.mrs' || return 1
-  hits="$(find "$stats_dir" -type f -name '*.hit' | wc -l | tr -d ' ')"
-  misses="$(find "$stats_dir" -type f -name '*.miss' | wc -l | tr -d ' ')"
-  echo "mihomo domain compile cache: hits=$hits, misses=$misses"
+  compile_domain_binary_dir "$tmp_dir" "$2" "$3" "$cache_dir" '*.mihomo.txt' mihomo mrs "mihomo domain compile"
 }
 
 build_domain_artifacts_from_rule_dir() {

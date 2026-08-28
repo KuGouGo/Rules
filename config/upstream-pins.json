@@ -1,0 +1,9 @@
+{
+  "pins": {
+    "domain.dlc": {
+      "commit": "06111d32139e3497a20fded97ca2b4424ad87e60",
+      "note": "pinned domain-list-community master HEAD; bumped only via the update-upstream-pins workflow"
+    }
+  },
+  "schema_version": 1
+}

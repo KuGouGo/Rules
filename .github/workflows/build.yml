@@ -72,7 +72,10 @@ jobs:
         run: ./scripts/commands/select-build-scope.sh
 
       - name: Show selected build scope
-        run: echo "${{ steps.scope.outputs.scope }} - ${{ steps.scope.outputs.reason }}"
+        env:
+          SCOPE: ${{ steps.scope.outputs.scope }}
+          REASON: ${{ steps.scope.outputs.reason }}
+        run: echo "$SCOPE - $REASON"
 
       - name: Build artifact transaction
         env:

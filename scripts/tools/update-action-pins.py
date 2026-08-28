@@ -3,11 +3,11 @@
 
 import argparse
 import json
-import os
 import re
 import sys
-import urllib.request
 from pathlib import Path
+
+from github_api import api_get, request_headers, resolve_tag_commit
 
 
 ACTIONS = (
@@ -22,21 +22,6 @@ USES_RE = re.compile(
     r"(?P<repo>actions/[A-Za-z0-9_.-]+)@(?P<sha>[0-9a-f]{40})"
     r"(?P<comment>\s+#\s+)(?P<version>v?[0-9]+\.[0-9]+\.[0-9]+)\s*$"
 )
-
-
-def api_get(url, headers):
-    request = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(request, timeout=60) as response:
-        return json.load(response)
-
-
-def resolve_tag_commit(repo, tag, headers):
-    ref = api_get(f"https://api.github.com/repos/{repo}/git/refs/tags/{tag}", headers)
-    obj = ref["object"]
-    if obj["type"] == "commit":
-        return obj["sha"]
-    tag_obj = api_get(f"https://api.github.com/repos/{repo}/git/tags/{obj['sha']}", headers)
-    return tag_obj["object"]["sha"]
 
 
 def latest_actions(headers):
@@ -64,14 +49,7 @@ def main(argv=None):
     parser.add_argument("--metadata", type=Path, help="read release metadata instead of GitHub")
     args = parser.parse_args(argv)
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "Rules-action-pin-updater",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    headers = request_headers("Rules-action-pin-updater")
 
     if args.metadata:
         latest = json.loads(args.metadata.read_text(encoding="utf-8"))

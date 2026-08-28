@@ -1,15 +1,17 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "tools": {
     "mihomo": {
       "platforms": {
         "linux-amd64": {
           "asset": "mihomo-linux-amd64-compatible-v1.19.30.gz",
+          "attestation": "unavailable",
           "binary_sha256": "8ad44e28fe72be4640254b96741b677f4074991b99186cc4486a1c28ded02b1a",
           "sha256": "db214c7a2517e63c150d123178d16d102e03a241ccdae4e5e07ffbe9cf56c6f9"
         },
         "linux-arm64": {
           "asset": "mihomo-linux-arm64-v1.19.30.gz",
+          "attestation": "unavailable",
           "binary_sha256": "b9456718a8955364b9a77c80f74dca49ded10f071c1c6b4513a0ea68a3d87a50",
           "sha256": "58896873736d28628f66de3677c8654fa0f180662523148e136cff4f6e890069"
         }
@@ -23,11 +25,13 @@
       "platforms": {
         "linux-amd64": {
           "asset": "sing-box-1.13.19-linux-amd64.tar.gz",
+          "attestation": "verified",
           "binary_sha256": "7e9dcd7239c49478a576d79f272751e5ed1c2aba7cc08ab1b2bd69c00c904ba1",
           "sha256": "ef88a9e577d474210867bd708933d042e9b70106529df2656182c9db90106aa1"
         },
         "linux-arm64": {
           "asset": "sing-box-1.13.19-linux-arm64.tar.gz",
+          "attestation": "verified",
           "binary_sha256": "0bd9f22cd677d7fe70324944b3dfaf967971607ac3f713d1b754248d8b0d702d",
           "sha256": "7fe3597a95a3c5ad67477b1d7653b9ce097e0be7c676758eba1fcf558f353d57"
         }

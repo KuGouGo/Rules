@@ -249,10 +249,30 @@ ip/test.$extension"
   fi
   generated_readme="$TMP_DIR/$branch.README.md"
   git --git-dir="$REMOTE" show "$branch:README.md" > "$generated_readme"
-  cmp "$TEMPLATE_DIR/$branch.md" "$generated_readme" >/dev/null || {
-    echo "test failed: generated README does not match template for $branch" >&2
+  grep -F "$(head -n 1 "$TEMPLATE_DIR/$branch.md")" "$generated_readme" >/dev/null || {
+    echo "test failed: generated README lost the template content for $branch" >&2
     exit 1
   }
+  grep -F '## 产物清单' "$generated_readme" >/dev/null || {
+    echo "test failed: generated README lacks the artifact stats table for $branch" >&2
+    exit 1
+  }
+  if grep -Fq '<!-- artifact-table -->' "$generated_readme"; then
+    echo "test failed: generated README still contains the raw marker for $branch" >&2
+    exit 1
+  fi
+  case "$branch" in
+    surge|quanx) expected_rows=('| domain/test.list | 1 |' '| ip/test.list | 1 |') ;;
+    egern) expected_rows=('| domain/test.yaml | 1 |' '| ip/test.yaml | 1 |') ;;
+    *) expected_rows=('| domain/test | 1 |' '| ip/test | 1 |') ;;
+  esac
+  for row in "${expected_rows[@]}"; do
+    grep -Fx "$row" "$generated_readme" >/dev/null || {
+      echo "test failed: README stats table missing row '$row' for $branch" >&2
+      cat "$generated_readme" >&2
+      exit 1
+    }
+  done
 done
 
 git --git-dir="$REMOTE" show quanx:README.md | grep -F '# Rules / Quantumult X' >/dev/null

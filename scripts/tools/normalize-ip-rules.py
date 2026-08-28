@@ -21,7 +21,19 @@ PLATFORM_CAPABILITIES = load_platform_capabilities().platforms
 # avoid false-positive matches on non-CIDR hex strings; validated by
 # ipaddress.ip_network() afterwards.
 DEFAULT_SINGBOX_RULE_SET_VERSION = 4
-SINGBOX_RULE_SET_VERSION = int(os.environ.get("SINGBOX_RULE_SET_VERSION", DEFAULT_SINGBOX_RULE_SET_VERSION))
+
+
+def _resolve_singbox_rule_set_version() -> int:
+    raw = os.environ.get("SINGBOX_RULE_SET_VERSION")
+    if raw is None:
+        return DEFAULT_SINGBOX_RULE_SET_VERSION
+    try:
+        return int(raw)
+    except ValueError:
+        raise SystemExit(f"invalid SINGBOX_RULE_SET_VERSION environment value: {raw!r}")
+
+
+SINGBOX_RULE_SET_VERSION = _resolve_singbox_rule_set_version()
 
 
 def atomic_write_text(output_file: Path, output_text: str) -> None:
@@ -47,7 +59,14 @@ def atomic_write_text(output_file: Path, output_text: str) -> None:
             temp_path.unlink(missing_ok=True)
 
 
-def normalize_networks(values: list[str], *, strict_values: bool = False) -> list[ipaddress._BaseNetwork]:
+def normalize_networks(values: list[str]) -> list[ipaddress._BaseNetwork]:
+    """Parse CIDR entries, failing loud on anything invalid.
+
+    Every caller feeds pre-validated (source parsers) or pre-normalized
+    (previous pipeline stage) data, so an invalid entry means corruption or a
+    programming error: it must abort the build instead of silently shrinking
+    the published artifact.
+    """
     networks: list[ipaddress._BaseNetwork] = []
     invalid: list[str] = []
 
@@ -57,12 +76,11 @@ def normalize_networks(values: list[str], *, strict_values: bool = False) -> lis
             continue
         try:
             # Source feeds may contain host bits; normalize those without
-            # changing the represented network. Invalid effective entries are
-            # rejected by strict source-specific parsers instead of vanishing.
+            # changing the represented network.
             networks.append(ipaddress.ip_network(cidr, strict=False))
         except ValueError:
             invalid.append(cidr)
-    if strict_values and invalid:
+    if invalid:
         preview = ", ".join(repr(value) for value in invalid[:5])
         suffix = f" (and {len(invalid) - 5} more)" if len(invalid) > 5 else ""
         raise ValueError(f"invalid CIDR source entries: {preview}{suffix}")
@@ -265,6 +283,8 @@ def build_singbox_json_from_plain(input_file: Path, output_file: Path) -> None:
     if mapped_targets != {"ip_cidr"}:
         raise ValueError(f"unsupported sing-box IP rule mappings: {sorted(mapped_targets)}")
     cidrs = canonical_cidrs(input_file.read_text(encoding="utf-8").splitlines())
+    if not cidrs:
+        raise ValueError(f"no CIDR entries in sing-box JSON input: {input_file}")
     data = {"version": SINGBOX_RULE_SET_VERSION, "rules": [{"ip_cidr": cidrs}]}
     atomic_write_text(output_file, json.dumps(data, separators=(",", ":")))
 
@@ -281,7 +301,7 @@ def run_single_task(source_type: str, input_file: Path, output_file: Path) -> No
     # All upstream parsers converge on one minimal canonical CIDR union. At
     # this boundary every parser output must be valid; no entry may disappear.
     values = output_file.read_text(encoding="utf-8").splitlines()
-    normalize_networks(values, strict_values=True)
+    normalize_networks(values)
     output_text = "\n".join(canonical_cidrs(values))
     atomic_write_text(output_file, output_text + ("\n" if output_text else ""))
 

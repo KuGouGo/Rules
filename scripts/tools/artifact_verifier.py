@@ -12,17 +12,13 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from common_utils import non_comment_lines
 from domain_rules import domain_rule_is_covered, domain_value_errors, parse_classical_domain_file
 from ip_rules import parse_classical_ip_file
 from platform_capabilities import load_platform_capabilities
 
 
 RuleEntry = tuple[str, str]
-
-
-def noncomment_lines(path: Path) -> list[str]:
-    return [line.strip() for line in path.read_text(encoding="utf-8").splitlines()
-            if line.strip() and not line.lstrip().startswith("#")]
 
 
 def summarize_entries(entries: Counter[RuleEntry]) -> Counter[str]:
@@ -147,13 +143,26 @@ def singbox_counts(data: dict[str, Any], kind: str) -> Counter[str]:
     return summarize_entries(singbox_entries(data, kind))
 
 
+def run_decode_tool(command: list[str]) -> None:
+    """Run a decoder, surfacing the tool's own diagnostics on failure.
+
+    CalledProcessError's bare str only reports the exit code; without the
+    captured stderr a CI verification failure is needlessly hard to diagnose.
+    """
+    try:
+        subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or exc.stdout or "").strip()
+        suffix = f": {detail}" if detail else ""
+        raise ValueError(f"decode tool failed ({' '.join(command)}): exit {exc.returncode}{suffix}") from exc
+
+
 def verify_singbox(path: Path, kind: str, tool: Path) -> tuple[str, Counter[RuleEntry]]:
     if not path.exists() or path.stat().st_size == 0:
         raise ValueError(f"sing-box rule-set artifact is missing or empty: {path}")
     with tempfile.TemporaryDirectory() as temporary:
         decoded = Path(temporary) / "decoded.json"
-        subprocess.run([str(tool), "rule-set", "decompile", str(path), "--output", str(decoded)],
-                       check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        run_decode_tool([str(tool), "rule-set", "decompile", str(path), "--output", str(decoded)])
         data = json.loads(decoded.read_text(encoding="utf-8"))
     if not isinstance(data, dict) or not isinstance(data.get("rules"), list):
         raise ValueError("sing-box decompile did not produce a rule-set object")
@@ -166,9 +175,8 @@ def verify_mihomo(path: Path, kind: str, tool: Path) -> tuple[str, Counter[RuleE
     behavior = "domain" if kind == "domain" else "ipcidr"
     with tempfile.TemporaryDirectory() as temporary:
         decoded = Path(temporary) / "decoded.txt"
-        subprocess.run([str(tool), "convert-ruleset", behavior, "mrs", str(path), str(decoded)],
-                       check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        values = noncomment_lines(decoded)
+        run_decode_tool([str(tool), "convert-ruleset", behavior, "mrs", str(path), str(decoded)])
+        values = non_comment_lines(decoded)
     if not values:
         raise ValueError("mihomo MRS readback produced no rules")
     entries: Counter[RuleEntry] = Counter()
@@ -190,8 +198,26 @@ def verify_mihomo(path: Path, kind: str, tool: Path) -> tuple[str, Counter[RuleE
     return "mihomo-convert-ruleset-mrs-to-text", entries
 
 
+def canonicalize_cidr_value(canonical_kind: str, raw_value: str, source_value: str, line_number: int) -> str:
+    """Validate one artifact CIDR value and return its canonical text.
+
+    Published artifacts are pre-normalized, so the verbatim artifact value must
+    already equal the collapsed network text and its kind must match the
+    address family; any divergence is a build bug, not a rendering choice.
+    """
+    try:
+        network = ipaddress.ip_network(raw_value, strict=False)
+    except ValueError as exc:
+        raise ValueError(f"line {line_number} has invalid CIDR {raw_value!r}: {exc}") from exc
+    value = str(network)
+    expected_kind = "IP-CIDR6" if network.version == 6 else "IP-CIDR"
+    if canonical_kind != expected_kind or source_value != value:
+        raise ValueError(f"line {line_number} has non-canonical CIDR kind or value")
+    return value
+
+
 def verify_classical(path: Path, capability: Any, platform: str, artifact_type: str) -> Counter[RuleEntry]:
-    lines = noncomment_lines(path)
+    lines = non_comment_lines(path)
     if not lines:
         raise ValueError("text artifact contains no rules")
     targets = {target: kind for kind, target in capability.rule_mappings.items()}
@@ -222,14 +248,7 @@ def verify_classical(path: Path, capability: Any, platform: str, artifact_type: 
             if errors:
                 raise ValueError(f"line {line_number} {errors[0]}")
         else:
-            try:
-                network = ipaddress.ip_network(value, strict=False)
-            except ValueError as exc:
-                raise ValueError(f"line {line_number} has invalid CIDR {value!r}: {exc}") from exc
-            value = str(network)
-            expected_kind = "IP-CIDR6" if network.version == 6 else "IP-CIDR"
-            if canonical_kind != expected_kind or fields[1] != value:
-                raise ValueError(f"line {line_number} has non-canonical CIDR kind or value")
+            value = canonicalize_cidr_value(canonical_kind, value, fields[1], line_number)
         entries[(canonical_kind, value)] += 1
     return entries
 
@@ -278,14 +297,7 @@ def parse_egern_yaml(path: Path, capability: Any, artifact_type: str) -> Counter
                 if errors:
                     raise ValueError(f"line {line_number} {errors[0]}")
             else:
-                try:
-                    network = ipaddress.ip_network(value, strict=False)
-                except ValueError as exc:
-                    raise ValueError(f"line {line_number} has invalid CIDR {value!r}: {exc}") from exc
-                value = str(network)
-                expected_kind = "IP-CIDR6" if network.version == 6 else "IP-CIDR"
-                if canonical_kind != expected_kind or quoted.replace("''", "'") != value:
-                    raise ValueError(f"line {line_number} has non-canonical CIDR kind or value")
+                value = canonicalize_cidr_value(canonical_kind, value, quoted.replace("''", "'"), line_number)
             entries[(canonical_kind, value)] += 1
             continue
         raise ValueError(f"line {line_number} has unsupported YAML indentation or structure")

@@ -697,7 +697,10 @@ EOF
     cat "$TMP_DIR/publish_policy/unsafe-common.stderr" >&2
     exit 1
   }
-  sed -i '$d' "$TMP_DIR/publish_policy/data/compat-name"
+  # Drop the last line portably: BSD sed cannot express `sed -i '$d'`.
+  awk 'NR > 1 { print prev } { prev = $0 }' \
+    "$TMP_DIR/publish_policy/data/compat-name" > "$TMP_DIR/publish_policy/data/compat-name.tmp" \
+    && mv "$TMP_DIR/publish_policy/data/compat-name.tmp" "$TMP_DIR/publish_policy/data/compat-name"
 
   python3 "$ROOT/scripts/tools/export-domain-rules.py" export \
     "$TMP_DIR/publish_policy/data" \

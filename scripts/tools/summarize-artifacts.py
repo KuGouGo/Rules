@@ -5,19 +5,11 @@ import argparse
 import json
 from pathlib import Path
 
+from common_utils import non_comment_lines
 from platform_capabilities import load_platform_capabilities
 
 CAPABILITIES = load_platform_capabilities()
 TEXT_FORMATS = {"classical", "yaml"}
-
-
-def non_comment_lines(path: Path) -> list[str]:
-    lines: list[str] = []
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if line and not line.startswith("#"):
-            lines.append(line)
-    return lines
 
 
 def output_kinds(rule_type: str) -> tuple[str, ...]:
