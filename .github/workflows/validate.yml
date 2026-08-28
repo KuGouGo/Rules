@@ -1,0 +1,39 @@
+name: Validation
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+
+      # Install the locked sing-box / mihomo binaries so the binary verifier
+      # and compile-contract tests run their real-tool sections on every PR
+      # instead of silently skipping when the tools are absent.
+      - name: Resolve verification tools
+        run: |
+          source ./scripts/lib/common.sh
+          ensure_sing_box
+          ensure_mihomo
+
+      - name: Validate
+        run: REQUIRE_SHELLCHECK=1 make validate
