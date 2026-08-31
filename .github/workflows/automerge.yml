@@ -8,11 +8,10 @@ on:
   pull_request_review:
     types: [submitted]
   # Pull requests created with GITHUB_TOKEN do not start another PR workflow.
-  # This completion event is the only merge entry point: update-tool-versions.sh
-  # validates the branch, records a success status on the validated head SHA,
-  # and the merge below refuses any head SHA without that status.
+  # Each updater dispatches Validation, records a success status on the exact
+  # validated head SHA, and this completion event retries the guarded merge.
   workflow_run:
-    workflows: [Update dependencies]
+    workflows: [Update dependencies, Update upstream pins]
     types: [completed]
 
 permissions:
@@ -35,63 +34,65 @@ jobs:
        github.event.pull_request.draft == false &&
        github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.user.login == 'github-actions[bot]' &&
-       github.head_ref == 'automation/dependency-updates') ||
+       (github.head_ref == 'automation/dependency-updates' ||
+        github.head_ref == 'automation/upstream-pins')) ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_repository.full_name == github.repository &&
        github.event.workflow_run.head_branch == github.event.repository.default_branch)
     steps:
-      - name: Merge validated dependency update
+      - name: Merge validated automation update
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
           EVENT_PR: ${{ github.event.pull_request.number }}
+          COMPLETED_WORKFLOW: ${{ github.event.workflow_run.name }}
           REPOSITORY: ${{ github.repository }}
         run: |
           if [ "$EVENT_NAME" = "pull_request_target" ]; then
             pr="$EVENT_PR"
           else
+            case "$COMPLETED_WORKFLOW" in
+              "Update dependencies") branch="automation/dependency-updates" ;;
+              "Update upstream pins") branch="automation/upstream-pins" ;;
+              *) echo "Unsupported updater: $COMPLETED_WORKFLOW" >&2; exit 1 ;;
+            esac
             pr="$(gh pr list --repo "$REPOSITORY" \
-              --head automation/dependency-updates --base main --state open \
+              --head "$branch" --base main --state open \
               --json number --jq '.[0].number // empty')"
             if [ -z "$pr" ]; then
-              echo "No dependency update PR is open"
+              echo "No update PR is open for $branch"
               exit 0
             fi
           fi
 
-          trusted="$(gh api "repos/${REPOSITORY}/pulls/${pr}" \
-            --jq '[.draft == false, .state == "open", .head.ref == "automation/dependency-updates", .head.repo.full_name == "'"$REPOSITORY"'", .user.login == "github-actions[bot]"] | all')"
+          pr_json="$(gh api "repos/${REPOSITORY}/pulls/${pr}")"
+          branch="$(jq -r '.head.ref' <<< "$pr_json")"
+          case "$branch" in
+            automation/dependency-updates) context="dependency-update-validation" ;;
+            automation/upstream-pins) context="upstream-pin-validation" ;;
+            *) echo "PR #${pr} uses untrusted branch $branch" >&2; exit 1 ;;
+          esac
+
+          trusted="$(jq --arg repository "$REPOSITORY" \
+            '[.draft == false, .state == "open", .head.repo.full_name == $repository, .user.login == "github-actions[bot]"] | all' \
+            <<< "$pr_json")"
           if [ "$trusted" != "true" ]; then
-            echo "PR #${pr} failed the trusted dependency-update checks" >&2
+            echo "PR #${pr} failed the trusted automation checks" >&2
             exit 1
           fi
 
-          # Gate the merge on the exact validated commit. update-tool-versions.sh
-          # records a "dependency-update-validation" success status on the head
-          # SHA only after the dispatched Validation run passed, so merging is
-          # bound to that SHA: a later push to the branch has no status of its
-          # own and can never inherit the old commit's validation.
-          head_sha="$(gh api "repos/${REPOSITORY}/pulls/${pr}" --jq '.head.sha')"
+          # Bind the merge to the exact validated head. A later branch push has
+          # no inherited status and therefore cannot reuse an earlier validation.
+          head_sha="$(jq -r '.head.sha' <<< "$pr_json")"
           validated="$(gh api "repos/${REPOSITORY}/commits/${head_sha}/status" \
-            --jq '[.statuses[] | select(.context == "dependency-update-validation") | .state] | last // ""')"
+            --jq '[.statuses[] | select(.context == "'"$context"'") | .state] | last // ""')"
           if [ "$validated" != "success" ]; then
-            # Skip (not fail): on the pull_request_target path the status is
-            # recorded only after the dispatched Validation run finishes, and
-            # the workflow_run completion event is what merges then.
-            echo "PR #${pr} head ${head_sha} has no successful dependency-update-validation status; skipping merge" >&2
+            echo "PR #${pr} head ${head_sha} has no successful ${context} status; skipping merge" >&2
             exit 0
           fi
 
-          # Merge directly instead of using native auto-merge (`--auto`).
-          # PRs pushed by GITHUB_TOKEN get their `pull_request` check suites
-          # suppressed, so the branch never reports a completed check and the
-          # native engine stalls on a permanent "waiting for checks" state.
-          # The commit status gate above is the validation record that the
-          # native engine cannot see.
-          echo "Merging validated dependency update PR #${pr}"
-          # -R is required: `gh pr merge` otherwise resolves the repo via git,
-          # which fails in this runner (no checkout step).
+          echo "Merging validated automation PR #${pr}"
           gh pr merge "$pr" --repo "$REPOSITORY" --squash --delete-branch
 
   # Normal PRs: a human approval arms GitHub native auto-merge. The native
