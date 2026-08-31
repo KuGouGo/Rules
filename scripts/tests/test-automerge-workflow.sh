@@ -11,9 +11,9 @@ from pathlib import Path
 workflow = Path(sys.argv[1])
 text = workflow.read_text(encoding="utf-8")
 
-if "workflow_run:" not in text or "workflows: [Update dependencies]" not in text:
+if "workflow_run:" not in text or "workflows: [Update dependencies, Update upstream pins]" not in text:
     raise SystemExit(
-        f"{workflow}: token-created dependency PRs need a workflow_run trigger"
+        f"{workflow}: token-created update PRs need both workflow_run triggers"
     )
 if "github.event.workflow_run.conclusion == 'success'" not in text:
     raise SystemExit(f"{workflow}: failed dependency updates must not be merged")
@@ -34,17 +34,18 @@ if "gh pr review" in text:
     raise SystemExit(
         f"{workflow}: GitHub Actions cannot approve PRs when repository approval is disabled"
     )
-if "github.head_ref == 'automation/dependency-updates'" not in text:
-    raise SystemExit(f"{workflow}: fixed dependency branch is not trusted")
+for branch in ("automation/dependency-updates", "automation/upstream-pins"):
+    if branch not in text:
+        raise SystemExit(f"{workflow}: fixed automation branch is not trusted: {branch}")
 if "github.event.pull_request.head.repo.full_name == github.repository" not in text:
     raise SystemExit(f"{workflow}: dependency PR must originate from this repository")
 if "github.event.pull_request.user.login == 'github-actions[bot]'" not in text:
     raise SystemExit(f"{workflow}: dependency PR author is not restricted to Actions")
-if 'dependency-update-validation' not in text:
-    raise SystemExit(
-        f"{workflow}: merge must be gated on the dependency-update-validation "
-        "commit status recorded by update-tool-versions.sh"
-    )
+for context in ("dependency-update-validation", "upstream-pin-validation"):
+    if context not in text:
+        raise SystemExit(
+            f"{workflow}: merge must be gated on the exact updater status: {context}"
+        )
 if ".head.sha" not in text or "commits/" not in text:
     raise SystemExit(
         f"{workflow}: merge must fetch the PR head SHA and verify its status"
