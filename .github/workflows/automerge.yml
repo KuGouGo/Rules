@@ -15,6 +15,7 @@ on:
     types: [completed]
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -94,6 +95,11 @@ jobs:
 
           echo "Merging validated automation PR #${pr}"
           gh pr merge "$pr" --repo "$REPOSITORY" --squash --delete-branch
+
+          # GITHUB_TOKEN merges suppress subsequent push workflows. Dispatch the
+          # publication explicitly so the merged pin or dependency is consumed.
+          gh workflow run build.yml --repo "$REPOSITORY" --ref main \
+            -f scope=auto -f profile=auto
 
   # Normal PRs: a human approval arms GitHub native auto-merge. The native
   # engine waits for branch protection's required checks and approvals, so

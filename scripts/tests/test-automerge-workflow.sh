@@ -30,6 +30,10 @@ if not __import__("re").search(r"gh pr merge\b[^\n]*--squash[^\n]*--delete-branc
     raise SystemExit(
         f"{workflow}: trusted PRs must squash-merge and delete the branch"
     )
+if "gh workflow run build.yml" not in text or "actions: write" not in text:
+    raise SystemExit(
+        f"{workflow}: token-based merges must explicitly dispatch Sync Rules"
+    )
 if "gh pr review" in text:
     raise SystemExit(
         f"{workflow}: GitHub Actions cannot approve PRs when repository approval is disabled"
