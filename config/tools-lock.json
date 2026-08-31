@@ -24,22 +24,22 @@
     "sing-box": {
       "platforms": {
         "linux-amd64": {
-          "asset": "sing-box-1.13.20-linux-amd64.tar.gz",
+          "asset": "sing-box-1.14.0-linux-amd64.tar.gz",
           "attestation": "verified",
-          "binary_sha256": "211cd08f6cc6269f3064c35154549740dd810acdb9d89a3dfc9bf82f9792b1b6",
-          "sha256": "646bc01bf128c32a12eb50d8690e387bba7504da7b1d65c704bd53916e38595a"
+          "binary_sha256": "57b3da14e264b6e05e8f46aee027c02d7dd7f1594d19aa39e2f4d2b9459bbd04",
+          "sha256": "2375de6999f4f56ab46b4fc5ddf26a6aba1d3e61a0f4e7ddec2f4690457d5f63"
         },
         "linux-arm64": {
-          "asset": "sing-box-1.13.20-linux-arm64.tar.gz",
+          "asset": "sing-box-1.14.0-linux-arm64.tar.gz",
           "attestation": "verified",
-          "binary_sha256": "fb5e7ee4a3be3a4e956f05f703a9ffd4b83e14eb577cf9563cf3826324ffd363",
-          "sha256": "7f8187b1d1d30258cd4fa70892eaa232649f8f28b294078eeac719579e14cf42"
+          "binary_sha256": "4393306b90bb05502fce3b8f1754280f531c0f3ff47df9b1997b7831e3e543d0",
+          "sha256": "04d9b40bc98dc55b6f509ce3292145c65478f65866bea64826ebb2f382385088"
         }
       },
       "repository": "SagerNet/sing-box",
-      "tag": "v1.13.20",
-      "tag_commit": "56f91dfeabd6f4edbd437dfcc1e5b0ebc856b778",
-      "version": "1.13.20"
+      "tag": "v1.14.0",
+      "tag_commit": "0b8995879f29a9b98ee027bc17b75e101445b238",
+      "version": "1.14.0"
     }
   }
 }
