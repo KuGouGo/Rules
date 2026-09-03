@@ -41,9 +41,11 @@ entries = {
     "domain.dlc.url": config["domain"]["dlc"]["url"],
     "domain.shellcrash-fakeip.url": config["domain"]["shellcrash-fakeip"]["url"],
     "ip.cn-ipv46-apnic.url": config["ip"]["cn-ipv46-apnic"]["url"],
+    "ip.cn-17mon-ipv4.url": config["ip"]["cn-17mon-ipv4"]["url"],
     "ip.cn-clang-ipv4.url": config["ip"]["cn-clang-ipv4"]["url"],
     "ip.cn-clang-ipv6.url": config["ip"]["cn-clang-ipv6"]["url"],
     "ip.google.url": config["ip"]["google"]["url"],
+    "ip.loyalsoldier-geoip-cn.url": config["ip"]["loyalsoldier-geoip-cn"]["url"],
     "ip.telegram.url": config["ip"]["telegram"]["url"],
     "ip.cloudflare-ipv4.url": config["ip"]["cloudflare-ipv4"]["url"],
     "ip.cloudflare-ipv6.url": config["ip"]["cloudflare-ipv6"]["url"],
@@ -71,9 +73,9 @@ require_upstream_settings() {
 
 require_upstream_settings \
   domain.dlc.url domain.shellcrash-fakeip.url \
-  ip.cn-ipv46-apnic.url ip.cn-clang-ipv4.url ip.cn-clang-ipv6.url \
+  ip.cn-ipv46-apnic.url ip.cn-clang-ipv4.url ip.cn-clang-ipv6.url ip.cn-17mon-ipv4.url \
   ip.google.url ip.telegram.url ip.cloudflare-ipv4.url ip.cloudflare-ipv6.url \
-  ip.cloudfront.url ip.fastly.url ip.ripe-stat.base_url \
+  ip.cloudfront.url ip.fastly.url ip.ripe-stat.base_url ip.loyalsoldier-geoip-cn.url \
   asn.telegram
 
 DOMAIN_SOURCE_REPO_URL="${UPSTREAM_SETTINGS[domain.dlc.url]}"
@@ -81,6 +83,8 @@ SHELLCRASH_FAKEIP_SOURCE_URL="${UPSTREAM_SETTINGS[domain.shellcrash-fakeip.url]}
 CN_IPV46_APNIC_SOURCE_URL="${UPSTREAM_SETTINGS[ip.cn-ipv46-apnic.url]}"
 CN_CLANG_IPV4_SOURCE_URL="${UPSTREAM_SETTINGS[ip.cn-clang-ipv4.url]}"
 CN_CLANG_IPV6_SOURCE_URL="${UPSTREAM_SETTINGS[ip.cn-clang-ipv6.url]}"
+CN_17MON_IPV4_SOURCE_URL="${UPSTREAM_SETTINGS[ip.cn-17mon-ipv4.url]}"
+LOYALSOLDIER_GEOIP_CN_SOURCE_URL="${UPSTREAM_SETTINGS[ip.loyalsoldier-geoip-cn.url]}"
 GOOGLE_IP_SOURCE_URL="${UPSTREAM_SETTINGS[ip.google.url]}"
 TELEGRAM_IP_SOURCE_URL="${UPSTREAM_SETTINGS[ip.telegram.url]}"
 CLOUDFLARE_IPV4_SOURCE_URL="${UPSTREAM_SETTINGS[ip.cloudflare-ipv4.url]}"
@@ -369,6 +373,8 @@ generate_ip_normalize_manifest() {
     text "$tmp_dir/cn_ipv46_apnic.raw.txt" "$tmp_dir/cn_ipv46_apnic.cidr.txt" \
     text "$tmp_dir/cn_clang_ipv4.raw.txt" "$tmp_dir/cn_clang_ipv4.cidr.txt" \
     text "$tmp_dir/cn_clang_ipv6.raw.txt" "$tmp_dir/cn_clang_ipv6.cidr.txt" \
+    text "$tmp_dir/cn_17mon_ipv4.raw.txt" "$tmp_dir/cn_17mon_ipv4.cidr.txt" \
+    text "$tmp_dir/loyalsoldier-geoip-cn.raw.txt" "$tmp_dir/loyalsoldier-geoip-cn.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv4.raw.txt" "$tmp_dir/cloudflare_ipv4.cidr.txt" \
     text "$tmp_dir/cloudflare_ipv6.raw.txt" "$tmp_dir/cloudflare_ipv6.cidr.txt" \
     cloudfront-json "$tmp_dir/cloudfront.raw.json" "$tmp_dir/cloudfront.cidr.txt" \
@@ -535,6 +541,8 @@ main() {
     cn-ipv46-apnic required "$CN_IPV46_APNIC_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.raw.txt" \
     cn-clang-ipv4 required "$CN_CLANG_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_clang_ipv4.raw.txt" \
     cn-clang-ipv6 required "$CN_CLANG_IPV6_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_clang_ipv6.raw.txt" \
+    cn-17mon-ipv4 required "$CN_17MON_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cn_17mon_ipv4.raw.txt" \
+    loyalsoldier-geoip-cn required "$LOYALSOLDIER_GEOIP_CN_SOURCE_URL" "$IP_BUILD_TMP_DIR/loyalsoldier-geoip-cn.raw.txt" \
     google classified "$GOOGLE_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/google.raw.json" \
     telegram classified "$TELEGRAM_IP_SOURCE_URL" "$IP_BUILD_TMP_DIR/telegram.raw.txt" \
     cloudflare-ipv4 required "$CLOUDFLARE_IPV4_SOURCE_URL" "$IP_BUILD_TMP_DIR/cloudflare_ipv4.raw.txt" \
@@ -562,6 +570,8 @@ main() {
 cn-ipv46-apnic|$CN_IPV46_APNIC_SOURCE_URL|cn_ipv46_apnic.raw.txt|cn_ipv46_apnic.cidr.txt|0
 cn-clang-ipv4|$CN_CLANG_IPV4_SOURCE_URL|cn_clang_ipv4.raw.txt|cn_clang_ipv4.cidr.txt|0
 cn-clang-ipv6|$CN_CLANG_IPV6_SOURCE_URL|cn_clang_ipv6.raw.txt|cn_clang_ipv6.cidr.txt|0
+cn-17mon-ipv4|$CN_17MON_IPV4_SOURCE_URL|cn_17mon_ipv4.raw.txt|cn_17mon_ipv4.cidr.txt|0
+loyalsoldier-geoip-cn|$LOYALSOLDIER_GEOIP_CN_SOURCE_URL|loyalsoldier-geoip-cn.raw.txt|loyalsoldier-geoip-cn.cidr.txt|0
 google|$GOOGLE_IP_SOURCE_URL|google.raw.json|google.cidr.txt|0
 telegram|$TELEGRAM_IP_SOURCE_URL|telegram.raw.txt|telegram.cidr.txt|0
 cloudflare-ipv4|$CLOUDFLARE_IPV4_SOURCE_URL|cloudflare_ipv4.raw.txt|cloudflare_ipv4.cidr.txt|0
@@ -569,11 +579,18 @@ cloudflare-ipv6|$CLOUDFLARE_IPV6_SOURCE_URL|cloudflare_ipv6.raw.txt|cloudflare_i
 cloudfront|$CLOUDFRONT_IP_SOURCE_URL|cloudfront.raw.json|cloudfront.cidr.txt|0
 fastly|$FASTLY_IP_SOURCE_URL|fastly.raw.json|fastly.cidr.txt|0
 EOF
+  # Union of every CN source, collapsed to the minimal covering prefix set:
+  # APNIC registry allocations + Clang community curation + Loyalsoldier's
+  # multi-feed GeoIP aggregation (chnroutes2 / ipip / APNIC) + 17mon/iPIP
+  # usage-geo data (covers China-operated ranges outside registry CN view,
+  # e.g. Alibaba's ARIN-registered 8.x blocks).
   python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
     "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_clang_ipv4.cidr.txt" \
-    "$IP_BUILD_TMP_DIR/cn_clang_ipv6.cidr.txt"
+    "$IP_BUILD_TMP_DIR/cn_clang_ipv6.cidr.txt" \
+    "$IP_BUILD_TMP_DIR/loyalsoldier-geoip-cn.cidr.txt" \
+    "$IP_BUILD_TMP_DIR/cn_17mon_ipv4.cidr.txt"
   merge_cidr_plain_files \
     "$IP_BUILD_TMP_DIR/cloudflare.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cloudflare_ipv4.cidr.txt" \

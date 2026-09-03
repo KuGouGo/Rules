@@ -85,6 +85,19 @@
       "trust": "registry",
       "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
     },
+    "cn-17mon-ipv4": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "ipv4",
+        "min_entries": 7000,
+        "min_raw_bytes": 100000,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "cidr-text",
+      "trust": "community",
+      "url": "https://raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt"
+    },
     "cn-clang-ipv4": {
       "health": {
         "fallback_policy": "none",
@@ -136,6 +149,19 @@
       "parser": "google-json",
       "trust": "official",
       "url": "https://www.gstatic.com/ipranges/goog.json"
+    },
+    "loyalsoldier-geoip-cn": {
+      "health": {
+        "fallback_policy": "none",
+        "family": "dual",
+        "min_entries": 8000,
+        "min_raw_bytes": 120000,
+        "requirement": "required"
+      },
+      "kind": "text",
+      "parser": "cidr-text",
+      "trust": "community",
+      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt"
     },
     "ripe-stat": {
       "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",

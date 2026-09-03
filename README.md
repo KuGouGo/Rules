@@ -101,7 +101,7 @@ cn:
 上游获取 → 规范化与合并 → 平台渲染 → 守卫校验 → 事务发布（五分支原子推送）
 ```
 
-- **上游获取** —— 来源与健康策略（最小条目数、最小体积、地址族）声明于 [`config/upstreams.json`](config/upstreams.json)。域名主干 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community) + ShellCrash `fakeip-filter`；IP 侧为 Clang.CN 双栈中国列表 + APNIC 基线、google / telegram / cloudflare / cloudfront / fastly 官方源、RIPEstat 按 ASN 拉取。本地来源在 [`sources/custom/`](sources/custom) 与 [`sources/builtin/`](sources/builtin)。
+- **上游获取** —— 来源与健康策略（最小条目数、最小体积、地址族）声明于 [`config/upstreams.json`](config/upstreams.json)。域名主干 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community) + ShellCrash `fakeip-filter`；IP 侧为 Clang.CN 双栈中国列表 + APNIC 基线、[Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) CN 前缀与 [17mon/china_ip_list](https://github.com/17mon/china_ip_list)（iPIP 实用地理数据，补齐注册表视角外的中国实用段如阿里 ARIN 注册的 8.x）多源最优合并、google / telegram / cloudflare / cloudfront / fastly 官方源、RIPEstat 按 ASN 拉取。本地来源在 [`sources/custom/`](sources/custom) 与 [`sources/builtin/`](sources/builtin)。
 
 - **上游锁定** —— DLC 的消费提交钉定于 [`config/upstream-pins.json`](config/upstream-pins.json)：每日工作流对比上游 HEAD，有差异自动开 PR，**人工审核合并后**才进入构建。紧急排查可设 `RULES_UPSTREAM_FLOAT=1` 临时漂移到上游 HEAD。
 
@@ -159,6 +159,9 @@ cn:
 
 **为什么 Surge / QX 产物里缺某些规则？**
 能力矩阵跳过了平台不支持的类型（如 `DOMAIN-REGEX`）；仅含不支持类型的列表不会在该平台发布。
+
+**为什么不把 dnsmasq 系大列表（如 Loyalsoldier direct-list）合并进 `cn` 域名列表？**
+这类列表面向 **DNS 分流**（判断域名是否走国内解析），内容是"解析视角"而非"路由视角"，不保证直连正确性；`cn` 域名列表保持 DLC 人工策展。未命中域名列表的国内站点由 **`cn` IP 兜底**：把 `ip/cn` 规则放在 MATCH 之前且不带 `no-resolve`（Surge 去掉 `no-resolve` 参数，其余客户端放行解析即可），客户端会先解析再按落地 IP 判定直连。默认示例带 `no-resolve` 是为了避免域名请求触发额外解析，按需取舍。
 
 **`geolocation-!cn@cn` 与 `cn` 的顺序？**
 `geolocation-!cn@cn` 必须放在 `geolocation-!cn` **之前**；`cn` 及 `cn` IP 可在其前，参考产物分支 README 的示例。
