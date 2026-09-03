@@ -20,10 +20,12 @@ SOURCE_IMPLEMENTATIONS = {
         "shellcrash-fakeip": ("text", "domain-set-text"),
     },
     "ip": {
+        "cn-17mon-ipv4": ("text", "cidr-text"),
         "cn-ipv46-apnic": ("text", "cidr-text"),
         "cn-clang-ipv4": ("text", "cidr-text"),
         "cn-clang-ipv6": ("text", "cidr-text"),
         "google": ("json", "google-json"),
+        "loyalsoldier-geoip-cn": ("text", "cidr-text"),
         "telegram": ("text", "telegram"),
         "cloudflare-ipv4": ("text", "cidr-text"),
         "cloudflare-ipv6": ("text", "cidr-text"),

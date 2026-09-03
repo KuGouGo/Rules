@@ -8,9 +8,12 @@ SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
 ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
 CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" shell-registry)"
 
-MIN_IP_CIDR_CN="${MIN_IP_CIDR_CN:-4000}"
-MIN_IP_CIDR_CN_V4="${MIN_IP_CIDR_CN_V4:-3000}"
-MIN_IP_CIDR_CN_V6="${MIN_IP_CIDR_CN_V6:-300}"
+# CN floors sit just below the five-source union (APNIC + Clang v4/v6 +
+# Loyalsoldier GeoIP + 17mon/iPIP ≈ 8.9k prefixes, ~6.4k v4 / ~2.5k v6) so a
+# silently degraded feed cannot shrink the published ruleset unnoticed.
+MIN_IP_CIDR_CN="${MIN_IP_CIDR_CN:-7500}"
+MIN_IP_CIDR_CN_V4="${MIN_IP_CIDR_CN_V4:-5000}"
+MIN_IP_CIDR_CN_V6="${MIN_IP_CIDR_CN_V6:-2000}"
 MIN_IP_CIDR_GOOGLE="${MIN_IP_CIDR_GOOGLE:-80}"
 MIN_IP_CIDR_GOOGLE_V4="${MIN_IP_CIDR_GOOGLE_V4:-40}"
 # Google's published IPv6 prefix count is small and can legitimately sit in

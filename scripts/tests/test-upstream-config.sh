@@ -69,6 +69,12 @@ if dlc.get("url") != "https://github.com/v2fly/domain-list-community.git":
     raise SystemExit("test failed: domain.dlc URL must point at the domain-list-community source")
 if "loyalsoldier-china-list" in config["domain"]:
     raise SystemExit("test failed: DNS-only China List source must remain excluded")
+if "loyalsoldier-direct" in config["domain"]:
+    raise SystemExit(
+        "test failed: dnsmasq-derived direct lists are DNS-resolution views, "
+        "not routing-grade data; the cn domain superset must stay DLC-curated "
+        "with cn IP rules acting as the resolution-based fallback"
+    )
 ip_sources = config["ip"]
 if "cn-geoip" in ip_sources:
     raise SystemExit("test failed: transitive IPinfo China source must remain excluded")
@@ -87,8 +93,16 @@ if cn_clang_ipv6.get("trust") != "community" or cn_clang_ipv6.get("health", {}).
     raise SystemExit("test failed: Clang China IPv6 source must be a community IPv6 source")
 if cn_clang_ipv6.get("health", {}).get("min_entries", 0) < 1500:
     raise SystemExit("test failed: Clang China IPv6 source must reject heavily truncated output")
-if "loyalsoldier-geoip-cn" in ip_sources:
-    raise SystemExit("test failed: low-marginal China GeoIP source must remain excluded")
+cn_17mon = ip_sources.get("cn-17mon-ipv4", {})
+if cn_17mon.get("trust") != "community" or cn_17mon.get("health", {}).get("family") != "ipv4":
+    raise SystemExit("test failed: 17mon China source must be a community IPv4 source")
+if cn_17mon.get("health", {}).get("min_entries", 0) < 7000:
+    raise SystemExit("test failed: 17mon China source must reject heavily truncated output")
+loyalsoldier_geoip = ip_sources.get("loyalsoldier-geoip-cn", {})
+if loyalsoldier_geoip.get("trust") != "community" or loyalsoldier_geoip.get("health", {}).get("family") != "dual":
+    raise SystemExit("test failed: Loyalsoldier GeoIP CN source must be a community dual-stack source")
+if loyalsoldier_geoip.get("health", {}).get("min_entries", 0) < 8000:
+    raise SystemExit("test failed: Loyalsoldier GeoIP CN source must reject heavily truncated output")
 if "loyalsoldier-geoip-private" in ip_sources:
     raise SystemExit("test failed: static private ranges must not depend on a remote source")
 if "aws" in ip_sources:
@@ -118,10 +132,12 @@ expected_urls = {
     "ip.cloudflare-ipv4": "https://www.cloudflare.com/ips-v4",
     "ip.cloudflare-ipv6": "https://www.cloudflare.com/ips-v6",
     "ip.cn-ipv46-apnic": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt",
+    "ip.cn-17mon-ipv4": "https://raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt",
     "ip.cn-clang-ipv4": "https://ispip.clang.cn/all_cn.txt",
     "ip.cn-clang-ipv6": "https://ispip.clang.cn/all_cn_ipv6.txt",
     "ip.fastly": "https://api.fastly.com/public-ip-list",
     "ip.google": "https://www.gstatic.com/ipranges/goog.json",
+    "ip.loyalsoldier-geoip-cn": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt",
     "ip.ripe-stat": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
     "ip.telegram": "https://core.telegram.org/resources/cidr.txt",
 }

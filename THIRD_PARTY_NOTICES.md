@@ -7,6 +7,8 @@
 | 域名规则 | [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（MIT License） |
 | Fake-IP 过滤列表 `fakeip-filter` | [juewuy/ShellCrash](https://github.com/juewuy/ShellCrash) 的 `public/fake_ip_filter.list` |
 | 中国 IP | Clang.CN 的完整 [IPv4](https://ispip.clang.cn/all_cn.txt) / [IPv6](https://ispip.clang.cn/all_cn_ipv6.txt) 列表及 [APNIC 注册分配基线](https://ispip.clang.cn/all_cn_ipv46_apnic.txt) |
+| 中国 IP 补充 `cn` | [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) 的 `release/text/cn.txt`（CC-BY-SA-4.0，聚合 chnroutes2 / ipip / APNIC 等多源） |
+| 中国 IP 补充 `cn` | [17mon/china_ip_list](https://github.com/17mon/china_ip_list)（iPIP 免费中国 IPv4 列表，仓库未声明许可，按实用地理视角收录注册表视角之外的中国实用段） |
 | Google / Telegram / Cloudflare / CloudFront / Fastly IP | 各官方发布地址（见 [`config/upstreams.json`](config/upstreams.json)） |
 | ASN 前缀 | [RIPEstat](https://stat.ripe.net/) |
 
