@@ -57,19 +57,14 @@ RULE_KIND_ALIASES = {
 }
 
 REGIONAL_ATTRS = ("!cn", "cn")
-# Selected high-traffic categories also ship their own @cn derivative for
-# front-loaded direct routing (China-accessible endpoints such as CDNs).
-# Kept alongside the geolocation-!cn@cn aggregate; duplicate rules between
-# the derivative and the aggregate are harmless under ordered rule matching.
+
+
 PER_CATEGORY_CN_DERIVATIVES = {"apple", "google", "microsoft", "steam"}
-# Only the geolocation-!cn@cn aggregate is shipped as a standalone derivative;
-# per-category regional derivatives are folded into the geographic partition.
-# The @ads attribute still drives base-list filtering (e.g. cn excludes ad
-# entries) but its derivatives are never shipped.
+
+
 PUBLISHED_ATTRS = REGIONAL_ATTRS
-# Ads category lists are collapsed into a single flat aggregate list. The
-# plain category-ads* source lists (category-ads, category-ads-ir, ...) are not
-# shipped, and the aggregate list is published without regional derivatives.
+
+
 AGGREGATE_ADS_LIST = "category-ads-all"
 ADS_LIST_PREFIX = "category-ads"
 ALWAYS_PUBLISHED_DLC_LISTS = {"cn", "private"}
@@ -263,9 +258,8 @@ def parse_data_file(path: Path) -> tuple[list[Rule], list[Include], list[tuple[s
             rules.append(rule)
 
             for target in affiliate_targets:
-                # &name is the v2fly affiliation extension: the rule is also added
-                # to the list named <name>, enabling cross-list rule sharing without
-                # explicit include: directives.
+
+
                 affiliations.append((target, rule))
 
     return rules, includes, affiliations
@@ -288,7 +282,7 @@ def render_rule(rule: Rule) -> str:
 
 
 def compact_rules(rules: list[Rule]) -> tuple[list[Rule], int]:
-    """Drop DOMAIN/DOMAIN-SUFFIX rules covered by a sibling DOMAIN-SUFFIX."""
+
     first_by_key: dict[tuple[str, str], Rule] = {}
     for rule in rules:
         first_by_key.setdefault((rule.kind, rule.value), rule)
@@ -336,7 +330,7 @@ def filter_base_rule_set(name: str, rules: list[Rule]) -> list[Rule]:
 
 
 def is_plain_ads_category_list(name: str) -> bool:
-    """True for the per-provider ads lists that are collapsed into the aggregate."""
+
     return name.startswith(ADS_LIST_PREFIX) and name != AGGREGATE_ADS_LIST
 
 
@@ -442,12 +436,8 @@ _ESCAPE_WIDTHS = {"x": 2, "u": 4, "U": 8}
 
 
 def parse_yaml_double_quoted_scalar(body: str, source: str) -> str:
-    """Decode a YAML 1.2 double-quoted scalar body.
 
-    unicode_escape is deliberately not used: it applies latin-1 semantics per
-    byte, corrupting non-ASCII characters into mojibake and silently
-    reinterpreting stray backslashes as escapes.
-    """
+
     out: list[str] = []
     index = 0
     while index < len(body):
@@ -547,11 +537,8 @@ def export_plain_yaml_lists(input_file: Path, output_dir: Path) -> None:
 
 
 def write_text_lines(lines: list[str], output_file: Path) -> None:
-    """Write rendered lines, or skip empty output with a visible warning.
 
-    The artifact verifier rejects empty artifacts, so writing one would only
-    convert a data problem into a later, less legible failure.
-    """
+
     if not lines:
         print(f"warning: skipping empty artifact output: {output_file}", file=sys.stderr)
         return
@@ -784,11 +771,7 @@ def export_data_dir_lists(
         cache[name] = combined
         return combined
 
-    # Close the geographic partition with global regional attributes. v2fly
-    # marks Chinese entities serving only overseas with @!cn and foreign
-    # entities with a mainland access point with @cn; some of these rules are
-    # not reachable from the geolocation roots, so they are folded into
-    # geolocation-!cn to guarantee proxy/direct coverage for every rule.
+
     global_cn: dict[tuple[str, str], Rule] = {}
     global_not_cn: dict[tuple[str, str], Rule] = {}
     for rules in list(direct_rules.values()) + list(affiliated_rules.values()):
@@ -866,10 +849,8 @@ def export_data_dir_lists(
         rule_set_output = collect_rule_set_output(resolved_rules)
         base_rules = filter_base_rule_set(name, resolved_rules)
         if name == GEO_NOT_CN:
-            # Exact untagged overlaps can arrive through broad global category
-            # includes (currently hsbc -> hsbc-cn). The explicit CN root owns
-            # those rules; attributed @cn rules remain available to the @cn
-            # derivative through rule_set_output above.
+
+
             base_rules = [
                 rule
                 for rule in base_rules
@@ -891,11 +872,7 @@ def export_data_dir_lists(
             if cn_rules:
                 write_rule_set(f"{name}@cn", cn_rules)
 
-        # Per-category regional derivatives are redundant: every @cn rule is
-        # covered by the geolocation-!cn@cn aggregate (or the cn base list) and
-        # every @!cn rule by the geolocation-!cn base list. Ship only the
-        # geolocation-!cn@cn aggregate, kept disjoint from the cn base list so
-        # the three geographic sets partition every regional rule exactly once.
+
         if name == GEO_NOT_CN:
             for attr, rules in sorted(rule_set_output.rules_by_attr.items()):
                 if attr in PUBLISHED_ATTRS and not is_redundant_attr_rule_set_name(name, attr):
@@ -908,7 +885,6 @@ def export_data_dir_lists(
                     write_rule_set(f"{name}@{attr}", rules)
 
     print_platform_batch_skip_summary(skip_totals, skip_affected)
-
 
 
 def export_lists(
@@ -1156,7 +1132,7 @@ def main() -> int:
     try:
         handler()
         return 0
-    except Exception as exc:  # pragma: no cover - surfaced to shell
+    except Exception as exc:
         print(str(exc), file=sys.stderr)
         return 1
 

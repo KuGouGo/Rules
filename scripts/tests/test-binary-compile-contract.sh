@@ -14,8 +14,6 @@ mkdir -p "$TMP_DIR/domain-in" "$TMP_DIR/domain-out" "$TMP_DIR/ip-out" "$TMP_DIR/
 printf '{"version":4,"rules":[{"domain_suffix":["example.com"]}]}' > "$TMP_DIR/domain-in/sample.json"
 printf '192.0.2.0/24\n' > "$TMP_DIR/domain-in/sample.txt"
 
-# A compiler may incorrectly return success without creating output. The batch
-# helpers must fail closed instead of relying on the command status alone.
 cat > "$TMP_DIR/bin/sing-box" <<'EOF'
 #!/usr/bin/env sh
 exit 0
@@ -38,8 +36,6 @@ if PATH="$TMP_DIR/bin:$PATH" compile_ip_binary_dirs \
   exit 1
 fi
 
-# Compilers that produce output must name artifacts after the bare input
-# stem: a mihomo input `cn.mihomo.txt` yields `cn.mrs`, never `cn.mihomo.mrs`.
 cat > "$TMP_DIR/bin/sing-box" <<'EOF'
 #!/usr/bin/env sh
 output="$5"
@@ -65,6 +61,5 @@ if [ -f "$TMP_DIR/domain-out/cn.mihomo.mrs" ]; then
   echo "test failed: mihomo artifact leaked the intermediate suffix into its name" >&2
   exit 1
 fi
-
 
 echo "binary compile contract tests passed"

@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -26,9 +30,6 @@ jobs:
       - name: Prepare scripts
         run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
 
-      # Install the locked sing-box / mihomo binaries so the binary verifier
-      # and compile-contract tests run their real-tool sections on every PR
-      # instead of silently skipping when the tools are absent.
       - name: Resolve verification tools
         run: |
           source ./scripts/lib/common.sh

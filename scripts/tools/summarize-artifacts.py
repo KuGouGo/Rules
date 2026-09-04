@@ -28,8 +28,7 @@ def summarize_domain_text(path: Path) -> dict[str, int]:
         kind = line.split(",", 1)[0].strip().upper().replace("_", "-")
         if kind in counts:
             counts[kind] += 1
-        elif line.startswith("- '") or line.startswith('- "') or line.startswith("- "):
-            # Egern YAML entries are section-based; count them as generic entries.
+        elif line.startswith("- "):
             counts.setdefault("YAML-ENTRY", 0)
             counts["YAML-ENTRY"] += 1
     return {kind: count for kind, count in counts.items() if count}
@@ -41,7 +40,7 @@ def summarize_ip_text(path: Path) -> dict[str, int]:
         kind = line.split(",", 1)[0].strip().upper()
         if kind in counts:
             counts[kind] += 1
-        elif line.startswith("- '") or line.startswith('- "') or line.startswith("- "):
+        elif line.startswith("- "):
             counts.setdefault("YAML-ENTRY", 0)
             counts["YAML-ENTRY"] += 1
     return {kind: count for kind, count in counts.items() if count}

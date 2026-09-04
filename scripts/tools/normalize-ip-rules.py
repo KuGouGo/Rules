@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize, merge, and render IP CIDR rule artifacts."""
+
 from __future__ import annotations
 
 import argparse
@@ -10,6 +10,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from common_utils import atomic_write_text
 from ip_rules import parse_classical_ip_file
 from platform_capabilities import load_platform_capabilities
 
@@ -17,9 +18,6 @@ from platform_capabilities import load_platform_capabilities
 PLATFORM_CAPABILITIES = load_platform_capabilities().platforms
 
 
-# IPv4: strict dotted-quad/prefix. IPv6: must contain at least one colon to
-# avoid false-positive matches on non-CIDR hex strings; validated by
-# ipaddress.ip_network() afterwards.
 DEFAULT_SINGBOX_RULE_SET_VERSION = 4
 
 
@@ -36,37 +34,9 @@ def _resolve_singbox_rule_set_version() -> int:
 SINGBOX_RULE_SET_VERSION = _resolve_singbox_rule_set_version()
 
 
-def atomic_write_text(output_file: Path, output_text: str) -> None:
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    temp_path: Path | None = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            newline="\n",
-            dir=output_file.parent,
-            prefix=f".{output_file.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as handle:
-            temp_path = Path(handle.name)
-            handle.write(output_text)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temp_path, output_file)
-    finally:
-        if temp_path is not None:
-            temp_path.unlink(missing_ok=True)
-
-
 def normalize_networks(values: list[str]) -> list[ipaddress._BaseNetwork]:
-    """Parse CIDR entries, failing loud on anything invalid.
 
-    Every caller feeds pre-validated (source parsers) or pre-normalized
-    (previous pipeline stage) data, so an invalid entry means corruption or a
-    programming error: it must abort the build instead of silently shrinking
-    the published artifact.
-    """
+
     networks: list[ipaddress._BaseNetwork] = []
     invalid: list[str] = []
 
@@ -75,8 +45,8 @@ def normalize_networks(values: list[str]) -> list[ipaddress._BaseNetwork]:
         if not cidr:
             continue
         try:
-            # Source feeds may contain host bits; normalize those without
-            # changing the represented network.
+
+
             networks.append(ipaddress.ip_network(cidr, strict=False))
         except ValueError:
             invalid.append(cidr)
@@ -109,7 +79,7 @@ def deduplicated_cidrs(values: list[str]) -> list[str]:
 
 
 def canonical_cidrs(values: list[str]) -> list[str]:
-    """Return the minimal, deterministic IPv4/IPv6 union."""
+
     return collapsed_cidrs(values)
 
 
@@ -191,7 +161,7 @@ def extract_fastly_json_cidrs(input_file: Path, output_file: Path) -> None:
 
 
 def extract_cloudfront_json_cidrs(input_file: Path, output_file: Path) -> None:
-    """Parse only CloudFront CDN prefixes from AWS's official dual-stack schema."""
+
     data = json.loads(input_file.read_text(encoding="utf-8"))
     values = []
     for field, prefix_key in (("prefixes", "ip_prefix"), ("ipv6_prefixes", "ipv6_prefix")):
@@ -206,15 +176,8 @@ def extract_cloudfront_json_cidrs(input_file: Path, output_file: Path) -> None:
 
 
 def extract_ripe_stat_json_cidrs(input_file: Path, output_file: Path) -> None:
-    """Parse a RIPE NCC Stat announced-prefixes response.
 
-    Source URL pattern:
-      https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS<asn>
 
-    The response contains the set of prefixes currently announced by that ASN
-    according to RIPE NCC's RPKI/routing data — authoritative registry data
-    suitable for proxy rule sets.
-    """
     data = json.loads(input_file.read_text(encoding="utf-8"))
     if not isinstance(data, dict) or not isinstance(data.get("data"), dict):
         raise ValueError(f"{input_file} missing RIPE Stat data object")
@@ -298,8 +261,8 @@ def run_single_task(source_type: str, input_file: Path, output_file: Path) -> No
         "ripe-stat-json": extract_ripe_stat_json_cidrs,
     }
     source_to_handler[source_type](input_file, output_file)
-    # All upstream parsers converge on one minimal canonical CIDR union. At
-    # this boundary every parser output must be valid; no entry may disappear.
+
+
     values = output_file.read_text(encoding="utf-8").splitlines()
     normalize_networks(values)
     output_text = "\n".join(canonical_cidrs(values))
@@ -442,7 +405,7 @@ def main() -> int:
         else:
             build_singbox_json_from_plain(Path(args.input_file), Path(args.output_file))
         return 0
-    except Exception as exc:  # pragma: no cover - surfaced to shell
+    except Exception as exc:
         print(str(exc), file=sys.stderr)
         return 1
 

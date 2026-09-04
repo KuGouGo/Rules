@@ -104,8 +104,6 @@ branch_readme() {
     exit 1
   fi
 
-  # Render the template with the generated artifact stats table so each
-  # publish branch documents exactly which lists it ships and their sizes.
   python3 "$ROOT/scripts/tools/render-branch-readme.py" \
     --platform "$branch" \
     --artifact-root "$ARTIFACT_ROOT" \
@@ -243,9 +241,6 @@ create_publish_commit() {
   local remote_commit="$3"
   local message commit
 
-  # Orphan rebuild: publish branches never carry history, so every
-  # publication replaces the branch with a fresh single commit (no parent).
-  # The branch always stays one commit deep, independently of main.
   message="chore: publish ${branch} artifacts [generation ${MANIFEST_GENERATION_ID} source ${MANIFEST_SOURCE_SHA}]"
   commit="$(git commit-tree "$tree" -m "$message")"
   git update-ref "refs/heads/$branch" "$commit"
@@ -299,8 +294,6 @@ publish_queued_refs() {
     return 0
   fi
 
-  # Close the source race after all branch trees have been prepared. The
-  # expected-SHA leases below independently close artifact-branch races.
   assert_remote_main_tip
   refresh_and_validate_remote_baseline
 
@@ -317,9 +310,7 @@ publish_queued_refs() {
   remote_url="$(git -C "$ROOT" remote get-url origin)"
   git remote add origin "$remote_url"
   if [[ "$remote_url" == https://github.com/* ]] && [ -n "${GITHUB_TOKEN:-}" ]; then
-    # Auth via a URL-scoped extraheader instead of embedding the token in the
-    # remote URL, where it would be exposed by `git remote -v` and potentially
-    # by git error output and process listings.
+
     basic_token="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
     git config "http.${remote_url}/.extraheader" "AUTHORIZATION: basic ${basic_token}"
   fi
@@ -339,9 +330,6 @@ publish_queued_refs() {
     names+=("$branch")
   done < "$PUBLISH_QUEUE_FILE"
 
-  # Refuse to publish an incomplete cohort: a partial prepare (capability
-  # registry error, truncated queue) must never atomically push fewer than
-  # the full five-branch set.
   if [ "${#names[@]}" -ne "${#PUBLISH_BRANCH_NAMES[@]}" ]; then
     echo "publish cohort incomplete: got ${#names[@]} branches (${names[*]:-none}), expected ${#PUBLISH_BRANCH_NAMES[@]} (${PUBLISH_BRANCH_NAMES[*]})" >&2
     return 1
@@ -381,9 +369,7 @@ if [ "$MANIFEST_BASELINE_STATUS" = "consistent" ] \
   && git -C "$ROOT" cat-file -e "${MANIFEST_BASELINE_SOURCE}^{commit}" 2>/dev/null; then
   PUBLISH_COHORT_CHANGED=0
 else
-  # A full recovery must repair split/invalid cohort metadata even when every
-  # artifact tree is byte-for-byte unchanged, including a consistent cohort
-  # whose recorded source commit is no longer available locally.
+
   PUBLISH_COHORT_CHANGED=1
 fi
 

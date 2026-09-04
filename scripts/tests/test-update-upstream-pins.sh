@@ -5,28 +5,33 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 UPDATER="$ROOT/scripts/commands/update-upstream-pins.sh"
 WORKFLOW="$ROOT/.github/workflows/update-upstream-pins.yml"
 
-python3 - "$UPDATER" "$WORKFLOW" <<'PY'
+python3 - "$UPDATER" "$WORKFLOW" "$ROOT/scripts/lib/github-pr.sh" <<'PY'
 import sys
 from pathlib import Path
 
-updater_path, workflow_path = map(Path, sys.argv[1:])
+updater_path, workflow_path, helpers_path = map(Path, sys.argv[1:])
 updater = updater_path.read_text(encoding="utf-8")
 workflow = workflow_path.read_text(encoding="utf-8")
+helpers = helpers_path.read_text(encoding="utf-8")
 
 for required in (
     'BRANCH="automation/upstream-pins"',
     'VALIDATION_CONTEXT="upstream-pin-validation"',
-    "gh workflow run validate.yml",
-    "--event workflow_dispatch",
-    "gh run watch",
-    "statuses/${head_sha}",
-    "record_validation_status",
 ):
     if required not in updater:
         raise SystemExit(f"{updater_path}: missing trusted validation behavior: {required}")
 
+for required in (
+    "gh workflow run validate.yml",
+    "--event workflow_dispatch",
+    "gh run watch",
+    "statuses/${head_sha}",
+):
+    if required not in helpers:
+        raise SystemExit(f"{helpers_path}: missing trusted validation behavior: {required}")
+
 main_body = updater[updater.index("main()") :]
-validate_call = main_body.rfind("  validate_update_branch")
+validate_call = main_body.rfind("  validate_automation_branch")
 status_call = main_body.rfind("  record_validation_status")
 if validate_call < 0 or status_call < 0 or validate_call > status_call:
     raise SystemExit(f"{updater_path}: validation must finish before success is recorded")

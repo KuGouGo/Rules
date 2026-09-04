@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate and strictly verify the canonical publication artifact manifest."""
+
 from __future__ import annotations
 
 import argparse

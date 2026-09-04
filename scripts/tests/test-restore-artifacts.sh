@@ -60,7 +60,6 @@ run_restore() {
     "$REPO/scripts/commands/restore-artifacts.sh"
 }
 
-# Happy path: all five branches share one generation/source cohort.
 publish_seed 200-1
 ARTIFACT_ROOT="$TMP_DIR/restored"
 BASELINE_FILE="$TMP_DIR/baseline.json"
@@ -94,12 +93,9 @@ for item in metadata["branches"].values():
     assert item["source_commit"] == source
 PY
 
-# A second restore against the same baseline must keep comparing equal.
 run_restore "$TMP_DIR/restored-again" "$BASELINE_FILE" >/dev/null
 cmp "$BASELINE_FILE" "$TMP_DIR/restored-again/restoration-metadata.json" >/dev/null
 
-# Inconsistent cohort: branches advertise different generations. Replace the
-# fixture surge branch with one carrying a different cohort identity.
 git clone -q "$REMOTE" "$TMP_DIR/mixed-seed"
 git -C "$TMP_DIR/mixed-seed" config user.name test
 git -C "$TMP_DIR/mixed-seed" config user.email test@example.com
@@ -123,8 +119,6 @@ set -e
 }
 grep -F "restored branches are from inconsistent publications" <<< "$mixed_output" >/dev/null
 
-# Invalid metadata: a branch subject that does not match the publication
-# pattern must be refused by the restore step.
 git clone -q "$REMOTE" "$TMP_DIR/bad-seed"
 git -C "$TMP_DIR/bad-seed" config user.name test
 git -C "$TMP_DIR/bad-seed" config user.email test@example.com

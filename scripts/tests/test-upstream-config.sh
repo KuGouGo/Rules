@@ -48,8 +48,6 @@ assert_lint_fails_with \
   "domain_publish_policy: common.geolocation_not_cn must be a list of unique non-empty names" \
   --domain-publish-policy "$TMP_DIR/bad-domain-publish-policy.json"
 
-# Production capability config must be accepted by both the lint schema and the
-# runtime loader so the two independently maintained validators cannot drift.
 python3 - <<'PY'
 from scripts.tools.platform_capabilities import load_platform_capabilities
 

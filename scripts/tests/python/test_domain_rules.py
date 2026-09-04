@@ -1,7 +1,7 @@
 import unittest
 from collections import Counter
 
-import _paths  # noqa: F401
+import _paths
 from artifact_verifier import normalized_semantic_entries
 from domain_rules import (
     ParsedDomainRule,

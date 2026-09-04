@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Refresh pinned GitHub Actions to their latest release commits."""
 
 import argparse
 import json
@@ -44,7 +43,7 @@ def workflow_paths(root):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--metadata", type=Path, help="read release metadata instead of GitHub")
     args = parser.parse_args(argv)

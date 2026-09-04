@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
-# Refresh core tools and GitHub Actions from upstream releases and open one PR.
-#
-# Intended to run from CI (update-tools workflow) with a GitHub token that has
-# contents:write, pull-requests:write, and statuses:write. Exits 0 when
-# nothing changed.
+
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 BRANCH="automation/dependency-updates"
+VALIDATION_CONTEXT="dependency-update-validation"
 
 # shellcheck source=scripts/lib/github-pr.sh
 source "$ROOT/scripts/lib/github-pr.sh"
@@ -19,56 +16,6 @@ push_update_branch() {
 
 ensure_update_pull_request() {
   ensure_automation_pull_request "$BRANCH" "$1" "$2"
-}
-
-validate_update_branch() {
-  local head_sha run_id="" attempt
-
-  head_sha="$(git rev-parse HEAD)"
-  gh workflow run validate.yml --ref "$BRANCH"
-
-  for attempt in {1..12}; do
-    runs="$(gh run list --workflow validate.yml --branch "$BRANCH" \
-      --event workflow_dispatch --limit 10 --json databaseId,headSha \
-      --jq '.[] | select(.headSha == "'"$head_sha"'") | .databaseId')" \
-      || continue
-    run_id="${runs%%$'\n'*}"
-    [ -n "$run_id" ] && break
-    echo "waiting for dispatched validation run (${attempt}/12)"
-    sleep 5
-  done
-
-  if [ -z "$run_id" ]; then
-    echo "dispatched validation run was not found for ${head_sha}" >&2
-    return 1
-  fi
-
-  echo "waiting for validation run ${run_id} on ${BRANCH}"
-  gh run watch "$run_id" --exit-status
-}
-
-# Bind the automerge gate to this exact commit: automerge.yml merges only a
-# head SHA carrying a successful "dependency-update-validation" status, so a
-# later push to the branch can never ride an older commit's validation.
-record_validation_status() {
-  local head_sha repository status_output
-
-  head_sha="$(git rev-parse HEAD)"
-  repository="${GITHUB_REPOSITORY:-KuGouGo/Rules}"
-  if status_output="$(gh api --method POST \
-    "repos/${repository}/statuses/${head_sha}" \
-    -f state=success \
-    -f context="dependency-update-validation" \
-    -f description="Validated dependency update branch" \
-    -f target_url="${GITHUB_SERVER_URL:-https://github.com}/${repository}/actions/runs/${GITHUB_RUN_ID:-}" \
-    2>&1)"; then
-    echo "recorded dependency-update-validation status on ${head_sha}"
-  else
-    # Without the status the automerge workflow refuses to merge, so a failed
-    # status write must fail the run loudly instead of leaving a stale PR.
-    printf 'failed to record validation status on %s: %s\n' "$head_sha" "$status_output" >&2
-    return 1
-  fi
 }
 
 main() {
@@ -86,16 +33,12 @@ main() {
     return 0
   fi
 
-  # Validate the refreshed release binaries before proposing them: verify
-  # archive + binary digests and version probes, run the full test suite, and
-  # compile deterministic custom artifacts with both tools.
   # shellcheck source=scripts/lib/common.sh
   source "$ROOT/scripts/lib/common.sh"
   setup_tool_cache
   ensure_sing_box
   ensure_mihomo
-  # Regenerate the binary goldens with the refreshed compilers so the golden
-  # fixture test validates against the new locked versions in this same PR.
+
   bash "$ROOT/scripts/commands/update-binary-goldens.sh"
   REQUIRE_SHELLCHECK=1 make validate-tool-update
 
@@ -124,8 +67,8 @@ The refreshed lock was validated (archive + binary SHA-256 checks and version
 probes) before this branch was created."
   push_update_branch
   ensure_update_pull_request "$title" "$body"
-  validate_update_branch
-  record_validation_status
+  validate_automation_branch "$BRANCH"
+  record_validation_status "$VALIDATION_CONTEXT" "Validated dependency update branch"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

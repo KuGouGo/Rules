@@ -60,14 +60,9 @@ assert_injected_failure_preserves_output() {
   fi
 }
 
-# Change a maintained source so staging contains output different from the
-# restored controlled artifact. A late text failure must still publish nothing.
 printf '\nDOMAIN-SUFFIX,atomic-stage.example.com\n' >> "$REPO/sources/custom/domain/emby.list"
 assert_injected_failure_preserves_output late-text RULES_BUILD_CUSTOM_TEXT_ONLY=1
 
-# Avoid network/tool-lock behavior only inside this disposable test copy. The
-# fake compilers produce deterministic binary payloads so failure is injected
-# after all binary compile calls have completed.
 cat >> "$REPO/scripts/lib/common.sh" <<'EOF'
 ensure_sing_box() { return 0; }
 ensure_mihomo() { return 0; }
@@ -96,8 +91,6 @@ chmod +x "$REPO/.bin/sing-box" "$REPO/.bin/mihomo"
 assert_injected_failure_preserves_output late-binary
 assert_injected_failure_preserves_output canonical-commit
 
-# A successful text-only commit updates only controlled text targets. Binary
-# targets and unrelated restored/upstream files remain untouched.
 printf 'restored binary\n' > "$REPO/.output/domain/surge/unrelated.list"
 RULES_CONFLICT_BASE_SHA="$BASE_SHA" RULES_BUILD_CUSTOM_TEXT_ONLY=1 \
   "$REPO/scripts/commands/build-custom.sh" >/dev/null

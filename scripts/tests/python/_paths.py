@@ -1,4 +1,3 @@
-"""Shared import path bootstrap for the tool unit tests."""
 import sys
 from pathlib import Path
 

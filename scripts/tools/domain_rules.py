@@ -8,9 +8,8 @@ from pathlib import Path
 
 DOMAIN_RULE_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "DOMAIN-REGEX"}
 DOMAIN_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
-# For ASCII values this matches exactly what str.isspace() does; non-ASCII
-# values take the slower per-character path so Unicode whitespace semantics
-# stay identical.
+
+
 ASCII_WHITESPACE_RE = re.compile(r"[\t\n\x0b\x0c\r\x1c-\x1f ]")
 GEOGRAPHIC_BASE_EXCLUDED_ATTRS = {
     "cn": frozenset({"!cn", "ads"}),
@@ -35,7 +34,7 @@ def domain_rule_is_covered(
     value: str,
     covering_rules: set[tuple[str, str]],
 ) -> bool:
-    """Return whether a canonical domain rule is contained by another rule set."""
+
     if (kind, value) in covering_rules:
         return True
     if kind not in {"DOMAIN", "DOMAIN-SUFFIX"}:
@@ -49,7 +48,7 @@ def domain_rule_is_covered(
 
 
 def strip_inline_comment(line: str) -> str:
-    """Ignore full-line comments while preserving literal '#' in rule values."""
+
     return "" if line.lstrip().startswith("#") else line.rstrip("\r")
 
 
@@ -58,13 +57,8 @@ def normalize_rule_type(value: str) -> str:
 
 
 def to_ascii_domain(value: str) -> str | None:
-    """Convert a possibly non-ASCII domain to punycode, or None when invalid.
 
-    Upstream rule sources may contain Unicode (U-label) domains. Consumers
-    match on ASCII SNI/DNS names, so every non-ASCII label must be converted
-    to its IDNA A-label form instead of failing the build or, worse, silently
-    never matching at runtime.
-    """
+
     if value.isascii():
         return value
     labels: list[str] = []
@@ -86,8 +80,8 @@ def normalize_domain_value(kind: str, value: str) -> str:
         converted = to_ascii_domain(value)
         return converted if converted is not None else value
     if kind == "DOMAIN-KEYWORD":
-        # Keywords are substrings matched against presentation names; encoding
-        # them to punycode would change what they match, so only case-fold.
+
+
         return value.lower()
     return value
 
@@ -154,11 +148,8 @@ def domain_value_errors(
 
 
 def compact_domain_rules(rules: list[ParsedDomainRule]) -> tuple[list[ParsedDomainRule], int]:
-    """Remove rules made redundant by an equal or parent DOMAIN-SUFFIX.
 
-    Keyword and regular-expression rules are intentionally opaque. The first
-    occurrence order is preserved so canonical output remains deterministic.
-    """
+
     suffixes = sorted(
         {rule.value for rule in rules if rule.kind == "DOMAIN-SUFFIX"},
         key=lambda value: value.count("."),

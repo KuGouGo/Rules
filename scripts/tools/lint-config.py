@@ -211,13 +211,8 @@ def validate_upstreams(data: dict, reporter: Reporter) -> None:
 
 
 def validate_domain_publish_policy(data: dict, reporter: Reporter) -> None:
-    """Lint the publish policy through the shared strict loader.
 
-    The exporter parses this file with domain_publish_policy.parse_publish_policy,
-    so linting the same bytes through a second hand-written schema copy would
-    only guarantee drift. Checks below the loader are repo-level invariants the
-    shared loader deliberately does not own.
-    """
+
     location = "domain_publish_policy"
     try:
         policy = parse_publish_policy(data, location)
@@ -355,8 +350,8 @@ def main() -> int:
 
     reporter = Reporter()
     validate_upstreams(load_json_object(Path(args.upstreams), reporter), reporter)
-    # load_platform_capabilities is the strict shared loader and already
-    # covers everything a plain JSON re-read could report.
+
+
     try:
         load_platform_capabilities(Path(args.domain_platform_capabilities))
     except (OSError, ValueError, json.JSONDecodeError) as exc:

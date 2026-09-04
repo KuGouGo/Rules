@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-# Propose an upstream source pin bump as one pull request.
-#
-# Intended to run from CI (update-upstream-pins workflow). Reads the upstream
-# remote HEAD recorded in config/upstreams.json, compares it against the pinned
-# revision in config/upstream-pins.json, and opens a validated PR when they
-# differ. Trusted automation merges that exact validated commit.
-# Exits 0 when the pin is current.
+
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -15,44 +9,6 @@ VALIDATION_CONTEXT="upstream-pin-validation"
 
 # shellcheck source=scripts/lib/github-pr.sh
 source "$ROOT/scripts/lib/github-pr.sh"
-
-validate_update_branch() {
-  local head_sha run_id="" runs attempt
-
-  head_sha="$(git rev-parse HEAD)"
-  gh workflow run validate.yml --ref "$BRANCH"
-
-  for attempt in {1..12}; do
-    runs="$(gh run list --workflow validate.yml --branch "$BRANCH" \
-      --event workflow_dispatch --limit 10 --json databaseId,headSha \
-      --jq '.[] | select(.headSha == "'"$head_sha"'") | .databaseId')" \
-      || continue
-    run_id="${runs%%$'\n'*}"
-    [ -n "$run_id" ] && break
-    echo "waiting for dispatched validation run (${attempt}/12)"
-    sleep 5
-  done
-
-  [ -n "$run_id" ] || {
-    echo "dispatched validation run was not found for ${head_sha}" >&2
-    return 1
-  }
-  echo "waiting for validation run ${run_id} on ${BRANCH}"
-  gh run watch "$run_id" --exit-status
-}
-
-record_validation_status() {
-  local head_sha repository
-
-  head_sha="$(git rev-parse HEAD)"
-  repository="${GITHUB_REPOSITORY:-KuGouGo/Rules}"
-  gh api --method POST "repos/${repository}/statuses/${head_sha}" \
-    -f state=success \
-    -f context="$VALIDATION_CONTEXT" \
-    -f description="Validated upstream pin update" \
-    -f target_url="${GITHUB_SERVER_URL:-https://github.com}/${repository}/actions/runs/${GITHUB_RUN_ID:-}"
-  echo "recorded ${VALIDATION_CONTEXT} status on ${head_sha}"
-}
 
 pin_value() {
   python3 - "$1" "$2" <<'PY'
@@ -116,8 +72,8 @@ Updates the pinned \`domain-list-community\` commit from \`${pinned:-none}\` to 
 
 The update workflow validates this exact commit before trusted automation
 squash-merges it. The next scheduled build then consumes the new revision."
-  validate_update_branch
-  record_validation_status
+  validate_automation_branch "$BRANCH"
+  record_validation_status "$VALIDATION_CONTEXT" "Validated upstream pin update"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

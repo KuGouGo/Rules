@@ -33,23 +33,20 @@ TRANSACTION_FAILURE_REASON=command-failure
 TRANSACTION_SIGNAL=""
 mkdir -p "$STAGE_ROOT"
 
-# Per-phase wall-clock timings, recorded into build-timings.json so CI runs
-# expose a performance budget: a slowly degrading audit or compile stage shows
-# up here before it threatens the job timeout.
 declare -A PHASE_TIMINGS_MS=()
-PHASE_CLOCK_NS=0
+PHASE_CLOCK_US=0
 
-now_ns() {
-  python3 -c 'import time; print(time.time_ns())'
+now_us() {
+  printf '%s' "${EPOCHREALTIME/./}"
 }
 
 phase_begin() {
-  PHASE_CLOCK_NS="$(now_ns)"
+  PHASE_CLOCK_US="$(now_us)"
 }
 
 phase_end() {
   local phase="$1"
-  PHASE_TIMINGS_MS["$phase"]=$(( ($(now_ns) - PHASE_CLOCK_NS) / 1000000 ))
+  PHASE_TIMINGS_MS["$phase"]=$(( ($(now_us) - PHASE_CLOCK_US) / 1000 ))
 }
 
 write_build_timings() {

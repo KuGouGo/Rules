@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import _paths  # noqa: F401
+import _paths
 import ipaddress
 from ip_rules import ParsedIpRule, parse_classical_ip_file, write_plain_cidrs
 
