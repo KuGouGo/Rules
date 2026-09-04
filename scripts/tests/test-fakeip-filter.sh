@@ -5,8 +5,6 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-# Fake-IP is an upstream-synced list (ShellCrash), not a locally maintained
-# custom source. It must flow through the unified sync pipeline only.
 if [ -e "$ROOT/sources/custom/domain/fakeip-filter.list" ]; then
   echo "test failed: fakeip-filter must not remain a local custom source" >&2
   exit 1
@@ -22,7 +20,6 @@ if grep -RInE 'wwqgtxx|sync-fakeip-filter' \
   exit 1
 fi
 
-# The upstream is declared in the unified upstream configuration.
 python3 - "$ROOT" <<'PY'
 import json
 import sys
@@ -38,12 +35,10 @@ assert source["url"] == expected_url, source
 assert source["health"]["min_entries"] >= 1, source
 PY
 
-# ... and linted through the same SOURCE_IMPLEMENTATIONS registry as every source.
 grep -F '"shellcrash-fakeip": ("text", "domain-set-text")' \
   "$ROOT/scripts/tools/lint-config.py" >/dev/null
 python3 "$ROOT/scripts/tools/lint-config.py" >/dev/null
 
-# The unified sync pipeline downloads, merges, and records health for the list.
 SYNC="$ROOT/scripts/commands/sync-upstream.sh"
 # shellcheck disable=SC2016
 grep -F 'shellcrash-fakeip required "$SHELLCRASH_FAKEIP_SOURCE_URL"' "$SYNC" >/dev/null
@@ -53,9 +48,6 @@ grep -F '"$WORK_TMP_DIR/shellcrash-fakeip.raw.list"' "$SYNC" >/dev/null
 grep -F 'verify_and_record_upstream_health' "$SYNC" >/dev/null
 grep -F 'fakeip-filter.list' "$SYNC" >/dev/null
 
-# Parser contract: ShellCrash uses Clash domain-set syntax. Suffix wildcards
-# become DOMAIN-SUFFIX, mid-label wildcards become DOMAIN-REGEX, and category
-# labels plus the universal '*' are skipped so no bypass escapes the build.
 cat > "$TMP_DIR/upstream.list" <<'EOF'
 #LAN
 *
@@ -88,7 +80,6 @@ if grep -F 'Mijia' "$TMP_DIR/fakeip-filter.list" "$TMP_DIR/fakeip-filter.normali
   exit 1
 fi
 
-# Malformed '+ ' prefixes must be rejected, not silently skipped.
 cat > "$TMP_DIR/malformed.list" <<'EOF'
 example.com
 + .invalid.example
@@ -102,8 +93,6 @@ if python3 "$ROOT/scripts/tools/merge-domain-rule-source.py" \
   exit 1
 fi
 
-# Render the merged list to every text platform: regex survives on Egern and
-# sing-box, and is skipped on Surge, QuanX, and mihomo.
 mkdir -p "$TMP_DIR/input" "$TMP_DIR/out/surge" "$TMP_DIR/out/quanx" "$TMP_DIR/out/egern"
 cp "$TMP_DIR/fakeip-filter.list" "$TMP_DIR/input/fakeip-filter.list"
 python3 "$ROOT/scripts/tools/export-domain-rules.py" text-platform-dirs \

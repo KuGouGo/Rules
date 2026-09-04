@@ -9,8 +9,6 @@ source "$ROOT/scripts/commands/check-runtime.sh"
 
 TEXT_ONLY_MODE="${RULES_BUILD_CUSTOM_TEXT_ONLY:-0}"
 
-# Reject malformed or globally conflicting custom sources before creating build
-# directories, inspecting staged artifacts, or downloading build tools.
 "$ROOT/scripts/commands/lint-custom-rules.sh"
 
 CUSTOM_DOMAIN_DIR="$ROOT/sources/custom/domain"
@@ -225,14 +223,12 @@ build_domain_json_and_mihomo_text() {
   json="$TMP_DOMAIN_DIR/$base.json"
   mihomo_text_tmp="$TMP_DOMAIN_DIR/$base.mihomo.txt"
 
-  # Generate sing-box JSON
   SINGBOX_RULE_SET_VERSION="$(detect_singbox_rule_set_source_version)" \
     build_domain_json_from_rules "$plain_list" "$json" || {
     echo "failed to generate sing-box JSON for $base" >&2
     return 1
   }
 
-  # Generate mihomo text
   build_mihomo_domain_text_from_rules "$plain_list" "$mihomo_text_tmp"
 
   if [ ! -s "$mihomo_text_tmp" ]; then
@@ -363,12 +359,10 @@ inject_custom_build_failure() {
   fi
 }
 
-# This point is deliberately after the final text render and before any binary
-# setup or compile. Tests use it to prove staged text cannot leak into .output.
 inject_custom_build_failure late-text
 
 if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
-  # At least one custom source exists here: both-empty exits earlier.
+
   ensure_sing_box
 fi
 
@@ -377,7 +371,7 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ] && [ "$has_custom_ip" -gt 0 ]; then
 fi
 
 if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
-  # Generate JSON and intermediate files (serial, fast)
+
   for plain_list in "$TMP_DOMAIN_DIR"/*.list; do
     [ -f "$plain_list" ] || continue
     build_domain_json_and_mihomo_text "$plain_list"
@@ -388,7 +382,6 @@ if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
     build_ip_json "$plain_list"
   done
 
-  # Batch parallel compile (CPU-intensive)
   if compgen -G "$TMP_DOMAIN_DIR/*.list" >/dev/null; then
     build_domain_binaries_parallel
   fi
@@ -432,8 +425,6 @@ controlled_artifact_paths() {
 commit_staged_custom_artifacts() {
   local relative staged target target_dir
 
-  # Only the paths derived from current custom sources are controlled here.
-  # Restored/upstream artifacts and summaries elsewhere in .output are untouched.
   for relative in "${CONTROLLED_ARTIFACTS[@]}"; do
     staged="$STAGE_ROOT/$relative"
     target="$ARTIFACT_ROOT/$relative"
@@ -442,8 +433,7 @@ commit_staged_custom_artifacts() {
     if [ -f "$staged" ]; then
       write_if_changed "$staged" "$target" || return 1
     else
-      # A platform-specific skip is committed as deletion only after every
-      # render and binary compile has succeeded.
+
       rm -f "$target" || return 1
     fi
   done
@@ -529,7 +519,7 @@ finalize_canonical_stage() {
 }
 
 if [ "$TEXT_ONLY_MODE" -ne 1 ]; then
-  # This point is after the last binary compile but before the controlled commit.
+
   inject_custom_build_failure late-binary
 fi
 controlled_artifact_paths > "$TMP_DIR/controlled-artifacts.list"

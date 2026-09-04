@@ -52,9 +52,6 @@ list_rule_files() {
   list_files_by_extension "$1" list
 }
 
-# Resolve DOMAIN_PUBLISH_PROFILE: keep an explicit non-auto value, otherwise
-# read the policy's default profile. Minimal test fixtures may omit the policy
-# file entirely, in which case the historical common default applies.
 resolve_domain_publish_profile() {
   if [ -z "${DOMAIN_PUBLISH_PROFILE:-}" ] || [ "$DOMAIN_PUBLISH_PROFILE" = auto ]; then
     if [ -f "$ROOT/config/domain-publish-policy.json" ]; then
@@ -127,10 +124,6 @@ download_file() {
   fi
 }
 
-# All git network operations (clone/fetch/ls-remote/push over HTTPS) inherit
-# this stall guard; a hung upstream aborts instead of idling until the
-# workflow-level timeout-minutes. Total-duration backstop stays with the job
-# timeout, matching curl's --max-time below.
 export GIT_HTTP_LOW_SPEED_LIMIT=${GIT_HTTP_LOW_SPEED_LIMIT:-1000}
 export GIT_HTTP_LOW_SPEED_TIME=${GIT_HTTP_LOW_SPEED_TIME:-60}
 
@@ -326,8 +319,7 @@ PY
   actual_sha="$(sha256_file "$binary")"
   [ "$actual_sha" = "$locked_binary_sha" ] || return 1
   [ "$actual_sha" = "$binary_sha" ] || return 1
-  # Execute only after the binary is anchored to the independently locked
-  # digest derived from the verified official release archive.
+
   actual_probe="$(tool_version_probe "$tool" "$binary")" || return 1
   [ "$actual_probe" = "$recorded_probe" ] || return 1
   probe_matches_version "$tool" "$actual_probe" "$version"
@@ -386,7 +378,6 @@ install_tool_with_provenance() {
   backup_sidecar="$BIN_DIR/.${tool}.provenance.backup"
   rm -f "$staged_sidecar" "$backup_binary" "$backup_sidecar"
 
-  # Create durable metadata before touching either canonical cache path.
   if ! write_tool_provenance "$tool" "$platform" "$temp_binary" "$probe" "$staged_sidecar"; then
     rm -f "$staged_sidecar"
     return 1
@@ -417,8 +408,6 @@ ensure_mihomo() {
   _ensure_locked_tool "mihomo" "gz"
 }
 
-# Download, verify, and install a locked tool binary with provenance,
-# supporting both tar.gz (sing-box) and gz (mihomo) archive formats.
 _ensure_locked_tool() {
   local tool="$1" archive_format="$2"
   local os arch platform version repository tag asset expected_sha archive

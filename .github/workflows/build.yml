@@ -25,7 +25,8 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/build.yml'
+      - '.github/workflows/validate.yml'
       - 'Makefile'
       - 'config/**'
       - 'scripts/**'
@@ -152,6 +153,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
 

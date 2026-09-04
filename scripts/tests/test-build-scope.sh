@@ -184,8 +184,7 @@ git -C "$ROOT_COMMIT_REPO" commit -m root >/dev/null
 pr_no_remote_output="$(cd "$ROOT_COMMIT_REPO" && env EVENT_NAME=pull_request CURRENT_SHA=HEAD BEFORE_SHA=base CHANGED_FILES=$'README.md\nLICENSE' "$SCRIPT")"
 grep -Fx "scope=none" <<< "$pr_no_remote_output" >/dev/null
 grep -Fx "reason=pull_request has no build-relevant changes" <<< "$pr_no_remote_output" >/dev/null
-# When no publish branches exist yet (fresh release), the baseline resolves
-# as inconsistent and the build falls back to a full sync instead of failing.
+
 root_output="$(cd "$ROOT_COMMIT_REPO" && env EVENT_NAME=push CURRENT_SHA=HEAD BEFORE_SHA=0000000000000000000000000000000000000000 "$SCRIPT" 2>&1)"
 grep -Fx "scope=full" <<< "$root_output" >/dev/null
 grep -Fx "reason=publication cohort inconsistent; using full sync" <<< "$root_output" >/dev/null
@@ -207,8 +206,6 @@ rename_output="$(cd "$RENAME_REPO" && env ARTIFACT_BASELINE_FILE="$BASELINE_OUTP
 grep -Fx "scope=full" <<< "$rename_output" >/dev/null
 grep -Fx "reason=custom deletions require full sync" <<< "$rename_output" >/dev/null
 
-# A consistent baseline whose source commit no longer exists locally (e.g.
-# after a history rewrite) must degrade to a full sync instead of failing.
 DEAD_BASELINE_INPUT="$TEST_TMP/publication-baseline-dead-source.json"
 write_baseline "$DEAD_BASELINE_INPUT" "0000000000000000000000000000000000000001"
 assert_scope full "publication cohort inconsistent; using full sync" \
@@ -226,8 +223,6 @@ grep -Fq '"generation_id": null' "$BASELINE_OUTPUT" || {
   exit 1
 }
 
-# A consistent baseline whose source exists but is not an ancestor of the
-# candidate must also degrade to a full sync instead of failing.
 SCOPE_ORIG_BRANCH="$(git -C "$SCOPE_REPO" rev-parse --abbrev-ref HEAD)"
 git -C "$SCOPE_REPO" checkout -q --orphan scope-orphan-baseline
 printf 'orphan\n' > "$SCOPE_REPO/orphan.txt"

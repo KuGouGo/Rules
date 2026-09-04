@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
-# Regenerate or verify the binary golden fixtures.
-#
-# The .srs/.mrs goldens pin the exact bytes produced by the locked compiler
-# versions for the fixture inputs, giving the binary artifact pipeline a
-# regression tripwire that the decompile round-trip verifier cannot provide.
-#
-# Usage:
-#   update-binary-goldens.sh            regenerate fixtures/expected/ in place
-#   update-binary-goldens.sh --check    compile into a temp dir and compare
-#
-# Requires the locked sing-box/mihomo binaries (ensure_sing_box/ensure_mihomo).
+
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

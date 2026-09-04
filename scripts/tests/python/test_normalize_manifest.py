@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import _paths  # noqa: F401
+import _paths
 
 TOOL = _paths.TOOLS_DIR / "normalize-ip-rules.py"
 

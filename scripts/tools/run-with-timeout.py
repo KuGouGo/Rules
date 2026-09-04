@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Run one command with a deadline and propagate a useful exit status."""
 
 from __future__ import annotations
 
@@ -21,24 +20,34 @@ def main() -> int:
     if not args.command:
         parser.error("a command is required")
 
-    process = subprocess.Popen(
-        args.command,
-        start_new_session=(os.name == "posix"),
-    )
+    try:
+        process = subprocess.Popen(
+            args.command,
+            start_new_session=(os.name == "posix"),
+        )
+    except FileNotFoundError:
+        print(f"command not found: {args.command[0]}", file=sys.stderr)
+        return 127
     try:
         return process.wait(timeout=args.timeout)
     except subprocess.TimeoutExpired:
-        if os.name == "posix":
-            os.killpg(process.pid, signal.SIGTERM)
-        else:
-            process.terminate()
+        try:
+            if os.name == "posix":
+                os.killpg(process.pid, signal.SIGTERM)
+            else:
+                process.terminate()
+        except ProcessLookupError:
+            pass
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
-            if os.name == "posix":
-                os.killpg(process.pid, signal.SIGKILL)
-            else:
-                process.kill()
+            try:
+                if os.name == "posix":
+                    os.killpg(process.pid, signal.SIGKILL)
+                else:
+                    process.kill()
+            except ProcessLookupError:
+                pass
             process.wait()
         return 124
 

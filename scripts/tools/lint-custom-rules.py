@@ -95,8 +95,8 @@ def find_domain_conflicts(rules: list[LocatedRule]) -> list[Conflict]:
         for covering in rules[:index]:
             if covered.file != covering.file:
                 continue
-            # Equal duplicate rules cannot reach here: the parser rejects and
-            # drops them while reading the file.
+
+
             if domain_covers(covering, covered):
                 conflicts.append(Conflict("domain", covered, covering))
             elif domain_covers(covered, covering):
@@ -118,8 +118,8 @@ def find_ip_conflicts(rules: list[LocatedRule]) -> list[Conflict]:
 
 
 def report_conflicts(conflicts: list[Conflict], reporter: Reporter) -> None:
-    # find_*_conflicts only yields same-file pairs: different files may
-    # intentionally overlap because they can be assigned to different policies.
+
+
     for conflict in conflicts:
         reporter.error(
             f"{conflict.covered.location} {conflict.covered.text} is covered by "

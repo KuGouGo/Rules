@@ -11,7 +11,6 @@ TMP_DIR="$(mktemp -d)"
 FIXTURE_ROOT="$ROOT/scripts/tests/fixtures/domain"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-
 assert_file_equals() {
   local expected="$1"
   local actual="$2"
@@ -22,8 +21,6 @@ assert_file_equals() {
   fi
 }
 
-# Byte-compare ignoring a trailing-newline difference (sing-box JSON goldens
-# have no trailing newline while text artifacts do).
 assert_file_text_equals() {
   local expected="$1"
   local actual="$2"
@@ -399,7 +396,6 @@ assert payload["domain_regex"] == [r"^cn-regex\.example$"]
 PY
 }
 
-
 test_suffix_compaction_keeps_attr_derivative() {
   mkdir -p "$TMP_DIR/suffix_compaction/data" "$TMP_DIR/suffix_compaction/out"
   cat > "$TMP_DIR/suffix_compaction/data/base" <<'EOF'
@@ -428,7 +424,6 @@ EOF
     "$TMP_DIR/suffix_compaction/out/base@!cn.list" \
     "per-category @!cn derivative is folded into the geographic partition"
 }
-
 
 test_export_preserves_upstream_order_and_cn_regex_policy() {
   mkdir -p "$TMP_DIR/cn_regex/data" "$TMP_DIR/cn_regex/out"
@@ -465,7 +460,6 @@ EOF
     "per-category @!cn derivative is folded into the geographic partition"
 }
 
-
 test_attr_derivatives_merge_duplicate_rule_attrs() {
   mkdir -p "$TMP_DIR/duplicate_attrs/data" "$TMP_DIR/duplicate_attrs/out"
   cat > "$TMP_DIR/duplicate_attrs/data/base" <<'EOF'
@@ -495,7 +489,6 @@ EOF
     "$TMP_DIR/duplicate_attrs/out/base@ads.list" \
     "@ads derivatives are not published"
 }
-
 
 test_regional_base_lists_apply_safe_attribute_policy() {
   mkdir -p "$TMP_DIR/regional_policy/data" "$TMP_DIR/regional_policy/out"
@@ -569,7 +562,6 @@ EOF
       exit 1
     }
 }
-
 
 test_publish_policy_prunes_geographic_children() {
   mkdir -p "$TMP_DIR/publish_policy/data" "$TMP_DIR/publish_policy/out"
@@ -672,7 +664,7 @@ EOF
     cat "$TMP_DIR/publish_policy/unsafe-common.stderr" >&2
     exit 1
   }
-  # Drop the last line portably: BSD sed cannot express `sed -i '$d'`.
+
   awk 'NR > 1 { print prev } { prev = $0 }' \
     "$TMP_DIR/publish_policy/data/compat-name" > "$TMP_DIR/publish_policy/data/compat-name.tmp" \
     && mv "$TMP_DIR/publish_policy/data/compat-name.tmp" "$TMP_DIR/publish_policy/data/compat-name"
@@ -694,7 +686,6 @@ EOF
     exit 1
   }
 }
-
 
 test_export_materializes_attr_derivatives_with_sing_geosite_filter() {
   mkdir -p "$TMP_DIR/region_derivatives/data" "$TMP_DIR/region_derivatives/out"
@@ -851,7 +842,6 @@ assert manifest["by_region_suffix"] == {"!cn": 4, "cn": 3}
 PY
 }
 
-
 test_ads_category_collapse() {
   mkdir -p "$TMP_DIR/ads_collapse/data" "$TMP_DIR/ads_collapse/out"
   cat > "$TMP_DIR/ads_collapse/data/category-ads" <<'EOF'
@@ -926,7 +916,6 @@ assert "category-ads-all@!cn" not in by_name
 PY
 }
 
-
 test_geographic_partition_folds_regional_attributes() {
   mkdir -p "$TMP_DIR/partition_fold/data" "$TMP_DIR/partition_fold/out"
   cat > "$TMP_DIR/partition_fold/data/cn" <<'EOF'
@@ -995,7 +984,6 @@ EOF
     "per-category @cn derivative is folded into the geographic partition"
 }
 
-
 test_domain_capability_summary() {
   mkdir -p "$TMP_DIR/capability_summary/data" "$TMP_DIR/capability_summary/out"
   cat > "$TMP_DIR/capability_summary/data/base" <<'EOF'
@@ -1030,7 +1018,6 @@ EOF
     }
 }
 
-
 test_mihomo_mrs_skip_summary() {
   cat > "$TMP_DIR/mihomo_summary_in.list" <<'EOF'
 DOMAIN,exact.example.com
@@ -1056,7 +1043,6 @@ EOF
     }
 }
 
-
 test_classical_comments_preserve_hash_values() {
   cat > "$TMP_DIR/hash-values.list" <<'EOF'
 # full-line comment
@@ -1080,7 +1066,6 @@ assert [rule.text for rule in rules] == [
 ]
 PY
 }
-
 
 test_mihomo_domain_text_generation() {
   cat > "$TMP_DIR/mihomo_domain_in.list" <<'EOF'

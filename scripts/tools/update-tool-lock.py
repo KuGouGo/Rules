@@ -1,15 +1,4 @@
 #!/usr/bin/env python3
-"""Refresh config/tools-lock.json from the latest upstream sing-box/mihomo releases.
-
-Queries the GitHub releases API for the latest tags, downloads the locked
-linux-amd64/linux-arm64 assets, cross-checks each archive against upstream
-GitHub artifact attestations when the upstream publishes them, computes archive
-and extracted-binary SHA-256 digests, resolves the tag commit, and writes the
-updated lock plus the tests that pin the locked versions.
-
-Exits 0. Prints changed=true (and a versions= summary) only when at least one
-tool was updated; otherwise prints changed=false.
-"""
 
 import argparse
 import gzip
@@ -57,15 +46,8 @@ def sha256_bytes(data):
 
 
 def verify_release_attestation(archive_path, repository):
-    """Cross-check a downloaded archive against upstream artifact attestations.
 
-    The locked digest is computed from the downloaded bytes, so by itself it
-    only proves consistency, not authenticity. GitHub artifact attestations
-    (signed provenance tied to the upstream repository's release workflow) are
-    the independent anchor when the upstream publishes them. Returns
-    "verified" or "unavailable"; a mismatching attestation raises, because
-    that means the release asset was not produced by the upstream workflow.
-    """
+
     gh = shutil.which("gh")
     if gh is None:
         return "unavailable"
@@ -102,14 +84,8 @@ def binary_from_archive(archive_format, archive_bytes, tool, asset):
 
 
 def replace_pinned_version(path, text, tool, other_tool, old, new):
-    """Replace a tool's pinned version only on lines unambiguously scoped to it.
 
-    Both tools are pinned in the same test files and have historically shipped
-    identical version strings, so a global replace can silently rewrite the
-    other tool's pin. Every version pin lives on a line that names its tool
-    (either spelling), so scope the replace to those lines and refuse anything
-    ambiguous instead of corrupting the other tool's pin.
-    """
+
     tool_tokens = (tool.lower(), tool.lower().replace("-", "_"))
     other_tokens = (other_tool.lower(), other_tool.lower().replace("-", "_"))
     out_lines = []
@@ -143,8 +119,8 @@ def patch_tests(root, updates):
 
     tool_lock_test = root / "scripts/tests/test-tool-lock.sh"
     text = tool_lock_test.read_text(encoding="utf-8")
-    # tag_commit digests are unique 40-character strings, so a global replace
-    # is safe; version strings are not (see replace_pinned_version).
+
+
     for tool, update in updates.items():
         text = apply_replacements(
             tool_lock_test,
@@ -181,7 +157,7 @@ def patch_tests(root, updates):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--lock", type=Path)
     args = parser.parse_args(argv)
@@ -213,7 +189,6 @@ def main(argv=None):
             if asset not in assets:
                 raise RuntimeError(f"{tool} {tag}: asset {asset} not found in release")
             archive_bytes = download(assets[asset], headers)
-            attestation = "unavailable"
             with tempfile.TemporaryDirectory() as verify_dir:
                 archive_file = Path(verify_dir) / asset
                 archive_file.write_bytes(archive_bytes)

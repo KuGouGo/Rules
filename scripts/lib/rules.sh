@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 
 : "${ROOT:=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-# rules.sh is also sourced standalone by tests and tools; sourcing common.sh
-# here keeps the helper surface (sha256_file, download helpers) identical
-# everywhere without duplicating it.
+
 # shellcheck source=scripts/lib/common.sh
 source "$ROOT/scripts/lib/common.sh"
-# Keep Surge IP rule behavior stable by default.
-# Set SURGE_IP_APPEND_NO_RESOLVE=0 to omit no-resolve for A/B verification.
+
 : "${SURGE_IP_APPEND_NO_RESOLVE:=1}"
-# Set RULES_COMPILE_JOBS to override local binary compile parallelism.
+
 : "${RULES_COMPILE_JOBS:=}"
 
 SINGBOX_RULE_SET_SOURCE_VERSION_CACHE="${SINGBOX_RULE_SET_SOURCE_VERSION_CACHE:-}"
@@ -219,10 +216,6 @@ compiler_cache_dir() {
   printf '%s/%s/%s/%s\n' "$cache_root" "$artifact_kind" "$format_version" "$binary_digest"
 }
 
-# Shared cache-compile worker for the domain binary platforms: every input
-# file is compiled with the given compiler (or restored from the
-# digest-anchored cache entry) into out_dir, then the produced count is
-# asserted so a silently skipped compile cannot pass unnoticed.
 compile_domain_binary_dir() {
   local tmp_dir="$1"
   local out_dir="$2"

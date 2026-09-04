@@ -1,22 +1,5 @@
 #!/usr/bin/env python3
-"""Audit a DLC data tree using the same invariants as nekolsd/dlc2's dataaudit.
 
-Run against the raw domain-list-community data directory (v2fly source;
-the dlc2 fork used the same layout) before the rules are exported. Enforces:
-
-- rule tokens parse and validate under the same contract the exporter applies
-  (kind aliases, value normalization, punycode-convertible domains), so invalid
-  data fails here instead of after the more expensive export stage
-- every ``include:`` target exists (directly or as an affiliation target) and
-  the include graph is acyclic
-- the effective geographic roots are disjoint after attribute filtering and
-  deterministic CN precedence
-
-Raw include graphs may overlap intentionally: ``@cn`` rules reached from the
-foreign root are exported to its CN derivative, not its base list. Untagged
-exact overlaps are owned by the explicit CN root and removed from the foreign
-base list by the exporter.
-"""
 from __future__ import annotations
 
 import argparse
@@ -33,8 +16,7 @@ from domain_rules import (
 GEO_CN = "geolocation-cn"
 GEO_NOT_CN = "geolocation-!cn"
 
-# Mirrors the exporter's DLC token aliases (prefix -> canonical kind). The
-# audit runs before the exporter; both must accept exactly the same data.
+
 RULE_KIND_ALIASES = {
     "domain": "DOMAIN-SUFFIX",
     "domain-suffix": "DOMAIN-SUFFIX",
@@ -142,8 +124,8 @@ def parse_source(name: str, path: Path) -> SourceList:
             continue
         rule = Rule(kind, value, frozenset(attrs))
         source.rules.append(rule)
-        # &name is the v2fly affiliation extension: the rule is also added to
-        # the list named <name>, matching the exporter's include resolution.
+
+
         for target in affiliates:
             source.affiliations.append((target, rule))
     return source
@@ -156,12 +138,8 @@ def resolve(
     visiting: set[str],
     cache: dict[str, list[Rule]],
 ) -> tuple[list[Rule], list[str]]:
-    """Resolve a list's effective rules, mirroring the exporter's traversal.
 
-    Results are memoized per list. Only subtrees resolved without include
-    errors are cached: error paths report context relative to the entry point,
-    so their messages are not path-independent and must not be reused.
-    """
+
     if name in cache:
         return cache[name], []
     if name not in lists:
@@ -211,15 +189,13 @@ def audit(data_dir: Path) -> list[str]:
         for target, rule in source.affiliations:
             affiliated.setdefault(target, []).append(rule)
 
-    # Hard: include targets exist and the graph is acyclic.
+
     for name, source in lists.items():
         for inclusion in source.includes:
             if inclusion.target not in lists and inclusion.target not in affiliated:
                 errors.append(f"{name}:{inclusion.line}: include target missing: {inclusion.target}")
 
-    # Model the same effective geographic partition as the exporter.
-    # Attribute-filtered overlaps are intentional derivative inputs. Any
-    # remaining exact overlap is deterministically owned by the CN root.
+
     cache: dict[str, list[Rule]] = {}
     cn_rules, cn_errors = resolve(lists, affiliated, GEO_CN, set(), cache)
     not_cn_rules, not_cn_errors = resolve(lists, affiliated, GEO_NOT_CN, set(), cache)
@@ -240,8 +216,7 @@ def audit(data_dir: Path) -> list[str]:
         rule for rule in not_cn_effective if (rule.kind, rule.value) not in cn_keys
     ]
 
-    # Hard: both effective partitions must remain populated after filtering
-    # and precedence, not merely resolve to raw include-graph entries.
+
     if not cn_effective:
         errors.append(f"{GEO_CN} resolves to no effective base rules")
     if not not_cn_effective:
@@ -251,7 +226,7 @@ def audit(data_dir: Path) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("data_dir", type=Path)
     parser.add_argument(
         "--warn-only",

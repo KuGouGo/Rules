@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Render a publish-branch README with a generated artifact stats table.
 
-The table lists every artifact actually present for the platform with its
-entry count, so subscribers can see what a branch contains and when data
-changed (counts move only when the underlying rule data moves, keeping the
-publish cohort's "unchanged tree" optimization meaningful).
-"""
 from __future__ import annotations
 
 import argparse
@@ -45,12 +39,8 @@ def collect_rows(platform: str, artifact_root: Path) -> list[tuple[str, int]]:
             for path in sorted(directory.glob("*.yaml")):
                 rows.append((f"{section}/{path.name}", yaml_entry_count(path)))
     elif platform in {"sing-box", "mihomo"}:
-        # Binary artifacts carry no countable plaintext; the canonical tree is
-        # the exact compiled input, keyed by the same list name. Only list
-        # names whose artifact actually exists on the branch are shown:
-        # compilers skip lists they cannot represent (e.g. mihomo skips
-        # DOMAIN-KEYWORD-only lists), and the table must not advertise files
-        # a subscriber cannot download.
+
+
         for section in ("domain", "ip"):
             extension = "srs" if platform == "sing-box" else "mrs"
             artifact_dir = artifact_root / section / platform
@@ -73,7 +63,7 @@ def render_table(rows: list[tuple[str, int]]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("--platform", required=True)
     parser.add_argument("--artifact-root", required=True, type=Path)
     parser.add_argument("--template", required=True, type=Path)

@@ -8,7 +8,6 @@ cd "$ROOT"
 source "$ROOT/scripts/lib/common.sh"
 setup_tool_cache
 
-# tool_lock_value already fails loudly on a missing/empty locked value.
 sing_box_version="$(resolve_sing_box_version)"
 mihomo_version="$(resolve_mihomo_version)"
 

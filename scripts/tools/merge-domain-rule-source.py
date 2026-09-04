@@ -17,7 +17,7 @@ _DOMAIN_CHARS = set("abcdefghijklmnopqrstuvwxyz0123456789.-+*")
 
 
 def _looks_like_domain(line: str) -> bool:
-    """True when *line* resembles a domain entry (not a category label)."""
+
     return bool(line) and all(c in _DOMAIN_CHARS for c in line.lower()) and "." in line
 
 

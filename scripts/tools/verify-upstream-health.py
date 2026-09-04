@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the fail-closed health contract declared for an upstream."""
+
 from __future__ import annotations
 
 import argparse
@@ -52,7 +52,7 @@ def _check_address_family(entries: list[str], family: str) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("config")
     parser.add_argument("section")
     parser.add_argument("name")

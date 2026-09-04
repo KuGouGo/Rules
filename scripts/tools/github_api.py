@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared GitHub REST helpers for the dependency update tools."""
+
 from __future__ import annotations
 
 import json
@@ -8,7 +8,7 @@ import urllib.request
 
 
 def request_headers(user_agent: str) -> dict[str, str]:
-    """Build JSON API request headers with the optional CI token attached."""
+
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": user_agent,
@@ -27,7 +27,7 @@ def api_get(url: str, headers: dict[str, str]):
 
 
 def resolve_tag_commit(repo: str, tag: str, headers: dict[str, str]) -> str:
-    """Return the commit SHA a release tag resolves to (annotated tags included)."""
+
     ref = api_get(f"https://api.github.com/repos/{repo}/git/refs/tags/{tag}", headers)
     obj = ref["object"]
     if obj["type"] == "commit":

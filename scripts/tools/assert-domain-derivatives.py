@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""Guard the derivative domain rule sets required by downstream platforms.
 
-Invoked by scripts/commands/sync-upstream.sh.
-
-Per-category regional derivatives (@cn/@!cn) are folded into the geographic
-partition, so the only shipped derivative is the geolocation-!cn@cn aggregate
-(every @cn rule not already covered by the cn base list). The guard enforces
-the common entry points and requires the redundant geolocation-cn compatibility
-entry point only for extended publications.
-"""
 from __future__ import annotations
 
 import argparse
@@ -23,9 +14,7 @@ REQUIRED_RULE_SETS = {
     "geolocation-!cn@cn",
 }
 
-# Compatibility entry points that only extended publications ship: common
-# publishes the cn superset only (it fully covers geolocation-cn and tld-cn),
-# so the old names are required to be present only under extended.
+
 PROFILE_REQUIRED_RULE_SETS = {
     "common": frozenset(),
     "extended": frozenset({"geolocation-cn", "tld-cn"}),
@@ -33,7 +22,7 @@ PROFILE_REQUIRED_RULE_SETS = {
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("manifest_file")
     parser.add_argument("min_aggregate", type=int)
     parser.add_argument("--profile", choices=("common", "extended"), default="common")

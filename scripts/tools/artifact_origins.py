@@ -3,12 +3,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import tempfile
 
 from pathlib import Path
 
-from common_utils import safe_publish_path
+from common_utils import atomic_write_text, safe_publish_path
 from platform_capabilities import load_platform_capabilities
 
 ALLOWED_ORIGINS = {"generated-custom", "generated-upstream", "restored-published-branch"}
@@ -41,20 +39,8 @@ def load_origins(artifact_root: Path) -> dict[str, str]:
 
 
 def write_origins(artifact_root: Path, origins: dict[str, str]) -> None:
-    artifact_root.mkdir(parents=True, exist_ok=True)
-    target = origins_path(artifact_root)
     payload = json.dumps(origins, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
-    temporary: Path | None = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", dir=artifact_root, prefix=".artifact-origins.", delete=False
-        ) as handle:
-            temporary = Path(handle.name)
-            handle.write(payload)
-        os.replace(temporary, target)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
+    atomic_write_text(origins_path(artifact_root), payload)
 
 
 def publishable_files(artifact_root: Path):

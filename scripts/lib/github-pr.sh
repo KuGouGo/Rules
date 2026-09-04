@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-# Shared git-push and pull-request helpers for the automation updaters
-# (update-tool-versions.sh, update-upstream-pins.sh). Callers source this file
-# after their own constants; network calls expect gh/git with GITHUB_TOKEN.
 
-# Push an automation branch, rebasing the remote ref via force-with-lease when
-# a stale branch already exists, and setting upstream on first push.
 push_automation_branch() {
   local branch="$1"
   local remote_sha
@@ -16,9 +11,52 @@ push_automation_branch() {
   fi
 }
 
-# Open one pull request for an automation branch, or update it in place when a
-# PR is already open. Repository settings that forbid Actions-created PRs
-# degrade to a warning with a manual compare URL instead of failing the run.
+validate_automation_branch() {
+  local branch="$1"
+  local head_sha run_id="" runs attempt
+
+  head_sha="$(git rev-parse HEAD)"
+  gh workflow run validate.yml --ref "$branch"
+
+  for attempt in {1..12}; do
+    runs="$(gh run list --workflow validate.yml --branch "$branch" \
+      --event workflow_dispatch --limit 10 --json databaseId,headSha \
+      --jq '.[] | select(.headSha == "'"$head_sha"'") | .databaseId')" \
+      || continue
+    run_id="${runs%%$'\n'*}"
+    [ -n "$run_id" ] && break
+    echo "waiting for dispatched validation run (${attempt}/12)"
+    sleep 5
+  done
+
+  [ -n "$run_id" ] || {
+    echo "dispatched validation run was not found for ${head_sha}" >&2
+    return 1
+  }
+  echo "waiting for validation run ${run_id} on ${branch}"
+  gh run watch "$run_id" --exit-status
+}
+
+record_validation_status() {
+  local context="$1"
+  local description="$2"
+  local head_sha repository status_output
+
+  head_sha="$(git rev-parse HEAD)"
+  repository="${GITHUB_REPOSITORY:-KuGouGo/Rules}"
+  if status_output="$(gh api --method POST "repos/${repository}/statuses/${head_sha}" \
+    -f state=success \
+    -f context="$context" \
+    -f description="$description" \
+    -f target_url="${GITHUB_SERVER_URL:-https://github.com}/${repository}/actions/runs/${GITHUB_RUN_ID:-}" \
+    2>&1)"; then
+    echo "recorded ${context} status on ${head_sha}"
+  else
+    printf 'failed to record validation status on %s: %s\n' "$head_sha" "$status_output" >&2
+    return 1
+  fi
+}
+
 ensure_automation_pull_request() {
   local branch="$1"
   local title="$2"

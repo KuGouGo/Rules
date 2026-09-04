@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit canonical rule-set redundancy and cross-list overlap."""
+
 from __future__ import annotations
 
 import argparse
@@ -45,11 +45,8 @@ def domain_audit(root: Path) -> dict:
         {"left": name_a, "right": name_b, "exact_rules": count}
         for (name_a, name_b), count in sorted(pairs.items(), key=lambda item: (-item[1], item[0]))[:100]
     ]
-    # Semantic containment via an inverted rule-owner index instead of the
-    # former O(lists² × rules) pairwise scan: for every rule, one owner lookup
-    # per suffix label yields every list whose rules cover it. Work stays
-    # near-linear in total rules (times label count) rather than multiplying
-    # by the list count, which matters as the canonical tree grows.
+
+
     covered_counts: dict[tuple[str, str], int] = defaultdict(int)
     suffix_owner_cache: dict[str, list[str]] = {}
     for left, left_keys in rules_by_list.items():

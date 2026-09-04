@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Strict shared loader for domain publication profiles."""
+
 from __future__ import annotations
 
 import json
@@ -10,6 +10,9 @@ from pathlib import Path
 SCHEMA_VERSION = 4
 GEO_CN = "geolocation-cn"
 GEO_NOT_CN = "geolocation-!cn"
+
+
+PROFILE_NAMES = ("common", "extended")
 
 
 @dataclass(frozen=True)
@@ -23,12 +26,16 @@ class PublishPolicy:
     compatibility_replacements: dict[str, str]
 
     def geographic_roots(self, profile: str) -> set[str]:
+        if profile not in PROFILE_NAMES:
+            raise ValueError(f"unsupported publish profile: {profile}")
         selected = set(self.common_geographic_roots)
         if profile == "extended":
             selected.update(self.extended_geographic_roots)
         return selected
 
     def geolocation_not_cn(self, profile: str) -> set[str]:
+        if profile not in PROFILE_NAMES:
+            raise ValueError(f"unsupported publish profile: {profile}")
         selected = set(self.common_geolocation_not_cn)
         if profile == "extended":
             selected.update(self.extended_geolocation_not_cn)

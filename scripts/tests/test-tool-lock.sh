@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Calls use the sourced implementation until the deliberate final failure override.
+
 # shellcheck disable=SC2218
 set -euo pipefail
 
@@ -103,8 +103,6 @@ if tool_cache_is_trusted "sing-box" "linux-amd64"; then
   fail "provenance inconsistent with lock was accepted"
 fi
 
-# A mutually tampered binary/sidecar pair must be rejected against the locked
-# extracted-binary digest before the binary can execute.
 cat > "$BIN_DIR/sing-box" <<SH
 #!/usr/bin/env bash
 touch "$TMP_DIR/tampered-executed"
@@ -117,7 +115,6 @@ if tool_cache_is_trusted "sing-box" "linux-amd64"; then
 fi
 [ ! -e "$TMP_DIR/tampered-executed" ] || fail "unanchored cached binary was executed"
 
-# Failure to create provenance must not replace a matching canonical pair.
 printf 'old binary\n' > "$BIN_DIR/sing-box"
 printf 'old sidecar\n' > "$(tool_provenance_file sing-box)"
 printf 'new binary\n' > "$BIN_DIR/sing-box.new"

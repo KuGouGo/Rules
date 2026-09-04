@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Shared publication-baseline helpers. The five publish branches are fetched
-# from origin and their commit subjects carry generation/source metadata that
-# every stage of the pipeline (scope selection, publishing) must agree on.
-
 PUBLISH_BRANCH_NAMES=(surge quanx egern sing-box mihomo)
 
 publish_git() {
@@ -19,19 +15,13 @@ fetch_publish_branch_metadata() {
   local branch commit subject generation source
 
   : > "$metadata_file"
-  # One fetch, one server-side advertisement: the five publish branches are
-  # read as an atomic snapshot instead of five sequential round-trips that a
-  # concurrent publication could interleave (mixed-generation baseline) and
-  # that each add a transient-failure point.
+
   local -a refspecs=()
   for branch in "${PUBLISH_BRANCH_NAMES[@]}"; do
     refspecs+=("+refs/heads/$branch:refs/remotes/origin/$branch")
   done
   if ! publish_git fetch --quiet --no-tags --depth=1 origin "${refspecs[@]}" 2>/dev/null; then
-    # Branches do not exist yet (e.g. first publication after a fresh
-    # release). Record placeholders so the baseline is treated as
-    # inconsistent. Pushes are atomic, so a missing branch implies all five
-    # are missing.
+
     for branch in "${PUBLISH_BRANCH_NAMES[@]}"; do
       printf '%s\t-\t-\t-\n' "$branch" >> "$metadata_file"
     done
@@ -51,8 +41,6 @@ fetch_publish_branch_metadata() {
   done
 }
 
-# Validate a user-provided publication baseline JSON and write the canonical
-# payload. Prints "status generation source".
 validate_and_write_baseline() {
   local input_file="$1"
   local output_file="$2"
@@ -110,8 +98,6 @@ print(payload["status"], payload["generation_id"] or "-", payload["source_commit
 PY
 }
 
-# Build the baseline JSON from fetched metadata. Prints "status generation
-# source" and, when an output file is given, writes the JSON payload there.
 build_baseline_json() {
   local metadata_file="$1"
   local output_file="${2:-}"
@@ -154,11 +140,6 @@ print(payload["status"], payload["generation_id"] or "-", payload["source_commit
 PY
 }
 
-# Rewrite a baseline file so the top-level cohort is "inconsistent" while the
-# per-branch records are preserved. Used when the recorded source commit is
-# unavailable or no longer an ancestor of the candidate (e.g. after a history
-# rewrite), so later pipeline stages agree on the degraded cohort instead of
-# reading a stale "consistent" status.
 degrade_baseline_file() {
   local baseline_file="$1"
   python3 - "$baseline_file" <<'PY'
@@ -175,10 +156,6 @@ path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="
 PY
 }
 
-# Refuse publication when the remote cohort no longer matches the manifest
-# baseline recorded by the build that produced the artifacts. A manifest
-# anchored to an inconsistent baseline (e.g. after a history rewrite) has no
-# cohort to compare against and is expected to establish a fresh one.
 assert_remote_baseline_matches_manifest() {
   local metadata_file="$1"
   local manifest_file="$2"

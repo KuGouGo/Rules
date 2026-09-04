@@ -3,26 +3,17 @@ name: Auto-merge trusted PRs
 on:
   pull_request_target:
     types: [opened, synchronize, ready_for_review, reopened]
-  # A human approval on a normal PR enables GitHub native auto-merge, which
-  # merges once branch protection's required checks are satisfied.
   pull_request_review:
     types: [submitted]
-  # Pull requests created with GITHUB_TOKEN do not start another PR workflow.
-  # Each updater dispatches Validation, records a success status on the exact
-  # validated head SHA, and this completion event retries the guarded merge.
   workflow_run:
     workflows: [Update dependencies, Update upstream pins]
     types: [completed]
 
 permissions:
-  actions: write
   contents: write
   pull-requests: write
 
 concurrency:
-  # pull_request.number is empty on workflow_run events; fall back to the
-  # workflow run id so concurrent dependency completions do not cancel
-  # each other under a shared empty group.
   group: automerge-${{ github.event.workflow_run.id || github.event.pull_request.number }}
   cancel-in-progress: true
 
@@ -30,6 +21,10 @@ jobs:
   automerge:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
     if: |
       (github.event_name == 'pull_request_target' &&
        github.event.pull_request.draft == false &&
@@ -83,8 +78,6 @@ jobs:
             exit 1
           fi
 
-          # Bind the merge to the exact validated head. A later branch push has
-          # no inherited status and therefore cannot reuse an earlier validation.
           head_sha="$(jq -r '.head.sha' <<< "$pr_json")"
           validated="$(gh api "repos/${REPOSITORY}/commits/${head_sha}/status" \
             --jq '[.statuses[] | select(.context == "'"$context"'") | .state] | last // ""')"
@@ -93,18 +86,18 @@ jobs:
             exit 0
           fi
 
+          fresh_json="$(gh api "repos/${REPOSITORY}/pulls/${pr}")"
+          if [ "$(jq -r '.head.sha' <<< "$fresh_json")" != "$head_sha" ]; then
+            echo "PR #${pr} head moved after validation; skipping merge" >&2
+            exit 0
+          fi
+
           echo "Merging validated automation PR #${pr}"
           gh pr merge "$pr" --repo "$REPOSITORY" --squash --delete-branch
 
-          # GITHUB_TOKEN merges suppress subsequent push workflows. Dispatch the
-          # publication explicitly so the merged pin or dependency is consumed.
           gh workflow run build.yml --repo "$REPOSITORY" --ref main \
             -f scope=auto -f profile=auto
 
-  # Normal PRs: a human approval arms GitHub native auto-merge. The native
-  # engine waits for branch protection's required checks and approvals, so
-  # nothing else needs to poll — and unlike gh pr checks, it is not affected
-  # by GITHUB_TOKEN PR-event suppression.
   auto-merge-approved:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -112,7 +105,8 @@ jobs:
       github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.draft == false &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'github-actions[bot]'
     steps:
       - name: Enable auto-merge on approved PR
         env:
@@ -120,6 +114,4 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPOSITORY: ${{ github.repository }}
         run: |
-          # -R is required: `gh pr merge` otherwise resolves the repo via git,
-          # which fails in this runner (no checkout step).
           gh pr merge "$PR" --repo "$REPOSITORY" --auto --squash --delete-branch

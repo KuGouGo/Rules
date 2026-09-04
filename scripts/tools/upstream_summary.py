@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Record per-source upstream health summaries and finalize the JSONL log.
 
-Invoked by scripts/commands/sync-upstream.sh.
-"""
 from __future__ import annotations
 
 import argparse
@@ -12,7 +9,7 @@ from pathlib import Path
 
 
 def file_info(path: Path) -> dict:
-    """Compute stable stats for a raw or normalized source artifact."""
+
     info = {"path": str(path)}
     if path.is_file():
         content = path.read_bytes()
@@ -82,7 +79,7 @@ def cmd_finalize(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     record_parser = subparsers.add_parser("record", help="append one summary line")
@@ -92,10 +89,10 @@ def main() -> int:
     record_parser.add_argument("name")
     record_parser.add_argument("status")
     record_parser.add_argument("url")
-    record_parser.add_argument("raw", default="")
-    record_parser.add_argument("normalized", default="")
-    record_parser.add_argument("fallback_used", default="0")
-    record_parser.add_argument("detail", default="")
+    record_parser.add_argument("raw", nargs="?", default="")
+    record_parser.add_argument("normalized", nargs="?", default="")
+    record_parser.add_argument("fallback_used", nargs="?", default="0")
+    record_parser.add_argument("detail", nargs="?", default="")
 
     finalize_parser = subparsers.add_parser("finalize", help="convert JSONL to JSON")
     finalize_parser.add_argument("jsonl")

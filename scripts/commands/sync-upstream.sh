@@ -19,8 +19,7 @@ DOMAIN_ARTIFACTS_DIR="$ARTIFACTS_DIR/domain"
 IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 CANONICAL_ARTIFACTS_DIR="$ARTIFACTS_DIR/.canonical"
 DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
-# Repository-owned IP lists (private, apple) are built by build-custom.sh
-# from sources/custom/ip; the sync stage renders only upstream-derived lists.
+
 IP_TEXT_ARTIFACTS=(cn google telegram cloudflare cloudfront fastly)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
@@ -119,7 +118,6 @@ trap preserve_sync_diagnostics EXIT
 rm -rf "$CANONICAL_ARTIFACTS_DIR"
 mkdir -p "$DOMAIN_ARTIFACTS_DIR" "$IP_ARTIFACTS_DIR" "$CANONICAL_ARTIFACTS_DIR"
 : > "$UPSTREAM_SUMMARY_FILE"
-
 
 inject_sync_failure() {
   local point="$1"
@@ -248,13 +246,10 @@ render_ip_text_artifacts() {
   done
 }
 
-# Decode a verify-upstream-health JSON payload into "; "-joined error text.
 health_errors() {
   printf '%s' "$1" | python3 -c 'import json,sys; print("; ".join(json.load(sys.stdin).get("errors", [])))' 2>/dev/null || printf 'health verifier failed'
 }
 
-# Run the RIPE Stat health verifier for a raw/normalized pair; sets
-# ripe_health_status and ripe_health_detail for the caller to record.
 run_ripe_stat_health() {
   local raw_file="$1"
   local normalized_file="$2"
@@ -340,9 +335,6 @@ sync_asn_ip_cidrs() {
   fi
 }
 
-# sync_merged_asn_ip_list <name> <asn> [<asn> ...]
-# Download RIPEstat announced-prefix data for each ASN, merge it with the
-# direct source, and render the public IP text artifact for the named ruleset.
 sync_merged_asn_ip_list() {
   local name="$1"
   shift
@@ -357,8 +349,6 @@ sync_merged_asn_ip_list() {
     return 0
   fi
 
-  # ASN prefixes are still parsed to CIDR, then collapsed with the official
-  # list so redundant child prefixes do not bloat published rules.
   merge_cidr_plain_files "$merged_file" "$source_file" "$asn_file"
   mv "$merged_file" "$source_file"
   render_ip_text_artifact "$name"
@@ -396,10 +386,6 @@ declare -A FIRST_BATCH_SOURCE_URL=(
   [telegram]="$TELEGRAM_IP_SOURCE_URL"
 )
 
-# google-json / telegram are required upstreams: a missing or empty raw
-# payload is a transport incident and must fail the build fail-closed.
-# Semantic content checks are handled later by verify-upstream-health, which
-# runs against the same raw + normalized files with stronger contract floors.
 ensure_first_batch_raw() {
   local source="$1"
   local raw_file
@@ -451,7 +437,6 @@ normalize_first_batch_source() {
   fi
 }
 
-
 assert_domain_attr_derivatives() {
   local manifest_file="$1"
 
@@ -461,16 +446,12 @@ assert_domain_attr_derivatives() {
     --profile "${DOMAIN_PUBLISH_PROFILE:-common}"
 }
 
-
 main() {
   echo "=== SYNC START ==="
-  # Domain rules from domain-list-community/data. The source tree preserves
-  # upstream @attributes and -cn/-!cn regional source names, which are required
-  # for closing the geographic partition and the geolocation-!cn@cn aggregate.
+
   rm -rf "$DOMAIN_ARTIFACTS_DIR/surge" "$DOMAIN_ARTIFACTS_DIR/quanx" "$DOMAIN_ARTIFACTS_DIR/egern" "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/mihomo"
   clone_repository_shallow "$DOMAIN_SOURCE_REPO_URL" "$WORK_TMP_DIR/domain-list-community"
-  # Consume the audited pinned commit, not the upstream's moving master, so a
-  # poisoned or merely unexpected upstream push cannot ship without review.
+
   "$ROOT_DIR/scripts/commands/apply-upstream-pins.sh" \
     "$UPSTREAM_PINS_FILE" \
     "$WORK_TMP_DIR/domain-list-community" \
@@ -481,7 +462,7 @@ main() {
     "$DOMAIN_RULE_TMP_DIR" \
     --publish-policy "$DOMAIN_PUBLISH_POLICY" \
     --publish-profile "${DOMAIN_PUBLISH_PROFILE:-common}"
-  # Verify the DLC export before any supplemental source mutates the rule tree.
+
   verify_and_record_upstream_health \
     domain \
     dlc \
@@ -491,11 +472,9 @@ main() {
     0 \
     "commit=$(git -C "$WORK_TMP_DIR/domain-list-community" rev-parse HEAD)"
 
-  # Fetch the Fake-IP filter from ShellCrash upstream.
   download_files_parallel \
     shellcrash-fakeip required "$SHELLCRASH_FAKEIP_SOURCE_URL" "$WORK_TMP_DIR/shellcrash-fakeip.raw.list"
 
-  # Fake-IP filter: download from ShellCrash upstream and convert to classical.
   : > "$DOMAIN_RULE_TMP_DIR/fakeip-filter.list"
   python3 "$ROOT_DIR/scripts/tools/merge-domain-rule-source.py" \
     "$WORK_TMP_DIR/shellcrash-fakeip.raw.list" \
@@ -506,7 +485,6 @@ main() {
     "$WORK_TMP_DIR/shellcrash-fakeip.raw.list" \
     "$WORK_TMP_DIR/shellcrash-fakeip.normalized.list" 0
 
-  # Build the manifest and canonical tree once from the final merged rule set.
   python3 "$ROOT_DIR/scripts/tools/export-domain-rules.py" domain-rule-manifest \
     "$DOMAIN_RULE_TMP_DIR" \
     "$DOMAIN_RULE_MANIFEST_FILE"
@@ -533,7 +511,6 @@ main() {
   assert_files_present "$DOMAIN_ARTIFACTS_DIR/sing-box" "$DOMAIN_ARTIFACTS_DIR/sing-box/*.srs"
   assert_files_present "$DOMAIN_ARTIFACTS_DIR/mihomo" "$DOMAIN_ARTIFACTS_DIR/mihomo/*.mrs"
 
-  # IP rules from curated remote sources
   rm -rf "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/egern" "$IP_ARTIFACTS_DIR/sing-box" "$IP_ARTIFACTS_DIR/mihomo"
   mkdir -p "$IP_ARTIFACTS_DIR/surge" "$IP_ARTIFACTS_DIR/quanx" "$IP_ARTIFACTS_DIR/egern"
 
@@ -579,11 +556,7 @@ cloudflare-ipv6|$CLOUDFLARE_IPV6_SOURCE_URL|cloudflare_ipv6.raw.txt|cloudflare_i
 cloudfront|$CLOUDFRONT_IP_SOURCE_URL|cloudfront.raw.json|cloudfront.cidr.txt|0
 fastly|$FASTLY_IP_SOURCE_URL|fastly.raw.json|fastly.cidr.txt|0
 EOF
-  # Union of every CN source, collapsed to the minimal covering prefix set:
-  # APNIC registry allocations + Clang community curation + Loyalsoldier's
-  # multi-feed GeoIP aggregation (chnroutes2 / ipip / APNIC) + 17mon/iPIP
-  # usage-geo data (covers China-operated ranges outside registry CN view,
-  # e.g. Alibaba's ARIN-registered 8.x blocks).
+
   python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge \
     "$IP_BUILD_TMP_DIR/cn.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt" \
@@ -597,7 +570,6 @@ EOF
     "$IP_BUILD_TMP_DIR/cloudflare_ipv6.cidr.txt"
   render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
 
-  # Supplement Telegram's direct source with ASN-derived prefixes.
   prepare_ripe_stat_asns \
     "${TELEGRAM_ASNS[@]}"
   sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"

@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
-# Check out the pinned commit for a cloned upstream source tree.
-#
-# Usage: apply-upstream-pins.sh <pins-file> <repo-dir> <pin-key>
-#
-# The clone itself fetches the remote default branch; this script rewrites the
-# worktree to the audited commit recorded in the pins file so scheduled builds
-# consume reviewed data instead of whatever the upstream pushed most recently.
-# Set RULES_UPSTREAM_FLOAT=1 to deliberately build from remote HEAD (used when
-# auditing a new upstream revision or diagnosing pin mismatches).
+
 set -euo pipefail
 
 PINS_FILE="$1"

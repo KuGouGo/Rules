@@ -291,8 +291,6 @@ after_idempotent="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" r
 [ "$before_idempotent" = "$after_idempotent" ]
 grep -F "all publish branches unchanged, skip push" <<< "$second_output" >/dev/null
 
-# Race an artifact ref during the second cohort refresh on the all-unchanged
-# path. The script must reject the stale baseline instead of returning success.
 generate_manifest 102-2
 mkdir -p "$TMP_DIR/skip-race-bin"
 cat > "$TMP_DIR/skip-race-bin/git" <<'EOF'
@@ -325,9 +323,6 @@ after_skip_race="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" re
 [ "$(printf '%s\n' "$before_skip_race" | tail -n +2)" = "$(printf '%s\n' "$after_skip_race" | tail -n +2)" ]
 [ "$(printf '%s\n' "$before_skip_race" | head -n 1)" != "$(printf '%s\n' "$after_skip_race" | head -n 1)" ]
 
-# A change to one platform must advance the complete publication cohort. The
-# four unchanged trees receive metadata-only commits so a later custom restore
-# observes one generation/source identity across all five branches.
 declare -A before_partial_commit before_partial_tree
 for branch in "${BRANCHES[@]}"; do
   before_partial_commit["$branch"]="$(git --git-dir="$REMOTE" rev-parse "$branch")"
@@ -370,8 +365,6 @@ for branch in "${BRANCHES[@]}"; do
 done
 mv "$REPO/templates/branch-readmes/surge.md.partial-original" "$REPO/templates/branch-readmes/surge.md"
 
-# Replaying an artifact manifest built against an older cohort must fail even
-# though every new commit would otherwise be a fast-forward artifact update.
 cp "$TMP_DIR/old-artifact-manifest.json" "$REPO/.output/artifact-manifest.json"
 set +e
 replay_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
@@ -380,8 +373,6 @@ set -e
 [ "$replay_status" -ne 0 ]
 grep -F 'publication baseline is stale' <<< "$replay_output" >/dev/null
 
-# A fresh build may use the current cohort as its baseline, but its generation
-# still has to advance monotonically for the same source commit.
 generate_manifest 103-1
 set +e
 stale_generation_output="$(ARTIFACT_SOURCE_SHA="$SOURCE_SHA" "$REPO/scripts/commands/publish-branches.sh" 2>&1)"
@@ -390,7 +381,6 @@ set -e
 [ "$stale_generation_status" -ne 0 ]
 grep -F 'stale publication generation refused' <<< "$stale_generation_output" >/dev/null
 
-# A missing template must fail before the queued batch is pushed.
 generate_manifest 104-1
 before_missing_template="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REMOTE" rev-parse "$branch"; done)"
 cp "$REPO/templates/branch-readmes/surge.md" "$REPO/templates/branch-readmes/surge.md.original"
@@ -413,8 +403,6 @@ after_missing_template="$(for branch in "${BRANCHES[@]}"; do git --git-dir="$REM
   exit 1
 }
 
-# Force a lease race immediately before the atomic push. The competing surge
-# update must reject the complete batch, leaving every other branch untouched.
 for branch in "${BRANCHES[@]}"; do
   case "$branch" in
     surge)
@@ -470,9 +458,6 @@ grep -F 'stale publication source refused: remote main is' <<< "$stale_main_outp
 SOURCE_SHA="$NEW_SOURCE_SHA"
 generate_manifest 106-1
 
-# Move main from inside the git-push wrapper, after both pre-push checks but
-# before the real atomic artifact push. The push succeeds, then the mandatory
-# post-push source check fails the run and requests a queued roll-forward.
 mkdir -p "$TMP_DIR/main-race-bin"
 cat > "$TMP_DIR/main-race-bin/git" <<'EOF'
 #!/usr/bin/env bash
@@ -549,8 +534,6 @@ after_race_without_surge="$(printf '%s\n' "$after_race" | tail -n +2)"
 git --git-dir="$REMOTE" show surge:README.md | grep -F 'racing update' >/dev/null
 mv "$REPO/templates/branch-readmes/surge.md.race-original" "$REPO/templates/branch-readmes/surge.md"
 
-# A full build can bind the exact five current commits even when their
-# generation/source metadata is split, then repair the cohort atomically.
 generate_manifest 108-1
 python3 - "$REPO/.output/artifact-manifest.json" <<'PY'
 import json, sys
@@ -567,8 +550,6 @@ for branch in "${BRANCHES[@]}"; do
   }
 done
 
-# Invalid metadata with unchanged artifact trees must still force a metadata
-# cohort publication; otherwise an all-unchanged full build could never heal it.
 surge_parent="$(git --git-dir="$REMOTE" rev-parse surge)"
 surge_tree="$(git --git-dir="$REMOTE" rev-parse 'surge^{tree}')"
 surge_invalid="$(printf 'manual metadata drift\n' | \
@@ -590,9 +571,6 @@ for branch in "${BRANCHES[@]}"; do
   }
 done
 
-# A consistent cohort whose recorded source commit no longer exists locally
-# (e.g. after a history rewrite) must skip the ancestry check and republish
-# with the current source instead of hard-failing.
 DEAD_BASELINE_SOURCE="0000000000000000000000000000000000000001"
 for branch in "${BRANCHES[@]}"; do
   dead_tree="$(git --git-dir="$REMOTE" rev-parse "${branch}^{tree}")"
@@ -615,9 +593,6 @@ for branch in "${BRANCHES[@]}"; do
   }
 done
 
-# A consistent remote cohort whose manifest baseline was locally degraded to
-# inconsistent (e.g. after a history rewrite) must publish the fresh cohort
-# instead of refusing the stale baseline comparison.
 for branch in "${BRANCHES[@]}"; do
   rewrite_tree="$(git --git-dir="$REMOTE" rev-parse "${branch}^{tree}")"
   rewrite_parent="$(git --git-dir="$REMOTE" rev-parse "$branch")"

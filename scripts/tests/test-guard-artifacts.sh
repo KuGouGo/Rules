@@ -85,7 +85,6 @@ large_nonmatching_summary="$(summarize_artifact_dir "large-nonmatching" "$TMP_DI
 assert_equals "$SUMMARY_LIMIT" "$(grep -Fc "$TMP_DIR/large-matching/" <<< "$large_matching_summary")" "large matching summary stays limited under pipefail"
 assert_equals "$SUMMARY_LIMIT" "$(grep -Fc "$TMP_DIR/large-nonmatching/" <<< "$large_nonmatching_summary")" "large non-matching summary stays limited under pipefail"
 
-# Allowed names must not be classified as redundant attr artifacts.
 for name in google@cn geolocation-!cn@cn geolocation-cn@!cn tracking-ads@ads geolocation-cn foo@bar@bar; do
   if is_redundant_attr_filter_artifact_name "$name"; then
     echo "test failed: $name should remain an allowed attr artifact name" >&2
@@ -93,7 +92,6 @@ for name in google@cn geolocation-!cn@cn geolocation-cn@!cn tracking-ads@ads geo
   fi
 done
 
-# Self-referential or double-attr names are redundant.
 for name in cn@cn geolocation-cn@cn category-ai-!cn@!cn; do
   if ! is_redundant_attr_filter_artifact_name "$name"; then
     echo "test failed: $name should be classified as a redundant attr artifact" >&2

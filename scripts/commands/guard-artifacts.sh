@@ -8,16 +8,12 @@ SUMMARY_LIMIT="${SUMMARY_LIMIT:-15}"
 ARTIFACT_ROOT="${RULES_ARTIFACT_ROOT:-$ROOT/.output}"
 CAPABILITY_REGISTRY="$(python3 "$ROOT/scripts/tools/platform_capabilities.py" shell-registry)"
 
-# CN floors sit just below the five-source union (APNIC + Clang v4/v6 +
-# Loyalsoldier GeoIP + 17mon/iPIP ≈ 8.9k prefixes, ~6.4k v4 / ~2.5k v6) so a
-# silently degraded feed cannot shrink the published ruleset unnoticed.
 MIN_IP_CIDR_CN="${MIN_IP_CIDR_CN:-7500}"
 MIN_IP_CIDR_CN_V4="${MIN_IP_CIDR_CN_V4:-5000}"
 MIN_IP_CIDR_CN_V6="${MIN_IP_CIDR_CN_V6:-2000}"
 MIN_IP_CIDR_GOOGLE="${MIN_IP_CIDR_GOOGLE:-80}"
 MIN_IP_CIDR_GOOGLE_V4="${MIN_IP_CIDR_GOOGLE_V4:-40}"
-# Google's published IPv6 prefix count is small and can legitimately sit in
-# the mid-teens; keep the guard focused on empty/truncated payloads.
+
 MIN_IP_CIDR_GOOGLE_V6="${MIN_IP_CIDR_GOOGLE_V6:-10}"
 MIN_IP_CIDR_TELEGRAM="${MIN_IP_CIDR_TELEGRAM:-8}"
 MIN_IP_CIDR_CLOUDFLARE="${MIN_IP_CIDR_CLOUDFLARE:-15}"
@@ -27,15 +23,12 @@ MIN_IP_CIDR_APPLE="${MIN_IP_CIDR_APPLE:-3}"
 MIN_IP_CIDR_PRIVATE="${MIN_IP_CIDR_PRIVATE:-15}"
 case "${DOMAIN_PUBLISH_PROFILE:-common}" in
   common)
-    # Curated common scope ships ~48 domain lists (44 published + custom
-    # sources + fakeip-filter); the floor catches truncated exports, the
-    # ceiling unexpected growth.
+
     DEFAULT_MIN_DOMAIN_ARTIFACT_FILES=40
     DEFAULT_MAX_DOMAIN_ARTIFACT_FILES=90
     ;;
   extended)
-    # extended publishes all DLC standalone lists (≈159); the floor catches
-    # truncated exports, the ceiling unexpected growth.
+
     DEFAULT_MIN_DOMAIN_ARTIFACT_FILES=150
     DEFAULT_MAX_DOMAIN_ARTIFACT_FILES=250
     ;;
@@ -82,8 +75,6 @@ count_matching_files() {
   find "$1" -maxdepth 1 -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '
 }
 
-# Count files for a "<dir>/<pattern>" glob; sets DIR and PATTERN so callers
-# can pass them to summarize_artifact_dir on failure.
 count_artifact_files() {
   DIR="${1%/*}"
   PATTERN="${1##*/}"
@@ -353,8 +344,6 @@ main() {
         "$MAX_DOMAIN_ARTIFACT_FILES"
     fi
   done <<< "$CAPABILITY_REGISTRY"
-  # Minimum 8 covers the guaranteed sources:
-  # cn, private, google, telegram, cloudflare, cloudfront, fastly, apple.
 
   print_section "Domain artifact shape checks"
   check_no_redundant_attr_filter_artifacts

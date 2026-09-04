@@ -8,9 +8,9 @@
 
 ## 变更类型
 
-- [ ] 自定义规则修改(`sources/custom/`、`sources/builtin/`)
+- [ ] 自定义规则修改(`sources/custom/`)
 - [ ] 上游来源/处理逻辑(`config/upstreams.json`、`scripts/`)
-- [ ] 文档与模板(`README.md`、`docs/`、`templates/`)
+- [ ] 文档与模板(`README.md`、`templates/`)
 - [ ] CI / 测试(`.github/`、`scripts/tests/`)
 
 ## 影响范围

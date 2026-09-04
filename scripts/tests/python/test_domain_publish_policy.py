@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import _paths  # noqa: F401
+import _paths
 from domain_publish_policy import load_publish_policy, parse_publish_policy
 
 

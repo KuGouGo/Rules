@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify publishable artifacts using capability-selected implementations."""
+
 from __future__ import annotations
 
 import argparse
@@ -144,11 +144,8 @@ def singbox_counts(data: dict[str, Any], kind: str) -> Counter[str]:
 
 
 def run_decode_tool(command: list[str]) -> None:
-    """Run a decoder, surfacing the tool's own diagnostics on failure.
 
-    CalledProcessError's bare str only reports the exit code; without the
-    captured stderr a CI verification failure is needlessly hard to diagnose.
-    """
+
     try:
         subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except subprocess.CalledProcessError as exc:
@@ -199,12 +196,8 @@ def verify_mihomo(path: Path, kind: str, tool: Path) -> tuple[str, Counter[RuleE
 
 
 def canonicalize_cidr_value(canonical_kind: str, raw_value: str, line_number: int) -> str:
-    """Validate one artifact CIDR value and return its canonical text.
 
-    Published artifacts are pre-normalized, so the verbatim artifact value must
-    already equal the collapsed network text and its kind must match the
-    address family; any divergence is a build bug, not a rendering choice.
-    """
+
     try:
         network = ipaddress.ip_network(raw_value, strict=False)
     except ValueError as exc:
@@ -262,7 +255,7 @@ def parse_egern_yaml(path: Path, capability: Any, artifact_type: str) -> Counter
         if not raw.strip() or raw.lstrip().startswith("#"):
             continue
         if not raw.startswith((" ", "\t")):
-            if ":" not in raw or raw.count(":") != 1:
+            if raw.count(":") != 1:
                 raise ValueError(f"line {line_number} is not a supported YAML key")
             key, value = (part.strip() for part in raw.split(":", 1))
             if key == "no_resolve" and artifact_type == "ip":
@@ -442,6 +435,17 @@ def verify_canonical_inventory(root: Path, artifact_root: Path) -> None:
         raise ValueError("canonical artifact inventory failed: " + "; ".join(errors))
 
 
+_CAPABILITY_CACHE: dict[Path, Any] = {}
+
+
+def load_capabilities_cached(path: Path) -> Any:
+    registry = _CAPABILITY_CACHE.get(path)
+    if registry is None:
+        registry = load_platform_capabilities(path)
+        _CAPABILITY_CACHE[path] = registry
+    return registry
+
+
 def verify_one(
     root: Path,
     path: Path,
@@ -450,7 +454,7 @@ def verify_one(
     *,
     require_canonical_linkage: bool = True,
 ) -> dict[str, Any]:
-    capabilities = load_platform_capabilities(root / "config" / "domain-platform-capabilities.json")
+    capabilities = load_capabilities_cached(root / "config" / "domain-platform-capabilities.json")
     capability = getattr(capabilities.platforms[platform], artifact_type)
     verifier = capability.verifier
     if verifier == "sing-box":
@@ -463,6 +467,10 @@ def verify_one(
         method, decoded = verifier, parse_egern_yaml(path, capability, artifact_type)
     else:
         raise ValueError(f"unsupported verifier implementation: {verifier}")
+    duplicates = sorted(entry for entry, count in decoded.items() if count > 1)
+    if duplicates:
+        sample = ", ".join(f"{kind},{value}" for kind, value in duplicates[:5])
+        raise ValueError(f"decoded artifact contains duplicate rules ({len(duplicates)}): {sample}")
     canonical: Counter[RuleEntry] | None = None
     canonical_source: str | None = None
     if require_canonical_linkage:

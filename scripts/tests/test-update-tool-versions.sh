@@ -11,14 +11,15 @@ source "$ROOT/scripts/commands/update-tool-versions.sh"
   exit 1
 }
 
-python3 - "$ROOT/Makefile" "$ROOT/scripts/commands/update-tool-versions.sh" <<'PY'
+python3 - "$ROOT/Makefile" "$ROOT/scripts/commands/update-tool-versions.sh" "$ROOT/scripts/lib/github-pr.sh" <<'PY'
 import re
 import sys
 from pathlib import Path
 
-makefile_path, updater_path = map(Path, sys.argv[1:])
+makefile_path, updater_path, helpers_path = map(Path, sys.argv[1:])
 makefile = makefile_path.read_text(encoding="utf-8")
 updater = updater_path.read_text(encoding="utf-8")
+helpers = helpers_path.read_text(encoding="utf-8")
 
 target = re.search(
     r"^validate-tool-update:\s*\n(?P<body>(?:\t.*\n)+)",
@@ -45,7 +46,7 @@ for required in (
     "gh run watch",
     "--event workflow_dispatch",
 ):
-    if required not in updater:
+    if required not in helpers:
         raise SystemExit(
             f"test failed: updater does not verify its remote commit: {required}"
         )
