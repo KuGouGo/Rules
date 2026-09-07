@@ -1,0 +1,7 @@
+# Official APNs bootstrap and service hosts.
+# - init-p01md.apple.com: APNs initialization bootstrap host (exact)
+# - push.apple.com: covers courier/api/gateway APNs service subdomains
+# APNs Akamai CNAME targets (push-apple.com.akadns.net) are not request
+# hostnames and are intentionally not listed; IP-based routing uses apple.list.
+DOMAIN,init-p01md.apple.com
+DOMAIN-SUFFIX,push.apple.com

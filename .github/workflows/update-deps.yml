@@ -1,0 +1,70 @@
+name: Update dependencies
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-deps
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+
+      - name: Detect and apply updates
+        run: python3 scripts/tools/update-dependencies.py
+
+      - name: Stop if up to date
+        run: |
+          if git diff --exit-code >/dev/null 2>&1; then
+            echo "所有依赖已是最新，无需更新"
+            exit 0
+          fi
+          echo "CHANGED=1" >> "$GITHUB_ENV"
+
+      - name: Validate
+        if: env.CHANGED == '1'
+        run: REQUIRE_SHELLCHECK=1 make validate
+
+      - name: Compile with updated compilers
+        if: env.CHANGED == '1'
+        run: make build-custom-rules
+
+      - name: Create pull request
+        if: env.CHANGED == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b automation/dependency-updates
+          git add -A
+          git commit -m "chore: bump compilers and actions"
+          git push --force origin automation/dependency-updates
+          if ! gh pr create --base main --head automation/dependency-updates \
+              --title "chore: bump compilers and actions" \
+              --body "$(git diff --stat HEAD~1)"; then
+            echo "PR 已存在，复用"
+          fi
+          gh pr merge --auto --squash automation/dependency-updates \
+            || gh pr merge --squash automation/dependency-updates

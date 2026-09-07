@@ -1,0 +1,150 @@
+{
+ "platforms": {
+  "egern": {
+   "branch": "egern",
+   "domain": {
+    "compiler": "none",
+    "extension": "yaml",
+    "format": "yaml",
+    "rule_mappings": {
+     "DOMAIN": "domain_set",
+     "DOMAIN-KEYWORD": "domain_keyword_set",
+     "DOMAIN-REGEX": "domain_regex_set",
+     "DOMAIN-SUFFIX": "domain_suffix_set"
+    },
+    "unsupported_kinds": []
+   },
+   "ip": {
+    "compiler": "none",
+    "extension": "yaml",
+    "format": "yaml",
+    "rule_mappings": {
+     "IP-CIDR": "ip_cidr_set",
+     "IP-CIDR6": "ip_cidr6_set"
+    },
+    "unsupported_kinds": []
+   },
+   "public_name": "Egern"
+  },
+  "mihomo": {
+   "branch": "mihomo",
+   "domain": {
+    "compiler": "mihomo-domain",
+    "extension": "mrs",
+    "format": "binary",
+    "rule_mappings": {
+     "DOMAIN": "plain",
+     "DOMAIN-SUFFIX": "leading-dot"
+    },
+    "unsupported_kinds": [
+     "DOMAIN-KEYWORD",
+     "DOMAIN-REGEX"
+    ]
+   },
+   "ip": {
+    "compiler": "mihomo-ipcidr",
+    "extension": "mrs",
+    "format": "binary",
+    "rule_mappings": {
+     "IP-CIDR": "plain",
+     "IP-CIDR6": "plain"
+    },
+    "unsupported_kinds": []
+   },
+   "public_name": "mihomo"
+  },
+  "quanx": {
+   "branch": "quanx",
+   "domain": {
+    "compiler": "none",
+    "extension": "list",
+    "format": "classical",
+    "rule_mappings": {
+     "DOMAIN": "HOST",
+     "DOMAIN-KEYWORD": "HOST-KEYWORD",
+     "DOMAIN-SUFFIX": "HOST-SUFFIX"
+    },
+    "unsupported_kinds": [
+     "DOMAIN-REGEX"
+    ]
+   },
+   "ip": {
+    "compiler": "none",
+    "extension": "list",
+    "format": "classical",
+    "rule_mappings": {
+     "IP-CIDR": "IP-CIDR",
+     "IP-CIDR6": "IP6-CIDR"
+    },
+    "unsupported_kinds": []
+   },
+   "public_name": "Quantumult X"
+  },
+  "sing-box": {
+   "branch": "sing-box",
+   "domain": {
+    "compiler": "sing-box",
+    "extension": "srs",
+    "format": "binary",
+    "rule_mappings": {
+     "DOMAIN": "domain",
+     "DOMAIN-KEYWORD": "domain_keyword",
+     "DOMAIN-REGEX": "domain_regex",
+     "DOMAIN-SUFFIX": "domain_suffix"
+    },
+    "unsupported_kinds": []
+   },
+   "ip": {
+    "compiler": "sing-box",
+    "extension": "srs",
+    "format": "binary",
+    "rule_mappings": {
+     "IP-CIDR": "ip_cidr",
+     "IP-CIDR6": "ip_cidr"
+    },
+    "unsupported_kinds": []
+   },
+   "public_name": "sing-box"
+  },
+  "surge": {
+   "branch": "surge",
+   "domain": {
+    "compiler": "none",
+    "extension": "list",
+    "format": "classical",
+    "rule_mappings": {
+     "DOMAIN": "DOMAIN",
+     "DOMAIN-KEYWORD": "DOMAIN-KEYWORD",
+     "DOMAIN-SUFFIX": "DOMAIN-SUFFIX"
+    },
+    "unsupported_kinds": [
+     "DOMAIN-REGEX"
+    ]
+   },
+   "ip": {
+    "compiler": "none",
+    "extension": "list",
+    "format": "classical",
+    "rule_mappings": {
+     "IP-CIDR": "IP-CIDR",
+     "IP-CIDR6": "IP-CIDR6"
+    },
+    "unsupported_kinds": []
+   },
+   "public_name": "Surge"
+  }
+ },
+ "rule_kinds": {
+  "domain": [
+   "DOMAIN",
+   "DOMAIN-SUFFIX",
+   "DOMAIN-KEYWORD",
+   "DOMAIN-REGEX"
+  ],
+  "ip": [
+   "IP-CIDR",
+   "IP-CIDR6"
+  ]
+ },
+ "schema_version": 1
+}

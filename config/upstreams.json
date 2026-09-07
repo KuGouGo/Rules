@@ -1,0 +1,131 @@
+{
+ "asn_groups": {
+  "telegram": [
+   62041
+  ]
+ },
+ "domain": {
+  "dlc": {
+   "health": {
+    "family": "any",
+    "min_entries": 1,
+    "min_raw_bytes": 1024,
+    "requirement": "required"
+   },
+   "kind": "git",
+   "parser": "git-tree",
+   "trust": "community",
+   "url": "https://github.com/v2fly/domain-list-community.git"
+  },
+  "shellcrash-fakeip": {
+   "health": {
+    "family": "any",
+    "min_entries": 50,
+    "min_raw_bytes": 2000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "domain-set-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/juewuy/ShellCrash/refs/heads/dev/public/fake_ip_filter.list"
+  }
+ },
+ "ip": {
+  "cn-17mon-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 7000,
+    "min_raw_bytes": 100000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt"
+  },
+  "cn-clang-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 4000,
+    "min_raw_bytes": 60000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://ispip.clang.cn/all_cn.txt"
+  },
+  "cn-clang-ipv6": {
+   "health": {
+    "family": "ipv6",
+    "min_entries": 1500,
+    "min_raw_bytes": 25000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://ispip.clang.cn/all_cn_ipv6.txt"
+  },
+  "cn-ipv46-apnic": {
+   "health": {
+    "family": "dual",
+    "min_entries": 5000,
+    "min_raw_bytes": 50000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "registry",
+   "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
+  },
+  "google": {
+   "health": {
+    "family": "dual",
+    "min_entries": 80,
+    "min_raw_bytes": 100,
+    "requirement": "required"
+   },
+   "kind": "json",
+   "parser": "google-json",
+   "trust": "official",
+   "url": "https://www.gstatic.com/ipranges/goog.json"
+  },
+  "loyalsoldier-geoip-cn": {
+   "health": {
+    "family": "dual",
+    "min_entries": 8000,
+    "min_raw_bytes": 120000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt"
+  },
+  "ripe-stat": {
+   "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
+   "health": {
+    "family": "any",
+    "min_entries": 1,
+    "min_raw_bytes": 50,
+    "requirement": "required"
+   },
+   "kind": "json-api",
+   "parser": "ripe-stat-json",
+   "trust": "registry"
+  },
+  "telegram": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 8,
+    "min_raw_bytes": 20,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "telegram",
+   "trust": "official",
+   "url": "https://core.telegram.org/resources/cidr.txt"
+  }
+ }
+}
