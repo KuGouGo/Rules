@@ -18,7 +18,7 @@ IP_ARTIFACTS_DIR="$ARTIFACTS_DIR/ip"
 CANONICAL_ARTIFACTS_DIR="$ARTIFACTS_DIR/.canonical"
 DOMAIN_RULE_MANIFEST_FILE="$DOMAIN_ARTIFACTS_DIR/rule-manifest.json"
 
-IP_TEXT_ARTIFACTS=(cn google telegram)
+IP_TEXT_ARTIFACTS=(cn google telegram apple)
 
 UPSTREAMS_CONFIG_FILE="$ROOT_DIR/config/upstreams.json"
 
@@ -43,8 +43,9 @@ entries = {
     "ip.loyalsoldier-geoip-cn.url": config["ip"]["loyalsoldier-geoip-cn"]["url"],
     "ip.telegram.url": config["ip"]["telegram"]["url"],
     "ip.ripe-stat.base_url": config["ip"]["ripe-stat"]["base_url"],
-    "asn.telegram": " ".join(str(asn) for asn in config["asn_groups"]["telegram"]),
 }
+for _group, _asns in config.get("asn_groups", {}).items():
+    entries[f"asn.{_group}"] = " ".join(str(asn) for asn in _asns)
 for key, value in entries.items():
     print(f"{key}\t{value}")
 PY
@@ -53,6 +54,8 @@ PY
 DLC_MIN_AGGREGATE_CN_RULES="${DLC_MIN_AGGREGATE_CN_RULES:-500}"
 DOMAIN_PUBLISH_POLICY="$ROOT_DIR/config/domain-publish-policy.json"
 read -r -a TELEGRAM_ASNS <<< "${UPSTREAM_SETTINGS[asn.telegram]}"
+read -r -a APPLE_ASNS <<< "${UPSTREAM_SETTINGS[asn.apple]:-}"
+read -r -a GOOGLE_ASNS <<< "${UPSTREAM_SETTINGS[asn.google]:-}"
 
 # shellcheck source=scripts/lib/common.sh
 source "$ROOT_DIR/scripts/lib/common.sh"
@@ -196,6 +199,13 @@ sync_merged_asn_ip_list() {
   render_ip_text_artifact "$name"
 }
 
+sync_pure_asn_ip_list() {
+  local name="$1"
+  shift
+  sync_asn_ip_cidrs "$name" "$@"
+  render_ip_text_artifact "$name"
+}
+
 generate_ip_normalize_manifest() {
   local manifest_file="$1"
   local tmp_dir="$IP_BUILD_TMP_DIR"
@@ -318,11 +328,20 @@ EOF
     "$IP_BUILD_TMP_DIR/cn_clang_ipv6.cidr.txt" \
     "$IP_BUILD_TMP_DIR/loyalsoldier-geoip-cn.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_17mon_ipv4.cidr.txt"
-  render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
-
   prepare_ripe_stat_asns \
-    "${TELEGRAM_ASNS[@]}"
-  sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"
+    "${TELEGRAM_ASNS[@]}" \
+    "${APPLE_ASNS[@]}" \
+    "${GOOGLE_ASNS[@]}"
+  if [ "${#APPLE_ASNS[@]}" -gt 0 ]; then
+    sync_pure_asn_ip_list apple "${APPLE_ASNS[@]}"
+  fi
+  render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"
+  if [ "${#GOOGLE_ASNS[@]}" -gt 0 ]; then
+    sync_merged_asn_ip_list google "${GOOGLE_ASNS[@]}"
+  fi
+  if [ "${#TELEGRAM_ASNS[@]}" -gt 0 ]; then
+    sync_merged_asn_ip_list telegram "${TELEGRAM_ASNS[@]}"
+  fi
 
   mkdir -p "$CANONICAL_ARTIFACTS_DIR/ip"
   for name in "${IP_TEXT_ARTIFACTS[@]}"; do

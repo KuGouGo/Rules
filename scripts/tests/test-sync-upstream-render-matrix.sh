@@ -10,7 +10,7 @@ from pathlib import Path
 
 script = Path("scripts/commands/sync-upstream.sh").read_text(encoding="utf-8")
 rules = Path("scripts/lib/rules.sh").read_text(encoding="utf-8")
-expected = ["cn", "google", "telegram"]
+expected = ["cn", "google", "telegram", "apple"]
 
 match = re.search(r"^IP_TEXT_ARTIFACTS=\(([^)]+)\)$", script, re.MULTILINE)
 if not match:

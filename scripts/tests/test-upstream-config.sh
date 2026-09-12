@@ -100,8 +100,14 @@ if "aws" in ip_sources:
 if "apple" in ip_sources:
     raise SystemExit("test failed: Apple IP must be a built-in source, not a remote fetch")
 asn_groups = config["asn_groups"]
-if asn_groups["telegram"] != [62041]:
-    raise SystemExit("test failed: Telegram must keep only the ASN with coverage beyond its official CIDR list")
+if asn_groups["telegram"] != [62041, 62014, 59930, 44907, 211157]:
+    raise SystemExit("test failed: Telegram ASN group must cover all self-owned ASNs")
+if asn_groups["apple"] != [714, 6185]:
+    raise SystemExit("test failed: Apple ASN group must be [714, 6185]")
+if 16591 in asn_groups["google"] or 19527 in asn_groups["google"]:
+    raise SystemExit("test failed: Google ASN group must exclude Google Fiber AS16591/AS19527")
+if len(asn_groups["google"]) < 20:
+    raise SystemExit("test failed: Google ASN group unexpectedly small")
 PY
 
 python3 - <<'PY'
@@ -155,16 +161,6 @@ expected = {
 actual = set(Path("sources/custom/ip/private.list").read_text(encoding="utf-8").splitlines())
 if actual != expected:
     raise SystemExit("test failed: built-in private ranges changed without updating the reviewed baseline")
-
-expected_apple = {
-    "IP-CIDR,17.0.0.0/8",
-    "IP-CIDR6,2403:300::/32",
-    "IP-CIDR6,2620:149::/32",
-    "IP-CIDR6,2a01:b740::/32",
-}
-actual_apple = set(Path("sources/custom/ip/apple.list").read_text(encoding="utf-8").splitlines())
-if actual_apple != expected_apple:
-    raise SystemExit("test failed: built-in Apple IP ranges changed without updating the reviewed baseline")
 PY
 
 cp config/upstreams.json "$TMP_DIR/upstreams.invalid-url.json"
