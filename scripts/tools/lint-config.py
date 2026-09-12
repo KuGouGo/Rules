@@ -19,14 +19,18 @@ SOURCE_IMPLEMENTATIONS = {
         "shellcrash-fakeip": ("text", "domain-set-text"),
     },
     "ip": {
+        "chnroutes-bgp-ipv4": ("text", "cidr-text"),
         "cn-17mon-ipv4": ("text", "cidr-text"),
         "cn-ipv46-apnic": ("text", "cidr-text"),
         "cn-clang-ipv4": ("text", "cidr-text"),
         "cn-clang-ipv6": ("text", "cidr-text"),
+        "gaoyifan-cn-ipv4": ("text", "cidr-text"),
+        "gaoyifan-cn-ipv6": ("text", "cidr-text"),
+        "geoip-asn-ipv4": ("csv", "geoip-asn-csv"),
+        "geoip-asn-ipv6": ("csv", "geoip-asn-csv"),
         "google": ("json", "google-json"),
         "loyalsoldier-geoip-cn": ("text", "cidr-text"),
         "telegram": ("text", "telegram"),
-        "ripe-stat": ("json-api", "ripe-stat-json"),
     },
 }
 REQUIRED_DOMAIN_SOURCES = set(SOURCE_IMPLEMENTATIONS["domain"])
@@ -42,7 +46,7 @@ ALLOWED_FAMILIES = {"any", "ipv4", "ipv6", "dual"}
 ALLOWED_TRUST_VALUES = {"community", "official", "registry"}
 ALLOWED_KINDS = {
     "domain": {"git", "text", "yaml"},
-    "ip": {"html", "json", "json-api", "text"},
+    "ip": {"csv", "html", "json", "json-api", "text"},
 }
 
 def load_json_object(path: Path, reporter: Reporter) -> dict:

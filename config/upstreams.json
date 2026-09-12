@@ -130,6 +130,54 @@
    "trust": "registry",
    "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
   },
+  "gaoyifan-cn-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 6000,
+    "min_raw_bytes": 100000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "official",
+   "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
+  },
+  "gaoyifan-cn-ipv6": {
+   "health": {
+    "family": "ipv6",
+    "min_entries": 3000,
+    "min_raw_bytes": 50000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "official",
+   "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt"
+  },
+  "geoip-asn-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 600000,
+    "min_raw_bytes": 20000000,
+    "requirement": "required"
+   },
+   "kind": "csv",
+   "parser": "geoip-asn-csv",
+   "trust": "registry",
+   "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN-Blocks-IPv4.csv"
+  },
+  "geoip-asn-ipv6": {
+   "health": {
+    "family": "ipv6",
+    "min_entries": 380000,
+    "min_raw_bytes": 15000000,
+    "requirement": "required"
+   },
+   "kind": "csv",
+   "parser": "geoip-asn-csv",
+   "trust": "registry",
+   "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN-Blocks-IPv6.csv"
+  },
   "google": {
    "health": {
     "family": "dual",
@@ -142,6 +190,18 @@
    "trust": "official",
    "url": "https://www.gstatic.com/ipranges/goog.json"
   },
+  "chnroutes-bgp-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 3000,
+    "min_raw_bytes": 50000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/misakaio/chnroutes2/master/chnroutes.txt"
+  },
   "loyalsoldier-geoip-cn": {
    "health": {
     "family": "dual",
@@ -153,18 +213,6 @@
    "parser": "cidr-text",
    "trust": "community",
    "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt"
-  },
-  "ripe-stat": {
-   "base_url": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
-   "health": {
-    "family": "any",
-    "min_entries": 1,
-    "min_raw_bytes": 50,
-    "requirement": "required"
-   },
-   "kind": "json-api",
-   "parser": "ripe-stat-json",
-   "trust": "registry"
   },
   "telegram": {
    "health": {

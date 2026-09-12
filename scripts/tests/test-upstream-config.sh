@@ -124,7 +124,11 @@ expected_urls = {
     "ip.cn-clang-ipv6": "https://ispip.clang.cn/all_cn_ipv6.txt",
     "ip.google": "https://www.gstatic.com/ipranges/goog.json",
     "ip.loyalsoldier-geoip-cn": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt",
-    "ip.ripe-stat": "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS",
+    "ip.gaoyifan-cn-ipv4": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt",
+    "ip.gaoyifan-cn-ipv6": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt",
+    "ip.chnroutes-bgp-ipv4": "https://raw.githubusercontent.com/misakaio/chnroutes2/master/chnroutes.txt",
+    "ip.geoip-asn-ipv4": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN-Blocks-IPv4.csv",
+    "ip.geoip-asn-ipv6": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN-Blocks-IPv6.csv",
     "ip.telegram": "https://core.telegram.org/resources/cidr.txt",
 }
 for key, url in expected_urls.items():

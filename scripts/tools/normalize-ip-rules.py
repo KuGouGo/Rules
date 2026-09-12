@@ -164,6 +164,29 @@ def extract_ripe_stat_json_cidrs(input_file: Path, output_file: Path) -> None:
     write_deduplicated_cidrs(values, output_file)
 
 
+def extract_geoip_asn_csv_cidrs(input_file: Path, output_file: Path, asn_filter: set[str]) -> None:
+    import csv
+
+    values: list[str] = []
+    with input_file.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = reader.fieldnames or []
+        for column in ("network", "autonomous_system_number"):
+            if column not in fieldnames:
+                raise ValueError(f"{input_file} missing GeoLite2-ASN column: {column}")
+        for row_no, row in enumerate(reader, start=2):
+            value = (row.get("network") or "").strip()
+            asn = (row.get("autonomous_system_number") or "").strip()
+            if not value or asn not in asn_filter:
+                continue
+            values.append(str(validated_network(value, input_file, f"row {row_no}")))
+    if not values:
+        raise ValueError(f"{input_file}: no networks matched ASNs {sorted(asn_filter)}")
+    normalized = [str(network) for network in normalize_networks(values)]
+    output_text = "\n".join(canonical_cidrs(normalized))
+    atomic_write_text(output_file, output_text + ("\n" if output_text else ""))
+
+
 def classify_plain_cidr(value: str) -> str:
     return "IP-CIDR6" if ipaddress.ip_network(value, strict=False).version == 6 else "IP-CIDR"
 
@@ -324,6 +347,14 @@ def main() -> int:
     merge_parser.add_argument("output_file")
     merge_parser.add_argument("input_files", nargs="+")
 
+    asn_csv_parser = subparsers.add_parser("asn-csv")
+    asn_csv_parser.add_argument("input_file")
+    asn_csv_parser.add_argument("output_file")
+    asn_csv_parser.add_argument(
+        "asns",
+        help="comma-separated autonomous system numbers to keep",
+    )
+
     custom_parser = subparsers.add_parser("custom-source")
     custom_parser.add_argument("input_file")
     custom_parser.add_argument("output_file")
@@ -354,6 +385,11 @@ def main() -> int:
             write_normalize_manifest(Path(args.manifest_file), args.triplets)
         elif args.command == "merge":
             merge_plain_cidr_files([Path(path) for path in args.input_files], Path(args.output_file))
+        elif args.command == "asn-csv":
+            asn_filter = {item.strip() for item in args.asns.split(",") if item.strip()}
+            if not asn_filter:
+                raise ValueError("asn-csv requires at least one ASN")
+            extract_geoip_asn_csv_cidrs(Path(args.input_file), Path(args.output_file), asn_filter)
         elif args.command == "custom-source":
             input_file = Path(args.input_file)
             rules, errors = parse_classical_ip_file(input_file, require_canonical=True)

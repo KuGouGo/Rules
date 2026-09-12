@@ -59,12 +59,11 @@ ip_source_required_snippets = [
     'loyalsoldier-geoip-cn|loyalsoldier-geoip-cn.raw.txt|loyalsoldier-geoip-cn.cidr.txt',
     'download_files_parallel',
     'check_upstream_health',
-    'prepare_ripe_stat_asns()',
-    'raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"',
-    'cidr_txt="$IP_BUILD_TMP_DIR/ripe_as${asn}.cidr.txt"',
-    'download_args+=("ripe-stat-as${asn}" required "${UPSTREAM_SETTINGS[ip.ripe-stat.base_url]}${asn}" "$raw_json")',
-    'download_files_parallel "${download_args[@]}"',
-    'prepare_ripe_stat_asns \\',
+    'extract_geoip_asn_group_cidrs()',
+    'geoip_asn_v4.raw.csv',
+    'geoip_asn_v6.raw.csv',
+    'normalize-ip-rules.py" asn-csv',
+    'merge_cidr_plain_files "$asn_file" "$v4_out" "$v6_out"',
 ]
 for snippet in ip_source_required_snippets:
     if snippet not in script:
@@ -118,12 +117,12 @@ if 'render_ip_text_artifact "$name"' not in asn_merged_function_match.group("bod
     raise SystemExit("test failed: sync_merged_asn_ip_list does not share the IP text render entrypoint")
 
 asn_cidr_function_match = re.search(
-    r"sync_asn_ip_cidrs\(\) \{(?P<body>.*?)\n\}",
+    r"extract_geoip_asn_group_cidrs\(\) \{(?P<body>.*?)\n\}",
     script,
     re.DOTALL,
 )
 if not asn_cidr_function_match:
-    raise SystemExit("test failed: private sync_asn_ip_cidrs helper is missing")
+    raise SystemExit("test failed: private extract_geoip_asn_group_cidrs helper is missing")
 if "render_ip_text_artifact" in asn_cidr_function_match.group("body"):
     raise SystemExit("test failed: private ASN CIDR helper must not render public artifacts")
 if "sync_asn_ip_list" in script:

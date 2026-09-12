@@ -42,7 +42,11 @@ entries = {
     "ip.google.url": config["ip"]["google"]["url"],
     "ip.loyalsoldier-geoip-cn.url": config["ip"]["loyalsoldier-geoip-cn"]["url"],
     "ip.telegram.url": config["ip"]["telegram"]["url"],
-    "ip.ripe-stat.base_url": config["ip"]["ripe-stat"]["base_url"],
+    "ip.gaoyifan-cn-ipv4.url": config["ip"]["gaoyifan-cn-ipv4"]["url"],
+    "ip.gaoyifan-cn-ipv6.url": config["ip"]["gaoyifan-cn-ipv6"]["url"],
+    "ip.chnroutes-bgp-ipv4.url": config["ip"]["chnroutes-bgp-ipv4"]["url"],
+    "ip.geoip-asn-ipv4.url": config["ip"]["geoip-asn-ipv4"]["url"],
+    "ip.geoip-asn-ipv6.url": config["ip"]["geoip-asn-ipv6"]["url"],
 }
 for _group, _asns in config.get("asn_groups", {}).items():
     entries[f"asn.{_group}"] = " ".join(str(asn) for asn in _asns)
@@ -128,64 +132,33 @@ render_ip_text_artifacts() {
   done
 }
 
-prepare_ripe_stat_asns() {
-  local -A seen=()
-  local -a unique_asns=() download_args=()
-  local asn raw_json cidr_txt
-
-  for asn in "$@"; do
-    if [ -n "${seen[$asn]:-}" ]; then
-      continue
-    fi
-    seen[$asn]=1
-    unique_asns+=("$asn")
-    raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
-    download_args+=("ripe-stat-as${asn}" required "${UPSTREAM_SETTINGS[ip.ripe-stat.base_url]}${asn}" "$raw_json")
-  done
-  download_files_parallel "${download_args[@]}"
-
-  for asn in "${unique_asns[@]}"; do
-    raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
-    cidr_txt="$IP_BUILD_TMP_DIR/ripe_as${asn}.cidr.txt"
-    if ! python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" single ripe-stat-json "$raw_json" "$cidr_txt"; then
-      : > "$cidr_txt"
-      echo "RIPE Stat response AS${asn} is invalid" >&2
-      return 1
-    fi
-    if [ -s "$cidr_txt" ]; then
-      check_upstream_health ip "ripe-stat" "$raw_json" "$cidr_txt" || return 1
-    else
-      echo "RIPE Stat AS${asn} returned no announced prefixes; skipping health gate" >&2
-    fi
-  done
-}
-
-sync_asn_ip_cidrs() {
+extract_geoip_asn_group_cidrs() {
   local name="$1"
   shift
-  local -a asns=("$@") cidr_files=()
-  local asn raw_json cidr_txt
+  local -a asns=("$@")
+  local asn_filter v4_out v6_out asn_file
 
-  for asn in "${asns[@]}"; do
-    raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
-    cidr_txt="$IP_BUILD_TMP_DIR/ripe_as${asn}.cidr.txt"
-    if [ ! -s "$raw_json" ]; then
-      echo "RIPE Stat AS${asn} was not prepared" >&2
-      return 1
-    fi
-    if [ -s "$cidr_txt" ]; then
-      cidr_files+=("$cidr_txt")
-    else
-      echo "RIPE Stat AS${asn} has no announced prefixes; skipped in merge" >&2
-    fi
-  done
+  asn_filter="$(IFS=,; echo "${asns[*]}")"
+  v4_out="$IP_BUILD_TMP_DIR/${name}_geoipasn_v4.cidr.txt"
+  v6_out="$IP_BUILD_TMP_DIR/${name}_geoipasn_v6.cidr.txt"
 
-  merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
-
-  if [ ! -s "$IP_BUILD_TMP_DIR/${name}.cidr.txt" ]; then
-    echo "RIPE Stat group $name produced no prefixes (ASNs: ${asns[*]})" >&2
+  if ! python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" asn-csv \
+    "$IP_BUILD_TMP_DIR/geoip_asn_v4.raw.csv" "$v4_out" "$asn_filter"; then
+    echo "GeoLite2-ASN IPv4 extraction failed for group $name" >&2
     return 1
   fi
+  if ! python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" asn-csv \
+    "$IP_BUILD_TMP_DIR/geoip_asn_v6.raw.csv" "$v6_out" "$asn_filter"; then
+    echo "GeoLite2-ASN IPv6 extraction failed for group $name" >&2
+    return 1
+  fi
+
+  asn_file="$IP_BUILD_TMP_DIR/${name}_asn.cidr.txt"
+  if [ ! -s "$v4_out" ] && [ ! -s "$v6_out" ]; then
+    echo "GeoLite2-ASN group $name produced no prefixes (ASNs: ${asns[*]})" >&2
+    return 1
+  fi
+  merge_cidr_plain_files "$asn_file" "$v4_out" "$v6_out"
 }
 
 sync_merged_asn_ip_list() {
@@ -195,12 +168,7 @@ sync_merged_asn_ip_list() {
   local asn_file="$IP_BUILD_TMP_DIR/${name}_asn.cidr.txt"
   local merged_file="$IP_BUILD_TMP_DIR/${name}_merged.cidr.txt"
 
-  sync_asn_ip_cidrs "${name}_asn" "$@"
-
-  if [ ! -s "$asn_file" ]; then
-    echo "warning: no ASN prefixes found for $name, keeping direct source only" >&2
-    return 0
-  fi
+  extract_geoip_asn_group_cidrs "$name" "$@"
 
   merge_cidr_plain_files "$merged_file" "$source_file" "$asn_file"
   mv "$merged_file" "$source_file"
@@ -210,7 +178,8 @@ sync_merged_asn_ip_list() {
 sync_pure_asn_ip_list() {
   local name="$1"
   shift
-  sync_asn_ip_cidrs "$name" "$@"
+  extract_geoip_asn_group_cidrs "$name" "$@"
+  mv "$IP_BUILD_TMP_DIR/${name}_asn.cidr.txt" "$IP_BUILD_TMP_DIR/${name}.cidr.txt"
   render_ip_text_artifact "$name"
 }
 
@@ -223,6 +192,9 @@ generate_ip_normalize_manifest() {
     text "$tmp_dir/cn_clang_ipv4.raw.txt" "$tmp_dir/cn_clang_ipv4.cidr.txt" \
     text "$tmp_dir/cn_clang_ipv6.raw.txt" "$tmp_dir/cn_clang_ipv6.cidr.txt" \
     text "$tmp_dir/cn_17mon_ipv4.raw.txt" "$tmp_dir/cn_17mon_ipv4.cidr.txt" \
+    text "$tmp_dir/gaoyifan_cn_ipv4.raw.txt" "$tmp_dir/gaoyifan_cn_ipv4.cidr.txt" \
+    text "$tmp_dir/gaoyifan_cn_ipv6.raw.txt" "$tmp_dir/gaoyifan_cn_ipv6.cidr.txt" \
+    text "$tmp_dir/chnroutes_bgp_ipv4.raw.txt" "$tmp_dir/chnroutes_bgp_ipv4.cidr.txt" \
     text "$tmp_dir/loyalsoldier-geoip-cn.raw.txt" "$tmp_dir/loyalsoldier-geoip-cn.cidr.txt"
 }
 
@@ -308,7 +280,12 @@ main() {
     cn-clang-ipv4 required "${UPSTREAM_SETTINGS[ip.cn-clang-ipv4.url]}" "$IP_BUILD_TMP_DIR/cn_clang_ipv4.raw.txt" \
     cn-clang-ipv6 required "${UPSTREAM_SETTINGS[ip.cn-clang-ipv6.url]}" "$IP_BUILD_TMP_DIR/cn_clang_ipv6.raw.txt" \
     cn-17mon-ipv4 required "${UPSTREAM_SETTINGS[ip.cn-17mon-ipv4.url]}" "$IP_BUILD_TMP_DIR/cn_17mon_ipv4.raw.txt" \
+    gaoyifan-cn-ipv4 required "${UPSTREAM_SETTINGS[ip.gaoyifan-cn-ipv4.url]}" "$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv4.raw.txt" \
+    gaoyifan-cn-ipv6 required "${UPSTREAM_SETTINGS[ip.gaoyifan-cn-ipv6.url]}" "$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv6.raw.txt" \
+    chnroutes-bgp-ipv4 required "${UPSTREAM_SETTINGS[ip.chnroutes-bgp-ipv4.url]}" "$IP_BUILD_TMP_DIR/chnroutes_bgp_ipv4.raw.txt" \
     loyalsoldier-geoip-cn required "${UPSTREAM_SETTINGS[ip.loyalsoldier-geoip-cn.url]}" "$IP_BUILD_TMP_DIR/loyalsoldier-geoip-cn.raw.txt" \
+    geoip-asn-ipv4 required "${UPSTREAM_SETTINGS[ip.geoip-asn-ipv4.url]}" "$IP_BUILD_TMP_DIR/geoip_asn_v4.raw.csv" \
+    geoip-asn-ipv6 required "${UPSTREAM_SETTINGS[ip.geoip-asn-ipv6.url]}" "$IP_BUILD_TMP_DIR/geoip_asn_v6.raw.csv" \
     google classified "${UPSTREAM_SETTINGS[ip.google.url]}" "$IP_BUILD_TMP_DIR/google.raw.json" \
     telegram classified "${UPSTREAM_SETTINGS[ip.telegram.url]}" "$IP_BUILD_TMP_DIR/telegram.raw.txt"
 
@@ -324,6 +301,9 @@ cn-ipv46-apnic|cn_ipv46_apnic.raw.txt|cn_ipv46_apnic.cidr.txt
 cn-clang-ipv4|cn_clang_ipv4.raw.txt|cn_clang_ipv4.cidr.txt
 cn-clang-ipv6|cn_clang_ipv6.raw.txt|cn_clang_ipv6.cidr.txt
 cn-17mon-ipv4|cn_17mon_ipv4.raw.txt|cn_17mon_ipv4.cidr.txt
+gaoyifan-cn-ipv4|gaoyifan_cn_ipv4.raw.txt|gaoyifan_cn_ipv4.cidr.txt
+gaoyifan-cn-ipv6|gaoyifan_cn_ipv6.raw.txt|gaoyifan_cn_ipv6.cidr.txt
+chnroutes-bgp-ipv4|chnroutes_bgp_ipv4.raw.txt|chnroutes_bgp_ipv4.cidr.txt
 loyalsoldier-geoip-cn|loyalsoldier-geoip-cn.raw.txt|loyalsoldier-geoip-cn.cidr.txt
 google|google.raw.json|google.cidr.txt
 telegram|telegram.raw.txt|telegram.cidr.txt
@@ -334,12 +314,11 @@ EOF
     "$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_clang_ipv4.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_clang_ipv6.cidr.txt" \
+    "$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv4.cidr.txt" \
+    "$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv6.cidr.txt" \
+    "$IP_BUILD_TMP_DIR/chnroutes_bgp_ipv4.cidr.txt" \
     "$IP_BUILD_TMP_DIR/loyalsoldier-geoip-cn.cidr.txt" \
     "$IP_BUILD_TMP_DIR/cn_17mon_ipv4.cidr.txt"
-  prepare_ripe_stat_asns \
-    "${TELEGRAM_ASNS[@]}" \
-    "${APPLE_ASNS[@]}" \
-    "${GOOGLE_ASNS[@]}"
   if [ "${#APPLE_ASNS[@]}" -gt 0 ]; then
     sync_pure_asn_ip_list apple "${APPLE_ASNS[@]}"
   fi
