@@ -152,7 +152,11 @@ prepare_ripe_stat_asns() {
       echo "RIPE Stat response AS${asn} is invalid" >&2
       return 1
     fi
-    check_upstream_health ip "ripe-stat" "$raw_json" "$cidr_txt" || return 1
+    if [ -s "$cidr_txt" ]; then
+      check_upstream_health ip "ripe-stat" "$raw_json" "$cidr_txt" || return 1
+    else
+      echo "RIPE Stat AS${asn} returned no announced prefixes; skipping health gate" >&2
+    fi
   done
 }
 
@@ -165,11 +169,15 @@ sync_asn_ip_cidrs() {
   for asn in "${asns[@]}"; do
     raw_json="$IP_BUILD_TMP_DIR/ripe_as${asn}.raw.json"
     cidr_txt="$IP_BUILD_TMP_DIR/ripe_as${asn}.cidr.txt"
-    if [ ! -s "$raw_json" ] || [ ! -s "$cidr_txt" ]; then
+    if [ ! -s "$raw_json" ]; then
       echo "RIPE Stat AS${asn} was not prepared" >&2
       return 1
     fi
-    cidr_files+=("$cidr_txt")
+    if [ -s "$cidr_txt" ]; then
+      cidr_files+=("$cidr_txt")
+    else
+      echo "RIPE Stat AS${asn} has no announced prefixes; skipped in merge" >&2
+    fi
   done
 
   merge_cidr_plain_files "$IP_BUILD_TMP_DIR/${name}.cidr.txt" "${cidr_files[@]}"
