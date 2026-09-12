@@ -1,0 +1,63 @@
+name: Sync Rules
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'Makefile'
+      - 'config/**'
+      - 'scripts/**'
+      - 'sources/custom/**'
+      - 'templates/**'
+  pull_request:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to validate and optionally publish'
+        required: false
+        default: main
+      publish:
+        description: 'Publish generated artifacts'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-rules-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python and tool cache
+        uses: ./.github/actions/setup-tools
+      - name: Validate repository
+        run: REQUIRE_SHELLCHECK=1 make validate
+      - name: Build upstream and custom rules
+        run: |
+          ./scripts/commands/sync-upstream.sh
+          ./scripts/commands/build-custom-rules.sh
+          python3 scripts/tools/audit-rule-overlaps.py .output/.canonical --output .output/overlap-report.json --fail-internal
+          ./scripts/commands/check-artifacts.sh
+      - name: Publish client branches
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch' && inputs.publish)
+        env:
+          GITHUB_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          export ARTIFACT_SOURCE_SHA="$(git rev-parse HEAD)"
+          ./scripts/commands/publish-branches.sh

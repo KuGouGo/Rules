@@ -1,0 +1,85 @@
+name: Update dependencies
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-deps
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Prepare scripts
+        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+      - name: Detect and apply updates
+        run: python3 scripts/tools/update-dependencies.py
+      - name: Stop if up to date
+        id: changed
+        run: |
+          if git diff --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Validate and compile
+        if: steps.changed.outputs.changed == 'true'
+        run: |
+          REQUIRE_SHELLCHECK=1 make validate
+          make build-custom-rules
+      - name: Create or update pull request
+        if: steps.changed.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B automation/dependency-updates
+          git add .github scripts/lib/common.sh
+          git commit -m 'chore: bump compilers and actions'
+          git push --force-with-lease origin automation/dependency-updates
+          gh pr create --base main --head automation/dependency-updates \
+            --title 'chore: bump compilers and actions' \
+            --body 'Automated dependency update. Validation is dispatched explicitly.' \
+            || true
+          SHA="$(git rev-parse HEAD)"
+          gh workflow run 'Sync Rules' --ref automation/dependency-updates \
+            -f ref=automation/dependency-updates -f publish=false
+          echo "VALIDATION_SHA=$SHA" >> "$GITHUB_ENV"
+          echo "Validation dispatched for $SHA"
+      - name: Wait for validation and merge
+        if: steps.changed.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          for attempt in $(seq 1 60); do
+            run_id="$(gh run list --workflow 'Sync Rules' --branch automation/dependency-updates --limit 20 \
+              --json databaseId,status,headSha --jq --arg sha "$VALIDATION_SHA" \
+              '.[] | select(.headSha == $sha) | .databaseId' | head -n 1)"
+            if [ -n "$run_id" ]; then
+              gh run watch "$run_id" --exit-status
+              gh pr merge automation/dependency-updates --squash --delete-branch
+              gh workflow run 'Sync Rules' --ref main -f ref=main -f publish=true
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'validation did not complete in time' >&2
+          exit 1

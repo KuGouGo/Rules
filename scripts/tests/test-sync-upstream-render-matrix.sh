@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT"
+
+python3 - <<'PY'
+import re
+from pathlib import Path
+
+script = Path("scripts/commands/sync-upstream.sh").read_text(encoding="utf-8")
+rules = Path("scripts/lib/rules.sh").read_text(encoding="utf-8")
+expected = ["cn", "google", "telegram", "apple"]
+
+match = re.search(r"^IP_TEXT_ARTIFACTS=\(([^)]+)\)$", script, re.MULTILINE)
+if not match:
+    raise SystemExit("test failed: IP_TEXT_ARTIFACTS is not declared")
+actual = match.group(1).split()
+if actual != expected:
+    raise SystemExit(f"test failed: IP_TEXT_ARTIFACTS changed: {actual!r}")
+
+function_match = re.search(
+    r"render_ip_text_artifact\(\) \{(?P<body>.*?)\n\}",
+    script,
+    re.DOTALL,
+)
+if not function_match:
+    raise SystemExit("test failed: render_ip_text_artifact function is missing")
+body = function_match.group("body")
+
+required_snippets = [
+    'plain_file="$IP_BUILD_TMP_DIR/${name}.cidr.txt"',
+    "render_ip_plain_to_surge_list",
+    "render_ip_plain_to_quanx_list",
+    "render_ip_plain_to_egern_yaml",
+    '"$IP_ARTIFACTS_DIR/surge/${name}.list"',
+    '"$IP_ARTIFACTS_DIR/quanx/${name}.list"',
+    '"$IP_ARTIFACTS_DIR/egern/${name}.yaml"',
+]
+for snippet in required_snippets:
+    if snippet not in body:
+        raise SystemExit(f"test failed: render_ip_text_artifact missing {snippet!r}")
+
+if 'render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"' not in script:
+    raise SystemExit("test failed: sync-upstream does not render the shared IP text artifact matrix")
+
+ip_source_required_snippets = [
+    'declare -A UPSTREAM_SETTINGS',
+    'cn-clang-ipv4 required "${UPSTREAM_SETTINGS[ip.cn-clang-ipv4.url]}" "$IP_BUILD_TMP_DIR/cn_clang_ipv4.raw.txt"',
+    'cn-clang-ipv6 required "${UPSTREAM_SETTINGS[ip.cn-clang-ipv6.url]}" "$IP_BUILD_TMP_DIR/cn_clang_ipv6.raw.txt"',
+    'cn-17mon-ipv4 required "${UPSTREAM_SETTINGS[ip.cn-17mon-ipv4.url]}" "$IP_BUILD_TMP_DIR/cn_17mon_ipv4.raw.txt"',
+    'gaoyifan-cn-ipv4 required "${UPSTREAM_SETTINGS[ip.gaoyifan-cn-ipv4.url]}" "$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv4.raw.txt"',
+    'gaoyifan-cn-ipv6 required "${UPSTREAM_SETTINGS[ip.gaoyifan-cn-ipv6.url]}" "$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv6.raw.txt"',
+    'chnroutes-bgp-ipv4 required "${UPSTREAM_SETTINGS[ip.chnroutes-bgp-ipv4.url]}" "$IP_BUILD_TMP_DIR/chnroutes_bgp_ipv4.raw.txt"',
+    '"$IP_BUILD_TMP_DIR/cn_clang_ipv4.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/cn_clang_ipv6.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/cn_ipv46_apnic.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/cn_17mon_ipv4.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv4.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/gaoyifan_cn_ipv6.cidr.txt"',
+    '"$IP_BUILD_TMP_DIR/chnroutes_bgp_ipv4.cidr.txt"',
+    'cn-17mon-ipv4|cn_17mon_ipv4.raw.txt|cn_17mon_ipv4.cidr.txt',
+    'gaoyifan-cn-ipv4|gaoyifan_cn_ipv4.raw.txt|gaoyifan_cn_ipv4.cidr.txt',
+    'gaoyifan-cn-ipv6|gaoyifan_cn_ipv6.raw.txt|gaoyifan_cn_ipv6.cidr.txt',
+    'chnroutes-bgp-ipv4|chnroutes_bgp_ipv4.raw.txt|chnroutes_bgp_ipv4.cidr.txt',
+    'download_files_parallel',
+    'check_upstream_health',
+    'extract_geoip_asn_group_cidrs()',
+    'geoip_asn_v4.raw.csv',
+    'geoip_asn_v6.raw.csv',
+    'normalize-ip-rules.py" asn-csv',
+    'merge_cidr_plain_files "$asn_file" "$v4_out" "$v6_out"',
+]
+for snippet in ip_source_required_snippets:
+    if snippet not in script:
+        raise SystemExit(f"test failed: sync-upstream missing optimized IP source snippet {snippet!r}")
+
+for excluded in (
+    "BUILTIN_PRIVATE_SOURCE_FILE",
+    "BUILTIN_APPLE_SOURCE_FILE",
+    "sources/builtin",
+    "CN_IPV46_SOURCE_URL",
+    "cn_ipv46.raw.txt",
+    "cn_ipv46.cidr.txt",
+    "CN_GEOIP_SOURCE_URL",
+    "cn_geoip.raw.txt",
+    "cn_geoip.cidr.txt",
+    "APPLE_IP_SOURCE_URL",
+    "AWS_IP_SOURCE_URL",
+):
+    if excluded in script:
+        raise SystemExit(f"test failed: trimmed IP source was reintroduced: {excluded}")
+
+domain_required_snippets = [
+    'clone_repository_shallow "${UPSTREAM_SETTINGS[domain.dlc.url]}" "$WORK_TMP_DIR/domain-list-community"',
+    'shellcrash-fakeip required "${UPSTREAM_SETTINGS[domain.shellcrash-fakeip.url]}" "$WORK_TMP_DIR/shellcrash-fakeip.raw.list"',
+    '"$WORK_TMP_DIR/shellcrash-fakeip.raw.list"',
+    '"$DOMAIN_RULE_TMP_DIR/fakeip-filter.list"',
+    '"$WORK_TMP_DIR/domain-list-community/data"',
+    'verify-domain-derivatives.py',
+]
+for snippet in domain_required_snippets:
+    if snippet not in script:
+        raise SystemExit(f"test failed: sync-upstream missing domain derivative guard snippet {snippet!r}")
+
+if "apple.cidr.txt" in script or "private.cidr.txt" in script:
+    raise SystemExit("test failed: repository-owned IP lists moved back into the sync stage")
+if "apple.raw.html" in script or "APPLE_IP_SOURCE_URL" in script:
+    raise SystemExit("test failed: Apple IP must not be fetched from a remote page")
+
+for excluded in ("loyalsoldier-china-list", "china-list.list", "merge-domain-suffixes.py", "LOYALSOLDIER_CHINA_LIST_SOURCE_URL"):
+    if excluded in script:
+        raise SystemExit(f"test failed: DNS-only China List was reintroduced: {excluded}")
+
+asn_pure_function_match = re.search(
+    r"sync_pure_asn_ip_list\(\) \{(?P<body>.*?)\n\}",
+    script,
+    re.DOTALL,
+)
+if not asn_pure_function_match:
+    raise SystemExit("test failed: sync_pure_asn_ip_list function is missing")
+
+asn_cidr_function_match = re.search(
+    r"extract_geoip_asn_group_cidrs\(\) \{(?P<body>.*?)\n\}",
+    script,
+    re.DOTALL,
+)
+if not asn_cidr_function_match:
+    raise SystemExit("test failed: private extract_geoip_asn_group_cidrs helper is missing")
+if "render_ip_text_artifact" in asn_cidr_function_match.group("body"):
+    raise SystemExit("test failed: private ASN CIDR helper must not render public artifacts")
+if "sync_asn_ip_list" in script:
+    raise SystemExit("test failed: unused sync_asn_ip_list helper was reintroduced")
+if "telegram_asn.list" in script or "telegram_asn.yaml" in script:
+    raise SystemExit("test failed: telegram_asn intermediate artifact leaked into sync script")
+for removed_helper in (
+    "merge_cidr_plain_files_dedup",
+    "generate_normalize_manifest",
+    "first_batch_status",
+    "first_batch_reason",
+    "first_batch_raw_file",
+    "first_batch_source_type",
+    "first_batch_config_name",
+    "first_batch_source_url",
+    "normalize_first_batch_source",
+    "sync_merged_asn_ip_list",
+):
+    if removed_helper in script:
+        raise SystemExit(f"test failed: redundant helper was reintroduced: {removed_helper}")
+
+if "compile_ip_plain_to_binary_artifacts" in rules:
+    raise SystemExit("test failed: serial IP binary compiler was reintroduced")
+if "build_ip_egern_artifacts_from_surge_dir" in rules:
+    raise SystemExit("test failed: redundant Surge-to-Egern render path was reintroduced")
+binary_builder = re.search(
+    r"build_ip_artifacts_from_surge_dir\(\) \{(?P<body>.*?)\n\}",
+    rules,
+    re.DOTALL,
+)
+if not binary_builder:
+    raise SystemExit("test failed: IP binary builder is missing")
+for snippet in ("detect_compile_jobs", "compile_ip_binary_dirs"):
+    if snippet not in binary_builder.group("body"):
+        raise SystemExit(f"test failed: batch IP binary builder missing {snippet!r}")
+if '"$IP_BUILD_TMP_DIR/binary-compile"' not in script:
+    raise SystemExit("test failed: IP binary compiler does not use an isolated staging directory")
+PY
+
+echo "sync upstream render matrix tests passed"

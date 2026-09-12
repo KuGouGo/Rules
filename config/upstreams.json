@@ -1,0 +1,194 @@
+{
+ "asn_groups": {
+  "telegram": [
+   62041,
+   62014,
+   59930,
+   44907,
+   211157
+  ],
+  "apple": [
+   714,
+   6185
+  ],
+  "google": [
+   15169,
+   151231,
+   139070,
+   139190,
+   13949,
+   43515,
+   41264,
+   40873,
+   396982,
+   396178,
+   395973,
+   394639,
+   394507,
+   394089,
+   36987,
+   36561,
+   36520,
+   36492,
+   36411,
+   36385,
+   36384,
+   36383,
+   36040,
+   36039,
+   33715,
+   32381,
+   26910,
+   26684,
+   22859,
+   22577,
+   214611,
+   214609,
+   209539,
+   209519,
+   209504,
+   19448,
+   19425,
+   16550,
+   6432,
+   55023,
+   45566
+  ]
+ },
+ "domain": {
+  "dlc": {
+   "health": {
+    "family": "any",
+    "min_entries": 1,
+    "min_raw_bytes": 1024,
+    "requirement": "required"
+   },
+   "kind": "git",
+   "parser": "git-tree",
+   "trust": "community",
+   "url": "https://github.com/v2fly/domain-list-community.git"
+  },
+  "shellcrash-fakeip": {
+   "health": {
+    "family": "any",
+    "min_entries": 50,
+    "min_raw_bytes": 2000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "domain-set-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/juewuy/ShellCrash/refs/heads/dev/public/fake_ip_filter.list"
+  }
+ },
+ "ip": {
+  "cn-17mon-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 7000,
+    "min_raw_bytes": 100000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt"
+  },
+  "cn-clang-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 4000,
+    "min_raw_bytes": 60000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://ispip.clang.cn/all_cn.txt"
+  },
+  "cn-clang-ipv6": {
+   "health": {
+    "family": "ipv6",
+    "min_entries": 1500,
+    "min_raw_bytes": 25000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://ispip.clang.cn/all_cn_ipv6.txt"
+  },
+  "cn-ipv46-apnic": {
+   "health": {
+    "family": "dual",
+    "min_entries": 5000,
+    "min_raw_bytes": 50000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "registry",
+   "url": "https://ispip.clang.cn/all_cn_ipv46_apnic.txt"
+  },
+  "gaoyifan-cn-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 6000,
+    "min_raw_bytes": 80000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "official",
+   "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china.txt"
+  },
+  "gaoyifan-cn-ipv6": {
+   "health": {
+    "family": "ipv6",
+    "min_entries": 3000,
+    "min_raw_bytes": 40000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "official",
+   "url": "https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/china6.txt"
+  },
+  "geoip-asn-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 600000,
+    "min_raw_bytes": 20000000,
+    "requirement": "required"
+   },
+   "kind": "csv",
+   "parser": "geoip-asn-csv",
+   "trust": "registry",
+   "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN-Blocks-IPv4.csv"
+  },
+  "geoip-asn-ipv6": {
+   "health": {
+    "family": "ipv6",
+    "min_entries": 380000,
+    "min_raw_bytes": 15000000,
+    "requirement": "required"
+   },
+   "kind": "csv",
+   "parser": "geoip-asn-csv",
+   "trust": "registry",
+   "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN-Blocks-IPv6.csv"
+  },
+  "chnroutes-bgp-ipv4": {
+   "health": {
+    "family": "ipv4",
+    "min_entries": 3000,
+    "min_raw_bytes": 30000,
+    "requirement": "required"
+   },
+   "kind": "text",
+   "parser": "cidr-text",
+   "trust": "community",
+   "url": "https://raw.githubusercontent.com/misakaio/chnroutes2/master/chnroutes.txt"
+  }
+ }
+}
