@@ -1,0 +1,5 @@
+# Mixed canonical domain rules used to characterize shared text-platform rendering.
+DOMAIN-SUFFIX,example.com
+DOMAIN,api.example.com
+DOMAIN-KEYWORD,youtube
+DOMAIN-REGEX,^Foo\\.

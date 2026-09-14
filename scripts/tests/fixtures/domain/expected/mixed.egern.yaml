@@ -1,0 +1,11 @@
+domain_set:
+  - 'api.example.com'
+
+domain_suffix_set:
+  - 'example.com'
+
+domain_keyword_set:
+  - 'youtube'
+
+domain_regex_set:
+  - '^Foo\\.'

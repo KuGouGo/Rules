@@ -1,0 +1,47 @@
+{
+ "compatibility_replacements": {
+  "category-ai-!cn": "category-ai-chat-!cn",
+  "google-deepmind": "google-gemini",
+  "ookla-speedtest": "speedtest"
+ },
+ "geographic_roots": [
+  "geolocation-!cn"
+ ],
+ "geolocation_not_cn": [
+  "anthropic",
+  "apple",
+  "bahamut",
+  "cloudflare",
+  "discord",
+  "disney",
+  "epicgames",
+  "facebook",
+  "github",
+  "google",
+  "hbo",
+  "icloud",
+  "instagram",
+  "microsoft",
+  "netflix",
+  "openai",
+  "oracle",
+  "paypal",
+  "primevideo",
+  "reddit",
+  "spotify",
+  "steam",
+  "telegram",
+  "tiktok",
+  "twitter",
+  "whatsapp",
+  "xai",
+  "youtube"
+ ],
+ "schema_version": 5,
+ "standalone": [
+  "apple-intelligence",
+  "category-ai-chat-!cn",
+  "google-gemini",
+  "speedtest"
+ ]
+}

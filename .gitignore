@@ -1,0 +1,11 @@
+.output/
+.tmp/
+.bin/
+
+__pycache__/
+*.py[cod]
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
