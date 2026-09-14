@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -184,6 +185,39 @@ def validate_upstreams(data: dict, reporter: Reporter) -> None:
         for index, value in enumerate(values):
             if not is_positive_int(value):
                 reporter.error(f"{location}[{index}]", f"ASN must be a positive integer, got {value!r}")
+
+    discovery = data.get("asn_discovery")
+    if discovery is None:
+        discovery = {}
+    if not isinstance(discovery, dict):
+        reporter.error("upstreams.asn_discovery", "must be an object")
+        discovery = {}
+    for name, rules in sorted(discovery.items()):
+        location = f"upstreams.asn_discovery.{name}"
+        if name not in asn_groups:
+            reporter.error(location, "references an unknown asn group")
+            continue
+        if not isinstance(rules, dict) or set(rules) != {"include", "exclude", "max_auto_add"}:
+            reporter.error(location, "must contain exactly ['exclude', 'include', 'max_auto_add']")
+            continue
+        for key in ("include", "exclude"):
+            patterns = rules[key]
+            if (
+                not isinstance(patterns, list)
+                or any(not isinstance(pattern, str) or not pattern for pattern in patterns)
+                or len(patterns) != len(set(patterns))
+            ):
+                reporter.error(f"{location}.{key}", "must be a list of unique non-empty patterns")
+                continue
+            for pattern in patterns:
+                try:
+                    re.compile(pattern, re.IGNORECASE)
+                except re.error as exc:
+                    reporter.error(f"{location}.{key}", f"invalid regex {pattern!r}: {exc}")
+        if not rules["include"]:
+            reporter.error(f"{location}.include", "must declare at least one discovery pattern")
+        if not is_positive_int(rules.get("max_auto_add")):
+            reporter.error(f"{location}.max_auto_add", f"must be a positive integer, got {rules.get('max_auto_add')!r}")
 
 
 def validate_domain_publish_policy(data: dict, reporter: Reporter) -> None:

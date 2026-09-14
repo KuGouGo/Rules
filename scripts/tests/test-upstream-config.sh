@@ -219,4 +219,67 @@ assert_lint_fails_with \
   "platforms.surge.domain must classify every declared domain kind" \
   --domain-platform-capabilities "$TMP_DIR/capabilities.invalid.json"
 
+python3 - <<'PY'
+import json
+import re
+from pathlib import Path
+
+config = json.loads(Path("config/upstreams.json").read_text(encoding="utf-8"))
+discovery = config.get("asn_discovery")
+if not isinstance(discovery, dict) or not discovery:
+    raise SystemExit("test failed: asn_discovery must be declared for automated ASN expansion")
+if set(discovery) != set(config["asn_groups"]):
+    raise SystemExit(
+        "test failed: asn_discovery must cover exactly the declared asn_groups: "
+        f"{sorted(discovery)} vs {sorted(config['asn_groups'])}"
+    )
+for group, rules in discovery.items():
+    if not rules["include"]:
+        raise SystemExit(f"test failed: asn_discovery.{group}.include must not be empty")
+    for pattern in rules["include"] + rules["exclude"]:
+        re.compile(pattern, re.IGNORECASE)
+    if not isinstance(rules["max_auto_add"], int) or rules["max_auto_add"] < 1:
+        raise SystemExit(f"test failed: asn_discovery.{group}.max_auto_add must be a positive integer")
+apple_rules = discovery["apple"]
+if "HOSTMYAPPLE" not in apple_rules["exclude"] and not any(
+    p.startswith("^") for p in apple_rules["include"]
+):
+    raise SystemExit("test failed: apple discovery must anchor patterns to reject same-name impostors")
+google_rules = discovery["google"]
+if "FIBER" not in google_rules["exclude"] or "PEER" not in google_rules["exclude"]:
+    raise SystemExit("test failed: google discovery must exclude Google Fiber and peer/PNI networks")
+PY
+
+cp config/upstreams.json "$TMP_DIR/upstreams.bad-discovery.json"
+python3 - <<'PY' "$TMP_DIR/upstreams.bad-discovery.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["asn_discovery"]["apple"]["include"].append("(")
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "bad-discovery-regex" \
+  "invalid regex '('" \
+  --upstreams "$TMP_DIR/upstreams.bad-discovery.json"
+
+cp config/upstreams.json "$TMP_DIR/upstreams.unknown-discovery-group.json"
+python3 - <<'PY' "$TMP_DIR/upstreams.unknown-discovery-group.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["asn_discovery"]["ghost"] = {"include": ["X"], "exclude": [], "max_auto_add": 1}
+path.write_text(json.dumps(data), encoding="utf-8")
+PY
+assert_lint_fails_with \
+  "unknown-discovery-group" \
+  "upstreams.asn_discovery.ghost: references an unknown asn group" \
+  --upstreams "$TMP_DIR/upstreams.unknown-discovery-group.json"
+
 echo "upstream config tests passed"

@@ -60,8 +60,10 @@ config_driven_snippets = [
     "check_asn_source_gates()",
     "${UPSTREAM_SETTINGS[ip.${name}.min_entries]}",
     "slug_of()",
-    'ASN_GROUP_SPECS+=(',
     'sync_pure_asn_ip_list "${ASN_GROUP_NAMES[@]}"',
+    "resolve_effective_asn_groups()",
+    "discover-asn-groups.py",
+    'ASN_GROUP_SPECS+=("${group}=',
 ]
 for snippet in config_driven_snippets:
     if snippet not in script:

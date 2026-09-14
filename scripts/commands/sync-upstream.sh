@@ -91,10 +91,9 @@ for settings_key in $(printf '%s\n' "${!UPSTREAM_SETTINGS[@]}" | grep '\.url$' |
 done
 
 declare -a ASN_GROUP_NAMES=() ASN_GROUP_SPECS=()
+declare -A ASN_GROUP_EFFECTIVE=()
 while IFS= read -r settings_key; do
-  group="${settings_key#asn.}"
-  ASN_GROUP_NAMES+=("$group")
-  ASN_GROUP_SPECS+=("${group}=$(printf '%s' "${UPSTREAM_SETTINGS[$settings_key]}" | tr ' ' ',')")
+  ASN_GROUP_NAMES+=("${settings_key#asn.}")
 done < <(printf '%s\n' "${!UPSTREAM_SETTINGS[@]}" | grep '^asn\.' | sort)
 
 for group in "${ASN_GROUP_NAMES[@]}"; do
@@ -160,6 +159,40 @@ merge_cidr_plain_files() {
   python3 "$ROOT_DIR/scripts/tools/normalize-ip-rules.py" merge "$output_file" "$@"
 }
 
+resolve_effective_asn_groups() {
+  local name slug group asns
+  local -a snapshot_files=()
+
+  for name in "${IP_ASN_SOURCE_NAMES[@]}"; do
+    slug="$(slug_of "$name")"
+    snapshot_files+=("$IP_BUILD_TMP_DIR/${slug}.raw.${IP_SOURCE_EXTENSIONS[$name]}")
+  done
+
+  local effective_file="$IP_BUILD_TMP_DIR/asn-groups-effective.json"
+  if ! python3 "$ROOT_DIR/scripts/tools/discover-asn-groups.py" \
+    "$UPSTREAMS_CONFIG_FILE" "${snapshot_files[@]}" "$effective_file"; then
+    echo "effective ASN group resolution failed" >&2
+    return 1
+  fi
+
+  while IFS=$'\t' read -r group asns; do
+    ASN_GROUP_SPECS+=("${group}=$(printf '%s' "$asns" | tr ' ' ',')")
+    ASN_GROUP_EFFECTIVE["$group"]="$asns"
+  done < <(python3 - "$effective_file" <<'PY'
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+for group in sorted(data["groups"]):
+    effective = data["groups"][group]["effective"]
+    print(f"{group}\t{' '.join(str(asn) for asn in effective)}")
+PY
+  )
+
+  mkdir -p "$CANONICAL_ARTIFACTS_DIR/ip"
+  cp "$effective_file" "$CANONICAL_ARTIFACTS_DIR/ip/asn-groups.json"
+}
+
 render_ip_text_artifact() {
   local name="$1"
   local plain_file="$IP_BUILD_TMP_DIR/${name}.cidr.txt"
@@ -214,7 +247,7 @@ sync_pure_asn_ip_list() {
     v4_out="$IP_BUILD_TMP_DIR/${group}_asn_v4.cidr.txt"
     v6_out="$IP_BUILD_TMP_DIR/${group}_asn_v6.cidr.txt"
     if [ ! -s "$v4_out" ] && [ ! -s "$v6_out" ]; then
-      echo "iptoasn group $group produced no prefixes (ASNs: ${UPSTREAM_SETTINGS[asn.${group}]})" >&2
+      echo "iptoasn group $group produced no prefixes (ASNs: ${ASN_GROUP_EFFECTIVE[$group]})" >&2
       return 1
     fi
     asn_file="$IP_BUILD_TMP_DIR/${group}_asn.cidr.txt"
@@ -364,6 +397,7 @@ main() {
 
   check_ip_text_source_health
   merge_cn_cidr_sources
+  resolve_effective_asn_groups
   extract_asn_group_cidrs
   sync_pure_asn_ip_list "${ASN_GROUP_NAMES[@]}"
   render_ip_text_artifacts "${IP_TEXT_ARTIFACTS[@]}"

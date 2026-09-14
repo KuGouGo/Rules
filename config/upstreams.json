@@ -55,6 +55,51 @@
    45566
   ]
  },
+ "asn_discovery": {
+  "apple": {
+   "exclude": [
+    "LITTLE-APPLE",
+    "APPLEWEA",
+    "APPLEBB",
+    "APPLE-BANK",
+    "APPLE-BROADBAND",
+    "APPLE-NET",
+    "APPLE-COMMUNICATION",
+    "APPLE-WEALTH",
+    "HOSTMYAPPLE"
+   ],
+   "include": [
+    "^APPLE-ENGINEERING",
+    "^APPLE-AUSTIN",
+    "^APPLE-AOS",
+    "^APPLE-AS",
+    "^Apple Inc\\."
+   ],
+   "max_auto_add": 2
+  },
+  "google": {
+   "exclude": [
+    "FIBER",
+    "PEER",
+    "PNI",
+    "^GOOGLE-2$"
+   ],
+   "include": [
+    "GOOGLE LLC",
+    "GOOGLE CLOUD",
+    "^GOOGLE-AS",
+    "^GOOGLE$"
+   ],
+   "max_auto_add": 3
+  },
+  "telegram": {
+   "exclude": [],
+   "include": [
+    "TELEGRAM"
+   ],
+   "max_auto_add": 2
+  }
+ },
  "domain": {
   "dlc": {
    "health": {
