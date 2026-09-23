@@ -12,6 +12,8 @@ on:
       - 'sources/custom/**'
       - 'templates/**'
   pull_request:
+    branches-ignore:
+      - automation/dependency-updates
     paths:
       - '.github/workflows/**'
       - '.github/actions/**'
@@ -104,5 +106,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          export ARTIFACT_SOURCE_SHA="$(git rev-parse HEAD)"
+          ARTIFACT_SOURCE_SHA="$(git rev-parse HEAD)"
+          export ARTIFACT_SOURCE_SHA
           ./scripts/commands/publish-branches.sh
