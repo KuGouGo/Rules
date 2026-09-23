@@ -77,7 +77,7 @@ jobs:
           GH_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           for attempt in $(seq 1 60); do
-            run_id="$(gh run list --workflow 'Sync Rules' --branch automation/dependency-updates --limit 20 \
+            run_id="$(gh run list --workflow 'Sync Rules' --branch automation/dependency-updates --event workflow_dispatch --limit 20 \
               --json databaseId,status,headSha --jq ".[] | select(.headSha == \"$VALIDATION_SHA\") | .databaseId" | head -n 1)"
             if [ -n "$run_id" ]; then
               gh run watch "$run_id" --exit-status
