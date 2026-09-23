@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 concurrency:
   group: update-deps
@@ -28,7 +29,10 @@ jobs:
         with:
           python-version: '3.11'
       - name: Prepare scripts
-        run: find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+        run: |
+          # chmod below flips file modes; ignore mode-only changes in git
+          git config core.fileMode false
+          find scripts -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
       - name: Detect and apply updates
         env:
           GITHUB_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
@@ -36,7 +40,8 @@ jobs:
       - name: Stop if up to date
         id: changed
         run: |
-          if git diff --quiet; then
+          # Only paths managed by scripts/tools/update-dependencies.py count as updates
+          if git diff --quiet -- .github scripts/lib/common.sh; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else
             echo 'changed=true' >> "$GITHUB_OUTPUT"
@@ -55,7 +60,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -B automation/dependency-updates
           git add .github scripts/lib/common.sh
-          git commit -m 'chore: bump compilers and actions'
+          git diff --cached --quiet || git commit -m 'chore: bump compilers and actions'
           git push --force-with-lease origin automation/dependency-updates
           gh pr create --base main --head automation/dependency-updates \
             --title 'chore: bump compilers and actions' \
@@ -73,14 +78,14 @@ jobs:
         run: |
           for attempt in $(seq 1 60); do
             run_id="$(gh run list --workflow 'Sync Rules' --branch automation/dependency-updates --limit 20 \
-              --json databaseId,status,headSha --jq --arg sha "$VALIDATION_SHA" \
-              '.[] | select(.headSha == $sha) | .databaseId' | head -n 1)"
+              --json databaseId,status,headSha --jq ".[] | select(.headSha == \"$VALIDATION_SHA\") | .databaseId" | head -n 1)"
             if [ -n "$run_id" ]; then
               gh run watch "$run_id" --exit-status
               gh pr merge automation/dependency-updates --squash --delete-branch
               gh workflow run 'Sync Rules' --ref main -f ref=main -f publish=true
               exit 0
             fi
+            echo "waiting for validation run (attempt $attempt/60)"
             sleep 10
           done
           echo 'validation did not complete in time' >&2
