@@ -1,0 +1,5 @@
+HOST,apple-relay.apple.com,apple-intelligence
+HOST,apple-relay.cloudflare.com,apple-intelligence
+HOST,apple-relay.fastly-edge.com,apple-intelligence
+HOST,apple-relay.mask.apple-dns.net,apple-intelligence
+HOST,gspe1-ssl.ls.apple.com,apple-intelligence
