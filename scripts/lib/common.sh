@@ -4,7 +4,7 @@
 : "${BIN_DIR:=$ROOT/.bin}"
 
 SING_BOX_VERSION="1.14.2"
-MIHOMO_VERSION="1.19.31"
+MIHOMO_VERSION="1.19.32"
 
 setup_tool_cache() {
   mkdir -p "$BIN_DIR"
