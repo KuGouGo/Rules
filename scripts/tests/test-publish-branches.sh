@@ -154,6 +154,19 @@ ARTIFACT_SOURCE_SHA="$SOURCE_SHA" \
   }
 grep -F 'publishing branches atomically' "$TMP_DIR/republish.log" >/dev/null
 
+before_stale="$(git --git-dir="$REMOTE" rev-parse refs/heads/surge)"
+if ARTIFACT_SOURCE_SHA="0000000000000000000000000000000000000000" \
+  "$REPO/scripts/commands/publish-branches.sh" >"$TMP_DIR/stale.log" 2>&1; then
+  echo "test failed: publish accepted a source SHA that is not current main" >&2
+  exit 1
+fi
+grep -F 'refusing stale publication' "$TMP_DIR/stale.log" >/dev/null
+after_stale="$(git --git-dir="$REMOTE" rev-parse refs/heads/surge)"
+if [ "$before_stale" != "$after_stale" ]; then
+  echo "test failed: rejected stale publication still moved surge" >&2
+  exit 1
+fi
+
 rm "$REPO/.output/domain/sing-box/test.srs"
 if ARTIFACT_SOURCE_SHA="$SOURCE_SHA" \
   "$REPO/scripts/commands/publish-branches.sh" >"$TMP_DIR/missing.log" 2>&1; then

@@ -56,19 +56,46 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -B automation/dependency-updates
           git add .github scripts/lib/common.sh
           git diff --cached --quiet || git commit -m 'chore: bump compilers and actions'
-          git push --force-with-lease origin automation/dependency-updates
-          gh pr create --base main --head automation/dependency-updates \
+
+          # The 2026-10-12 and 2026-10-19 runs passed validation, then died here:
+          # GITHUB_TOKEN can have contents:write and still be refused when the commit
+          # changes .github/workflows, because that push requires the workflows scope.
+          if ! git push --force-with-lease origin automation/dependency-updates; then
+            if git diff-tree --no-commit-id --name-only -r HEAD | grep -q '^\.github/workflows/'; then
+              echo "::error::Push rejected while the commit changes a workflow file. Set RULES_AUTOMATION_TOKEN to a classic PAT with repo and workflow scopes. The default GITHUB_TOKEN cannot push .github/workflows changes." >&2
+            else
+              echo "::error::Push rejected. Check that the checkout token can write refs/heads/automation/dependency-updates." >&2
+            fi
+            exit 1
+          fi
+
+          # Default GITHUB_TOKEN cannot open a pull request unless the repository
+          # setting "Allow GitHub Actions to create and approve pull requests" is on.
+          # A 403 here is that setting (or a token without pull-requests:write), not a build failure.
+          if ! gh pr create --base main --head automation/dependency-updates \
             --title 'chore: bump compilers and actions' \
-            --body 'Automated dependency update. Validation is dispatched explicitly.' \
-            || true
+            --body 'Automated dependency update. Validation is dispatched explicitly.'; then
+            existing="$(gh pr view automation/dependency-updates --json url --jq .url 2>/dev/null || true)"
+            if [ -z "$existing" ]; then
+              echo "::error::Could not create the dependency pull request. Enable Settings → Actions → General → Allow GitHub Actions to create and approve pull requests, or set RULES_AUTOMATION_TOKEN to a PAT with contents, pull-requests and actions write." >&2
+              exit 1
+            fi
+            echo "pull request already exists: $existing"
+          fi
+
           SHA="$(git rev-parse HEAD)"
-          gh workflow run 'Sync Rules' --ref automation/dependency-updates \
-            -f ref=automation/dependency-updates -f publish=false
+          # GITHUB_TOKEN-triggered workflow_dispatch runs do not start other workflows.
+          if ! gh workflow run 'Sync Rules' --ref automation/dependency-updates \
+            -f ref=automation/dependency-updates -f publish=false; then
+            echo "::error::Could not dispatch Sync Rules. The job token needs actions:write; the default GITHUB_TOKEN also cannot trigger another workflow, so RULES_AUTOMATION_TOKEN must be a PAT." >&2
+            exit 1
+          fi
           echo "VALIDATION_SHA=$SHA" >> "$GITHUB_ENV"
           echo "Validation dispatched for $SHA"
       - name: Wait for validation and merge
@@ -76,17 +103,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           for attempt in $(seq 1 60); do
             run_id="$(gh run list --workflow 'Sync Rules' --branch automation/dependency-updates --event workflow_dispatch --limit 20 \
-              --json databaseId,status,headSha --jq ".[] | select(.headSha == \"$VALIDATION_SHA\") | .databaseId" | head -n 1)"
+              --json databaseId,status,conclusion,headSha \
+              --jq ".[] | select(.headSha == \"$VALIDATION_SHA\" and .status != \"queued\") | .databaseId" | head -n 1)"
             if [ -n "$run_id" ]; then
+              echo "watching validation run $run_id"
               gh run watch "$run_id" --exit-status
-              gh pr merge automation/dependency-updates --squash --delete-branch
+              if ! gh pr merge automation/dependency-updates --squash --delete-branch; then
+                echo "::error::Validation passed but the pull request was not merged. Enable Settings → Actions → General → Allow GitHub Actions to create and approve pull requests, and allow this workflow to bypass branch protection if main is protected." >&2
+                gh pr view automation/dependency-updates --json url,mergeStateStatus,reviewDecision,statusCheckRollup >&2 || true
+                exit 1
+              fi
               gh workflow run 'Sync Rules' --ref main -f ref=main -f publish=true
               exit 0
             fi
             echo "waiting for validation run (attempt $attempt/60)"
             sleep 10
           done
-          echo 'validation did not complete in time' >&2
+          echo '::error::Sync Rules was dispatched but never left the queue. A GITHUB_TOKEN cannot start another workflow; set RULES_AUTOMATION_TOKEN to a PAT with actions:write.' >&2
           exit 1
