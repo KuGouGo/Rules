@@ -58,47 +58,70 @@ def latest_tag_in_major(repo: str, major: int) -> tuple[str, str]:
         raise RuntimeError(f"{repo} has no v{major}.*.* tags")
     return max(versions, key=lambda item: [int(x) for x in item[0][1:].split(".")])
 
-def update_compilers() -> list[str]:
+def update_compilers(resolved: dict[str, str] | None = None) -> list[str]:
     path = ROOT / "scripts/lib/common.sh"
     src = path.read_text(encoding="utf-8")
+    # Resolve every compiler before rewriting so one failed lookup cannot
+    # leave the other compiler pin already bumped.
+    if resolved is None:
+        resolved = {repo: latest_release(repo) for repo in COMPILERS.values()}
     changed = []
     for var, repo in COMPILERS.items():
-        latest = latest_release(repo)
+        latest = resolved[repo]
         match = re.search(rf'^{var}="([0-9.]+)"$', src, re.M)
         if not match:
             raise RuntimeError(f"{path} 中未找到 {var}")
         current = match.group(1)
         if current != latest:
-            src = src.replace(f'{var}="{current}"', f'{var}="{latest}"')
+            src = src.replace(f'{var}="{current}"', f'{var}="{latest}"', 1)
             changed.append(f"compiler {repo.split('/')[1]} {current} -> {latest}")
     if changed:
         path.write_text(src, encoding="utf-8")
     return changed
 
-def update_actions() -> list[str]:
-    resolved = {
-        repo: latest_tag_in_major(repo, major) for repo, major in TRACKED_ACTIONS.items()
-    }
-    changed = []
+def _replace_action_pin(src: str, repo: str, tag: str, sha: str) -> tuple[str, bool]:
+    pattern = re.compile(rf"uses: {re.escape(repo)}@([0-9a-f]{{40}})( # v[0-9.]+)?")
+    changed = False
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal changed
+        current_sha, current_note = match.group(1), match.group(2) or ""
+        if current_sha == sha and current_note == f" # {tag}":
+            return match.group(0)
+        changed = True
+        return f"uses: {repo}@{sha} # {tag}"
+
+    return pattern.sub(replace, src), changed
+
+def update_actions(resolved: dict[str, tuple[str, str]] | None = None) -> list[str]:
+    # Resolve every pin before writing. A lookup failure must not leave a
+    # partial compiler or action bump on disk.
+    if resolved is None:
+        resolved = {
+            repo: latest_tag_in_major(repo, major) for repo, major in TRACKED_ACTIONS.items()
+        }
+    planned: list[tuple[Path, str, list[str]]] = []
     for path in ACTION_FILES:
         src = path.read_text(encoding="utf-8")
+        notes = []
         for repo, (tag, sha) in resolved.items():
-            pattern = re.compile(
-                rf"uses: {re.escape(repo)}@([0-9a-f]{{40}})( # v[0-9.]+)?"
-            )
-            match = pattern.search(src)
-            if not match:
-                continue
-            current_sha, current_note = match.group(1), match.group(2) or ""
-            if current_sha == sha and current_note == f" # {tag}":
-                continue
-            src = pattern.sub(f"uses: {repo}@{sha} # {tag}", src)
-            changed.append(f"action {repo} {current_note.strip()} -> {tag}")
+            src, changed = _replace_action_pin(src, repo, tag, sha)
+            if changed:
+                notes.append(f"action {repo} -> {tag}")
+        if notes:
+            planned.append((path, src, notes))
+    changed = []
+    for path, src, notes in planned:
         path.write_text(src, encoding="utf-8")
+        changed.extend(notes)
     return changed
 
 def main() -> int:
-    changed = update_compilers() + update_actions()
+    compiler_versions = {repo: latest_release(repo) for repo in COMPILERS.values()}
+    action_versions = {
+        repo: latest_tag_in_major(repo, major) for repo, major in TRACKED_ACTIONS.items()
+    }
+    changed = update_compilers(compiler_versions) + update_actions(action_versions)
     if changed:
         for line in changed:
             print(f"updated: {line}")
