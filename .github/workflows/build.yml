@@ -12,8 +12,10 @@ on:
       - 'sources/custom/**'
       - 'templates/**'
   pull_request:
-    branches-ignore:
-      - automation/dependency-updates
+    # branches-ignore filters the base branch, not the head, so it never
+    # matched automation/dependency-updates and every dependency PR started a
+    # second run that failed once the branch was deleted. The automation
+    # branch is validated by the explicit workflow_dispatch instead.
     paths:
       - '.github/workflows/**'
       - '.github/actions/**'
@@ -45,6 +47,7 @@ concurrency:
 
 jobs:
   validate:
+    if: github.event_name != 'pull_request' || github.head_ref != 'automation/dependency-updates'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
