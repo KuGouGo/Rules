@@ -93,7 +93,10 @@ def _replace_action_pin(src: str, repo: str, tag: str, sha: str) -> tuple[str, b
 
     return pattern.sub(replace, src), changed
 
-def update_actions(resolved: dict[str, tuple[str, str]] | None = None) -> list[str]:
+def update_actions(
+    resolved: dict[str, tuple[str, str]] | None = None,
+    skip_workflow_files: set[Path] | None = None,
+) -> list[str]:
     # Resolve every pin before writing. A lookup failure must not leave a
     # partial compiler or action bump on disk.
     if resolved is None:
@@ -110,6 +113,19 @@ def update_actions(resolved: dict[str, tuple[str, str]] | None = None) -> list[s
                 notes.append(f"action {repo} -> {tag}")
         if notes:
             planned.append((path, src, notes))
+    # The scheduled job authenticates with the default GITHUB_TOKEN, which can
+    # push code but is refused as soon as a commit touches .github/workflows.
+    # Leaving those pins for a manual run keeps every other bump publishable.
+    if skip_workflow_files is None:
+        skip_workflow_files = {
+            path for path in ACTION_FILES if ".github/workflows/" in path.as_posix()
+        }
+    held_back = set(skip_workflow_files)
+    skipped = [item for item in planned if item[0] in held_back]
+    for path, _src, notes in skipped:
+        for note in notes:
+            print(f"skipped: {note} ({path.as_posix()} needs the workflows scope)")
+    planned = [item for item in planned if item[0] not in held_back]
     changed = []
     for path, src, notes in planned:
         path.write_text(src, encoding="utf-8")

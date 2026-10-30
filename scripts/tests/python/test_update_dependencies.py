@@ -72,6 +72,42 @@ class UpdateDependenciesTests(unittest.TestCase):
                 changed,
             )
 
+    def test_workflow_pins_are_reported_but_not_written(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            workflow = root / ".github/workflows/build.yml"
+            action = root / ".github/actions/setup/action.yml"
+            workflow.parent.mkdir(parents=True)
+            action.parent.mkdir(parents=True)
+            original_workflow = (
+                "uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa # v7.0.0\n"
+            )
+            original_action = (
+                "uses: actions/cache@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb # v6.0.0\n"
+            )
+            workflow.write_text(original_workflow, encoding="utf-8")
+            action.write_text(original_action, encoding="utf-8")
+
+            with mock.patch.object(updater, "ACTION_FILES", [workflow, action]), \
+                mock.patch.object(
+                    updater,
+                    "TRACKED_ACTIONS",
+                    {"actions/checkout": 7, "actions/cache": 6},
+                ), \
+                mock.patch.object(
+                    updater,
+                    "latest_tag_in_major",
+                    side_effect=lambda repo, major: {
+                        "actions/checkout": ("v7.0.1", "c" * 40),
+                        "actions/cache": ("v6.1.0", "d" * 40),
+                    }[repo],
+                ):
+                changed = updater.update_actions()
+
+            self.assertEqual(original_workflow, workflow.read_text(encoding="utf-8"))
+            self.assertIn(f"uses: actions/cache@{'d' * 40} # v6.1.0", action.read_text(encoding="utf-8"))
+            self.assertEqual(["action actions/cache -> v6.1.0"], changed)
+
 
 if __name__ == "__main__":
     unittest.main()
