@@ -38,17 +38,23 @@ def _normalized_entries(normalized: Path) -> list[str] | list[Path]:
 def _check_address_family(entries: list[str], family: str) -> list[str]:
     if family == "any":
         return []
+    expected = FAMILY_VERSIONS.get(family)
+    if expected is None:
+        return [f"unknown address family policy: {family}"]
+    errors: list[str] = []
     versions: set[int] = set()
+    invalid = 0
     for line in entries:
         value = line.split(",", 1)[-1].split(",", 1)[0] if line.startswith("IP-CIDR") else line
         try:
             versions.add(ipaddress.ip_network(value, strict=False).version)
         except ValueError:
-            pass
-    expected = FAMILY_VERSIONS.get(family, set())
-    if not expected.issubset(versions):
-        return [f"address family {family} not satisfied; found {sorted(versions)}"]
-    return []
+            invalid += 1
+    if invalid:
+        errors.append(f"{invalid} normalized entries are not IP networks")
+    if versions != expected:
+        errors.append(f"address family {family} not satisfied; found {sorted(versions)}")
+    return errors
 
 
 def main() -> int:

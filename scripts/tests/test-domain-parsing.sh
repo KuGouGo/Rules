@@ -503,7 +503,7 @@ EOF
 include:shared
 EOF
   cat > "$TMP_DIR/regional_policy/data/geolocation-cn" <<'EOF'
-include:shared
+include:shared @-ads
 EOF
   cat > "$TMP_DIR/regional_policy/data/geolocation-!cn" <<'EOF'
 include:shared

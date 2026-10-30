@@ -46,6 +46,7 @@ class Rule:
 class Inclusion:
     target: str
     must: frozenset[str] = frozenset()
+    excluded: frozenset[str] = frozenset()
     line: int = 0
 
 
@@ -80,12 +81,18 @@ def parse_source(name: str, path: Path) -> SourceList:
         is_include = head.startswith("include:")
         attrs: set[str] = set()
         must: set[str] = set()
+        excluded: set[str] = set()
         affiliates: list[str] = []
         unsupported: list[str] = []
         for token in tail_text.split():
             if token.startswith("@") and len(token) > 1:
                 if is_include:
-                    must.add(token[1:])
+                    # include:list @cn @-ads requires cn and rejects ads.
+                    attribute = token[1:]
+                    if attribute.startswith("-") and len(attribute) > 1:
+                        excluded.add(attribute[1:])
+                    else:
+                        must.add(attribute)
                 else:
                     attrs.add(token[1:])
             elif token.startswith("&") and len(token) > 1:
@@ -104,7 +111,7 @@ def parse_source(name: str, path: Path) -> SourceList:
             if not target:
                 reject("include target must not be empty")
                 continue
-            source.includes.append(Inclusion(target, frozenset(must), line_no))
+            source.includes.append(Inclusion(target, frozenset(must), frozenset(excluded), line_no))
             continue
 
         prefix, value = split_rule_token(head)
@@ -163,7 +170,7 @@ def resolve(
         if child_errors:
             clean = False
         for rule in child:
-            if inclusion.must.issubset(rule.attrs):
+            if inclusion.must.issubset(rule.attrs) and not inclusion.excluded.intersection(rule.attrs):
                 resolved.append(rule)
     if clean and not errors:
         cache[name] = resolved
