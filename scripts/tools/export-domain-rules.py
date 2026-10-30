@@ -688,12 +688,7 @@ def selected_rule_set_names(
             + ", ".join(invalid)
         )
 
-    geographic_children = (
-        reachable_rule_set_names(include_rules, GEO_CN)
-        | not_cn_reachable
-    ) - {GEO_CN, GEO_NOT_CN}
     core = all_names & ALWAYS_PUBLISHED_DLC_LISTS
-    standalone = all_names - geographic_children - {GEO_CN, GEO_NOT_CN} - core
     missing_standalone = sorted(policy.standalone - all_names)
     moved_not_cn = sorted(policy.standalone & not_cn_reachable)
     moved_cn = sorted(

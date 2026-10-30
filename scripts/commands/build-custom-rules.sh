@@ -330,6 +330,23 @@ commit_staged_custom_artifacts() {
 
 controlled_artifact_paths() {
   local list_file base
+  # Names removed from sources/custom are emitted without a staged file, so
+  # commit deletes the copies the previous build published.
+  local -A current_names=()
+  while IFS= read -r list_file; do
+    [ -n "$list_file" ] || continue
+    current_names["$(basename "$list_file" .list)"]=1
+  done <<< "$DOMAIN_RULE_FILES"$'\n'"$IP_RULE_FILES"
+  while IFS= read -r base; do
+    [ -n "$base" ] || continue
+    [ -n "${current_names[$base]:-}" ] && continue
+    printf '%s\n' \
+      "domain/surge/$base.list" "domain/quanx/$base.list" "domain/egern/$base.yaml" \
+      "domain/sing-box/$base.srs" "domain/mihomo/$base.mrs" \
+      "ip/surge/$base.list" "ip/quanx/$base.list" "ip/egern/$base.yaml" \
+      "ip/sing-box/$base.srs" "ip/mihomo/$base.mrs"
+  done <<< "$PREVIOUS_CUSTOM_NAMES"
+
   while IFS= read -r list_file; do
     [ -n "$list_file" ] || continue
     base="$(basename "$list_file" .list)"
