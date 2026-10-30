@@ -2,7 +2,7 @@
 
 <!-- artifact-table -->
 
-本分支存放 Surge 客户端的自动构建产物。产物由 `main` 分支的持续集成流水线生成，并在每次推送 `main` 时整批覆盖更新；分支仅包含 `README.md`、`domain/` 与 `ip/`。如需固定版本，可锁定具体提交的 SHA。
+这里是 Surge 用的规则，每天跟着 `main` 重新构建，整支覆盖。分支里只有 `README.md`、`domain/` 和 `ip/`。想钉住某一天的结果，订阅地址里的分支名换成那个提交的 SHA。
 
 ## 项目与许可
 
@@ -12,10 +12,10 @@
 
 ## 文件里有什么
 
-- `domain/` 与 `ip/` 使用 `.list` 格式。
-- 域名规则：支持 `DOMAIN`、`DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`；`DOMAIN-REGEX` 不写入产物，仅含正则的列表不会发布。
-- IP 规则：支持 `IP-CIDR`、`IP-CIDR6`，并带 `no-resolve`。
-- 产物面向 Surge 生成，不能假定与其他客户端的规则格式兼容。
+- `domain/` 和 `ip/` 都是 `.list`。
+- 域名保留 `DOMAIN`、`DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`。Surge 不支持 `DOMAIN-REGEX`，这类规则不写入；一个列表如果只剩正则，整份不发布。
+- IP 保留 `IP-CIDR`、`IP-CIDR6`，带 `no-resolve`。
+- 这份产物只给 Surge 用，格式和别的客户端不通用。
 
 ## 最小示例
 
@@ -27,4 +27,4 @@ RULE-SET,https://raw.githubusercontent.com/KuGouGo/Rules/surge/ip/cn.list,DIRECT
 
 ## 域名数据 MIT 通知
 
-本分支的域名产物包含或派生自 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（MIT License），上游许可文本见 [LICENSE](https://github.com/v2fly/domain-list-community/blob/master/LICENSE)。
+这里的域名规则包含或派生自 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（MIT License），上游的许可原文见 [LICENSE](https://github.com/v2fly/domain-list-community/blob/master/LICENSE)。
