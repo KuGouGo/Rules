@@ -22,8 +22,10 @@ ACTION_FILES = sorted(
      *ROOT.glob(".github/actions/**/action.yml"), *ROOT.glob(".github/actions/**/action.yaml")]
 )
 
+# Only actions pinned under .github/actions are tracked. actions/checkout is
+# pinned in the workflow files instead, because a local action cannot perform
+# the first checkout, and the scheduled token cannot modify workflow files.
 TRACKED_ACTIONS = {
-    "actions/checkout": 7,
     "actions/setup-python": 7,
     "actions/cache": 6,
     "actions/upload-artifact": 7,
@@ -113,19 +115,20 @@ def update_actions(
                 notes.append(f"action {repo} -> {tag}")
         if notes:
             planned.append((path, src, notes))
-    # The scheduled job authenticates with the default GITHUB_TOKEN, which can
-    # push code but is refused as soon as a commit touches .github/workflows.
-    # Leaving those pins for a manual run keeps every other bump publishable.
+    # The scheduled job uses the default GITHUB_TOKEN, which is refused as soon
+    # as a commit changes .github/workflows. Third-party actions are pinned in
+    # .github/actions instead, so a dependency bump never has to touch one.
     if skip_workflow_files is None:
         skip_workflow_files = {
             path for path in ACTION_FILES if ".github/workflows/" in path.as_posix()
         }
-    held_back = set(skip_workflow_files)
-    skipped = [item for item in planned if item[0] in held_back]
-    for path, _src, notes in skipped:
-        for note in notes:
-            print(f"skipped: {note} ({path.as_posix()} needs the workflows scope)")
-    planned = [item for item in planned if item[0] not in held_back]
+    blocked = [path for path, _src, _notes in planned if path in set(skip_workflow_files)]
+    if blocked:
+        joined = ", ".join(path.as_posix() for path in blocked)
+        raise RuntimeError(
+            f"refusing to bump a third-party action inside a workflow file ({joined}); "
+            "pin it from .github/actions so the scheduled update can publish it"
+        )
     changed = []
     for path, src, notes in planned:
         path.write_text(src, encoding="utf-8")

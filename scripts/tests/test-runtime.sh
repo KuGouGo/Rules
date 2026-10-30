@@ -45,11 +45,11 @@ for entrypoint in \
     "$TMP_DIR/$entrypoint.stderr" >/dev/null
 done
 
-action_python="$(sed -n "s/^[[:space:]]*python-version: '\([0-9][0-9]*\.[0-9][0-9]*\)'$/\1/p" "$ROOT/.github/actions/setup-tools/action.yml")"
+action_python="$(sed -n "s/^[[:space:]]*python-version: '\([0-9][0-9]*\.[0-9][0-9]*\)'$/\1/p" "$ROOT/.github/actions/setup-python/action.yml")"
 runtime_major="$(sed -n 's/^required_python_major=\([0-9]*\)$/\1/p' "$CHECK_RUNTIME")"
 runtime_minor="$(sed -n 's/^required_python_minor=\([0-9]*\)$/\1/p' "$CHECK_RUNTIME")"
 if [ -z "$action_python" ] || [ -z "$runtime_major" ] || [ -z "$runtime_minor" ]; then
-  echo "test failed: could not parse python-version from setup-tools or check-runtime" >&2
+  echo "test failed: could not parse python-version from setup-python or check-runtime" >&2
   exit 1
 fi
 action_major="${action_python%%.*}"
