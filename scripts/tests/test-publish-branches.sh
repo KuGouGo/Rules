@@ -12,7 +12,7 @@ REPO="$TMP_DIR/repo"
 SEED="$TMP_DIR/seed"
 BRANCHES=(surge quanx egern sing-box mihomo)
 TEMPLATE_DIR="$ROOT/templates/branch-readmes"
-published_tree_description="分支仅包含 \`README.md\`、\`domain/\` 与 \`ip/\`"
+published_tree_description="分支里只有 \`README.md\`、\`domain/\` 和 \`ip/\`"
 
 grep -Fq -- "- 'templates/**'" "$ROOT/.github/workflows/build.yml" || {
   echo "test failed: build workflow push.paths must include templates/**" >&2
@@ -25,7 +25,8 @@ for branch in "${BRANCHES[@]}"; do
     echo "test failed: missing README template for $branch" >&2
     exit 1
   }
-  grep -F '自动构建产物' "$template" >/dev/null
+  grep -F '每天跟着' "$template" >/dev/null
+  grep -F '重新构建' "$template" >/dev/null
   grep -F "$published_tree_description" "$template" >/dev/null
   grep -F '## 文件里有什么' "$template" >/dev/null
   grep -F '## 最小示例' "$template" >/dev/null

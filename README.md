@@ -6,9 +6,9 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
 </p>
 
-为 Surge、Quantumult X、Egern、sing-box、mihomo 自动构建域名与 IP 分流规则集。上游数据每日聚合一次，经过规范化、去重和校验后发布到五个产物分支，可以直接订阅。
+一套每天自动更新的分流规则，覆盖 Surge、Quantumult X、Egern、sing-box 和 mihomo。域名和 IP 从各自的上游取来，规范化、去重、校验之后，发布到五个可以直接订阅的分支。
 
-`main` 分支只有构建源码，没有可直接订阅的规则文件，请订阅下面的产物分支。
+`main` 上只有构建源码，订阅不了。规则在下面五个分支里。
 
 ## 订阅
 
@@ -20,13 +20,13 @@
 | sing-box | [`sing-box`](https://github.com/KuGouGo/Rules/tree/sing-box) | `.srs` |
 | mihomo | [`mihomo`](https://github.com/KuGouGo/Rules/tree/mihomo) | `.mrs` |
 
-订阅地址按这个模板拼（分支、类型、名字、后缀按上表替换）：
+地址按这个样子拼，换成你要的分支、类型、名字和后缀：
 
 ```
 https://raw.githubusercontent.com/KuGouGo/Rules/{分支}/{domain|ip}/{名字}.{后缀}
 ```
 
-每个产物分支的 README 里有一张产物清单表，列出各列表和条目数，方便核对每天的数据变化。想固定某个历史版本，把订阅地址里的分支名换成当时的 commit SHA 即可。
+每个分支的 README 里有一张清单，列出全部列表和当天的条目数，每天的增减从那里看。想钉住某一天的版本，把地址里的分支名换成那个提交的 SHA。
 
 <details>
 <summary>五个客户端的最小配置示例</summary>
@@ -80,59 +80,59 @@ cn:
 | --- | --- | --- |
 | `cn` | 中国域名超集（tld-cn + geolocation-cn） | 直连 |
 | `geolocation-!cn` | 境外实体域名全集 | 走代理 |
-| `geolocation-!cn@cn` | 境外实体中可在中国大陆直连的域名 | 放在 `geolocation-!cn` 之前直连 |
+| `geolocation-!cn@cn` | 境外实体里在中国大陆可直连的域名 | 放在 `geolocation-!cn` 前面直连 |
 | `google` / `telegram` / `apple` | 对应服务的域名与 IP | 单独控制 |
 | `fakeip-filter` | 需要直连的域名 | Fake-IP 模式放行 |
 | `private` | 内网与保留地址 | 兜底直连 |
 
-主流境外服务（google、microsoft、netflix、openai、telegram 等 28 个）各有独立域名列表，AI 服务另有聚合列表 `category-ai-chat-!cn`；`apple@cn`、`google@cn`、`microsoft@cn`、`steam@cn` 是对应服务在大陆可直连部分的前置直连列表，必须放在该服务列表之前。完整清单见产物分支 README。
+google、microsoft、netflix、openai、telegram 这类主流境外服务各有自己的域名列表，一共 28 个；AI 服务另外收进 `category-ai-chat-!cn`。`apple@cn`、`google@cn`、`microsoft@cn`、`steam@cn` 是这些服务在大陆可直连的部分，要写在对应服务列表的前面，否则直连规则不会先生效。全部列表见产物分支的 README。
 
-## 工作原理
+## 怎么构建的
 
-每日定时或 push 到 main 后构建一次。域名主干取 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community) 的最新 master，加上 ShellCrash 的 `fakeip-filter`。IP 侧 `cn` 由多个来源合并：APNIC、Clang.CN、gaoyifan/china-operator-ip、chnroutes2、17mon/iPIP。google、telegram、apple 按 `asn_groups` 配置从 [iptoasn.com](https://iptoasn.com/) 的 BGP 快照提取，读到的就是各 ASN 当前实际宣告的段。
+每天定时跑一次，往 `main` 推送也会触发。域名主干取 [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community) 当天的 master，再补上 ShellCrash 的 `fakeip-filter`。`cn` 的 IP 由五个来源合并：APNIC、Clang.CN、gaoyifan/china-operator-ip、chnroutes2、17mon/iPIP。google、telegram、apple 的 IP 不维护静态段，按 `asn_groups` 从 [iptoasn.com](https://iptoasn.com/) 的 BGP 快照里提取，拿到的是这些 ASN 当时实际宣告的地址。
 
-所有数据先规范化、去重，再做上游健康检查，条目数低于阈值直接中止构建。之后按各客户端原生格式渲染，二进制产物用 sing-box 和 mihomo 官方编译器生成，通过守卫校验（最小条目数、CIDR 有效性）后一次性原子推送到五个分支。
+数据先规范化、去重，再过健康检查，条目数掉到阈值以下就中止，不会把一份残缺的规则推出去。之后渲染成各客户端的原生格式，二进制产物用 sing-box 和 mihomo 的官方编译器生成，校验通过后五个分支一次性推送。
 
-编译器与 GitHub Actions 的版本每周自动检测升级，验证通过后自动提 PR 合并。
+编译器和 GitHub Actions 的版本每周一自动检查，有新版本就验证、提 PR、合并。
 
 ## 本地构建
 
-完整构建只支持 Linux（编译器只提供 linux 包）；其他平台用 GitHub Actions，或者 `make build-custom-rules-text` 只构建文本产物。
+完整构建只能在 Linux 上跑，因为编译器只提供 linux 包。其他系统用 GitHub Actions，或者 `make build-custom-rules-text` 只出文本产物。
 
 | 命令 | 说明 |
 | --- | --- |
-| `make validate` | 全量 lint + 全部测试（和 CI 门禁一致） |
-| `make build-custom-rules` | 构建自定义规则与二进制产物（仅 Linux） |
+| `make validate` | 全量 lint 加全部测试，和 CI 的门禁一致 |
+| `make build-custom-rules` | 构建自定义规则和二进制产物，仅 Linux |
 | `make build-custom-rules-text` | 只构建文本产物，不下载编译器 |
-| `make clean` | 清理产物与临时文件 |
+| `make clean` | 清掉产物和临时文件 |
 
-编译器版本固定在 `scripts/lib/common.sh` 顶部，需要升级时改版本号即可。
+编译器版本钉在 `scripts/lib/common.sh` 顶部，要换版本改那里。
 
-## 仓库结构
+## 仓库里有什么
 
 ```
-sources/custom/     自维护规则源（domain 用 Surge classical 格式，ip 用 IP-CIDR 列表）
-config/             上游源与发布策略等声明式配置
+sources/custom/     自己维护的规则，domain 用 Surge classical 格式，ip 用 IP-CIDR 列表
+config/             上游源、发布策略这些声明式配置
 scripts/commands/   流水线入口：sync-upstream → build-custom-rules → check-artifacts → publish-branches
-scripts/lib/        构建公共函数（common.sh 顶部固定编译器版本）
-scripts/tools/      规范化、渲染、审计等 Python 工具
-templates/          产物分支的 README 模板
+scripts/lib/        构建用的公共函数，编译器版本钉在 common.sh 顶部
+scripts/tools/      规范化、渲染、审计这些 Python 工具
+templates/          五个产物分支的 README 模板
 ```
 
 ## 常见问题
 
-**条目数每天波动正常吗？**
-正常，上游数据每天都在变。
+**条目数每天都在变，正常吗？**
+正常。上游每天都在改，条目数跟着动。
 
-**为什么 Surge / QX 产物里缺某些规则？**
-这两个平台不支持 `DOMAIN-REGEX` 一类的规则类型，构建时跳过；只含不支持类型的列表不会在该平台发布。
+**为什么 Surge 和 Quantumult X 里少了些规则？**
+这两个平台不支持 `DOMAIN-REGEX` 这类规则，构建时直接跳过。一个列表如果只剩这种规则，就不会在这两个平台发布。
 
-**`geolocation-!cn@cn` 与 `cn` 的顺序？**
-`geolocation-!cn@cn` 必须放在 `geolocation-!cn` 之前；`cn` 和 `cn` IP 可以放更前面，参考产物分支 README 的示例。
+**`geolocation-!cn@cn` 和 `cn` 谁写前面？**
+`geolocation-!cn@cn` 必须放在 `geolocation-!cn` 前面，不然直连部分会被代理规则先匹配走。`cn` 和 `cn` 的 IP 可以再往前放，产物分支的 README 里有示例。
 
-**发现分流错误怎么反馈？**
-先定位域名归属的上游列表（domain-list-community 对应文件或本仓库 `sources/custom/`），能改上游就去上游提修正；上游未收录且和分流明确相关的条目适合加进本仓库自定义列表。
+**分流错了怎么反馈？**
+先看这个域名属于哪个上游列表，是 domain-list-community 的某个文件，还是本仓库 `sources/custom/` 里的。能改上游就去上游提。上游没收录、又确实影响分流的，加进本仓库的自定义列表。
 
 ## 许可
 
-仓库代码以 [MIT License](LICENSE) 授权；第三方数据及其派生内容遵循各自许可，来源与许可范围见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+仓库代码用 [MIT License](LICENSE)。第三方数据及其派生内容仍遵循各自的许可，来源和范围见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
