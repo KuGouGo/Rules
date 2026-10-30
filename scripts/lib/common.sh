@@ -3,8 +3,8 @@
 : "${ROOT:=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 : "${BIN_DIR:=$ROOT/.bin}"
 
-SING_BOX_VERSION="1.14.2"
-MIHOMO_VERSION="1.19.32"
+SING_BOX_VERSION="1.14.4"
+MIHOMO_VERSION="1.19.33"
 
 setup_tool_cache() {
   mkdir -p "$BIN_DIR"
