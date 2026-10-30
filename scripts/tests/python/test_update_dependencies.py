@@ -72,7 +72,7 @@ class UpdateDependenciesTests(unittest.TestCase):
                 changed,
             )
 
-    def test_workflow_pins_are_reported_but_not_written(self):
+    def test_workflow_pin_is_refused_and_nothing_is_written(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             workflow = root / ".github/workflows/build.yml"
@@ -102,11 +102,12 @@ class UpdateDependenciesTests(unittest.TestCase):
                         "actions/cache": ("v6.1.0", "d" * 40),
                     }[repo],
                 ):
-                changed = updater.update_actions()
+                with self.assertRaisesRegex(RuntimeError, "workflow file"):
+                    updater.update_actions()
 
+            # One blocked file must not leave the other action half-updated.
             self.assertEqual(original_workflow, workflow.read_text(encoding="utf-8"))
-            self.assertIn(f"uses: actions/cache@{'d' * 40} # v6.1.0", action.read_text(encoding="utf-8"))
-            self.assertEqual(["action actions/cache -> v6.1.0"], changed)
+            self.assertEqual(original_action, action.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

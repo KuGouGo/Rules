@@ -54,6 +54,8 @@ jobs:
       contents: read
     steps:
       - name: Checkout
+        # A local action cannot do the first checkout: the repository is not
+        # on the runner yet, so this pin stays in the workflow file.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.ref || github.event.pull_request.head.sha || github.sha }}
@@ -74,12 +76,7 @@ jobs:
           (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
           github.event_name == 'schedule' ||
           (github.event_name == 'workflow_dispatch' && inputs.publish)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: rules-output
-          path: .output
-          retention-days: 1
-          include-hidden-files: true
+        uses: ./.github/actions/upload-build
 
   publish:
     needs: validate
@@ -101,10 +98,7 @@ jobs:
       - name: Set up Python and tool cache
         uses: ./.github/actions/setup-tools
       - name: Download build artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: rules-output
-          path: .output
+        uses: ./.github/actions/download-build
       - name: Publish client branches
         env:
           GITHUB_TOKEN: ${{ secrets.RULES_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
