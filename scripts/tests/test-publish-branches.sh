@@ -25,11 +25,13 @@ for branch in "${BRANCHES[@]}"; do
     echo "test failed: missing README template for $branch" >&2
     exit 1
   }
-  grep -F '每天跟着' "$template" >/dev/null
+  grep -F '每日随' "$template" >/dev/null
   grep -F '重新构建' "$template" >/dev/null
   grep -F "$published_tree_description" "$template" >/dev/null
-  grep -F '## 文件里有什么' "$template" >/dev/null
-  grep -F '## 最小示例' "$template" >/dev/null
+  grep -F '## 规则说明' "$template" >/dev/null
+  grep -F '## 配置示例' "$template" >/dev/null
+  grep -F '<!-- artifact-table -->' "$template" >/dev/null
+  grep -F '## 许可与来源' "$template" >/dev/null
   case "$branch" in
     surge|quanx) extension=.list ;;
     egern) extension=.yaml ;;
@@ -40,7 +42,6 @@ for branch in "${BRANCHES[@]}"; do
   grep -F '[主 README](https://github.com/KuGouGo/Rules/blob/main/README.md)' "$template" >/dev/null
   grep -F '[LICENSE](https://github.com/KuGouGo/Rules/blob/main/LICENSE)' "$template" >/dev/null
   grep -F '[THIRD_PARTY_NOTICES](https://github.com/KuGouGo/Rules/blob/main/THIRD_PARTY_NOTICES.md)' "$template" >/dev/null
-  grep -F '域名数据 MIT 通知' "$template" >/dev/null
   grep -F 'v2fly/domain-list-community' "$template" >/dev/null
   grep -F 'https://github.com/v2fly/domain-list-community/blob/master/LICENSE' "$template" >/dev/null
 done
